@@ -7,7 +7,7 @@ import TestResults from './TestResults.jsx'
 import TreeDiagram, { ListDiagram, parseTreeInput } from './TreeDiagram.jsx'
 import CodeEditor, { FONTS, formatCode } from './CodeEditor.jsx'
 
-const LANGUAGES = [
+export const LANGUAGES = [
   { key: 'java', label: 'Java', starter: ['public class Main {', '    public static void main(String[] args) {', '        System.out.println("Hello, world!");', '    }', '}'] },
   { key: 'cpp', label: 'C++', starter: ['#include <iostream>', 'int main() {', '    std::cout << "Hello, world!" << std::endl;', '    return 0;', '}'] },
   { key: 'c', label: 'C', starter: ['#include <stdio.h>', 'int main(void) {', '    printf("Hello, world!\\n");', '    return 0;', '}'] },
@@ -32,7 +32,7 @@ const MAX_FILE_BYTES = 100_000
 
 export const languageLabel = key => LANGUAGES.find(l => l.key === key)?.label || key
 
-const starterFor = key => LANGUAGES.find(l => l.key === key).starter.join('\n')
+export const starterFor = key => LANGUAGES.find(l => l.key === key).starter.join('\n')
 
 const ICON_PATHS = {
   format: <path d="M8 4c-2 0-2 1-2 3v2c0 1-1 2-2 2 1 0 2 1 2 2v2c0 2 0 3 2 3M16 4c2 0 2 1 2 3v2c0 1 1 2 2 2-1 0-2 1-2 2v2c0 2 0 3-2 3" />,

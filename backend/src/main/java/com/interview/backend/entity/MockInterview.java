@@ -64,6 +64,41 @@ public class MockInterview {
     /** The candidate said they would also like to interview others: a lead for new interviewers. */
     private Boolean wantsToInterview = false;
 
+    /** Live session: null until the interviewer starts it, then the position (0-based) of the question being asked. */
+    private Integer currentIndex;
+
+    private Instant startedAt;
+
+    /** When the current question was put up (for the per-question timer). */
+    private Instant questionStartedAt;
+
+    /** The shared code editor of the live room: both people can type, the last change wins. */
+    @Column(columnDefinition = "TEXT")
+    private String editorCode;
+
+    @Column(length = 20)
+    private String editorLang;
+
+    private Integer editorRev;
+
+    /** The interviewer's feedback for the candidate: 1 to 5 overall, and what went well and what to improve. */
+    private Integer feedbackRating;
+
+    @Column(columnDefinition = "TEXT")
+    private String feedbackStrengths;
+
+    @Column(columnDefinition = "TEXT")
+    private String feedbackImprove;
+
+    private Instant feedbackAt;
+
+    /** Output of the last run in the shared editor, shown to both people. */
+    @Column(columnDefinition = "TEXT")
+    private String editorOutput;
+
+    @Column(length = 12)
+    private String editorBy;
+
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -72,4 +107,24 @@ public class MockInterview {
     /** Who did not turn up when the interview ended as NO_SHOW: CANDIDATE or INTERVIEWER. */
     @Column(length = 12)
     private String noShowBy;
+
+    /** Last time the candidate accessed the live room (for presence tracking). */
+    private Instant candidateLastSeen;
+
+    /** Last time the interviewer accessed the live room (for presence tracking). */
+    private Instant interviewerLastSeen;
+
+    /** Interviewer's notes for system design interviews (diagrams, architecture notes, etc). */
+    @Column(columnDefinition = "TEXT")
+    private String designNotes;
+
+    /** Candidate's uploaded design diagram/image for system design interviews. */
+    @Column(length = 500)
+    private String designImageUrl;
+
+    /** Who uploaded the design image. */
+    @Column(length = 12)
+    private String designImageBy;
+
+    private Instant designImageUploadedAt;
 }

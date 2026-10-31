@@ -37,7 +37,13 @@ public class MockInterviewController {
     public record RequestInput(String type, Long resumeId, String slot, Boolean wantsToInterview) {}
     public record AcceptInput(String type) {}
     public record CallLinkInput(String url) {}
+    public record WhiteboardLinkInput(String url) {}
     public record PickInput(List<String> items) {}
+    public record StepInput(Integer index) {}
+    public record EditorInput(String code, String lang, String output) {}
+    public record FeedbackInput(Integer rating, String strengths, String improve) {}
+    public record DesignNotesInput(String notes) {}
+    public record DesignImageUrlInput(String imageUrl) {}
 
     private static final Set<String> TYPES = Set.of(MockInterview.CODING, MockInterview.SYSTEM_DESIGN, MockInterview.RESUME);
     private static final SecureRandom RNG = new SecureRandom();
@@ -50,6 +56,7 @@ public class MockInterviewController {
     private final CodingProblemRepository codingProblems;
     private final EmailService email;
     private final com.interview.backend.repository.FeatureFlagRepository flags;
+    private final com.interview.backend.service.ImageService imageService;
 
     /** Candidate: ask for an interview. */
     @PostMapping("/request")
@@ -222,7 +229,7 @@ public class MockInterviewController {
         return m.getSlotAt() == null || !Instant.now().isBefore(m.getSlotAt().minusSeconds(PREP_MINUTES * 60));
     }
 
-    /** Interviewer: search questions to ask. Coding interviews search coding problems; system design searches system design questions; resume discussions search all questions. */
+    /** Interviewer: search questions to ask. Coding interviews search coding problems; system design searches HLD and LLD questions; resume discussions search all questions. */
     @GetMapping("/{id}/question-options")
     public ResponseEntity<?> questionOptions(@PathVariable Long id, @RequestParam(defaultValue = "") String q) {
         MockInterview m = mineAsInterviewer(id);
@@ -244,9 +251,26 @@ public class MockInterviewController {
                 for (CodingProblem p : codingProblems.findTop15ByTitleContainingIgnoreCaseOrderByIdAsc(text))
                     out.add(Map.of("ref", "c:" + p.getId(), "title", p.getTitle() + " (" + p.getDifficulty() + ")"));
             }
+        } else if (MockInterview.SYSTEM_DESIGN.equals(m.getType())) {
+            // System design: search both HLD (starting with "Design") and LLD questions
+            String pattern = "%" + text + "%";
+            List<Question> hldResults = questions.searchForInterview("hld", pattern, org.springframework.data.domain.PageRequest.of(0, 15));
+            // Filter HLD questions to only those starting with "Design"
+            List<Question> filteredHld = hldResults.stream()
+                    .filter(question -> {
+                        String title = question.getQuestion() == null ? question.getTitle() : question.getQuestion();
+                        return title != null && title.toLowerCase().startsWith("design");
+                    })
+                    .limit(8)
+                    .toList();
+            List<Question> lldResults = questions.searchForInterview("lld", pattern, org.springframework.data.domain.PageRequest.of(0, 7));
+            for (Question qu : filteredHld)
+                out.add(Map.of("ref", "q:" + qu.getId(), "title", "[HLD] " + (qu.getQuestion() == null ? qu.getTitle() : qu.getQuestion())));
+            for (Question qu : lldResults)
+                out.add(Map.of("ref", "q:" + qu.getId(), "title", "[LLD] " + (qu.getQuestion() == null ? qu.getTitle() : qu.getQuestion())));
         } else {
-            String tech = MockInterview.SYSTEM_DESIGN.equals(m.getType()) ? "hld" : null;
-            for (Question qu : questions.searchForInterview(tech, "%" + text + "%", org.springframework.data.domain.PageRequest.of(0, 15)))
+            // Resume interviews can search all questions
+            for (Question qu : questions.searchForInterview(null, "%" + text + "%", org.springframework.data.domain.PageRequest.of(0, 15)))
                 out.add(Map.of("ref", "q:" + qu.getId(), "title", qu.getQuestion() == null ? qu.getTitle() : qu.getQuestion()));
         }
         return ResponseEntity.ok(out);
@@ -313,6 +337,19 @@ public class MockInterviewController {
         return ResponseEntity.ok(view(m, me));
     }
 
+    /** Interviewer: update the whiteboard link (default is Excalidraw, but can be changed to Miro, Figma, etc). */
+    @PostMapping("/{id}/whiteboard-link")
+    public ResponseEntity<?> whiteboardLink(@PathVariable Long id, @RequestBody WhiteboardLinkInput in) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !me.getId().equals(m.getInterviewerId()) || !MockInterview.MATCHED.equals(m.getStatus())) return ResponseEntity.notFound().build();
+        String url = in.url() == null ? "" : in.url().trim();
+        if (!url.matches("^https?://[A-Za-z0-9.-]+\\.[A-Za-z]{2,}[/A-Za-z0-9?=&_#.-]*$")) return bad("Enter a valid URL (https://...)");
+        m.setWhiteboardUrl(url);
+        interviews.save(m);
+        return ResponseEntity.ok(view(m, me));
+    }
+
     /** Minutes after the start time before someone can report that the other person did not join. */
     private static final long NO_SHOW_GRACE_MINUTES = 0;
 
@@ -339,6 +376,239 @@ public class MockInterviewController {
         return ResponseEntity.ok(view(m, me));
     }
 
+    // ---- live session: the interviewer drives, the candidate follows ----
+
+    /** Interviewer: start the live session at the first question. */
+    @PostMapping("/{id}/live/start")
+    public ResponseEntity<?> liveStart(@PathVariable Long id) {
+        MockInterview m = mineAsInterviewer(id);
+        if (m == null) return bad("The live room opens 10 minutes before the start time.");
+        if (m.getCurrentIndex() == null) { m.setCurrentIndex(0); m.setStartedAt(Instant.now()); m.setQuestionStartedAt(Instant.now()); resetEditor(m); interviews.save(m); }
+        return live(id);
+    }
+
+    /** Interviewer: go to a question by position (0 .. number of questions; the last value means all are done). */
+    @PostMapping("/{id}/live/step")
+    public ResponseEntity<?> liveStep(@PathVariable Long id, @RequestBody StepInput in) {
+        MockInterview m = mineAsInterviewer(id);
+        if (m == null || m.getCurrentIndex() == null) return bad("Start the live session first.");
+        int total = questionList(m).size();
+        int idx = in.index() == null ? 0 : Math.max(0, Math.min(total, in.index()));
+        if (m.getCurrentIndex() == null || m.getCurrentIndex() != idx) {
+            m.setQuestionStartedAt(Instant.now());
+            if (!MockInterview.SYSTEM_DESIGN.equals(m.getType())) {
+                resetEditor(m);
+            }
+        }
+        m.setCurrentIndex(idx);
+        interviews.save(m);
+        return live(id);
+    }
+
+    /** A new question starts with an empty shared editor and no output; each side then loads that question's starter code. */
+    private static void resetEditor(MockInterview m) {
+        m.setEditorCode("");
+        m.setEditorOutput("");
+        m.setEditorRev((m.getEditorRev() == null ? 0 : m.getEditorRev()) + 1);
+        m.setEditorBy("");
+    }
+
+    private static final Set<String> EDITOR_LANGS = Set.of("python", "java", "cpp", "c", "javascript", "go", "rust", "csharp", "php", "ruby", "swift", "text");
+
+    /** Both people: save what is in the shared editor. */
+    @PostMapping("/{id}/live/editor")
+    public ResponseEntity<?> liveEditor(@PathVariable Long id, @RequestBody EditorInput in) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !(me.getId().equals(m.getCandidateId()) || me.getId().equals(m.getInterviewerId()))) return ResponseEntity.notFound().build();
+        if (!MockInterview.MATCHED.equals(m.getStatus())) return bad("This interview is over.");
+        String code = in.code() == null ? "" : in.code();
+        if (code.length() > 30000) return bad("The editor is limited to 30,000 characters.");
+        String lang = in.lang() != null && EDITOR_LANGS.contains(in.lang()) ? in.lang() : (MockInterview.SYSTEM_DESIGN.equals(m.getType()) ? "text" : "python");
+        if (in.output() != null) m.setEditorOutput(in.output().length() > 8000 ? in.output().substring(0, 8000) : in.output());
+        m.setEditorCode(code);
+        m.setEditorLang(lang);
+        m.setEditorRev((m.getEditorRev() == null ? 0 : m.getEditorRev()) + 1);
+        m.setEditorBy(me.getId().equals(m.getInterviewerId()) ? "interviewer" : "candidate");
+        if (MockInterview.SYSTEM_DESIGN.equals(m.getType())) {
+            m.setDesignNotes(code);
+        }
+        interviews.save(m);
+        return ResponseEntity.ok(Map.of("rev", m.getEditorRev()));
+    }
+
+    /** Both people: save design notes for system design interviews. */
+    @PostMapping("/{id}/live/design-notes")
+    public ResponseEntity<?> saveDesignNotes(@PathVariable Long id, @RequestBody DesignNotesInput in) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !(me.getId().equals(m.getCandidateId()) || me.getId().equals(m.getInterviewerId()))) return ResponseEntity.notFound().build();
+        if (!MockInterview.MATCHED.equals(m.getStatus())) return bad("This interview is over.");
+        String notes = in.notes() == null ? "" : in.notes();
+        if (notes.length() > 50000) return bad("Notes are limited to 50,000 characters.");
+        m.setDesignNotes(notes);
+        m.setEditorCode(notes);
+        m.setEditorLang("text");
+        m.setEditorRev((m.getEditorRev() == null ? 0 : m.getEditorRev()) + 1);
+        m.setEditorBy(me.getId().equals(m.getInterviewerId()) ? "interviewer" : "candidate");
+        interviews.save(m);
+        return ResponseEntity.ok(Map.of("success", true, "rev", m.getEditorRev()));
+    }
+
+    /** Both people: upload a design diagram/image for system design interviews. */
+    @PostMapping(value = "/{id}/live/design-image", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadDesignImage(@PathVariable Long id, @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !(me.getId().equals(m.getCandidateId()) || me.getId().equals(m.getInterviewerId()))) return ResponseEntity.notFound().build();
+        if (!MockInterview.MATCHED.equals(m.getStatus())) return bad("This interview is over.");
+        if (file == null || file.isEmpty()) return bad("No file provided");
+
+        try {
+            String imageUrl = imageService.upload(file);
+            m.setDesignImageUrl(imageUrl);
+            m.setDesignImageBy(me.getId().equals(m.getInterviewerId()) ? "interviewer" : "candidate");
+            m.setDesignImageUploadedAt(Instant.now());
+            interviews.save(m);
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (Exception e) {
+            return bad("Failed to upload image: " + e.getMessage());
+        }
+    }
+
+    /** Both people: save diagram image URL for system design interviews. */
+    @PostMapping("/{id}/live/design-image-url")
+    public ResponseEntity<?> saveDesignImageUrl(@PathVariable Long id, @RequestBody DesignImageUrlInput in) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !(me.getId().equals(m.getCandidateId()) || me.getId().equals(m.getInterviewerId()))) return ResponseEntity.notFound().build();
+        if (!MockInterview.MATCHED.equals(m.getStatus())) return bad("This interview is over.");
+        String url = in.imageUrl() == null ? "" : in.imageUrl().trim();
+        if (url.isEmpty()) return bad("No image URL provided");
+        m.setDesignImageUrl(url);
+        m.setDesignImageBy(me.getId().equals(m.getInterviewerId()) ? "interviewer" : "candidate");
+        m.setDesignImageUploadedAt(Instant.now());
+        interviews.save(m);
+        return ResponseEntity.ok(Map.of("imageUrl", url));
+    }
+
+    /** Both people: the state of the live session. The candidate sees the current question only, and never its answer. */
+    @GetMapping("/{id}/live")
+    public ResponseEntity<?> live(@PathVariable Long id) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !(me.getId().equals(m.getCandidateId()) || me.getId().equals(m.getInterviewerId()))) return ResponseEntity.notFound().build();
+        boolean interviewer = me.getId().equals(m.getInterviewerId());
+
+        // Track presence: update last seen time
+        if (interviewer) {
+            m.setInterviewerLastSeen(Instant.now());
+        } else {
+            m.setCandidateLastSeen(Instant.now());
+        }
+        interviews.save(m);
+
+        // If system design, sync between editorCode and designNotes so neither is lost
+        if (MockInterview.SYSTEM_DESIGN.equals(m.getType())) {
+            if ((m.getEditorCode() == null || m.getEditorCode().isBlank()) && m.getDesignNotes() != null && !m.getDesignNotes().isBlank()) {
+                m.setEditorCode(m.getDesignNotes());
+                m.setEditorLang("text");
+                interviews.save(m);
+            } else if ((m.getDesignNotes() == null || m.getDesignNotes().isBlank()) && m.getEditorCode() != null && !m.getEditorCode().isBlank()) {
+                m.setDesignNotes(m.getEditorCode());
+                interviews.save(m);
+            }
+        }
+
+        List<Map<String, Object>> qs = questionList(m);
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("id", m.getId());
+        out.put("role", interviewer ? "interviewer" : "candidate");
+        out.put("type", m.getType());
+        out.put("status", m.getStatus());
+        out.put("slotAt", m.getSlotAt());
+        out.put("callUrl", MockInterview.MATCHED.equals(m.getStatus()) && m.getCallUrl() != null && m.getCallUrl().startsWith("https://meet.google.com/") ? m.getCallUrl() : null);
+        out.put("whiteboardUrl", MockInterview.MATCHED.equals(m.getStatus()) ? m.getWhiteboardUrl() : null);
+        Long otherId = interviewer ? m.getCandidateId() : m.getInterviewerId();
+        out.put("partner", otherId == null ? null : users.findById(otherId).map(MockInterviewController::displayName).orElse("A member"));
+        out.put("feedback", m.getFeedbackAt() == null ? null : Map.of("rating", m.getFeedbackRating(), "strengths", m.getFeedbackStrengths() == null ? "" : m.getFeedbackStrengths(),
+                "improve", m.getFeedbackImprove() == null ? "" : m.getFeedbackImprove(), "at", m.getFeedbackAt().toString()));
+        out.put("started", m.getCurrentIndex() != null);
+        out.put("startedAt", m.getStartedAt());
+        out.put("questionStartedAt", m.getQuestionStartedAt());
+        out.put("serverNow", Instant.now());
+
+        // Add presence information
+        out.put("candidateLastSeen", m.getCandidateLastSeen());
+        out.put("interviewerLastSeen", m.getInterviewerLastSeen());
+
+        String defaultLang = MockInterview.SYSTEM_DESIGN.equals(m.getType()) ? "text" : "python";
+        out.put("editor", Map.of("code", m.getEditorCode() == null ? "" : m.getEditorCode(), "lang", m.getEditorLang() == null ? defaultLang : m.getEditorLang(),
+                "rev", m.getEditorRev() == null ? 0 : m.getEditorRev(), "by", m.getEditorBy() == null ? "" : m.getEditorBy(),
+                "output", m.getEditorOutput() == null ? "" : m.getEditorOutput()));
+        out.put("designNotes", m.getDesignNotes() == null ? (m.getEditorCode() == null ? "" : m.getEditorCode()) : m.getDesignNotes());
+        out.put("designImage", m.getDesignImageUrl() == null ? null : Map.of(
+                "url", m.getDesignImageUrl(),
+                "by", m.getDesignImageBy() == null ? "" : m.getDesignImageBy(),
+                "uploadedAt", m.getDesignImageUploadedAt()
+        ));
+        out.put("total", qs.size());
+        int idx = m.getCurrentIndex() == null ? -1 : m.getCurrentIndex();
+        out.put("index", idx);
+        out.put("allDone", m.getCurrentIndex() != null && idx >= qs.size());
+        if (idx >= 0 && idx < qs.size()) {
+            Map<String, Object> q = new LinkedHashMap<>(qs.get(idx));
+            boolean coding = String.valueOf(q.get("ref")).startsWith("c:");
+            if (!interviewer && !coding) q.put("body", "");   // a candidate is never shown the answer to an interview question
+            if (coding) {
+                try { q.put("problemId", Long.parseLong(String.valueOf(q.get("ref")).substring(2))); } catch (NumberFormatException ignored) { /* no problem id */ }
+            }
+            q.remove("ref");
+            out.put("question", q);
+        }
+        if (interviewer) {
+            List<String> titles = new ArrayList<>();
+            for (Map<String, Object> q : qs) titles.add(String.valueOf(q.get("title")));
+            out.put("titles", titles);
+        }
+        return ResponseEntity.ok(out);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> questionList(MockInterview m) {
+        try {
+            return m.getQuestionsJson() == null ? new ArrayList<>() : JSON.readValue(m.getQuestionsJson(), List.class);
+        } catch (Exception e) { return new ArrayList<>(); }
+    }
+
+    /** Interviewer: write feedback for the candidate (during or after the interview). The candidate is emailed. */
+    @PostMapping("/{id}/feedback")
+    public ResponseEntity<?> feedback(@PathVariable Long id, @RequestBody FeedbackInput in) {
+        User me = me();
+        MockInterview m = interviews.findById(id).orElse(null);
+        if (m == null || !me.getId().equals(m.getInterviewerId())) return ResponseEntity.notFound().build();
+        if (!(MockInterview.MATCHED.equals(m.getStatus()) || MockInterview.DONE.equals(m.getStatus()))) return bad("Feedback can be given for an interview that took place.");
+        if (m.getCurrentIndex() == null && MockInterview.MATCHED.equals(m.getStatus())) return bad("Start the live interview before giving feedback.");
+        if (in.rating() == null || in.rating() < 1 || in.rating() > 5) return bad("Give an overall rating from 1 to 5.");
+        String good = in.strengths() == null ? "" : in.strengths().trim();
+        String better = in.improve() == null ? "" : in.improve().trim();
+        if (good.isEmpty() && better.isEmpty()) return bad("Write at least a line about what went well or what to improve.");
+        if (good.length() > 3000 || better.length() > 3000) return bad("Please keep each part under 3000 characters.");
+        boolean first = m.getFeedbackAt() == null;
+        m.setFeedbackRating(in.rating());
+        m.setFeedbackStrengths(good);
+        m.setFeedbackImprove(better);
+        m.setFeedbackAt(Instant.now());
+        interviews.save(m);
+        if (first) {
+            try {
+                users.findById(m.getCandidateId()).ifPresent(c -> email.sendAnnouncement(c.getEmail(), "Feedback from your mock interview",
+                        "Your interviewer left feedback on your mock interview (" + in.rating() + " out of 5). Open Interview Reader, go to Interview and read it: https://interviewreader.cloud/interview"));
+            } catch (Exception e) { log.warn("Could not email the feedback notice", e); }
+        }
+        return ResponseEntity.ok(view(m, me));
+    }
+
     /** Hours after the start time before an interview can be marked as finished (either person). */
     private static final long FINISH_AFTER_HOURS = 1;
 
@@ -346,9 +616,12 @@ public class MockInterviewController {
     public ResponseEntity<?> complete(@PathVariable Long id) {
         MockInterview m = interviews.findById(id).orElse(null);
         if (m != null && MockInterview.MATCHED.equals(m.getStatus())) {
+            List<Map<String, Object>> qs = questionList(m);
+            boolean allDone = m.getCurrentIndex() != null && m.getCurrentIndex() >= qs.size();
             Instant start = m.getSlotAt() != null ? m.getSlotAt() : m.getMatchedAt();
-            if (start != null && Instant.now().isBefore(start.plusSeconds(FINISH_AFTER_HOURS * 3600)))
-                return bad("An interview can be marked as finished " + FINISH_AFTER_HOURS + " hour after its start time.");
+            boolean hourPassed = start != null && !Instant.now().isBefore(start.plusSeconds(FINISH_AFTER_HOURS * 3600));
+            if (!allDone && !hourPassed)
+                return bad("An interview can be marked as finished once all questions are completed or " + FINISH_AFTER_HOURS + " hour after its start time.");
         }
         return finish(id, MockInterview.DONE);
     }
@@ -378,13 +651,25 @@ public class MockInterviewController {
         out.put("matchedAt", m.getMatchedAt());
         out.put("slotAt", m.getSlotAt());
         out.put("noShowBy", m.getNoShowBy());
+        out.put("started", m.getCurrentIndex() != null);
+        out.put("startedAt", m.getStartedAt());
+        List<Map<String, Object>> qs = questionList(m);
+        boolean allDone = m.getCurrentIndex() != null && m.getCurrentIndex() >= qs.size();
+        out.put("allDone", allDone);
         boolean matched = MockInterview.MATCHED.equals(m.getStatus());
         // Only a link the interviewer added (Google Meet) is shown; links from the earlier auto-created rooms are ignored.
         boolean meet = m.getCallUrl() != null && m.getCallUrl().startsWith("https://meet.google.com/");
         out.put("callUrl", matched && meet ? m.getCallUrl() : null);
         out.put("whiteboardUrl", matched ? m.getWhiteboardUrl() : null);
         out.put("hasResume", m.getResumeId() != null);
+
+        // Add presence information
+        out.put("candidateLastSeen", m.getCandidateLastSeen());
+        out.put("interviewerLastSeen", m.getInterviewerLastSeen());
+
         // Only the interviewer sees the questions (and the answers that come with them).
+        out.put("feedback", m.getFeedbackAt() == null ? null : Map.of("rating", m.getFeedbackRating(), "strengths", m.getFeedbackStrengths() == null ? "" : m.getFeedbackStrengths(),
+                "improve", m.getFeedbackImprove() == null ? "" : m.getFeedbackImprove(), "at", m.getFeedbackAt().toString()));
         out.put("prepOpen", prepOpen(m));
         out.put("prepOpensAt", m.getSlotAt() == null ? null : m.getSlotAt().minusSeconds(PREP_MINUTES * 60));
         out.put("questions", interviewer && matched && prepOpen(m) && m.getQuestionsJson() != null ? readJson(m.getQuestionsJson()) : List.of());
@@ -402,6 +687,11 @@ public class MockInterviewController {
     private String pickQuestions(MockInterview m) {
         List<Map<String, String>> picked = new ArrayList<>();
         try {
+            // Resume interviews have no predefined questions - the interviewer discusses the resume itself
+            if (MockInterview.RESUME.equals(m.getType())) {
+                return "[]";
+            }
+
             if (MockInterview.CODING.equals(m.getType())) {
                 List<Long> ids = new ArrayList<>();
                 codingProblems.findSummariesByOrderByIdAsc().forEach(p -> ids.add(p.getId()));
@@ -410,12 +700,28 @@ public class MockInterviewController {
                     CodingProblem p = codingProblems.findById(id).orElse(null);
                     if (p != null) picked.add(Map.of("ref", "c:" + p.getId(), "title", p.getTitle() + " (" + p.getDifficulty() + ")", "body", p.getStatement()));
                 }
-            } else {
-                List<Question> pool = MockInterview.SYSTEM_DESIGN.equals(m.getType()) ? questions.findByTech("hld") : questions.findAll();
-                List<Question> copy = new ArrayList<>(pool);
-                Collections.shuffle(copy, RNG);
-                for (Question q : copy.subList(0, Math.min(3, copy.size())))
-                    picked.add(Map.of("ref", "q:" + q.getId(), "title", q.getQuestion() == null ? q.getTitle() : q.getQuestion(), "body", q.getAnswer() == null ? "" : q.getAnswer()));
+            } else if (MockInterview.SYSTEM_DESIGN.equals(m.getType())) {
+                // System design interviews get questions from both HLD (starting with "Design") and LLD
+                List<Question> hldQuestions = questions.findByTech("hld");
+                // Filter HLD questions to only those starting with "Design"
+                List<Question> filteredHld = hldQuestions.stream()
+                        .filter(question -> {
+                            String title = question.getQuestion() == null ? question.getTitle() : question.getQuestion();
+                            return title != null && title.toLowerCase().startsWith("design");
+                        })
+                        .toList();
+                List<Question> lldQuestions = questions.findByTech("lld");
+                List<Question> allDesignQuestions = new ArrayList<>();
+                allDesignQuestions.addAll(filteredHld);
+                allDesignQuestions.addAll(lldQuestions);
+
+                Collections.shuffle(allDesignQuestions, RNG);
+                for (Question q : allDesignQuestions.subList(0, Math.min(3, allDesignQuestions.size()))) {
+                    String prefix = filteredHld.contains(q) ? "[HLD] " : "[LLD] ";
+                    picked.add(Map.of("ref", "q:" + q.getId(),
+                                     "title", prefix + (q.getQuestion() == null ? q.getTitle() : q.getQuestion()),
+                                     "body", q.getAnswer() == null ? "" : q.getAnswer()));
+                }
             }
             return JSON.writeValueAsString(picked);
         } catch (Exception e) {

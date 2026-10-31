@@ -7,6 +7,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: [
       // Optional jspdf plugins (SVG / DOMPurify) that the resume PDF doesn't use.

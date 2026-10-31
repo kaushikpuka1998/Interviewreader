@@ -26,10 +26,33 @@ export const fetchInterviewResume = id => call(`/${id}/resume`)
 export const searchQuestionOptions = (id, q) => call(`/${id}/question-options?q=${encodeURIComponent(q)}`)
 export const setInterviewQuestions = (id, items) => call(`/${id}/questions`, { method: 'PUT', body: JSON.stringify({ items }) })
 export const randomInterviewQuestions = id => call(`/${id}/questions/random`, { method: 'POST' })
+export const fetchLive = id => call(`/${id}/live`)
+export const startLive = id => call(`/${id}/live/start`, { method: 'POST' })
+export const stepLive = (id, index) => call(`/${id}/live/step`, { method: 'POST', body: JSON.stringify({ index }) })
+export const saveLiveEditor = (id, code, lang, output) => call(`/${id}/live/editor`, { method: 'POST', body: JSON.stringify({ code, lang, output }) })
+export const giveFeedback = (id, rating, strengths, improve) => call(`/${id}/feedback`, { method: 'POST', body: JSON.stringify({ rating, strengths, improve }) })
 export const saveCallLink = (id, url) => call(`/${id}/call-link`, { method: 'POST', body: JSON.stringify({ url }) })
+export const saveWhiteboardLink = (id, url) => call(`/${id}/whiteboard-link`, { method: 'POST', body: JSON.stringify({ url }) })
 export const reportNoShow = id => call(`/${id}/no-show`, { method: 'POST' })
 export const completeInterview = id => call(`/${id}/complete`, { method: 'POST' })
 export const cancelInterview = id => call(`/${id}/cancel`, { method: 'POST' })
+export const saveDesignNotes = (id, notes) => call(`/${id}/live/design-notes`, { method: 'POST', body: JSON.stringify({ notes }) })
+export const saveDesignImageUrl = (id, imageUrl) => call(`/${id}/live/design-image-url`, { method: 'POST', body: JSON.stringify({ imageUrl }) })
+
+export const uploadDesignImage = async (id, file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const token = localStorage.getItem('ir_token')
+  const res = await fetch(`${API_BASE}/interviews/${id}/live/design-image`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: 'include',
+    body: formData
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || `Upload failed (${res.status})`)
+  return data
+}
 
 export const TYPES = [
   ['CODING', 'Coding', 'Solve problems with the interviewer'],

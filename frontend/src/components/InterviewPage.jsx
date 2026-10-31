@@ -2,12 +2,13 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import TopBar from './TopBar.jsx'
 import AuthModal from './AuthModal.jsx'
 import Loader from './Loader.jsx'
+import { FeedbackView } from './InterviewFeedback.jsx'
 import Markdown from './Markdown.jsx'
 import ResumePreview from './ResumePreview.jsx'
 import { isLoggedIn, getUser } from '../lib/auth.js'
 import { useFeatures } from '../lib/features.js'
 import { fetchResumes, fetchTemplates } from '../lib/resume.js'
-import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, searchQuestionOptions, setInterviewQuestions, randomInterviewQuestions, saveCallLink, reportNoShow, completeInterview, cancelInterview } from '../lib/interviews.js'
+import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, searchQuestionOptions, setInterviewQuestions, randomInterviewQuestions, saveCallLink, saveWhiteboardLink, reportNoShow, completeInterview, cancelInterview } from '../lib/interviews.js'
 
 const btn = 'rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60'
 const primary = `${btn} bg-blue-600 text-white hover:bg-blue-700`
@@ -110,7 +111,14 @@ export default function InterviewPage() {
                 <>
                   <div>
                     <p className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">3. When would you like it?</p>
-                    <input type="datetime-local" value={slot} min={minSlot} onChange={e => setSlot(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
+                    <input
+                      type="datetime-local"
+                      value={slot}
+                      min={minSlot}
+                      onChange={e => setSlot(e.target.value)}
+                      required
+                      className="w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                    />
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Your local time. Pick a slot at least 15 minutes ahead; an interviewer takes it and you both get an email.</p>
                   </div>
                   <label className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
@@ -150,9 +158,13 @@ export default function InterviewPage() {
               <h2 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Earlier interviews</h2>
               <ul className="divide-y divide-slate-200 text-sm dark:divide-slate-800">
                 {past.map(i => (
-                  <li key={i.id} className="flex items-center justify-between py-2 text-slate-700 dark:text-slate-300">
+                  <li key={i.id} className="py-2 text-slate-700 dark:text-slate-300">
+                   <div className="flex items-center justify-between">
                     <span>{typeLabel(i.type)} · {i.role}{i.partner ? ` · with ${i.partner}` : ''}{i.slotAt ? ` · ${formatSlot(i.slotAt)}` : ''}</span>
                     <span className="text-xs text-slate-500">{i.status === 'NO_SHOW' ? `no-show: ${(i.noShowBy || '').toLowerCase()}` : i.status.toLowerCase()} · {new Date(i.createdAt).toLocaleDateString()}</span>
+                   </div>
+                   {i.role === 'interviewer' && i.status === 'DONE' && <a href={`/interview/live/${i.id}`} className="mt-1 inline-block text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">{i.feedback ? 'View or edit your feedback' : 'Give feedback to the candidate'}</a>}
+                   {i.role === 'candidate' && i.feedback && <div className="mt-2"><FeedbackView feedback={i.feedback} /></div>}
                   </li>
                 ))}
               </ul>
@@ -168,6 +180,12 @@ export default function InterviewPage() {
 function ActiveInterview({ item, busy, act, load }) {
   const waiting = item.status === 'WAITING'
   const interviewer = item.role === 'interviewer'
+
+  // Consider someone "online" if they accessed the live room in the last 10 seconds
+  const isOnline = (lastSeen) => lastSeen && (Date.now() - new Date(lastSeen).getTime()) < 10000
+  const candidateOnline = isOnline(item.candidateLastSeen)
+  const interviewerOnline = isOnline(item.interviewerLastSeen)
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl bg-white p-5 dark:bg-slate-950">
@@ -178,6 +196,12 @@ function ActiveInterview({ item, busy, act, load }) {
               {waiting ? 'Waiting for an interviewer…' : interviewer ? `Interview with ${item.partner || 'a member'}${item.partnerEmail ? ` (${item.partnerEmail})` : ''}` : `Upcoming interview with ${item.partner || 'your interviewer'}`}
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400">Planned for <span className="font-medium">{formatSlot(item.slotAt)}</span></p>
+            {!waiting && !item.startedAt && (
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                {interviewer && candidateOnline && <span className="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">✓ Candidate in live room</span>}
+                {!interviewer && interviewerOnline && <span className="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">✓ Interviewer in live room</span>}
+              </div>
+            )}
           </div>
           <button className={secondary} disabled={busy} onClick={() => act(() => cancelInterview(item.id))}>{waiting ? 'Cancel request' : 'Cancel interview'}</button>
         </div>
@@ -187,34 +211,38 @@ function ActiveInterview({ item, busy, act, load }) {
           <>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Both of you have been notified. Join the call, open the shared whiteboard, and start.</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {item.callUrl ? <a href={item.callUrl} target="_blank" rel="noopener noreferrer" className={primary}>Join video call ↗</a>
+              {item.callUrl ? <a href={item.callUrl} target="_blank" rel="noopener noreferrer" className={primary} onClick={() => { window.location.href = `/interview/live/${item.id}` }}>Join video call ↗</a>
                 : !interviewer && <span className="self-center rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">Your interviewer will add the Google Meet link here shortly. This page updates by itself.</span>}
+              <a href={`/interview/live/${item.id}`} className={primary}>Open live room</a>
               <a href={item.whiteboardUrl} target="_blank" rel="noopener noreferrer" className={secondary}>Open shared whiteboard ↗</a>
-              <button className={secondary} disabled={busy || !canFinish(item)} onClick={() => act(() => completeInterview(item.id))}>Mark as finished</button>
+              <button className={secondary} disabled={busy || !canFinish(item)} onClick={() => act(() => completeInterview(item.id))}>Mark as finished Interview</button>
             </div>
-            {!canFinish(item) && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">"Mark as finished" turns on 1 hour after the start time, at {new Date(finishAt(item)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, for both of you.</p>}
+            {!canFinish(item) && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">"Mark as finished Interview" turns on once all questions are completed in the live room, or 1 hour after the start time (at {new Date(finishAt(item)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}).</p>}
             <NoShow item={item} busy={busy} act={act} />
           </>
         )}
       </div>
       {!waiting && interviewer && <MeetLink item={item} busy={busy} act={act} />}
+      {!waiting && interviewer && <WhiteboardLink item={item} busy={busy} act={act} />}
       {!waiting && interviewer && (item.prepOpen
         ? <InterviewerTools item={item} onChanged={load} />
         : <div className="rounded-2xl bg-white p-5 text-sm text-slate-600 dark:bg-slate-950 dark:text-slate-400">
             The questions and the candidate's resume open <span className="font-medium">10 minutes before the start time</span>, at {new Date(item.prepOpensAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on {new Date(item.prepOpensAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}. This page opens them by itself.
           </div>)}
+      {!interviewer && <FeedbackView feedback={item.feedback} />}
       {!waiting && !interviewer && <p className="text-sm text-slate-500 dark:text-slate-400">Your interviewer will ask the questions. Use the whiteboard to draw and explain your answers.</p>}
     </div>
   )
 }
 
-// "Mark as finished" opens one hour after the start time (for the interviewer and the candidate alike).
+// "Mark as finished" opens once all questions are done in the live room, or one hour after the start time (for both).
 const finishAt = item => new Date(item.slotAt || item.matchedAt).getTime() + 60 * 60000
-const canFinish = item => Date.now() >= finishAt(item)
+const canFinish = item => !!item.allDone || Date.now() >= finishAt(item)
 
 // From the start time on, either person can report that the other did not join.
 function NoShow({ item, busy, act }) {
   if (item.role !== 'interviewer') return null   // only the interviewer can report that the candidate did not join
+  if (item.startedAt) return null   // once the interview has started in the live room, both have joined
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 30000); return () => clearInterval(t) }, [])
   const opensAt = item.slotAt ? new Date(item.slotAt).getTime() : 0   // from the start time itself
@@ -242,6 +270,24 @@ function MeetLink({ item, busy, act }) {
         <button type="submit" disabled={busy} className={primary}>{item.callUrl ? 'Update link' : 'Share link'}</button>
       </div>
       {item.callUrl && <p className="mt-2 text-xs text-green-600 dark:text-green-400">The candidate can see the call link.</p>}
+    </form>
+  )
+}
+
+function WhiteboardLink({ item, busy, act }) {
+  const [url, setUrl] = useState(item.whiteboardUrl || '')
+  return (
+    <form onSubmit={e => { e.preventDefault(); act(() => saveWhiteboardLink(item.id, url)) }} className="rounded-2xl bg-white p-5 dark:bg-slate-950">
+      <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Shared whiteboard link</h3>
+      <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">
+        Update the whiteboard link if you prefer a different tool. Default: <a href="https://excalidraw.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Excalidraw</a>.
+        You can also use <a href="https://miro.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Miro</a>, <a href="https://www.figma.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Figma</a>, or any other whiteboard.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://excalidraw.com/#room=..." required className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
+        <button type="submit" disabled={busy} className={primary}>Update link</button>
+      </div>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Both you and the candidate can access this whiteboard.</p>
     </form>
   )
 }
