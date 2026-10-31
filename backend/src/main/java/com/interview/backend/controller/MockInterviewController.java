@@ -109,7 +109,8 @@ public class MockInterviewController {
                 .filter(m -> MockInterview.WAITING.equals(m.getStatus()) && !m.getCandidateId().equals(me.getId()) && (m.getSlotAt() == null || m.getSlotAt().isAfter(Instant.now())))
                 .sorted(Comparator.comparing(m -> m.getSlotAt() == null ? Instant.MAX : m.getSlotAt()))
                 .forEach(m -> out.add(Map.of("id", m.getId(), "type", m.getType(), "slotAt", m.getSlotAt() == null ? "" : m.getSlotAt().toString(), "hasResume", m.getResumeId() != null,
-                        "candidate", users.findById(m.getCandidateId()).map(u -> u.getName() != null && !u.getName().isBlank() ? u.getName() : "A member").orElse("A member"))));
+                        "candidate", users.findById(m.getCandidateId()).map(MockInterviewController::displayName).orElse("A member"),
+                        "candidateEmail", users.findById(m.getCandidateId()).map(User::getEmail).orElse(""))));
         return ResponseEntity.ok(out);
     }
 
@@ -388,7 +389,9 @@ public class MockInterviewController {
         out.put("prepOpensAt", m.getSlotAt() == null ? null : m.getSlotAt().minusSeconds(PREP_MINUTES * 60));
         out.put("questions", interviewer && matched && prepOpen(m) && m.getQuestionsJson() != null ? readJson(m.getQuestionsJson()) : List.of());
         Long otherId = interviewer ? m.getCandidateId() : m.getInterviewerId();
-        out.put("partner", otherId == null ? null : users.findById(otherId).map(u -> u.getName() != null && !u.getName().isBlank() ? u.getName() : "A member").orElse("A member"));
+        out.put("partner", otherId == null ? null : users.findById(otherId).map(MockInterviewController::displayName).orElse("A member"));
+        // The interviewer also sees the candidate's email, to reach them if the call does not start.
+        out.put("partnerEmail", interviewer && otherId != null ? users.findById(otherId).map(User::getEmail).orElse(null) : null);
         return out;
     }
 
@@ -437,6 +440,13 @@ public class MockInterviewController {
 
     private static String when(MockInterview m) {
         return m.getSlotAt() == null ? "a time you agree on" : java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm 'UTC'").withZone(java.time.ZoneOffset.UTC).format(m.getSlotAt());
+    }
+
+    /** The member's name, or the part of their email before the @ when they have not set one. */
+    private static String displayName(User u) {
+        if (u.getName() != null && !u.getName().isBlank()) return u.getName().trim();
+        String mail = u.getEmail();
+        return mail != null && mail.contains("@") ? mail.substring(0, mail.indexOf('@')) : "A member";
     }
 
     private static ResponseEntity<?> bad(String msg) { return ResponseEntity.badRequest().body(Map.of("error", msg)); }

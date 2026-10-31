@@ -133,7 +133,7 @@ export default function InterviewPage() {
               <ul className="divide-y divide-slate-200 text-sm dark:divide-slate-800">
                 {upcoming.map(u => (
                   <li key={u.id} className="flex items-center justify-between py-1.5 text-slate-700 dark:text-slate-300">
-                    <span className="min-w-0">{typeLabel(u.type)} · {u.candidate}{u.hasResume ? ' · with resume' : ''}<span className="ml-2 text-xs text-slate-500">{formatSlot(u.slotAt)}</span></span>
+                    <span className="min-w-0">{typeLabel(u.type)} · <span className="font-semibold text-slate-900 dark:text-slate-100">{u.candidate}</span>{u.candidateEmail ? <span className="text-xs text-slate-500"> ({u.candidateEmail})</span> : null}{u.hasResume ? ' · with resume' : ''}<span className="ml-2 text-xs text-slate-500">{formatSlot(u.slotAt)}</span></span>
                     <button type="button" disabled={busy} onClick={() => act(() => takeInterview(u.id))} className="shrink-0 rounded-lg bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60">Accept</button>
                   </li>
                 ))}
@@ -175,7 +175,7 @@ function ActiveInterview({ item, busy, act, load }) {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{typeLabel(item.type)} interview · you are the {item.role}</p>
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              {waiting ? 'Waiting for an interviewer…' : interviewer ? `Interview with ${item.partner || 'a member'}` : `Upcoming interview with ${item.partner || 'your interviewer'}`}
+              {waiting ? 'Waiting for an interviewer…' : interviewer ? `Interview with ${item.partner || 'a member'}${item.partnerEmail ? ` (${item.partnerEmail})` : ''}` : `Upcoming interview with ${item.partner || 'your interviewer'}`}
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400">Planned for <span className="font-medium">{formatSlot(item.slotAt)}</span></p>
           </div>
