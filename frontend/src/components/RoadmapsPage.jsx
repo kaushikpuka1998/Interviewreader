@@ -107,17 +107,31 @@ export default function RoadmapsPage() {
     }
   })
 
-  useEffect(() => {
-    setPageSeo({
-      title: 'Company Interview Roadmaps (DSA & System Design) | Interview Reader',
-      description: 'Interactive company-tailored preparation roadmaps for Google, Amazon, Meta, Microsoft, Uber, Netflix & more. Track your progress across DSA and System Design.',
-      path: '/roadmaps'
-    })
-  }, [])
 
   const company = useMemo(() => {
     return COMPANIES.find(c => c.id === selectedCompanyId) || COMPANIES[0] || null
   }, [selectedCompanyId, COMPANIES])
+
+  // Each company roadmap is its own search landing page ("Amazon interview preparation roadmap").
+  useEffect(() => {
+    // Plain /roadmaps (no company in the URL) stays the general page, so its canonical doesn't point at Google's.
+    if (!company || !new URLSearchParams(window.location.search).get('company')) {
+      setPageSeo({
+        title: 'Company Interview Roadmaps (DSA & System Design) | Interview Reader',
+        description: 'Interactive company-tailored preparation roadmaps for Google, Amazon, Meta, Microsoft, Uber, Netflix & more. Track your progress across DSA and System Design.',
+        path: '/roadmaps',
+      })
+      return
+    }
+    const path = `/roadmaps?company=${company.id}`
+    const description = `${company.name} interview roadmap: all ${company.rounds.length} rounds explained, with ${company.name}-tagged DSA problems, system design prompts and behavioral questions. Focus: ${company.tagline}.`
+    setPageSeo({
+      title: `${company.name} Interview Roadmap: DSA, System Design & Behavioral | Interview Reader`,
+      description: description.length > 160 ? description.slice(0, 157).replace(/\s\S*$/, '') + '…' : description,
+      path,
+      jsonLd: { '@context': 'https://schema.org', '@type': 'Course', name: `${company.name} Interview Preparation Roadmap`, description, provider: { '@type': 'Organization', name: 'Interview Reader' }, url: path },
+    })
+  }, [company])
 
   const toggleTopic = (id) => {
     setCompleted(prev => {
@@ -372,19 +386,21 @@ export default function RoadmapsPage() {
         {/* Selected Company Strategy & Overview Card */}
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <div className="flex items-center gap-3">
+            {/* Side by side only when there is room; below xl the chips sit under the title instead of squeezing it. */}
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0 flex-1">
+                {/* Badges wrap onto their own line on narrow widths instead of squeezing into two-line pills. */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                   <CompanyLogo company={company} className="h-9 w-9 rounded-xl bg-white text-sm text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-300" />
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">{company.name} Interview Playbook</h2>
-                  {!locked && <span className="rounded-full bg-gradient-to-r from-amber-400 to-pink-500 px-2.5 py-0.5 text-[11px] font-bold text-white">★ Premium</span>}
-                  <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${company.badgeTone}`}>
+                  {!locked && <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-400 to-pink-500 px-2.5 py-0.5 text-[11px] font-bold text-white">★ Premium</span>}
+                  <span className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold ${company.badgeTone}`}>
                     {company.roleLabel}
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{company.tagline}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 xl:max-w-md xl:shrink-0 xl:justify-end">
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                   <span className="text-blue-500">⏱</span> ~{company.recommendedHoursPerDay} hrs/day recommended
                 </span>
@@ -636,13 +652,18 @@ export default function RoadmapsPage() {
                                   type="button"
                                   onClick={() => toggleTopic(topic.id)}
                                   aria-label={`Mark ${topic.title} as ${isDone ? 'incomplete' : 'completed'}`}
-                                  className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border transition ${
+                                  aria-pressed={isDone}
+                                  // 44px tap area (touch screens force min-height on buttons) around a 20px box; the negative
+                                  // margin keeps the box where it was so the card layout doesn't shift.
+                                  className="group/check -m-3 flex h-11 w-11 flex-shrink-0 items-center justify-center"
+                                >
+                                  <span className={`flex h-5 w-5 items-center justify-center rounded border transition ${
                                     isDone
                                       ? 'border-emerald-600 bg-emerald-600 text-white'
-                                      : 'border-slate-300 bg-white hover:border-blue-500 dark:border-slate-600 dark:bg-slate-800'
-                                  }`}
-                                >
-                                  {isDone && <span className="text-xs font-bold">✓</span>}
+                                      : 'border-slate-300 bg-white group-hover/check:border-blue-500 dark:border-slate-600 dark:bg-slate-800'
+                                  }`}>
+                                    {isDone && <span className="text-xs font-bold">✓</span>}
+                                  </span>
                                 </button>}
 
                                 <div className="flex-1 min-w-0">

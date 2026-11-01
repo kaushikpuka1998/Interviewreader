@@ -137,7 +137,39 @@ Kaushik
 InterviewReader`,
 }
 
-const PLACEHOLDERS = ['{{name}}', '{{profile_link}}', '{{resume_link}}', '{{practice_link}}', '{{interview_link}}', '[[interview-promo]]']
+const ROADMAP_TEMPLATE = {
+  subject: '{{name}}, your company interview roadmap is ready',
+  body: `Hi {{name}},
+
+Preparing for Google, Amazon, Meta or Microsoft? We built a week-by-week roadmap for each company, based on how their interviews actually run.
+
+[[roadmap-promo]]
+
+Pick your target company and start today:
+{{roadmap_link}}
+
+Good luck!
+Kaushik
+InterviewReader`,
+}
+
+const FEEDBACK_TEMPLATE = {
+  subject: 'Quick question, {{name}}: how is InterviewReader working for you?',
+  body: `Hi {{name}},
+
+You've been preparing with InterviewReader, and we'd love to know how it's going. What helps, what's missing, what annoys you: every answer is read by me, and it decides what we build next.
+
+[[feedback-promo]]
+
+Prefer to write a few lines instead? Reply to this email or use the form:
+{{feedback_link}}
+
+Thank you!
+Kaushik
+InterviewReader`,
+}
+
+const PLACEHOLDERS = ['{{name}}', '{{profile_link}}', '{{resume_link}}', '{{practice_link}}', '{{interview_link}}', '{{roadmap_link}}', '{{feedback_link}}', '[[interview-promo]]', '[[roadmap-promo]]', '[[feedback-promo]]']
 
 // Shows the email as one member would see it, with sample values filled in.
 function Preview({ subject, body }) {
@@ -147,26 +179,45 @@ function Preview({ subject, body }) {
     .replaceAll('{{resume_link}}', `${window.location.origin}/resume`)
     .replaceAll('{{practice_link}}', `${window.location.origin}/practice`)
     .replaceAll('{{interview_link}}', `${window.location.origin}/interview`)
-  // The designed card is three pictures and a button; show the real ones in the preview, in place of the marker.
-  const promo = (
+    .replaceAll('{{roadmap_link}}', `${window.location.origin}/roadmaps`)
+    .replaceAll('{{feedback_link}}', `${window.location.origin}/#feedback`)
+  // Designed cards: pictures plus a button. Show the real ones in the preview, in place of each marker.
+  const imageCard = (images, cta) => (
     <div className="my-3 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700">
-      {['mock-interview', 'interview-types', 'how-it-works'].map(n => <img key={n} src={`/promo/${n}.png`} alt="" className="block h-auto w-full" />)}
+      {images.map(n => <img key={n} src={`/promo/${n}.png`} alt="" className="block h-auto w-full" />)}
       <div className="py-4 text-center">
-        <span className="inline-block rounded-lg bg-gradient-to-r from-orange-500 via-pink-500 to-violet-600 px-6 py-2.5 text-sm font-bold text-white">Book your free mock interview</span>
+        <span className="inline-block rounded-lg bg-gradient-to-r from-orange-500 via-pink-500 to-violet-600 px-6 py-2.5 text-sm font-bold text-white">{cta}</span>
       </div>
     </div>
   )
-  const parts = fill(body).split('[[interview-promo]]')
+  const CARDS = {
+    '[[interview-promo]]': imageCard(['mock-interview', 'interview-types', 'how-it-works'], 'Book your free mock interview'),
+    '[[roadmap-promo]]': imageCard(['roadmap-hero', 'roadmap-companies', 'roadmap-inside'], 'See your company roadmap'),
+    '[[feedback-promo]]': (
+      <div className="my-3 rounded-xl border border-pink-200 bg-gradient-to-br from-orange-50 via-pink-50 to-violet-50 p-5 text-center">
+        <p className="text-lg font-bold text-slate-900">How are we doing?</p>
+        <p className="mt-1 text-sm text-slate-600">Tap a star. It takes 10 seconds and shapes what we build next.</p>
+        <div className="mt-3 flex justify-center gap-2">
+          {[1, 2, 3, 4, 5].map(r => (
+            <span key={r} className="text-center">
+              <span className="block w-12 rounded-lg border border-pink-200 bg-orange-50 py-2 text-2xl leading-none text-amber-500">★</span>
+              <span className="text-xs text-slate-500">{r}</span>
+            </span>
+          ))}
+        </div>
+        <span className="mt-4 inline-block rounded-lg bg-gradient-to-r from-orange-500 via-pink-500 to-violet-600 px-6 py-2.5 text-sm font-bold text-white">Share your feedback</span>
+      </div>
+    ),
+  }
+  const parts = fill(body).split(/(\[\[(?:interview|roadmap|feedback)-promo\]\])/)
   const text = 'whitespace-pre-wrap font-sans text-sm text-slate-700 dark:text-slate-300 selection:bg-blue-500/30 selection:text-slate-900 dark:selection:text-slate-100'
   return (
     <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4">
       <p className="text-xs text-slate-400">Preview (sample name)</p>
       <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{fill(subject) || '(no subject)'}</p>
       {parts.length === 1 && !parts[0] ? <pre className={`mt-2 ${text}`}>(no message)</pre> : parts.map((p, i) => (
-        <div key={i}>
-          {p && <pre className={`mt-2 ${text}`}>{i > 0 ? p.replace(/^\n+/, '') : p.replace(/\n+$/, '')}</pre>}
-          {i < parts.length - 1 && promo}
-        </div>
+        CARDS[p] ? <div key={i}>{CARDS[p]}</div>
+          : p.trim() && <pre key={i} className={`mt-2 ${text}`}>{p.replace(/^\n+/, '').replace(/\n+$/, '')}</pre>
       ))}
       <p className="mt-3 text-xs text-slate-400">An unsubscribe link is added to the bottom of every email.</p>
     </div>
@@ -205,6 +256,18 @@ function Compose({ onSent }) {
     setAudience('all')
     setShowPreview(true)
   }
+  const useRoadmapTemplate = () => {
+    setSubject(ROADMAP_TEMPLATE.subject)
+    setBody(ROADMAP_TEMPLATE.body)
+    setAudience('all')
+    setShowPreview(true)
+  }
+  const useFeedbackTemplate = () => {
+    setSubject(FEEDBACK_TEMPLATE.subject)
+    setBody(FEEDBACK_TEMPLATE.body)
+    setAudience('all')
+    setShowPreview(true)
+  }
   const insert = (token) => setBody(b => b + token)
 
   const send = async (e) => {
@@ -237,6 +300,8 @@ function Compose({ onSent }) {
         <button type="button" onClick={useResumeTemplate} className="rounded-lg bg-emerald-600 px-3 py-1.5 font-semibold text-white">Use "resume builder" launch template</button>
         <button type="button" onClick={usePracticeTemplate} className="rounded-lg bg-orange-500 px-3 py-1.5 font-semibold text-white">Use "code practice" launch template</button>
         <button type="button" onClick={useInterviewTemplate} className="rounded-lg bg-pink-600 px-3 py-1.5 font-semibold text-white">Use "free mock interview" template</button>
+        <button type="button" onClick={useRoadmapTemplate} className="rounded-lg bg-violet-600 px-3 py-1.5 font-semibold text-white">Use "company roadmaps" template</button>
+        <button type="button" onClick={useFeedbackTemplate} className="rounded-lg bg-amber-500 px-3 py-1.5 font-semibold text-white">Use "feedback request" template</button>
         <span className="text-slate-400">Insert:</span>
         {PLACEHOLDERS.map(p => (
           <button key={p} type="button" onClick={() => insert(p)} className="rounded-md bg-slate-100 px-2 py-1 font-mono text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200">{p}</button>

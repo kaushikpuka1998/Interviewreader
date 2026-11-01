@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import TopBar from './components/TopBar.jsx'
-import { PAGE, fetchQuestions, fetchQuestion, fetchCategories, fetchStats } from './lib/api.js'
+import { PAGE, fetchQuestions, fetchQuestion, fetchQuestionIndex, fetchCategories, fetchStats } from './lib/api.js'
 import { saveAllQuestions, getLastSyncedAt, clearQuestionCache } from './lib/offlineStore.js'
 import { initOfflineSync, sendOrQueue } from './lib/offlineSync.js'
 import { slugify } from './lib/slug.js'
@@ -321,9 +321,26 @@ function App({ path = '/', onPathChange = () => {} }) {
   
   // Prefer the current selection, then the URL slug, then default to the first result.
   // ONLY fallback to first result if we aren't waiting for the URL ID to load!
-  const isPending = pendingUrlId && initialId === pendingUrlId && !byId && !bySlug
+  const isPending = pendingUrlId && (initialId === pendingUrlId || !initialId) && !byId && !bySlug
+
+  // A slug-only link (sitemap, canonical URL, an old share) whose question isn't in the loaded list:
+  // look its id up in the question index, then load it like an ?id= link. No match means a real 404.
+  const [slugLookup, setSlugLookup] = useState(() => (slug && !initialId ? 'pending' : 'done'))
+  useEffect(() => {
+    if (slugLookup !== 'pending' || !loaded) return
+    if (bySlug) { setSlugLookup('done'); return }
+    fetchQuestionIndex()
+      .then(list => {
+        const hit = list.find(e => e.slug === slug)
+        if (hit) setPendingUrlId(hit.id)
+        else setUrlNotFound(true)
+      })
+      .catch(() => setUrlNotFound(true))
+      .finally(() => setSlugLookup('done'))
+  }, [loaded, slugLookup, bySlug])
+
   // A locked or missing linked question must never silently fall back to another question.
-  const selected = byId || bySlug || (isPending || urlNotFound || urlGate ? null : (filtered[0] || null))
+  const selected = byId || bySlug || (isPending || slugLookup === 'pending' || urlNotFound || urlGate ? null : (filtered[0] || null))
 
   // After signing in, retry the locked question the visitor originally linked to.
   useEffect(() => {
@@ -333,7 +350,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     }
   }, [user])
   // Reader shows a loading state until the first list load and any linked question have resolved.
-  const readerLoading = !loaded || isPending || (isLoading && !selected)
+  const readerLoading = !loaded || isPending || (slugLookup === 'pending' && !selected) || (isLoading && !selected)
 
   // Keep selectedId in sync with what's actually shown — covers deep links (slug) and
   // filter changes (stale id -> first result), so the sidebar highlights the right item.
@@ -547,8 +564,8 @@ function App({ path = '/', onPathChange = () => {} }) {
           You're offline — showing cached questions. Marking read/visited and flags are saved now and will sync automatically when you're back online. Suggestions and login still need a connection.
         </div>
       )}
-      {/* Desktop top bar; phones keep the slide-out menu, which still has the account controls. */}
-      <div className="hidden flex-shrink-0 lg:block">
+      {/* Top bar on every screen size: on phones its ☰ menu reaches the other pages; the floating button opens the question list. */}
+      <div className="flex-shrink-0">
         <TopBar user={user} isDark={isDark} onToggleDark={toggleDarkMode} onLogin={() => setAuthOpen(true)} onLogout={handleLogout} onAdmin={() => { window.location.href = '/admin' }} />
       </div>
       <div className="flex min-h-0 flex-1">

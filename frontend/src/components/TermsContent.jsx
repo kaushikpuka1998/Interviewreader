@@ -7,6 +7,9 @@ const SECTIONS = [
       'Your location: the country and city you choose, and an approximate location from your IP address when you sign up or log in.',
       'Your activity: questions you read, mark as read, flag or mark important, and your personal notes.',
       'Resume content you write in the resume builder, including the PDFs and LaTeX you generate.',
+      'Code you run or submit in the practice editor, and mock-interview bookings (the slot, interview type and any notes you add).',
+      'Feedback you send us: your rating, message, optional email and any screenshots you attach.',
+      'If you buy Premium: your Razorpay subscription ID, its status and the date your Premium access ends. Card, UPI and bank details are entered on Razorpay\'s checkout and never reach or get stored on our servers.',
       'Usage data: pages viewed, clicks, device type, referring site, and campaign tags (UTM), linked to your account while you are signed in.',
     ],
   },
@@ -15,7 +18,8 @@ const SECTIONS = [
     items: [
       'To run the service: save your progress, keep your resumes, and show your profile.',
       'To show the leaderboard: your username and XP appear there. Your profile is public only if you share your username link.',
-      'To send emails you have opted into, such as new-question digests and announcements. Every email has an unsubscribe link.',
+      'To process payments and manage Premium: unlock paid features, show your renewal date and handle cancellations.',
+      'To send emails you have opted into: new-question digests, announcements, product updates (for example new roadmaps or features) and occasional requests for feedback. Every email has an unsubscribe link.',
       'To improve the product: usage is analysed in aggregate to understand which features are used.',
     ],
   },
@@ -24,6 +28,8 @@ const SECTIONS = [
     items: [
       'You, and the site administrators for support and moderation.',
       'Service providers that host the app, send email, and store data, only as needed to run the service.',
+      'Razorpay, our payment processor, for Premium payments. Razorpay handles your payment details under its own privacy policy.',
+      'Company logos on the site are loaded from Google\'s favicon service, which, like any website you load content from, receives your IP address and browser details.',
       'We do not sell your personal data and we do not use it for third-party advertising.',
     ],
   },
@@ -49,6 +55,15 @@ const SECTIONS = [
       'Do not scrape or copy the content in bulk, share your account, attack or overload the service, or upload anything unlawful.',
       'Content you write (notes, resumes) stays yours. We may suspend accounts that break these terms.',
       'We may change the service or these terms; continued use after a change means you accept it.',
+    ],
+  },
+  {
+    title: 'Premium subscription',
+    items: [
+      'Premium unlocks personalized company roadmaps: company-tagged practice problems, cheat sheets, direct question links and progress tracking. Free features stay free.',
+      'Premium renews automatically every month on the same card or UPI mandate until you cancel. The price is shown before you pay; if it changes, we will tell you before your next renewal.',
+      'If a renewal payment fails, Premium ends at the close of the period you already paid for.',
+      'Roadmap content is for your personal preparation. Do not share your account or republish Premium content.',
     ],
   },
   {
@@ -110,6 +125,7 @@ const SECTIONS = [
 export default function TermsContent() {
   return (
     <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
+      <p className="text-xs text-slate-500 dark:text-slate-400">Last updated: 2 November 2026</p>
       <p>By creating an account you agree to these terms and to how we handle your data as described below.</p>
       {SECTIONS.map(sec => (
         <section key={sec.title}>

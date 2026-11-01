@@ -231,6 +231,11 @@ public class QuestionService {
         questionRepository.deleteById(id);
     }
 
+    /** Rows for the public slug index: id, question, title, tech, updatedAt, createdAt. */
+    public List<Object[]> indexRows() {
+        return questionRepository.indexRows();
+    }
+
     public java.util.Map<String, Long> getAllTechCounts() {
         java.util.List<String> techs = questionRepository.findDistinctTechs();
         java.util.Map<String, Long> counts = new java.util.HashMap<>();

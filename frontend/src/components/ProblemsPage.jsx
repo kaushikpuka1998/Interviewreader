@@ -7,13 +7,13 @@ import { fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
 import { isLoggedIn } from '../lib/auth.js'
 import { difficultyBadge } from '../lib/badges.js'
 import OnlineCount from './OnlineCount.jsx'
+import { COMPANY_GROUPS, OTHER, groupOf } from '../lib/companyGroups.js'
 
 const DIFFICULTIES = ['All', 'Basic', 'Intermediate', 'Advanced']
 const STATUSES = [['all', 'All'], ['solved', 'Solved'], ['todo', 'Not solved']]
 
 // Every coding problem on one page, with search and filters. Each row opens the problem in the practice page.
 export default function ProblemsPage() {
-  useEffect(() => { setPageSeo({ title: 'Coding Problems in 11 Languages | Interview Reader', description: 'Practice 1,500+ coding interview problems on arrays, strings, trees, graphs and DP. Write and run solutions online in Java, Python, C++, Go and more.', path: '/problems', jsonLd: { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Coding Problems in 11 Languages | Interview Reader', description: 'Practice 1,500+ coding interview problems on arrays, strings, trees, graphs and DP. Write and run solutions online in Java, Python, C++, Go and more.', url: '/problems' } }) }, [])
   const [problems, setProblems] = useState(null)
   const [solved, setSolved] = useState(() => new Set())
   const [attempted, setAttempted] = useState(() => new Set())
@@ -24,6 +24,11 @@ export default function ProblemsPage() {
   const urlParams = new URLSearchParams(window.location.search)
   const [topic, setTopic] = useState(urlParams.get('topic') || '')   // '' = all topics
   const [company, setCompany] = useState(urlParams.get('company') || '')   // '' = all companies
+  // Company type filter: group (product / service / gcc / startups / other) and optional sub-group (faang, big4, ...).
+  const [group, setGroup] = useState(urlParams.get('group') || '')
+  const [subgroup, setSubgroup] = useState(urlParams.get('sub') || '')
+  const pickGroup = g => { setGroup(g); setSubgroup(''); setCompany('') }
+  const pickSubgroup = sg => { setSubgroup(sg); setCompany('') }
   // Rows are drawn 50 at a time; a sentinel below the list loads the next batch as it nears the screen.
   const CHUNK = 50
   const [shownCount, setShownCount] = useState(CHUNK)
@@ -54,6 +59,40 @@ export default function ProblemsPage() {
     return [...m.entries()].sort((a, b) => b[1] - a[1])
   }, [problems])
 
+  // A problem matches a group/sub-group when any company that asked it belongs there.
+  const inGroup = (p, key, id) => (p.companies || []).some(c => groupOf(c)[key] === id)
+
+  // Groups and sub-groups that actually have problems, with problem counts; "Other" only if something lands there.
+  const groupTabs = useMemo(() => {
+    if (!problems) return []
+    const tabs = [...COMPANY_GROUPS, { ...OTHER, subgroups: [] }].map(g => ({
+      ...g,
+      count: problems.filter(p => inGroup(p, 'group', g.id)).length,
+      subgroups: g.subgroups
+        .map(sg => ({ ...sg, count: problems.filter(p => inGroup(p, 'subgroup', sg.id)).length }))
+        .filter(sg => sg.count > 0),
+    }))
+    return tabs.filter(g => g.count > 0)
+  }, [problems])
+  const activeGroup = groupTabs.find(g => g.id === group)
+
+  // Company dropdown: only the companies in the chosen group / sub-group, under one heading per sub-group.
+  const companyOptions = useMemo(() => {
+    const counts = new Map(companyCounts)
+    const sections = []
+    for (const g of [...COMPANY_GROUPS, { ...OTHER, subgroups: [{ ...OTHER, label: 'Other' }] }]) {
+      if (group && g.id !== group) continue
+      for (const sg of g.subgroups) {
+        if (subgroup && sg.id !== subgroup) continue
+        const list = g.id === OTHER.id
+          ? companyCounts.filter(([c]) => groupOf(c).group === OTHER.id)
+          : sg.companies.filter(c => counts.has(c)).map(c => [c, counts.get(c)]).sort((a, b) => b[1] - a[1])
+        if (list.length) sections.push({ label: group ? sg.label : `${g.label} · ${sg.label}`, list })
+      }
+    }
+    return sections
+  }, [companyCounts, group, subgroup])
+
   const rows = useMemo(() => {
     if (!problems) return []
     const q = query.trim().toLowerCase().replace(/^#/, '')
@@ -61,14 +100,39 @@ export default function ProblemsPage() {
       if (difficulty !== 'All' && p.difficulty !== difficulty) return false
       if (topic && !(p.topics || []).includes(topic)) return false
       if (company && !(p.companies || []).includes(company)) return false
+      if (!company && subgroup && !inGroup(p, 'subgroup', subgroup)) return false
+      if (!company && !subgroup && group && !inGroup(p, 'group', group)) return false
       if (status === 'solved' && !solved.has(p.id)) return false
       if (status === 'todo' && solved.has(p.id)) return false
       if (!q) return true
       return p.title.toLowerCase().includes(q) || String(numberOf.get(p.id)) === q
     })
-  }, [problems, query, difficulty, status, topic, company, solved, numberOf])
+  }, [problems, query, difficulty, status, topic, company, group, subgroup, solved, numberOf])
 
-  useEffect(() => { setShownCount(CHUNK) }, [query, difficulty, status, topic, company])
+  // Company and company-type views are their own landing pages ("Google coding interview questions"):
+  // keep them in the URL so they can be shared and indexed, each with its own title and canonical.
+  useEffect(() => {
+    const p = new URLSearchParams()
+    if (company) p.set('company', company)
+    else if (group) { p.set('group', group); if (subgroup) p.set('sub', subgroup) }
+    const qs = p.toString()
+    const next = '/problems' + (qs ? `?${qs}` : '')
+    if (next !== window.location.pathname + window.location.search) window.history.replaceState({}, '', next)
+
+    const label = company
+      || (subgroup && groupTabs.find(g => g.id === group)?.subgroups.find(sg => sg.id === subgroup)?.label)
+      || (group && groupTabs.find(g => g.id === group)?.label)
+    const n = problems ? rows.length : 0
+    const title = label
+      ? `${label} Coding Interview Questions${n ? ` (${n} problems)` : ''} | Interview Reader`
+      : 'Coding Problems in 11 Languages | Interview Reader'
+    const description = label
+      ? `Practice ${n ? n.toLocaleString() + ' ' : ''}coding problems asked in ${label} interviews: arrays, strings, trees, graphs and DP. Run your solution online in Java, Python, C++, Go and more.`
+      : 'Practice 2,500+ coding interview problems on arrays, strings, trees, graphs and DP. Write and run solutions online in Java, Python, C++, Go and more.'
+    setPageSeo({ title, description, path: next, jsonLd: { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: next } })
+  }, [company, group, subgroup, groupTabs, problems && rows.length])
+
+  useEffect(() => { setShownCount(CHUNK) }, [query, difficulty, status, topic, company, group, subgroup])
   useEffect(() => {
     const el = sentinel.current
     if (!el) return
@@ -134,6 +198,35 @@ export default function ProblemsPage() {
               ))}
             </div>
           )}
+          {groupTabs.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Company type">
+                <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Company type</span>
+                {[{ id: '', label: 'All', count: problems.length }, ...groupTabs].map(g => (
+                  <button
+                    key={g.id || 'all'} type="button" aria-pressed={group === g.id}
+                    onClick={() => pickGroup(g.id)}
+                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${group === g.id ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                  >
+                    {g.label} <span className={group === g.id ? 'text-blue-100' : 'text-slate-400'}>{g.count}</span>
+                  </button>
+                ))}
+              </div>
+              {activeGroup && activeGroup.subgroups.length > 1 && (
+                <div className="flex flex-wrap gap-2 border-l-2 border-blue-200 pl-3 dark:border-blue-900" role="group" aria-label={`${activeGroup.label} tiers`}>
+                  {[{ id: '', label: `All ${activeGroup.label}`, count: activeGroup.count }, ...activeGroup.subgroups].map(sg => (
+                    <button
+                      key={sg.id || 'all'} type="button" aria-pressed={subgroup === sg.id}
+                      onClick={() => pickSubgroup(sg.id)}
+                      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${subgroup === sg.id ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-700 dark:border-slate-700 dark:text-slate-300 dark:hover:text-blue-300'}`}
+                    >
+                      {sg.label} <span className={subgroup === sg.id ? 'text-blue-100' : 'text-slate-400'}>{sg.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-3">
             {segment(DIFFICULTIES.map(d => [d, d]), difficulty, setDifficulty, 'Difficulty')}
             {signedIn && segment(STATUSES, status, setStatus, 'Status')}
@@ -142,8 +235,12 @@ export default function ProblemsPage() {
                 value={company} onChange={e => setCompany(e.target.value)} aria-label="Company"
                 className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               >
-                <option value="">All companies</option>
-                {companyCounts.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
+                <option value="">{subgroup ? `All ${activeGroup?.subgroups.find(s => s.id === subgroup)?.label || ''} companies` : activeGroup ? `All ${activeGroup.label} companies` : 'All companies'}</option>
+                {companyOptions.map(sec => (
+                  <optgroup key={sec.label} label={sec.label}>
+                    {sec.list.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
+                  </optgroup>
+                ))}
               </select>
             )}
           </div>

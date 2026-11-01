@@ -24,6 +24,33 @@ public class QuestionController {
     private final QuestionService questionService;
     private final AccessService access;
 
+    /**
+     * Public index of every question: id, URL slug, tech and last change. No answers, so gated topics stay gated;
+     * it lets slug-only links (sitemap, canonical URLs, shares) resolve to the right question, and feeds the sitemap.
+     */
+    @GetMapping("/index")
+    public ResponseEntity<List<Map<String, String>>> index() {
+        List<Map<String, String>> out = questionService.indexRows().stream().map(r -> {
+            String text = r[1] != null && !((String) r[1]).isBlank() ? (String) r[1] : (String) r[2];
+            Object changed = r[4] != null ? r[4] : r[5];
+            return Map.of(
+                    "id", (String) r[0],
+                    "slug", slugify(text),
+                    "tech", (String) r[3],
+                    "lastmod", changed == null ? "" : changed.toString().substring(0, 10));
+        }).toList();
+        return ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofMinutes(10)).cachePublic())
+                .body(out);
+    }
+
+    // Must match frontend/src/lib/slug.js exactly, or slug links won't resolve.
+    static String slugify(String text) {
+        String s = (text == null ? "" : text).toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
+        return s.length() > 80 ? s.substring(0, 80) : s;
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getQuestion(@PathVariable String id) {
         return questionService.getById(id)

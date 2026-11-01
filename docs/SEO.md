@@ -15,17 +15,20 @@
 
 ## Regenerating the sitemap
 
-Run after publishing questions, before deploying the frontend:
+Run after publishing questions or problems, before deploying the frontend:
 
 ```bash
-API_BASE=https://<backend>/api \
-SITE_URL=https://<frontend> \
-AUTH_TOKEN=<admin jwt> \
-  node scripts/gen-sitemap.mjs
+npm run sitemap
 ```
 
-`AUTH_TOKEN` matters: without it the gated topics are invisible to the script and
-the sitemap only lists the free sample (139 URLs instead of ~3,070).
+It reads the production API (`https://api.interviewreader.cloud/api`; override with `API_BASE`, and the site
+with `SITE_URL`). No token is needed: `GET /questions/index` lists every question, gated topics included, without
+answers. The sitemap covers questions, every coding problem (`/practice?id=`), company problem lists
+(`/problems?company=`), company types (`/problems?group=&sub=`), company roadmaps and the public pages.
+
+If the backend doesn't have `/questions/index` yet, the script falls back to the paged list, which only sees the
+free topics. Deploy the backend first. Note `interviewreader.cloud/api` is the frontend and returns HTML; the script
+stops with a clear message if `API_BASE` points there.
 
 ## Remaining steps (not code)
 

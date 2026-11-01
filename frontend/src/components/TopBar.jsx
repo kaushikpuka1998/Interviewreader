@@ -1,5 +1,5 @@
 import { isLoggedIn, getUser, logout } from '../lib/auth.js'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFeatures } from '../lib/features.js'
 import Notifications from './Notifications.jsx'
 import AuthModal from './AuthModal.jsx'
@@ -17,7 +17,7 @@ const NAV = [
   ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
 ]
 
-function NavLink({ label, href, flag, badge, premium, path, features }) {
+function NavLink({ label, href, flag, badge, premium, path, features, mobile = false }) {
   if (flag && features[flag] === false) return null
   const active = href === '/questions'
     ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
@@ -34,7 +34,7 @@ function NavLink({ label, href, flag, badge, premium, path, features }) {
       href={href}
       onClick={handleClick}
       aria-current={active ? 'page' : undefined}
-      className={`whitespace-nowrap rounded-lg px-3 py-1.5 transition-colors ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+      className={`whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex items-center px-3 py-2.5 text-base' : 'px-3 py-1.5'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
       {label}
       {premium && <span className="ml-1.5 rounded-full bg-gradient-to-r from-amber-400 to-pink-500 px-1.5 py-0.5 align-middle text-[10px] font-bold text-white">Premium</span>}
@@ -63,18 +63,38 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
   const onProfile = path === '/profile' || path.startsWith('/profile/')
   const goAdmin = onAdmin || (() => { window.location.href = '/admin' })
   const doLogout = onLogout || (() => logout({ redirect: '/' }))
+  // Below lg the page links live in a menu panel; a phone can't fit seven links in the bar.
+  const [menuOpen, setMenuOpen] = useState(false)
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = e => { if (e.key === 'Escape') setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
+  const links = mobile => NAV.map(([label, href, flag, badge, premium]) => (
+    <NavLink key={href} label={label} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
+  ))
   return (
     <>
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-      <div className="flex h-14 items-center gap-4 px-4">
-        <a href="/" className="flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100" aria-label="Interview Reader home">
-          <img src="/logo.svg" alt="" className="h-8 w-8 rounded-lg" />
-          <span className="hidden sm:inline">Interview Reader</span>
+      <div className="flex h-14 items-center gap-2 px-3 sm:gap-4 sm:px-4">
+        <button
+          type="button" onClick={() => setMenuOpen(o => !o)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-nav"
+          className="-ml-1 shrink-0 rounded-lg p-2 text-slate-700 hover:bg-slate-100 lg:hidden dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" viewBox="0 0 24 24" aria-hidden="true">
+            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
+        <a href="/" className="flex shrink-0 items-center gap-2 font-semibold text-slate-900 dark:text-slate-100" aria-label="Interview Reader home">
+          <img src="/logo.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
+          <span className="hidden whitespace-nowrap sm:inline">Interview Reader</span>
         </a>
-        <nav className="flex min-w-0 items-center gap-1 overflow-x-auto text-sm" aria-label="Main">
-          {NAV.map(([label, href, flag, badge, premium]) => <NavLink key={href} label={label} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} />)}
+        <nav className="hidden min-w-0 items-center gap-1 text-sm lg:flex" aria-label="Main">
+          {links(false)}
         </nav>
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {(
             <button onClick={onToggleDark} aria-label="Toggle dark mode" aria-pressed={isDark} title="Toggle dark mode" className="rounded-lg bg-slate-100 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
               {isDark ? (
@@ -91,13 +111,20 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
           {signedIn ? (
             <>
               <a href="/profile" aria-label="Your profile" title="Your profile" className={`flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-blue-500 ${onProfile ? 'ring-2 ring-blue-300/60' : ''}`}>{initial}</a>
-              <button onClick={doLogout} className="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500">Log out</button>
+              <button onClick={doLogout} className="whitespace-nowrap rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500">Log out</button>
             </>
           ) : (
-            <button onClick={onLogin || (() => setOwnAuthOpen(true))} className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:opacity-95">Log in / Sign up</button>
+            <button onClick={onLogin || (() => setOwnAuthOpen(true))} className="whitespace-nowrap rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:opacity-95">
+              Log in<span className="hidden sm:inline"> / Sign up</span>
+            </button>
           )}
         </div>
       </div>
+      {menuOpen && (
+        <nav id="mobile-nav" aria-label="Main" className="border-t border-slate-200 bg-white px-3 pb-3 pt-2 shadow-lg lg:hidden dark:border-slate-800 dark:bg-slate-950">
+          <div className="flex flex-col gap-0.5">{links(true)}</div>
+        </nav>
+      )}
     </header>
     {ownAuthOpen && <AuthModal onClose={() => setOwnAuthOpen(false)} onSuccess={() => window.location.reload()} />}
     </>

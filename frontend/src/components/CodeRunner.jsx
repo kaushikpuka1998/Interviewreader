@@ -60,7 +60,7 @@ function IconButton({ label, icon, onClick, disabled = false }) {
 const MAX_CASES = 6
 const sameOutput = (a, b) => String(a ?? '').split('\n').map(l => l.trimEnd()).join('\n').trim() === String(b ?? '').split('\n').map(l => l.trimEnd()).join('\n').trim()
 
-export default function CodeRunner({ problemId, statement = '', starters = null, history = [], onSubmitted, openRequest, actionsRef, onBusyChange }) {
+export default function CodeRunner({ problemId, statement = '', starters = null, history = [], onSubmitted, openRequest, actionsRef, onBusyChange, afterAccepted = null }) {
   // Coding problems offer only the languages they have a starter for. Own-code practice offers all of them.
   // A coding problem opens in the first of its own options, so LANGUAGES order sets the default: Java leads
   // the array deliberately. Problems without a Java starter (tree and linked list ones) fall through to C++.
@@ -103,6 +103,15 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
     setCaseResults(null)
   }
   const [result, setResult] = useState(null)
+  const [accepted, setAccepted] = useState(false)   // the latest submission passed every test
+  const [nextOpen, setNextOpen] = useState(false)   // the floating "solve next" card
+  useEffect(() => { setNextOpen(accepted) }, [accepted])
+  useEffect(() => {
+    if (!nextOpen) return
+    const onKey = e => { if (e.key === 'Escape') setNextOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [nextOpen])
   const [error, setError] = useState('')
   const [running, setRunning] = useState(false)
   const signedIn = isLoggedIn()
@@ -148,7 +157,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
     if (!openRequest) return
     fetchSubmission(openRequest.id).then(d => {
       updateCode(d.code, d.language); setLanguage(d.language); setResult(null)
-      setTestResult({ passed: d.passed, total: d.total, results: d.results, verdict: d.status })
+      setTestResult({ passed: d.passed, total: d.total, results: d.results, verdict: d.status }); setAccepted(false)
     }).catch(e => setError(e.message))
   }, [openRequest])
 
@@ -181,7 +190,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
   const resetCode = () => {
     localStorage.removeItem(draftKey(language))
     setCode(problemId ? (starters?.[language] ?? '') : starterFor(language))
-    setResult(null); setTestResult(null); setError('')
+    setResult(null); setTestResult(null); setAccepted(false); setError('')
     setConfirmReset(false)
   }
 
@@ -202,9 +211,12 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
 
   // Run checks the visible tests. Submit checks every test and saves the attempt.
   const check = async (saveIt = false) => {
-    setTesting(true); setError(''); setTestResult(null)
+    setTesting(true); setError(''); setTestResult(null); setAccepted(false)
     try {
-      setTestResult(await runTests({ problemId, language, code, submit: saveIt, onStatus: setStatus }))
+      const r = await runTests({ problemId, language, code, submit: saveIt, onStatus: setStatus })
+      setTestResult(r)
+      // A submission that passes every test is a solve: that's when the "solve next" suggestions appear.
+      setAccepted(saveIt && r.total > 0 && r.passed === r.total)
       if (saveIt) onSubmitted?.()
     } catch (e) {
       setError(e.message)
@@ -216,7 +228,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
 
   const run = async () => {
     trackClick(`code_run:${language}`)
-    setRunning(true); setError(''); setResult(null); setTestResult(null)
+    setRunning(true); setError(''); setResult(null); setTestResult(null); setAccepted(false)
     try {
       setResult(await runCode({ language, code, stdin, problemId, onStatus: setStatus }))
     } catch (e) {
@@ -230,7 +242,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
   // Runs every custom case at once. Each result remembers its case's expected output, if known.
   const runCases = async () => {
     trackClick(`code_run_cases:${language}`)
-    setRunning(true); setError(''); setResult(null); setTestResult(null); setCaseResults(null)
+    setRunning(true); setError(''); setResult(null); setTestResult(null); setAccepted(false); setCaseResults(null)
     try {
       const out = await Promise.all(cases.map(c =>
         runCode({ language, code, stdin: toStdin(params, c.fields), problemId, onStatus: setStatus }).then(r => ({ ...r, expected: c.expected }))))
@@ -439,6 +451,40 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
       {error && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
       {testResult && <TestResults data={testResult} />}
+      {/* After an accepted submission the suggestions float in the middle of the screen; once closed, a button brings them back. */}
+      {testResult && accepted && afterAccepted && !nextOpen && (
+        <button type="button" onClick={() => setNextOpen(true)}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+          🎉 See what to solve next
+        </button>
+      )}
+      {testResult && accepted && afterAccepted && nextOpen && (
+        <div role="dialog" aria-modal="true" aria-label="Solve next" onClick={() => setNextOpen(false)}
+          className="premium-fade fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div onClick={e => e.stopPropagation()} className="relative w-full max-w-xl">
+            <button type="button" onClick={() => setNextOpen(false)} aria-label="Close" autoFocus
+              className="absolute -right-2 -top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-500 shadow-md hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white">✕</button>
+            {/* Success first, then what to solve next. */}
+            <div className="result-pop mb-3 flex items-center gap-4 rounded-2xl border border-emerald-200 bg-white p-5 shadow-2xl dark:border-emerald-500/30 dark:bg-slate-900">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path className="premium-check" d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </span>
+              <span>
+                <span className="block text-xl font-extrabold text-emerald-600 dark:text-emerald-400">Accepted</span>
+                <span className="block text-sm text-slate-600 dark:text-slate-300">
+                  {testResult.total === testResult.passed && testResult.total > 1 ? `All ${testResult.total} test cases passed` : `${testResult.passed}/${testResult.total} test case passed`}. Nice work!
+                </span>
+              </span>
+            </div>
+            {afterAccepted}
+            <div className="mt-2 text-center">
+              <button type="button" onClick={() => setNextOpen(false)} className="text-xs font-medium text-white/80 hover:text-white hover:underline">Review my solution</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {caseResults && <CaseResults results={caseResults} active={activeResult} onPick={setActiveResult} />}
 

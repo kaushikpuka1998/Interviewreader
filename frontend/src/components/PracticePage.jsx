@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Loader from './Loader.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import TopBar from './TopBar.jsx'
@@ -11,13 +11,15 @@ import AuthModal from './AuthModal.jsx'
 import OnlineCount from './OnlineCount.jsx'
 import CodeRunner, { languageLabel } from './CodeRunner.jsx'
 import { fetchQuestions } from '../lib/api.js'
+import { byProminence } from '../lib/companyGroups.js'
 
 const CUSTOM = 'custom'
 const NAV_BTN = 'tip relative flex h-8 w-8 shrink-0 items-center justify-center text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
 
 // Practice coding: LeetCode-style problems on the left, plus a free code box for writing your own program.
 export default function PracticePage() {
-  useEffect(() => { setPageSeo({ title: 'Practice Coding Online in 11 Languages | Interview Reader', description: 'Solve coding interview problems in an online editor and run them against test cases in Java, Python, C++, Go, JavaScript and 6 more languages.', path: '/practice', jsonLd: undefined }) }, [])
+  const practiceSeo = () => setPageSeo({ title: 'Practice Coding Online in 11 Languages | Interview Reader', description: 'Solve coding interview problems in an online editor and run them against test cases in Java, Python, C++, Go, JavaScript and 6 more languages.', path: '/practice', jsonLd: undefined })
+  useEffect(() => { practiceSeo() }, [])
   const [problems, setProblems] = useState(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const CHUNK = 50
@@ -113,6 +115,52 @@ export default function PracticePage() {
   }, [detail?.id])
   // Previous, next and random move through the problem list. The Playground is not in the list, so these are off there.
   const currentIndex = problems ? problems.findIndex(p => p.id === selected) : -1
+
+  // "Solve next" after an accepted submission: a difficulty ladder inside the problem's most specific topic
+  // (Tree rather than Array): one at the same level, one a level up, one a challenge. Solving an easy tree
+  // problem suggests easy -> medium -> hard tree problems. Uses the list already loaded, so it costs no request.
+  const topicSizes = useMemo(() => {
+    const m = new Map()
+    for (const p of problems || []) for (const t of p.topics || []) m.set(t, (m.get(t) || 0) + 1)
+    return m
+  }, [problems])
+  const solveNext = useMemo(() => {
+    const current = problems?.find(p => p.id === selected)
+    if (!current || !(current.topics || []).length) return []
+    const LEVELS = ['Basic', 'Intermediate', 'Advanced']
+    const myLevel = Math.max(0, LEVELS.indexOf(current.difficulty))
+    const focus = [...current.topics].sort((a, b) => (topicSizes.get(a) || 0) - (topicSizes.get(b) || 0))[0]
+    const myTopics = new Set(current.topics)
+    const myCompanies = new Set(current.companies || [])
+    const pool = problems
+      .filter(p => p.id !== current.id && !solvedIds.has(p.id))
+      .map(p => ({
+        p,
+        level: Math.max(0, LEVELS.indexOf(p.difficulty)),
+        inFocus: (p.topics || []).includes(focus),
+        shared: (p.topics || []).filter(t => myTopics.has(t)).length,
+        companies: (p.companies || []).filter(c => myCompanies.has(c)).sort(byProminence),
+      }))
+    const closeness = x => x.shared * 10 + Math.min(x.companies.length, 10)
+    // [difficulty level, label] per slot: easy -> same / level up / challenge, medium -> same / level up / challenge
+    // (both hard), hard -> same / challenge / a medium warm-up.
+    const ladder = [
+      [[0, 'Same level'], [1, 'Level up'], [2, 'Challenge']],
+      [[1, 'Same level'], [2, 'Level up'], [2, 'Challenge']],
+      [[2, 'Same level'], [2, 'Challenge'], [1, 'Warm-up']],
+    ][myLevel]
+    const picked = []
+    for (const [lvl, label] of ladder) {
+      const best = pool.filter(x => x.inFocus && x.level === lvl && !picked.some(y => y.p.id === x.p.id))
+        .sort((a, b) => closeness(b) - closeness(a) || a.p.id - b.p.id)[0]
+      if (best) picked.push({ ...best, label })
+    }
+    // A rung with nothing left unsolved: fill with the closest problem in the topic, then any related one.
+    const rest = pool.filter(x => x.shared > 0).sort((a, b) => (b.inFocus - a.inFocus) || closeness(b) - closeness(a) || a.p.id - b.p.id)
+    const fallbackLabel = x => (x.level > myLevel ? 'Level up' : x.level < myLevel ? 'Warm-up' : 'Same level')
+    for (const x of rest) { if (picked.length >= 3) break; if (!picked.some(y => y.p.id === x.p.id)) picked.push({ ...x, label: fallbackLabel(x) }) }
+    return picked.slice(0, 3).map(x => ({ ...x, focus }))
+  }, [problems, selected, solvedIds, topicSizes])
   const canPrev = currentIndex > 0
   const canNext = currentIndex >= 0 && currentIndex < problems.length - 1
   const goToProblem = step => { if (currentIndex >= 0) setSelected(problems[currentIndex + step].id) }
@@ -210,6 +258,27 @@ export default function PracticePage() {
     fetchCodingProblem(selected).then(d => { if (!stale) setDetail(d) }).catch(e => { if (!stale) setError(e.message) })
     return () => { stale = true }
   }, [selected])
+
+  // Each problem is its own search result: title, companies and statement in the description, its own canonical URL.
+  useEffect(() => {
+    if (selected === CUSTOM) { practiceSeo(); return }
+    if (!detail) return
+    const companies = [...((problems || []).find(p => p.id === detail.id)?.companies || [])].sort(byProminence)
+    const asked = companies.length ? `Asked at ${companies.slice(0, 4).join(', ')}${companies.length > 4 ? ` and ${companies.length - 4} more` : ''}. ` : ''
+    const statement = String(detail.statement || '').replace(/[`*#>_]/g, '').replace(/\s+/g, ' ').trim()
+    const description = (asked + statement).slice(0, 155).replace(/\s\S*$/, '') + '…'
+    const title = `${detail.title}: ${detail.difficulty || ''} Coding Interview Problem | Interview Reader`.replace(/:\s+Coding/, ': Coding')
+    setPageSeo({
+      title,
+      description,
+      path: `/practice?id=${detail.id}`,
+      jsonLd: {
+        '@context': 'https://schema.org', '@type': 'LearningResource', name: detail.title, description,
+        learningResourceType: 'Coding exercise', educationalLevel: detail.difficulty, keywords: [...(detail.topics || []), ...companies.slice(0, 5)].join(', '),
+        url: `/practice?id=${detail.id}`,
+      },
+    })
+  }, [detail, problems, selected])
 
   return (
     <>
@@ -478,7 +547,8 @@ export default function PracticePage() {
                     <span className="h-16 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
                   </div>
                   <div className="min-w-0 flex-1 xl:min-h-0 xl:overflow-y-auto">
-                    <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy} />
+                    <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
+                      afterAccepted={<SolveNext items={solveNext} onPick={id => setSelected(id)} onRandom={goToRandom} />} />
                   </div>
                 </>
               )}
@@ -601,6 +671,44 @@ function QuestionAnalysisTab({ title, problemId }) {
             </a>
           </div>
         </div>
+      )}
+    </div>
+  )
+}
+
+// Shown under the test results once a submission is accepted: up to three related problems to keep the streak going.
+function SolveNext({ items, onPick, onRandom }) {
+  const why = x => [
+    x.inFocus ? `More ${x.focus}` : 'Related topic',
+    x.companies.length ? `Also asked at ${x.companies.slice(0, 2).join(', ')}` : null,
+  ].filter(Boolean)
+  return (
+    <div className="result-pop rounded-2xl border border-emerald-200 bg-white bg-gradient-to-br from-emerald-50 to-white p-5 shadow-2xl dark:border-emerald-500/30 dark:bg-slate-900 dark:from-slate-900 dark:to-slate-900">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">🎉 Solved! Climb the {items[0]?.focus || 'next'} ladder</h3>
+        <button type="button" onClick={onRandom} className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Surprise me →</button>
+      </div>
+      {items.length === 0 ? (
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">You've solved everything related to this one. Try a random problem.</p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {items.map(x => (
+            <li key={x.p.id}>
+              <button type="button" onClick={() => onPick(x.p.id)}
+                className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{x.p.title}</span>
+                  <span className="mt-0.5 block truncate text-xs text-slate-500 dark:text-slate-400">{why(x).join(' · ')}</span>
+                </span>
+                <span className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">{x.label}</span>
+                  {x.p.difficulty && <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${difficultyBadge(x.p.difficulty)}`}>{x.p.difficulty}</span>}
+                  <span aria-hidden="true" className="text-slate-400">→</span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )

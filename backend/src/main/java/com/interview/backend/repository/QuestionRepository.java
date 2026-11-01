@@ -98,6 +98,10 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     @Query("SELECT DISTINCT q.tech FROM Question q ORDER BY q.tech")
     List<String> findDistinctTechs();
 
+    /** id, question text, title, tech, updatedAt, createdAt for every question: the slug index (no answer text). */
+    @Query("SELECT q.id, q.question, q.title, q.tech, q.updatedAt, q.createdAt FROM Question q ORDER BY q.tech, q.sortKey")
+    List<Object[]> indexRows();
+
     /** Which of these ids still exist (one small query, no answer text). */
     @Query("SELECT q.id FROM Question q WHERE q.id IN :ids")
     List<String> existingIds(@Param("ids") java.util.Collection<String> ids);

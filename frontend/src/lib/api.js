@@ -18,6 +18,15 @@ function isOffline(err) {
   return !navigator.onLine || err instanceof TypeError
 }
 
+// Every question's id + URL slug (no answers). Loaded once per page view, only when a slug-only link needs resolving.
+let questionIndex
+export function fetchQuestionIndex() {
+  questionIndex ||= fetch(`${API_BASE}/questions/index`)
+    .then(res => { if (!res.ok) throw new Error('Failed to load the question index'); return res.json() })
+    .catch(err => { questionIndex = null; throw err })
+  return questionIndex
+}
+
 export async function fetchQuestion(id) {
   const token = localStorage.getItem('ir_token')
   try {

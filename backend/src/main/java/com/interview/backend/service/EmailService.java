@@ -158,7 +158,10 @@ public class EmailService {
     public void sendAnnouncement(String toEmail, String subject, String body) {
         String unsubscribe = backendUrl + "/api/auth/unsubscribe?email=" + URLEncoder.encode(toEmail, StandardCharsets.UTF_8) +
                 "&sig=" + unsubscribeSig(toEmail);
-        String plain = body.replace(INTERVIEW_PROMO, interviewPromoPlain()) + "\n\n---\nDon't want these emails? Unsubscribe: " + unsubscribe;
+        String plain = body.replace(INTERVIEW_PROMO, interviewPromoPlain())
+                .replace(ROADMAP_PROMO, roadmapPromoPlain())
+                .replace(FEEDBACK_PROMO, feedbackPromoPlain())
+                + "\n\n---\nDon't want these emails? Unsubscribe: " + unsubscribe;
         try {
             MimeMessage mime = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8"); // multipart: plain text + HTML
@@ -178,6 +181,8 @@ public class EmailService {
         for (String paragraph : body.split("\\n\\s*\\n")) {
             String text = paragraph.strip();
             if (INTERVIEW_PROMO.equals(text)) { html.append(interviewPromoCard()); continue; }
+            if (ROADMAP_PROMO.equals(text)) { html.append(roadmapPromoCard()); continue; }
+            if (FEEDBACK_PROMO.equals(text)) { html.append(feedbackPromoCard()); continue; }
             if (!text.isEmpty()) html.append("<p style=\"margin:0 0 14px\">").append(linkify(text)).append("</p>");
         }
         html.append("<p style=\"margin-top:24px;font-size:12px;color:#64748b\">Don't want these emails? <a href=\"")
@@ -206,6 +211,55 @@ public class EmailService {
                 + "<tr><td style=\"padding:0;line-height:0\"><img src=\"" + img + "interview-types.png\" width=\"100%\" alt=\"Choose your interview: coding, system design or resume discussion\" style=\"" + imgStyle + "\"></td></tr>"
                 + "<tr><td style=\"padding:0;line-height:0\"><img src=\"" + img + "how-it-works.png\" width=\"100%\" alt=\"Book in 3 steps: pick a slot, get matched, join and practise\" style=\"" + imgStyle + "\"></td></tr>"
                 + "<tr><td align=\"center\" style=\"padding:22px 24px 26px;background:#ffffff\"><a href=\"" + url + "\" style=\"display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(90deg,#f97316,#ec4899,#7c3aed);color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px\">Book your free mock interview</a></td></tr></table>";
+    }
+
+    /** On its own line: the designed "Premium company roadmaps" card (three pictures and a button). */
+    public static final String ROADMAP_PROMO = "[[roadmap-promo]]";
+
+    private String roadmapPromoPlain() {
+        return "NEW: Premium company roadmaps\n"
+                + "- A week-by-week plan for Google, Amazon, Meta, Microsoft, Uber, Netflix and Atlassian.\n"
+                + "- Company-tagged DSA problems, system design & LLD, and a behavioral bank mapped to each company's values.\n"
+                + "- Track your progress and readiness score as you go.\n"
+                + "See your roadmap: " + frontendUrl + "/roadmaps";
+    }
+
+    // Same table-and-inline-styles layout as the interview card; pictures live in frontend/public/promo.
+    private String roadmapPromoCard() {
+        String url = escapeHtml(frontendUrl + "/roadmaps");
+        String img = escapeHtml(emailAssetUrl.replaceAll("/+$", "")) + "/promo/";
+        String imgStyle = "display:block;width:100%;height:auto;border:0;font-size:18px;line-height:1.3;font-weight:bold;color:#be185d";
+        return "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:8px 0 22px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#ffffff\">"
+                + "<tr><td style=\"padding:0;line-height:0\"><a href=\"" + url + "\"><img src=\"" + img + "roadmap-hero.png\" width=\"100%\" alt=\"New: Premium roadmaps. Your week-by-week plan to crack Google, Amazon and Meta\" style=\"" + imgStyle + "\"></a></td></tr>"
+                + "<tr><td style=\"padding:0;line-height:0\"><a href=\"" + url + "\"><img src=\"" + img + "roadmap-companies.png\" width=\"100%\" alt=\"Pick your target company: Google, Amazon, Meta, Microsoft, Uber, Netflix, Atlassian\" style=\"" + imgStyle + "\"></a></td></tr>"
+                + "<tr><td style=\"padding:0;line-height:0\"><img src=\"" + img + "roadmap-inside.png\" width=\"100%\" alt=\"Inside every roadmap: company-tagged DSA, system design and LLD, behavioral bank, progress tracking\" style=\"" + imgStyle + "\"></td></tr>"
+                + "<tr><td align=\"center\" style=\"padding:22px 24px 26px;background:#ffffff\"><a href=\"" + url + "\" style=\"display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(90deg,#f97316,#ec4899,#7c3aed);color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px\">See your company roadmap</a></td></tr></table>";
+    }
+
+    /** On its own line: a "rate us" card. Each star opens the site's feedback form with that rating already picked. */
+    public static final String FEEDBACK_PROMO = "[[feedback-promo]]";
+
+    private String feedbackUrl(int rating) {
+        return frontendUrl + "/?rating=" + rating + "#feedback";
+    }
+
+    private String feedbackPromoPlain() {
+        return "How likely are you to recommend InterviewReader? Rate us from 1 to 5 here: " + frontendUrl + "/#feedback";
+    }
+
+    private String feedbackPromoCard() {
+        StringBuilder stars = new StringBuilder();
+        for (int r = 1; r <= 5; r++) {
+            stars.append("<td align=\"center\" style=\"padding:0 4px\"><a href=\"").append(escapeHtml(feedbackUrl(r)))
+                    .append("\" title=\"").append(r).append(r == 1 ? " star" : " stars")
+                    .append("\" style=\"display:block;width:48px;padding:10px 0;border-radius:10px;border:1px solid #fbcfe8;background:#fff7ed;color:#f59e0b;font-size:24px;line-height:1;text-decoration:none\">&#9733;</a>")
+                    .append("<div style=\"margin-top:4px;font-size:12px;color:#64748b\">").append(r).append("</div></td>");
+        }
+        return "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:8px 0 22px;border:1px solid #fbcfe8;border-radius:14px;background:linear-gradient(135deg,#fff7ed,#fdf2f8,#f5f3ff)\">"
+                + "<tr><td align=\"center\" style=\"padding:24px 20px 6px\"><div style=\"font-size:20px;font-weight:bold;color:#1e293b\">How are we doing?</div>"
+                + "<div style=\"margin-top:6px;font-size:14px;color:#475569\">Tap a star. It takes 10 seconds and shapes what we build next.</div></td></tr>"
+                + "<tr><td align=\"center\" style=\"padding:14px 12px 4px\"><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"><tr>" + stars + "</tr></table></td></tr>"
+                + "<tr><td align=\"center\" style=\"padding:14px 24px 24px\"><a href=\"" + escapeHtml(frontendUrl + "/#feedback") + "\" style=\"display:inline-block;padding:12px 28px;border-radius:10px;background:linear-gradient(90deg,#f97316,#ec4899,#7c3aed);color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px\">Share your feedback</a></td></tr></table>";
     }
 
     private static final Pattern WEB_ADDRESS = Pattern.compile("https?://[^\\s<]+");

@@ -35,7 +35,11 @@ export function focusFeedback() {
 export default function FeedbackForm() {
   const signedIn = isLoggedIn()
   const account = signedIn ? getUser() : null
-  const [rating, setRating] = useState(0)
+  // A star tapped in the feedback email arrives as ?rating=N: start with it picked.
+  const [rating, setRating] = useState(() => {
+    const r = Number(new URLSearchParams(window.location.search).get('rating'))
+    return r >= 1 && r <= 5 ? r : 0
+  })
   const [message, setMessage] = useState('')
   const [email, setEmail] = useState('')
   const [images, setImages] = useState([])   // uploaded screenshot URLs
