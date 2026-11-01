@@ -39,6 +39,7 @@ public class ProfileController {
     private final com.interview.backend.service.LeagueService leagues;
     private final com.interview.backend.service.UsernameService usernames;
     private final com.interview.backend.repository.UserNoteRepository userNotes;
+    private final com.interview.backend.service.BillingService billing;
 
     private User currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -108,6 +109,9 @@ public class ProfileController {
         body.put("email", u.getEmail());
         body.put("name", u.getName() == null ? "" : u.getName());
         body.put("memberSince", u.getCreatedAt());
+        body.put("premium", billing.isPremium(u));
+        body.put("premiumUntil", u.getPremiumUntil() == null ? "" : u.getPremiumUntil().toString());
+        body.put("subscriptionStatus", u.getSubscriptionStatus() == null ? "" : u.getSubscriptionStatus());
         body.put("country", u.getCountry() == null ? "" : u.getCountry());
         body.put("city", u.getCity() == null ? "" : u.getCity());
         body.put("locationSource", u.getLocationSource() == null ? "" : u.getLocationSource());

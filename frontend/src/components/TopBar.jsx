@@ -11,14 +11,17 @@ const NAV = [
   ['Questions', '/questions'],
   ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice'],
   ['Practice', '/practice', 'code_practice', 'new_badge_code_practice'],
+  ['Roadmaps', '/roadmaps', null, null, true],
   ['Interview', '/interview', 'mock_interview', 'new_badge_interview'],
   ['Leaderboard', '/leaderboard'],
   ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
 ]
 
-function NavLink({ label, href, flag, badge, path, features }) {
+function NavLink({ label, href, flag, badge, premium, path, features }) {
   if (flag && features[flag] === false) return null
-  const active = href === '/questions' ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p)) : path === href
+  const active = href === '/questions'
+    ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+    : path === href || (href !== '/' && path.startsWith(href + '/'))
   const handleClick = (e) => {
     if (href === '/practice' && typeof window !== 'undefined' && window.location.pathname === '/practice' && window.location.search) {
       e.preventDefault()
@@ -34,6 +37,7 @@ function NavLink({ label, href, flag, badge, path, features }) {
       className={`whitespace-nowrap rounded-lg px-3 py-1.5 transition-colors ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
       {label}
+      {premium && <span className="ml-1.5 rounded-full bg-gradient-to-r from-amber-400 to-pink-500 px-1.5 py-0.5 align-middle text-[10px] font-bold text-white">Premium</span>}
       {badge && features[badge] === true && <span className="ml-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 align-middle text-[10px] font-bold text-amber-950">New</span>}
     </a>
   )
@@ -68,7 +72,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
           <span className="hidden sm:inline">Interview Reader</span>
         </a>
         <nav className="flex min-w-0 items-center gap-1 overflow-x-auto text-sm" aria-label="Main">
-          {NAV.map(([label, href, flag, badge]) => <NavLink key={href} label={label} href={href} flag={flag} badge={badge} path={path} features={features} />)}
+          {NAV.map(([label, href, flag, badge, premium]) => <NavLink key={href} label={label} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} />)}
         </nav>
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           {(

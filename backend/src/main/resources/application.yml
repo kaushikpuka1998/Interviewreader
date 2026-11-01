@@ -92,6 +92,15 @@ app:
       bucket: ${AWS_S3_BUCKET:blog-images}
       access-key: ${AWS_ACCESS_KEY_ID:test}
       secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+  razorpay:
+    # Razorpay keys (test keys locally, live in prod). Plan = the monthly Premium plan created in the dashboard.
+    key-id: ${RAZORPAY_KEY_ID:}
+    key-secret: ${RAZORPAY_KEY_SECRET:}
+    webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+    plan-id: ${RAZORPAY_PLAN_ID:}
+  premium:
+    # Shown on the upsell; the real price lives in the Razorpay plan.
+    price-label: ${PREMIUM_PRICE_LABEL:}
   admin:
     # Comma-separated emails that get ROLE_ADMIN (can publish questions). Override with ADMIN_EMAILS.
     emails: ${ADMIN_EMAILS:kaushikghosh199832@gmail.com}

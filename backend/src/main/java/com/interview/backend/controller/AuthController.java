@@ -37,6 +37,7 @@ import java.util.UUID;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final com.interview.backend.service.BillingService billing;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -136,7 +137,7 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(email);
         cookieUtil.setTokenCookie(response, token);
-        return ResponseEntity.ok(new AuthResponse(token, email, user.getName(), isAdmin(email)));
+        return ResponseEntity.ok(new AuthResponse(token, email, user.getName(), isAdmin(email), billing.isPremium(user)));
     }
 
     @PostMapping("/login")
@@ -153,7 +154,7 @@ public class AuthController {
         geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
         String token = jwtUtil.generateToken(email);
         cookieUtil.setTokenCookie(response, token);
-        return ResponseEntity.ok(new AuthResponse(token, email, user.getName(), isAdmin(email)));
+        return ResponseEntity.ok(new AuthResponse(token, email, user.getName(), isAdmin(email), billing.isPremium(user)));
     }
 
     /** One-click unsubscribe from new-question emails. Public: the HMAC signature is the auth. */

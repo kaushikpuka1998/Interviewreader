@@ -54,8 +54,9 @@ const SECTIONS = [
   {
     title: 'Returns and refunds',
     items: [
-      'The service is currently free and has no paid plans, so there is nothing to refund.',
-      'If paid features are introduced, their refund and cancellation terms will be shown before you pay and added here. [Update this section before launching paid plans.]',
+      'Most of the service is free. Premium (personalized company roadmaps) is a monthly subscription billed in advance through Razorpay at the price shown before you pay.',
+      'You can cancel Premium at any time from your profile. Cancelling stops future renewals; you keep Premium until the end of the period you already paid for.',
+      'Payments for a period that has already started are not refunded, except where the law requires it or a charge was made in error. For billing problems email us within 7 days of the charge. [Confirm this refund wording before launch.]',
     ],
   },
   {

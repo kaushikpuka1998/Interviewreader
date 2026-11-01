@@ -29,10 +29,17 @@ export async function fetchQuestion(id) {
       err.notFound = true           // App shows the 404 state for a bad link
       throw err
     }
+    if (res.status === 401) {
+      const body = await res.json().catch(() => ({}))
+      const err = new Error(body.message || 'Sign in to read this question')
+      err.signupRequired = true     // App keeps the URL and shows the sign-in prompt for this question
+      err.tech = body.tech
+      throw err
+    }
     if (!res.ok) throw new Error('Failed to fetch question')
     return await res.json()
   } catch (err) {
-    if (!isOffline(err)) throw err
+    if (err.signupRequired || !isOffline(err)) throw err
     const cached = visibleOffline(await getAllCachedQuestions()).find(q => q.id === id)
     if (cached) return cached
     throw err

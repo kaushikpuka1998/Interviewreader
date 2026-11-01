@@ -313,8 +313,26 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   pointer-events: none;
   animation: confetti-fall 1s ease-out forwards;
 }
+/* Premium unlocked: overlay fades in, the check mark draws itself, then the roadmap eases into view. */
+@keyframes premium-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes premium-check {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes premium-reveal {
+  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.premium-fade { animation: premium-fade 0.3s ease-out both; }
+.premium-check { stroke-dasharray: 48; stroke-dashoffset: 48; animation: premium-check 0.5s 0.25s ease-out forwards; }
+.premium-reveal { animation: premium-reveal 0.7s ease-out both; }
+.premium-celebrate .confetti-piece { top: 50%; width: 8px; height: 8px; animation-duration: 1.4s; }
 @media (prefers-reduced-motion: reduce) {
-  .result-pop, .result-shake, .bar-grow, .confetti-piece, .run-sweep, .spin-ring { animation: none; }
+  .result-pop, .result-shake, .bar-grow, .confetti-piece, .run-sweep, .spin-ring,
+  .premium-fade, .premium-reveal { animation: none; }
+  .premium-check { animation: none; stroke-dashoffset: 0; }
 }
 
 /* While code is running: a sweeping bar under the code box, and a spinning icon on the buttons. */

@@ -17,6 +17,7 @@ import TermsPage from './components/TermsPage.jsx'
 import ResetPasswordPage from './components/ResetPasswordPage.jsx'
 import { trackView } from './lib/analytics.js'
 import PracticePage from './components/PracticePage.jsx'
+import RoadmapsPage from './components/RoadmapsPage.jsx'
 import { useFeature } from './lib/features.js'
 
 // Shown in place of a page whose feature is switched off in the admin Feature flags tab.
@@ -53,7 +54,7 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/resume', '/u/', '/reset-password', '/practice']
+const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -77,6 +78,8 @@ function Routes() {
   if (path === '/profile' || path.startsWith('/profile/')) return <ProfilePage />
 
   if (path === '/') return <HomePage />
+
+  if (path === '/roadmaps' || path.startsWith('/roadmaps/')) return <RoadmapsPage />
 
   if (path.startsWith('/sheets/')) return <Gate flag="code_practice" what="The DSA sheets"><SheetPage slug={path.split('/')[2]} /></Gate>
 
@@ -109,7 +112,7 @@ function Routes() {
 }
 
 // Pages that do not lay out their own footer (home, terms and the reader do) get one underneath.
-const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/practice', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live']
+const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/practice', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'

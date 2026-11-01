@@ -10,6 +10,7 @@ import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
 import OnlineCount from './OnlineCount.jsx'
 import CodeRunner, { languageLabel } from './CodeRunner.jsx'
+import { fetchQuestions } from '../lib/api.js'
 
 const CUSTOM = 'custom'
 const NAV_BTN = 'tip relative flex h-8 w-8 shrink-0 items-center justify-center text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
@@ -24,14 +25,26 @@ export default function PracticePage() {
   const [selected, setSelected] = useState(null)   // CUSTOM, or a problem id
   const [detail, setDetail] = useState(null)
   const [error, setError] = useState('')
-  // The statement panel has two tabs: the problem, and the member's saved submissions for it.
-  const [tab, setTab] = useState('description')
+  // The statement panel has three tabs: the problem, question analysis, and submissions.
+  const [tab, setTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const t = new URLSearchParams(window.location.search).get('tab')
+      if (t === 'analysis' || t === 'submissions') return t
+    }
+    return 'description'
+  })
   const [history, setHistory] = useState([])
   const [openRequest, setOpenRequest] = useState(null)
   // Progress for the signed-in member, and the list's search and filters.
   const [solvedIds, setSolvedIds] = useState(() => new Set())
   const [attemptedIds, setAttemptedIds] = useState(() => new Set())
-  const [listQuery, setListQuery] = useState('')
+  const [listQuery, setListQuery] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search)
+      return p.get('search') || p.get('q') || ''
+    }
+    return ''
+  })
   const [listDifficulty, setListDifficulty] = useState('All')
   const [listStatus, setListStatus] = useState('all')
   const [authOpen, setAuthOpen] = useState(false)
@@ -92,7 +105,8 @@ export default function PracticePage() {
 
   const loadHistory = () => { if (detail && isLoggedIn()) fetchSubmissions(detail.id).then(setHistory).catch(() => {}) }
   useEffect(() => {
-    setTab('description')
+    const t = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null
+    setTab(t === 'analysis' ? 'analysis' : t === 'submissions' ? 'submissions' : 'description')
     setHistory([])
     setOpenRequest(null)
     if (detail) loadHistory()
@@ -113,11 +127,40 @@ export default function PracticePage() {
     const params = new URLSearchParams(window.location.search)
     const idParam = params.get('id')
     const mode = params.get('mode')
+    const searchParam = params.get('search') || params.get('q')
     if (idParam === 'custom' || idParam === 'playground' || mode === 'playground') return CUSTOM
     if (idParam) {
       const wanted = Number(idParam)
       if (!Number.isNaN(wanted) && list.some(p => p.id === wanted)) return wanted
+      // When the requested ID is missing in the database, stay in playground and do NOT redirect to Two Sum
+      return CUSTOM
     }
+    if (searchParam) {
+      const clean = t => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+      const target = clean(searchParam)
+      const match = list.find(p => clean(p.title) === target) ||
+                    list.find(p => {
+                      const pk = clean(p.title)
+                      return (pk.length >= 4 && target.includes(pk)) || (target.length >= 4 && pk.includes(target))
+                    })
+      if (match) return match.id
+      const words = searchParam.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2)
+      if (words.length >= 2) {
+        let best = null, maxMatches = 1
+        for (const p of list) {
+          const pWords = new Set(p.title.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2))
+          const common = words.filter(w => pWords.has(w)).length
+          if (common > maxMatches) {
+            maxMatches = common
+            best = p
+          }
+        }
+        if (best) return best.id
+      }
+      // When the search query is missing in the database, stay in playground and do NOT redirect to Two Sum
+      return CUSTOM
+    }
+    // When no specific problem is requested, open playground without forcing a redirect to Two Sum
     return CUSTOM
   }
 
@@ -363,30 +406,57 @@ export default function PracticePage() {
               {selected !== CUSTOM && detail && (
                 <>
                   <div className="flex min-w-0 flex-col rounded-2xl bg-white p-5 pb-0 dark:bg-slate-950 xl:w-[var(--split)] xl:shrink-0 xl:overflow-y-auto">
-                    <div role="tablist" className="mb-4 flex gap-1 border-b border-slate-200 dark:border-slate-800">
-                      {[['description', 'Description'], ['submissions', `Submissions${history.length ? ` (${history.length})` : ''}`]].map(([key, label]) => (
-                        <button
-                          key={key}
-                          type="button"
-                          role="tab"
-                          aria-selected={tab === key}
-                          onClick={() => setTab(key)}
-                          className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${tab === key ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
-                        >
-                          {label}
-                        </button>
-                      ))}
+                    <div role="tablist" className="mb-4 flex items-center justify-between gap-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex gap-1">
+                        {[
+                          ['description', 'Description'],
+                          ['analysis', 'Question Analysis'],
+                          ['submissions', `Submissions${history.length ? ` (${history.length})` : ''}`]
+                        ].map(([key, label]) => (
+                          <button
+                            key={key}
+                            type="button"
+                            role="tab"
+                            aria-selected={tab === key}
+                            onClick={() => setTab(key)}
+                            className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${tab === key ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                      <a
+                        href={`/questions?search=${encodeURIComponent(detail.title)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open in Question Reader"
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-slate-800"
+                      >
+                        <span>Reader ↗</span>
+                      </a>
                     </div>
                     {tab === 'description' ? (
                       <>
-                        <h1 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">
-                          {numberOf.has(detail.id) && <><span className="font-normal tabular-nums text-slate-400 dark:text-slate-500">#{numberOf.get(detail.id)}</span>{' '}</>}
-                          {detail.title}
-                        </h1>
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                          <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                            {numberOf.has(detail.id) && <><span className="font-normal tabular-nums text-slate-400 dark:text-slate-500">#{numberOf.get(detail.id)}</span>{' '}</>}
+                            {detail.title}
+                          </h1>
+                          <a
+                            href={`/questions?search=${encodeURIComponent(detail.title)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                          >
+                            <span>Question Analysis ↗</span>
+                          </a>
+                        </div>
                         <div className="text-sm text-slate-700 dark:text-slate-300">
                           <Markdown text={detail.statement} />
                         </div>
                       </>
+                    ) : tab === 'analysis' ? (
+                      <QuestionAnalysisTab title={detail.title} problemId={detail.id} />
                     ) : (
                       <SubmissionList items={history} signedIn={isLoggedIn()} onOpen={id => setOpenRequest({ id, at: Date.now() })} />
                     )}
@@ -441,5 +511,97 @@ function SubmissionList({ items, signedIn, onOpen }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+// Question Analysis tab: loads matching question analysis, approach, and code walkthrough from the questions library.
+function QuestionAnalysisTab({ title, problemId }) {
+  const [loading, setLoading] = useState(true)
+  const [matched, setMatched] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    fetchQuestions({ search: title, size: 5 })
+      .then(res => {
+        if (!active) return
+        const list = res?.content || []
+        const clean = t => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+        const target = clean(title)
+        const exact = list.find(q => clean(q.title).includes(target) || target.includes(clean(q.title)))
+        setMatched(exact || list[0] || null)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
+  }, [title])
+
+  const readerUrl = `/questions?search=${encodeURIComponent(title)}`
+
+  if (loading) return <div className="py-8"><Loader label="Loading question analysis…" /></div>
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-slate-800">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Deep Dive Analysis</span>
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{title}</h2>
+        </div>
+        <a
+          href={matched ? `/questions/${matched.id}` : readerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 shadow-sm"
+        >
+          <span>Open Full Question in Reader</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      {matched ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              {matched.tech?.toUpperCase()} · {matched.category}
+            </span>
+            {matched.difficulty && (
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${difficultyBadge(matched.difficulty)}`}>
+                {matched.difficulty}
+              </span>
+            )}
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-sm text-slate-800 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-200 leading-relaxed">
+            <Markdown text={matched.answer} />
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Algorithmic Approach & Analysis</h3>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+            Read the theoretical breakdown, optimal data structure tradeoffs, and complexity analysis in the Questions Reader.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a
+              href={readerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 dark:border-blue-700 dark:bg-slate-800 dark:text-blue-400"
+            >
+              <span>Search Question Bank for "{title}" ↗</span>
+            </a>
+            <a
+              href="/roadmaps"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            >
+              <span>View in Company Roadmaps ↗</span>
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

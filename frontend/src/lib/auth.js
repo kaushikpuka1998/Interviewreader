@@ -11,11 +11,11 @@ export function getUser() {
 }
 export function isLoggedIn() { return !!getUser() }
 
-function setSession({ token, email, name, admin }) {
+function setSession({ token, email, name, admin, premium }) {
   // ponytail: Safari blocks the cross-site cookie, so keep a Bearer fallback.
   // Drop this once the API is served from the same site as the frontend.
   if (token) localStorage.setItem('ir_token', token)
-  localStorage.setItem(USER_KEY, JSON.stringify({ email, name, admin: !!admin }))
+  localStorage.setItem(USER_KEY, JSON.stringify({ email, name, admin: !!admin, premium: !!premium }))
 }
 
 // Clears the session first, then reloads (or goes to `redirect` when given). Callers that

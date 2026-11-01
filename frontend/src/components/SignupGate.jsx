@@ -4,7 +4,7 @@ import { techLabel } from '../lib/badges.js'
  * Shown in place of the reader when a signed-out visitor asks for a locked topic.
  * Sells the account rather than just refusing.
  */
-export default function SignupGate({ tech, message, freeTechs = [], onSignup, onBrowseFree }) {
+export default function SignupGate({ tech, message, title, freeTechs = [], onSignup, onBrowseFree }) {
   return (
     <main className="reader flex-1 h-screen overflow-y-auto bg-white dark:bg-slate-800 flex items-center justify-center p-6 min-w-0">
       <div className="max-w-md w-full text-center">
@@ -15,7 +15,7 @@ export default function SignupGate({ tech, message, freeTechs = [], onSignup, on
         </div>
 
         <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-          {tech ? `${techLabel(tech)} questions are for members` : 'Members only'}
+          {title || (tech ? `${techLabel(tech)} questions are for members` : 'Members only')}
         </h2>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
           {message || 'Create a free account to unlock every topic.'}
@@ -41,7 +41,7 @@ export default function SignupGate({ tech, message, freeTechs = [], onSignup, on
           onClick={onSignup}
           className="w-full py-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold shadow-lg hover:opacity-95 transition"
         >
-          Create a free account
+          Sign in or create a free account
         </button>
 
         {freeTechs.length > 0 && (

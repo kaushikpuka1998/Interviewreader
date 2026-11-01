@@ -97,6 +97,12 @@ export function TechFilter({ value, onChange, locked = false, freeTechs = [], on
       icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.5 11H19V7a2 2 0 00-2-2h-4V3.5a2.5 2.5 0 00-5 0V5H4a2 2 0 00-2 2v3.8h1.5a2.2 2.2 0 010 4.4H2V19a2 2 0 002 2h3.8v-1.5a2.2 2.2 0 014.4 0V21H17a2 2 0 002-2v-4h1.5a2.5 2.5 0 000-5z"/></svg>,
     },
     {
+      value: 'behavioral', label: 'Behavioral',
+      active: 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30',
+      // speech bubble (behavioral / STAR stories)
+      icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.8 7L3 21l2-6.2A8 8 0 1 1 21 12z"/></svg>,
+    },
+    {
       value: 'misc', label: 'Miscellaneous',
       active: 'bg-teal-500 text-white shadow-sm shadow-teal-500/30',
       // grid/collection (miscellaneous)

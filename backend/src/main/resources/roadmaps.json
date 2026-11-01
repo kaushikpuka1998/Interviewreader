@@ -1,0 +1,2318 @@
+{
+  "companies": [
+    {
+      "id": "google",
+      "name": "Google",
+      "roleLabel": "Software Engineer (L3 - L6)",
+      "color": "from-blue-500 via-emerald-500 to-amber-500",
+      "badgeTone": "border-blue-500/30 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
+      "icon": "G",
+      "tagline": "Deep Algorithmic Rigor, Novel Graph Problems & Massive Distributed Scale",
+      "rounds": [
+        {
+          "name": "Technical Screening",
+          "duration": "45 mins",
+          "desc": "1-2 DSA problems on Google Meet with shared Docs/editor"
+        },
+        {
+          "name": "Onsite Coding (3 rounds)",
+          "duration": "45 mins each",
+          "desc": "Advanced Graphs, Dynamic Programming, Trees & complex data structures"
+        },
+        {
+          "name": "System Design (L4+)",
+          "duration": "45 mins",
+          "desc": "Global scale systems, data partitioning, trade-offs and RPC design"
+        },
+        {
+          "name": "Googliness & Leadership",
+          "duration": "45 mins",
+          "desc": "Ethics, inclusive collaboration, navigating ambiguity and conflict resolution"
+        }
+      ],
+      "rubric": {
+        "coding": "Clean syntax, fast execution, correct edge cases, thorough dry runs before running.",
+        "design": "Top-down architecture, back-of-envelope calculations, fault tolerance, API design.",
+        "mindset": "Collaborative problem solving, questioning assumptions, receiving hints constructively."
+      },
+      "gotchas": [
+        "Do not jump into coding immediately. State your approach, analyze time/space complexity, and verify edge cases first.",
+        "Google interviewers frequently introduce follow-ups that turn 1D problems into multi-dimensional or streaming problems.",
+        "Hard problems often rely on Graph theory (Dijkstra, Topological Sort, Disjoint Set Union) or DP."
+      ],
+      "recommendedHoursPerDay": 3,
+      "logo": "https://www.google.com/s2/favicons?domain=google.com&sz=128"
+    },
+    {
+      "id": "amazon",
+      "name": "Amazon",
+      "roleLabel": "Software Development Engineer (SDE I - SDE III)",
+      "color": "from-amber-500 to-orange-600",
+      "badgeTone": "border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
+      "icon": "A",
+      "tagline": "Production Code, Clean OOP/LLD & 16 Leadership Principles (LP)",
+      "rounds": [
+        {
+          "name": "Online Assessment (OA)",
+          "duration": "90 mins",
+          "desc": "2 coding problems (Sliding Window, Trees, Heaps) + Work Style Survey"
+        },
+        {
+          "name": "Onsite DSA Loops (2-3 rounds)",
+          "duration": "60 mins each",
+          "desc": "20 mins Leadership Principles + 40 mins Coding & complexity"
+        },
+        {
+          "name": "Low-Level Design (LLD / OOP)",
+          "duration": "60 mins",
+          "desc": "Design clean class hierarchies, design patterns, and thread-safe APIs"
+        },
+        {
+          "name": "High-Level System Design (SDE II+)",
+          "duration": "60 mins",
+          "desc": "Scalable cloud architectures (SQS, DynamoDB, caching, async jobs)"
+        },
+        {
+          "name": "Bar Raiser",
+          "duration": "60 mins",
+          "desc": "Deep-dive into past architectural challenges and extreme LP alignment"
+        }
+      ],
+      "rubric": {
+        "coding": "Correctness over esoteric tricks; readable variable names and modular methods.",
+        "design": "High availability, eventual consistency, decoupled microservices, database choice rationale.",
+        "mindset": "Customer Obsession, Ownership, Bias for Action, Dive Deep, Deliver Results."
+      },
+      "gotchas": [
+        "Leadership Principles are worth 50% of your total score. If you fail LP, optimal DSA code will NOT save you.",
+        "Always structure behavioral answers in the STAR format (Situation, Task, Action, Result) with quantified impact.",
+        "Heavy focus on Trees/BFS, Heaps, and Low-Level Object Oriented Design."
+      ],
+      "recommendedHoursPerDay": 2.5,
+      "logo": "https://www.google.com/s2/favicons?domain=amazon.com&sz=128"
+    },
+    {
+      "id": "meta",
+      "name": "Meta",
+      "roleLabel": "Software Engineer (E3 - E6)",
+      "color": "from-blue-600 to-indigo-600",
+      "badgeTone": "border-indigo-500/30 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
+      "icon": "M",
+      "tagline": "High Speed Problem Solving & High-Throughput Real-Time Feeds",
+      "rounds": [
+        {
+          "name": "Technical Phone Screen",
+          "duration": "45 mins",
+          "desc": "2 medium DSA problems to solve, code, and test in 40 minutes"
+        },
+        {
+          "name": "Coding Onsite (2 rounds)",
+          "duration": "45 mins each",
+          "desc": "Fast, bug-free implementation of Arrays, Graphs, Strings, Binary Search"
+        },
+        {
+          "name": "System Design (Product / Infra)",
+          "duration": "45 mins",
+          "desc": "News Feed, Live Comments, Messenger, Distributed Counters, Graph DB"
+        },
+        {
+          "name": "Behavioral & Values",
+          "duration": "45 mins",
+          "desc": "Move Fast, Focus on Long-Term Impact, Be Bold, resolving cross-team friction"
+        }
+      ],
+      "rubric": {
+        "coding": "Speed and bug-free implementation. Interviewers expect 2 completed problems in 45 minutes.",
+        "design": "Clear APIs, caching layers, real-time message fanout, database schemas, and data pipelines.",
+        "mindset": "High autonomy, pragmatic engineering decisions, rapid prioritization."
+      },
+      "gotchas": [
+        "Meta has a strict pace: you usually have only 18-20 minutes per coding problem. Hesitation leads to timeouts.",
+        "Focus heavily on Top 100 Meta LeetCode patterns: HashMaps, Two Pointers, BFS, and Binary Search.",
+        "System design rounds expect deep product architecture knowledge (WebSockets, Feed generation, Fanout-on-write)."
+      ],
+      "recommendedHoursPerDay": 3,
+      "logo": "https://www.google.com/s2/favicons?domain=meta.com&sz=128"
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "roleLabel": "Software Engineer (L59 - L65)",
+      "color": "from-cyan-500 to-blue-600",
+      "badgeTone": "border-cyan-500/30 bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300",
+      "icon": "MS",
+      "tagline": "Solid CS Fundamentals, Clean Code Quality & Cloud Native Architecture",
+      "rounds": [
+        {
+          "name": "Online Screen / Codility",
+          "duration": "60 mins",
+          "desc": "2 coding problems focusing on strings, math, arrays, linked lists"
+        },
+        {
+          "name": "Technical Rounds (3-4 rounds)",
+          "duration": "60 mins each",
+          "desc": "Balanced DSA (Trees, DP, BFS/DFS) + Low-Level Design"
+        },
+        {
+          "name": "System Design (L61+)",
+          "duration": "60 mins",
+          "desc": "Cloud storage, distributed messaging, collaborative editing, microservices"
+        },
+        {
+          "name": "AA (As-Appropriate / Partner)",
+          "duration": "60 mins",
+          "desc": "Growth mindset, team collaboration, technical ambition"
+        }
+      ],
+      "rubric": {
+        "coding": "Readable, maintainable code with unit tests, exception handling, and edge case coverage.",
+        "design": "Scalability, microservices, reliability, Azure-aligned patterns, clean RESTful APIs.",
+        "mindset": "Growth Mindset, empathy, technical adaptability, clear communication."
+      },
+      "gotchas": [
+        "Microsoft values writing clean, testable code over rushing to an unreadable one-liner.",
+        "Trees, LinkedLists, Strings, and Grid Traversal appear with very high frequency.",
+        "Expect discussion around error handling, null safety, and boundary checks."
+      ],
+      "recommendedHoursPerDay": 2,
+      "logo": "https://www.google.com/s2/favicons?domain=microsoft.com&sz=128"
+    },
+    {
+      "id": "uber",
+      "name": "Uber",
+      "roleLabel": "Software Engineer (L3 - L5)",
+      "color": "from-slate-700 to-slate-950",
+      "badgeTone": "border-slate-500/30 bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
+      "icon": "U",
+      "tagline": "Geospatial Indexing, Real-Time Dispatch & High Concurrency",
+      "rounds": [
+        {
+          "name": "CodeSignal OA",
+          "duration": "70 mins",
+          "desc": "4 algorithmic questions testing speed, precision, and matrix manipulation"
+        },
+        {
+          "name": "Onsite Coding (2 rounds)",
+          "duration": "60 mins each",
+          "desc": "Graphs (Dijkstra, A*), Geospatial algorithms, Heap, Sliding Window"
+        },
+        {
+          "name": "Architecture & System Design",
+          "duration": "60 mins",
+          "desc": "Real-time location ingestion, Driver-Rider matching, Dynamic pricing"
+        },
+        {
+          "name": "Bar Raiser & Culture",
+          "duration": "60 mins",
+          "desc": "High standards, cross-functional collaboration, technical ownership"
+        }
+      ],
+      "rubric": {
+        "coding": "Optimal complexity, thread-safety, handling streaming or coordinate data.",
+        "design": "Geohashing (H3/QuadTree), WebSocket state, distributed locks, low-latency dispatch.",
+        "mindset": "Engineering craft, data-driven decisions, system resiliency."
+      },
+      "gotchas": [
+        "Always consider geospatial indexing (QuadTrees, Geohash, H3) for location-based design questions.",
+        "Heavy focus on concurrency, race conditions during booking/payments, and distributed transactions."
+      ],
+      "recommendedHoursPerDay": 2.5,
+      "logo": "https://www.google.com/s2/favicons?domain=uber.com&sz=128"
+    },
+    {
+      "id": "netflix",
+      "name": "Netflix",
+      "roleLabel": "Senior Software Engineer (L5+)",
+      "color": "from-red-600 to-rose-700",
+      "badgeTone": "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300",
+      "icon": "N",
+      "tagline": "Senior Independence, Chaos Engineering & Resilient Video Infrastructure",
+      "rounds": [
+        {
+          "name": "Recruiter & Hiring Manager",
+          "duration": "45 mins",
+          "desc": "In-depth resume breakdown and alignment with the Netflix Culture Memo"
+        },
+        {
+          "name": "Technical Deep Dive",
+          "duration": "60 mins",
+          "desc": "Concurrency, multithreading, system internals, high-performance data structures"
+        },
+        {
+          "name": "Distributed Systems Design",
+          "duration": "60 mins",
+          "desc": "Global CDN distribution, video transcoding, resilience, telemetry"
+        },
+        {
+          "name": "Leadership & Culture Loop (2 rounds)",
+          "duration": "45 mins each",
+          "desc": "Freedom & Responsibility, Context Not Control, mature feedback"
+        }
+      ],
+      "rubric": {
+        "coding": "Production-ready architecture, concurrency control, clean asynchronous logic.",
+        "design": "Chaos engineering, circuit breakers, caching hierarchy, multi-region failover.",
+        "mindset": "Stunning colleagues, candor, context over control, high accountability."
+      },
+      "gotchas": [
+        "Netflix hires predominantly Senior and Staff engineers; they look for deep production battle scars.",
+        "Be prepared to explain how your system handles complete data center failures gracefully."
+      ],
+      "recommendedHoursPerDay": 3,
+      "logo": "https://www.google.com/s2/favicons?domain=netflix.com&sz=128"
+    },
+    {
+      "id": "atlassian",
+      "name": "Atlassian",
+      "roleLabel": "Software Engineer (P3 - P5)",
+      "color": "from-blue-600 to-sky-600",
+      "badgeTone": "border-sky-500/30 bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300",
+      "icon": "AT",
+      "tagline": "Code Craftsmanship, Clean LLD / OOP & Collaborative Systems",
+      "rounds": [
+        {
+          "name": "Technical Phone Screen",
+          "duration": "60 mins",
+          "desc": "Coding problem in your preferred IDE with screen share and unit tests"
+        },
+        {
+          "name": "Code Craftsmanship / Refactoring",
+          "duration": "60 mins",
+          "desc": "Extend and refactor an existing codebase cleanly using design patterns"
+        },
+        {
+          "name": "System Design",
+          "duration": "60 mins",
+          "desc": "Collaborative canvas, real-time Jira updates, rate limiting, permissions"
+        },
+        {
+          "name": "Values & Culture (Open Company)",
+          "duration": "60 mins",
+          "desc": "Open company, no bullshit, play as a team, be the change you seek"
+        }
+      ],
+      "rubric": {
+        "coding": "Clean abstractions, unit tests, adherence to SOLID, extensible class design.",
+        "design": "Event-driven architectures, Operational Transformation (OT), permissions and tenancy.",
+        "mindset": "Collaborative pairing, intellectual humility, constructive code critique."
+      },
+      "gotchas": [
+        "The Code Craftsmanship round requires writing real code with tests, not just whiteboard algorithms.",
+        "Master Low-Level Design (LLD): Strategy pattern, Observer, Factory, and thread safety."
+      ],
+      "recommendedHoursPerDay": 2,
+      "logo": "https://www.google.com/s2/favicons?domain=atlassian.com&sz=128"
+    }
+  ],
+  "dsaPatterns": [
+    {
+      "id": "arrays-strings",
+      "phase": 1,
+      "title": "Arrays, Strings & Math",
+      "category": "Arrays & Strings",
+      "tags": [
+        "Array",
+        "String",
+        "Math",
+        "Sorting",
+        "Bit Manipulation",
+        "Matrix"
+      ],
+      "summary": "The bread and butter of every screen: in-place updates, sorting tricks, and bit/number manipulation.",
+      "concepts": [
+        "In-place array rewrites",
+        "Sorting + scan",
+        "Prefix sums & difference arrays",
+        "Bit tricks (XOR, masks)"
+      ],
+      "cheatSheet": "Sort first, or use a running sum / hash map, before reaching for nested loops."
+    },
+    {
+      "id": "hash-two-pointers-window",
+      "phase": 1,
+      "title": "Hashing, Two Pointers & Sliding Window",
+      "category": "Hash Tables",
+      "tags": [
+        "Hash Table",
+        "Two Pointers",
+        "Sliding Window"
+      ],
+      "summary": "Turn O(N^2) scans into O(N) with frequency maps and moving windows.",
+      "concepts": [
+        "Frequency counters",
+        "Fixed vs variable window",
+        "Converging pointers",
+        "Subarray sum with running-sum map"
+      ],
+      "cheatSheet": "Expand the right edge, shrink the left edge when the constraint breaks."
+    },
+    {
+      "id": "binary-search",
+      "phase": 1,
+      "title": "Binary Search & Answer Space",
+      "category": "Searching",
+      "tags": [
+        "Binary Search"
+      ],
+      "summary": "Search sorted data, rotated data, or the answer range itself.",
+      "concepts": [
+        "left<=right vs left<right templates",
+        "Rotated arrays",
+        "Binary search on answer"
+      ],
+      "cheatSheet": "If a predicate flips from false to true once, binary search finds the boundary."
+    },
+    {
+      "id": "linked-list",
+      "phase": 1,
+      "title": "Linked Lists",
+      "category": "Linked List",
+      "tags": [
+        "Linked List"
+      ],
+      "summary": "Pointer manipulation, cycle detection and list splicing.",
+      "concepts": [
+        "Dummy head",
+        "Fast/slow pointers",
+        "In-place reversal",
+        "Merge K lists"
+      ],
+      "cheatSheet": "A dummy head node removes almost every head edge case."
+    },
+    {
+      "id": "stack-queue",
+      "phase": 2,
+      "title": "Stacks, Queues & Monotonic Structures",
+      "category": "Stack & Queue",
+      "tags": [
+        "Stack",
+        "Queue"
+      ],
+      "summary": "Range-boundary problems in linear time.",
+      "concepts": [
+        "Next greater element",
+        "Monotonic deque",
+        "Parentheses matching",
+        "Queue via stacks"
+      ],
+      "cheatSheet": "Keep the stack monotonic; pop while the incoming element breaks the order."
+    },
+    {
+      "id": "trees",
+      "phase": 2,
+      "title": "Trees & BSTs",
+      "category": "Trees",
+      "tags": [
+        "Tree",
+        "Binary Search Tree"
+      ],
+      "summary": "Recursive divide and conquer plus level-order traversal.",
+      "concepts": [
+        "DFS orders",
+        "Level-order BFS",
+        "LCA",
+        "BST validation",
+        "Serialize / deserialize"
+      ],
+      "cheatSheet": "Compute left, compute right, combine at the node, return to the parent."
+    },
+    {
+      "id": "heaps",
+      "phase": 2,
+      "title": "Heaps & Priority Queues",
+      "category": "Heaps",
+      "tags": [
+        "Heap"
+      ],
+      "summary": "Track running extremes and top-K in O(log N).",
+      "concepts": [
+        "Top-K with a size-K heap",
+        "Two-heap median",
+        "K-way merge"
+      ],
+      "cheatSheet": "For the K largest, keep a min-heap of size K."
+    },
+    {
+      "id": "graphs",
+      "phase": 2,
+      "title": "Graphs & Grid Traversal",
+      "category": "Graphs",
+      "tags": [
+        "Graph"
+      ],
+      "summary": "BFS/DFS, topological sort, shortest paths and union-find.",
+      "concepts": [
+        "Grid as implicit graph",
+        "Multi-source BFS",
+        "Kahn topological sort",
+        "Dijkstra",
+        "Union-Find"
+      ],
+      "cheatSheet": "BFS for unweighted shortest path; Dijkstra when edges carry weights."
+    },
+    {
+      "id": "recursion-backtracking",
+      "phase": 3,
+      "title": "Recursion & Backtracking",
+      "category": "Backtracking",
+      "tags": [
+        "Backtracking",
+        "Recursion"
+      ],
+      "summary": "Enumerate choices, prune early, undo state.",
+      "concepts": [
+        "Choose / explore / un-choose",
+        "Pruning",
+        "Permutations & subsets"
+      ],
+      "cheatSheet": "Always undo the choice after the recursive call returns."
+    },
+    {
+      "id": "greedy",
+      "phase": 3,
+      "title": "Greedy & Intervals",
+      "category": "Greedy",
+      "tags": [
+        "Greedy"
+      ],
+      "summary": "Locally optimal choices that stay globally optimal.",
+      "concepts": [
+        "Interval scheduling",
+        "Sort by end / start",
+        "Exchange argument"
+      ],
+      "cheatSheet": "If you cannot argue why the local choice is safe, it is probably DP."
+    },
+    {
+      "id": "dp",
+      "phase": 3,
+      "title": "Dynamic Programming",
+      "category": "Dynamic Programming",
+      "tags": [
+        "Dynamic Programming"
+      ],
+      "summary": "Optimal substructure and overlapping subproblems on arrays, strings and grids.",
+      "concepts": [
+        "Memoization vs tabulation",
+        "State & transition",
+        "Knapsack, LCS, edit distance",
+        "Space optimisation"
+      ],
+      "cheatSheet": "Define dp[i] in one sentence, then express it only via earlier states."
+    }
+  ],
+  "dsaPhases": [
+    {
+      "number": 1,
+      "title": "Core Patterns & Linear Data Structures",
+      "timeline": "Week 1 - 2",
+      "description": "Array, string, hashing, search and list patterns behind most screening rounds."
+    },
+    {
+      "number": 2,
+      "title": "Trees, Graphs, Heaps & Stacks",
+      "timeline": "Week 3 - 4",
+      "description": "Non-linear structures that dominate onsite coding loops."
+    },
+    {
+      "number": 3,
+      "title": "Backtracking, Greedy & Dynamic Programming",
+      "timeline": "Week 5 - 6",
+      "description": "The hardest, highest-signal problems for each company."
+    }
+  ],
+  "companyTopics": {
+    "google": [
+      {
+        "id": "g-crawler",
+        "title": "Design Search, Crawling & Autocomplete",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Google)",
+        "summary": "Crawl and index billions of pages, then answer queries and prefixes fast.",
+        "concepts": [
+          "URL frontier & politeness per host",
+          "Content dedupe with SimHash / Bloom filters",
+          "Inverted index sharding",
+          "Top-K prefix suggestions"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a search system using Elasticsearch.",
+            "path": "/design-a-search-system-using-elasticsearch?id=hld-835"
+          },
+          {
+            "title": "Design a full-text search system.",
+            "path": "/design-a-full-text-search-system?id=hld-837"
+          },
+          {
+            "title": "Design an autocomplete system.",
+            "path": "/design-an-autocomplete-system?id=hld-836"
+          }
+        ],
+        "cheatSheet": "Shard the index by document, replicate by query load."
+      },
+      {
+        "id": "g-kv",
+        "title": "Design a Distributed Key-Value Store (Bigtable/Spanner style)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Google)",
+        "summary": "Partitioning, replication, and consistency trade-offs at global scale.",
+        "concepts": [
+          "Consistent hashing & range partitioning",
+          "Quorum reads/writes, Paxos/Raft",
+          "LSM trees & compaction",
+          "TrueTime / external consistency"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a key-value store.",
+            "path": "/design-a-key-value-store?id=hld-832"
+          },
+          {
+            "title": "Design consistent hashing.",
+            "path": "/design-consistent-hashing?id=hld-823"
+          },
+          {
+            "title": "Explain Raft-based architecture.",
+            "path": "/explain-raft-based-architecture?id=hld-951"
+          },
+          {
+            "title": "Design a globally distributed database.",
+            "path": "/design-a-globally-distributed-database?id=hld-960"
+          },
+          {
+            "title": "Explain the CAP theorem through system design.",
+            "path": "/explain-the-cap-theorem-through-system-design?id=hld-944"
+          }
+        ],
+        "cheatSheet": "Pick the consistency level per operation, not per system."
+      },
+      {
+        "id": "g-docs",
+        "title": "Design Google Workspace (Docs, Drive, Gmail, Calendar)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Google)",
+        "summary": "Real-time collaboration and productivity apps at Google scale.",
+        "concepts": [
+          "Operational Transformation vs CRDTs",
+          "WebSocket sessions & presence",
+          "Chunked file sync",
+          "Mail storage & search"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Google Docs (collaborative editing).",
+            "path": "/design-google-docs-collaborative-editing?id=hld-904"
+          },
+          {
+            "title": "Design Google Drive.",
+            "path": "/design-google-drive?id=hld-902"
+          },
+          {
+            "title": "Design Gmail.",
+            "path": "/design-gmail?id=hld-906"
+          },
+          {
+            "title": "Design Google Calendar.",
+            "path": "/design-google-calendar?id=hld-905"
+          }
+        ],
+        "cheatSheet": "Server serialises operations; clients transform against the unseen ones."
+      },
+      {
+        "id": "g-yt",
+        "title": "Design YouTube / Video Platform",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Google)",
+        "summary": "Upload, transcode, stream and count views at scale.",
+        "concepts": [
+          "Chunked upload & async transcoding",
+          "HLS / DASH adaptive bitrate",
+          "CDN tiers",
+          "Approximate view counters"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design YouTube.",
+            "path": "/design-youtube?id=hld-891"
+          },
+          {
+            "title": "Design a large-file upload system.",
+            "path": "/design-a-large-file-upload-system?id=hld-849"
+          },
+          {
+            "title": "What is a CDN?",
+            "path": "/what-is-a-cdn?id=hld-710"
+          }
+        ],
+        "cheatSheet": "Clients stream 2-10s chunks listed in a manifest, never the raw file."
+      },
+      {
+        "id": "g-maps",
+        "title": "Design Google Maps / Geospatial Service",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Google)",
+        "summary": "Tile serving, routing and location search.",
+        "concepts": [
+          "Quadtrees / S2 cells",
+          "Contraction hierarchies for routing",
+          "Tile CDN caching"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Google Maps.",
+            "path": "/design-google-maps?id=hld-907"
+          },
+          {
+            "title": "Design real-time GPS tracking.",
+            "path": "/design-real-time-gps-tracking?id=hld-976"
+          }
+        ],
+        "cheatSheet": "Index space hierarchically so nearby points share a prefix."
+      },
+      {
+        "id": "g-googleyness",
+        "title": "Googleyness & Leadership",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Decisive (Google)",
+        "summary": "Show collaboration, comfort with ambiguity and intellectual humility.",
+        "concepts": [
+          "Navigating ambiguity",
+          "Receiving hints and feedback well",
+          "Doing the right thing under pressure",
+          "Influencing without authority"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a time you navigated a highly ambiguous problem.",
+            "path": "/tell-me-about-a-time-you-navigated-a-highly-ambiguous-problem?id=behavioral-29"
+          },
+          {
+            "title": "Tell me about a time you helped a teammate succeed.",
+            "path": "/tell-me-about-a-time-you-helped-a-teammate-succeed?id=behavioral-30"
+          },
+          {
+            "title": "Tell me about a time you did the right thing even when it was hard.",
+            "path": "/tell-me-about-a-time-you-did-the-right-thing-even-when-it-was-hard?id=behavioral-31"
+          },
+          {
+            "title": "Tell me about a time you challenged the status quo.",
+            "path": "/tell-me-about-a-time-you-challenged-the-status-quo?id=behavioral-32"
+          },
+          {
+            "title": "Tell me about a time you worked with a diverse team.",
+            "path": "/tell-me-about-a-time-you-worked-with-a-diverse-team?id=behavioral-33"
+          },
+          {
+            "title": "Tell me about a time you had to learn from a hint or feedback during problem solving.",
+            "path": "/tell-me-about-a-time-you-had-to-learn-from-a-hint-or-feedback-during-problem-sol?id=behavioral-34"
+          },
+          {
+            "title": "Mock interview: Googleyness & Leadership",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Narrate your thinking and welcome hints; Google scores how you collaborate, not just the answer."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "amazon": [
+      {
+        "id": "a-lld",
+        "title": "Amazon LLD: Parking Lot, Locker & Elevator",
+        "track": "system-design",
+        "category": "OOP & LLD",
+        "difficulty": "Medium-Hard",
+        "weightage": "Highest (Amazon)",
+        "summary": "Class design with clean OOP, patterns and thread-safe APIs.",
+        "concepts": [
+          "Entities, enums & interfaces",
+          "Strategy for pricing / allocation",
+          "Factory for vehicle / locker types",
+          "Concurrency on shared state"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a parking lot system.",
+            "path": "/design-a-parking-lot-system?id=hld-761"
+          },
+          {
+            "title": "Explain the Strategy pattern.",
+            "path": "/explain-the-strategy-pattern?id=design-patterns-2575"
+          },
+          {
+            "title": "Explain the Factory Method pattern.",
+            "path": "/explain-the-factory-method-pattern?id=design-patterns-2562"
+          },
+          {
+            "title": "What is the Singleton pattern and how do you implement it correctly?",
+            "path": "/what-is-the-singleton-pattern-and-how-do-you-implement-it-correctly?id=design-patterns-2561"
+          },
+          {
+            "title": "What is `ReentrantLock` and how does it differ from `synchronized`?",
+            "path": "/what-is-reentrantlock-and-how-does-it-differ-from-synchronized?id=java-164"
+          }
+        ],
+        "cheatSheet": "Clarify requirements, define entities, interfaces, concrete services, then concurrency."
+      },
+      {
+        "id": "a-orders",
+        "title": "Design Amazon E-Commerce & Order Processing",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Amazon)",
+        "summary": "Cart, inventory reservation, payment and fulfilment.",
+        "concepts": [
+          "Saga pattern for distributed orders",
+          "Inventory reservation & overselling",
+          "Idempotent payment APIs",
+          "SQS / DynamoDB building blocks"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Amazon (e-commerce).",
+            "path": "/design-amazon-e-commerce?id=hld-911"
+          },
+          {
+            "title": "Design an event-driven order system using Kafka.",
+            "path": "/design-an-event-driven-order-system-using-kafka?id=hld-859"
+          },
+          {
+            "title": "Design Saga orchestration.",
+            "path": "/design-saga-orchestration?id=hld-956"
+          },
+          {
+            "title": "Design an idempotent payment API.",
+            "path": "/design-an-idempotent-payment-api?id=hld-801"
+          }
+        ],
+        "cheatSheet": "Never hold a lock across services; use compensating actions."
+      },
+      {
+        "id": "a-flash",
+        "title": "Design a Flash Sale / Traffic Spike System",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Amazon)",
+        "summary": "Survive 100x traffic spikes without overselling.",
+        "concepts": [
+          "Queue-based load leveling",
+          "Atomic decrement / conditional writes",
+          "Rate limiting & waiting rooms",
+          "Hot key mitigation"
+        ],
+        "practiceProblems": [
+          {
+            "title": "How would you handle a traffic spike?",
+            "path": "/how-would-you-handle-a-traffic-spike?id=hld-1037"
+          },
+          {
+            "title": "Design a distributed rate limiter.",
+            "path": "/design-a-distributed-rate-limiter?id=hld-780"
+          },
+          {
+            "title": "How do you handle hot keys?",
+            "path": "/how-do-you-handle-hot-keys?id=hld-1023"
+          },
+          {
+            "title": "Design a distributed cache.",
+            "path": "/design-a-distributed-cache?id=hld-779"
+          }
+        ],
+        "cheatSheet": "Absorb the spike with a queue, decide stock atomically at one place."
+      },
+      {
+        "id": "a-s3",
+        "title": "Design AWS Building Blocks: S3 & SQS",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Amazon)",
+        "summary": "Durable blob storage and a managed queue.",
+        "concepts": [
+          "Erasure coding vs replication",
+          "Metadata vs data plane",
+          "Visibility timeouts & at-least-once delivery"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design an AWS-like object storage service (S3).",
+            "path": "/design-an-aws-like-object-storage-service-s3?id=hld-985"
+          },
+          {
+            "title": "Design an AWS-like message queue (SQS).",
+            "path": "/design-an-aws-like-message-queue-sqs?id=hld-986"
+          },
+          {
+            "title": "Design a distributed file system.",
+            "path": "/design-a-distributed-file-system?id=hld-848"
+          }
+        ],
+        "cheatSheet": "Separate the metadata service from the data nodes and scale them independently."
+      },
+      {
+        "id": "a-notif",
+        "title": "Design a Notification Service",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Medium",
+        "weightage": "High (Amazon)",
+        "summary": "Fan-out email / SMS / push reliably.",
+        "concepts": [
+          "Pub/sub fan-out",
+          "Retries, DLQ, deduplication",
+          "User preference store"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a notification service.",
+            "path": "/design-a-notification-service?id=hld-754"
+          },
+          {
+            "title": "Design a Kafka-based notification system.",
+            "path": "/design-a-kafka-based-notification-system?id=hld-861"
+          },
+          {
+            "title": "Design a dead-letter queue system.",
+            "path": "/design-a-dead-letter-queue-system?id=hld-797"
+          }
+        ],
+        "cheatSheet": "At-least-once delivery plus idempotent consumers."
+      },
+      {
+        "id": "a-lp",
+        "title": "Leadership Principles (all 16)",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Decisive (Amazon: ~50% of score)",
+        "summary": "Every loop round opens with LP questions; the Bar Raiser is the veto.",
+        "concepts": [
+          "Customer Obsession, Ownership, Bias for Action",
+          "Dive Deep, Deliver Results, Earn Trust",
+          "STAR with quantified results",
+          "A story matrix covering all 16 LPs"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a time you obsessed over a customer (Customer Obsession).",
+            "path": "/tell-me-about-a-time-you-obsessed-over-a-customer-customer-obsession?id=behavioral-21"
+          },
+          {
+            "title": "Tell me about a time you took ownership of something outside your area (Ownership).",
+            "path": "/tell-me-about-a-time-you-took-ownership-of-something-outside-your-area-ownership?id=behavioral-22"
+          },
+          {
+            "title": "Tell me about a time you had to Dive Deep to find a root cause.",
+            "path": "/tell-me-about-a-time-you-had-to-dive-deep-to-find-a-root-cause?id=behavioral-23"
+          },
+          {
+            "title": "Tell me about a time you had a Bias for Action.",
+            "path": "/tell-me-about-a-time-you-had-a-bias-for-action?id=behavioral-24"
+          },
+          {
+            "title": "Tell me about a time you disagreed and committed (Have Backbone; Disagree and Commit).",
+            "path": "/tell-me-about-a-time-you-disagreed-and-committed-have-backbone-disagree-and-comm?id=behavioral-25"
+          },
+          {
+            "title": "Tell me about a time you delivered results despite obstacles (Deliver Results).",
+            "path": "/tell-me-about-a-time-you-delivered-results-despite-obstacles-deliver-results?id=behavioral-26"
+          },
+          {
+            "title": "Tell me about a time you simplified something (Invent and Simplify).",
+            "path": "/tell-me-about-a-time-you-simplified-something-invent-and-simplify?id=behavioral-27"
+          },
+          {
+            "title": "Tell me about a time you earned the trust of a skeptical stakeholder (Earn Trust).",
+            "path": "/tell-me-about-a-time-you-earned-the-trust-of-a-skeptical-stakeholder-earn-trust?id=behavioral-28"
+          },
+          {
+            "title": "Mock interview: Leadership Principles (all 16)",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Prepare 8-10 stories and map each to 2-3 LPs; always state your own contribution."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "meta": [
+      {
+        "id": "m-feed",
+        "title": "Design News Feed: Facebook & Instagram",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Highest (Meta)",
+        "summary": "Feed generation, ranking and fan-out.",
+        "concepts": [
+          "Fan-out on write vs read (hybrid for celebrities)",
+          "Feed cache (TAO / Memcache)",
+          "Ranking pipeline",
+          "Media storage & CDN"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Facebook.",
+            "path": "/design-facebook?id=hld-895"
+          },
+          {
+            "title": "Design Instagram.",
+            "path": "/design-instagram?id=hld-894"
+          },
+          {
+            "title": "Design a globally distributed social-media platform.",
+            "path": "/design-a-globally-distributed-social-media-platform?id=hld-997"
+          }
+        ],
+        "cheatSheet": "Push for normal users, pull for users with millions of followers."
+      },
+      {
+        "id": "m-chat",
+        "title": "Design WhatsApp / Messenger",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Meta)",
+        "summary": "Low-latency 1:1 and group messaging with presence.",
+        "concepts": [
+          "WebSockets & connection servers",
+          "User-to-server mapping",
+          "Offline queues & push",
+          "Cassandra-style message log"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design WhatsApp.",
+            "path": "/design-whatsapp?id=hld-884"
+          },
+          {
+            "title": "Design presence detection.",
+            "path": "/design-presence-detection?id=hld-982"
+          },
+          {
+            "title": "Design online/offline user status.",
+            "path": "/design-online-offline-user-status?id=hld-983"
+          }
+        ],
+        "cheatSheet": "Keep connection servers stateless; map users to servers in a shared store."
+      },
+      {
+        "id": "m-live",
+        "title": "Design Live Video & Live Comments",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Meta)",
+        "summary": "Millions of concurrent viewers, bursty writes.",
+        "concepts": [
+          "Long polling vs SSE vs WebSocket",
+          "Write coalescing & sampling",
+          "Pub/sub channels per stream"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a live-streaming platform.",
+            "path": "/design-a-live-streaming-platform?id=hld-977"
+          },
+          {
+            "title": "Design millions of WebSocket connections.",
+            "path": "/design-millions-of-websocket-connections?id=hld-981"
+          },
+          {
+            "title": "Design live sports score updates.",
+            "path": "/design-live-sports-score-updates?id=hld-971"
+          }
+        ],
+        "cheatSheet": "Sample and batch at the edge; not every viewer needs every comment."
+      },
+      {
+        "id": "m-counter",
+        "title": "Design a Distributed Counter / Like Service",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Medium-Hard",
+        "weightage": "High (Meta)",
+        "summary": "Hot keys, approximate vs exact counts.",
+        "concepts": [
+          "Sharded counters",
+          "Write-behind aggregation",
+          "Count-Min Sketch / HyperLogLog"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a distributed counter.",
+            "path": "/design-a-distributed-counter?id=hld-825"
+          },
+          {
+            "title": "What happens when a shard becomes hot?",
+            "path": "/what-happens-when-a-shard-becomes-hot?id=hld-1022"
+          },
+          {
+            "title": "How do you handle hot keys?",
+            "path": "/how-do-you-handle-hot-keys?id=hld-1023"
+          }
+        ],
+        "cheatSheet": "Split a hot counter into N shards and sum on read."
+      },
+      {
+        "id": "m-search",
+        "title": "Design Typeahead & Recommendations",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Medium-Hard",
+        "weightage": "Medium (Meta)",
+        "summary": "Prefix search and \"people you may know\".",
+        "concepts": [
+          "Trie / prefix index",
+          "Precomputed candidates",
+          "Top-K suggestions caching"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design an autocomplete system.",
+            "path": "/design-an-autocomplete-system?id=hld-836"
+          },
+          {
+            "title": "Design a recommendation storage system.",
+            "path": "/design-a-recommendation-storage-system?id=hld-839"
+          }
+        ],
+        "cheatSheet": "Precompute top suggestions per prefix and serve from cache."
+      },
+      {
+        "id": "m-values",
+        "title": "Meta Values & Impact",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "High (Meta)",
+        "summary": "Move fast, be bold, focus on long-term impact.",
+        "concepts": [
+          "Move Fast and ship",
+          "Be Direct and Respect Your Colleagues",
+          "Conflict and cross-team friction",
+          "Impact stories with metrics"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a time you moved fast to ship something.",
+            "path": "/tell-me-about-a-time-you-moved-fast-to-ship-something?id=behavioral-35"
+          },
+          {
+            "title": "Tell me about your most impactful project.",
+            "path": "/tell-me-about-your-most-impactful-project?id=behavioral-36"
+          },
+          {
+            "title": "Tell me about a time you resolved cross-team friction.",
+            "path": "/tell-me-about-a-time-you-resolved-cross-team-friction?id=behavioral-37"
+          },
+          {
+            "title": "Tell me about a time you were bold and took a risk.",
+            "path": "/tell-me-about-a-time-you-were-bold-and-took-a-risk?id=behavioral-38"
+          },
+          {
+            "title": "Tell me about a time you gave direct feedback to a peer.",
+            "path": "/tell-me-about-a-time-you-gave-direct-feedback-to-a-peer?id=behavioral-39"
+          },
+          {
+            "title": "How do you decide what not to work on?",
+            "path": "/how-do-you-decide-what-not-to-work-on?id=behavioral-40"
+          },
+          {
+            "title": "Mock interview: Meta Values & Impact",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Lead with impact numbers and what you personally shipped."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "microsoft": [
+      {
+        "id": "ms-oop",
+        "title": "Clean OOP, SOLID & Design Patterns",
+        "track": "system-design",
+        "category": "OOP & LLD",
+        "difficulty": "Medium",
+        "weightage": "Highest (Microsoft)",
+        "summary": "Readable, testable, extensible code with unit tests.",
+        "concepts": [
+          "SOLID principles",
+          "Factory, Builder, Observer, Decorator",
+          "Dependency injection",
+          "Unit-test-friendly design"
+        ],
+        "practiceProblems": [
+          {
+            "title": "What are the SOLID principles?",
+            "path": "/what-are-the-solid-principles?id=design-patterns-2588"
+          },
+          {
+            "title": "Explain the Observer pattern.",
+            "path": "/explain-the-observer-pattern?id=design-patterns-2576"
+          },
+          {
+            "title": "Explain the Builder pattern and when to use it.",
+            "path": "/explain-the-builder-pattern-and-when-to-use-it?id=design-patterns-2564"
+          },
+          {
+            "title": "Explain the Decorator pattern.",
+            "path": "/explain-the-decorator-pattern?id=design-patterns-2570"
+          },
+          {
+            "title": "What is Dependency Injection and how does it relate to IoC?",
+            "path": "/what-is-dependency-injection-and-how-does-it-relate-to-ioc?id=design-patterns-2592"
+          }
+        ],
+        "cheatSheet": "Favour composition over inheritance; program to interfaces."
+      },
+      {
+        "id": "ms-collab",
+        "title": "Design Office & Teams Collaboration",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Microsoft)",
+        "summary": "Concurrent edits, meetings and real-time presence.",
+        "concepts": [
+          "Operational Transformation / CRDT",
+          "WebSocket gateway (SignalR style)",
+          "Media servers for meetings"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Google Docs (collaborative editing).",
+            "path": "/design-google-docs-collaborative-editing?id=hld-904"
+          },
+          {
+            "title": "Design Zoom.",
+            "path": "/design-zoom?id=hld-888"
+          },
+          {
+            "title": "Design a video conferencing system (generic).",
+            "path": "/design-a-video-conferencing-system-generic?id=hld-890"
+          }
+        ],
+        "cheatSheet": "One authoritative ordering per document."
+      },
+      {
+        "id": "ms-storage",
+        "title": "Design Cloud File Storage (OneDrive)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Microsoft)",
+        "summary": "Sync, chunking and dedupe.",
+        "concepts": [
+          "Chunking & content-addressed storage",
+          "Delta / resumable sync",
+          "Metadata DB vs blob store"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Dropbox.",
+            "path": "/design-dropbox?id=hld-903"
+          },
+          {
+            "title": "Design resumable file uploads.",
+            "path": "/design-resumable-file-uploads?id=hld-850"
+          },
+          {
+            "title": "Design file deduplication.",
+            "path": "/design-file-deduplication?id=hld-851"
+          }
+        ],
+        "cheatSheet": "Upload only changed chunks, identified by hash."
+      },
+      {
+        "id": "ms-chat",
+        "title": "Design Team Chat (Teams / Slack)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Microsoft)",
+        "summary": "Channels, threads, presence.",
+        "concepts": [
+          "Fan-out per channel",
+          "Presence service",
+          "Message search index"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Slack.",
+            "path": "/design-slack?id=hld-886"
+          },
+          {
+            "title": "Design a real-time chat system.",
+            "path": "/design-a-real-time-chat-system?id=hld-969"
+          },
+          {
+            "title": "Design presence detection.",
+            "path": "/design-presence-detection?id=hld-982"
+          }
+        ],
+        "cheatSheet": "Channel membership drives the fan-out set."
+      },
+      {
+        "id": "ms-cache",
+        "title": "Design Distributed Cache, Rate Limiter & IAM",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Medium-Hard",
+        "weightage": "High (Microsoft)",
+        "summary": "Azure-style platform building blocks.",
+        "concepts": [
+          "Cache-aside / invalidation",
+          "Sliding window rate limiting",
+          "Enterprise identity"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a distributed cache.",
+            "path": "/design-a-distributed-cache?id=hld-779"
+          },
+          {
+            "title": "Design a sliding-window rate limiter.",
+            "path": "/design-a-sliding-window-rate-limiter?id=hld-782"
+          },
+          {
+            "title": "Design an enterprise IAM platform.",
+            "path": "/design-an-enterprise-iam-platform?id=hld-992"
+          }
+        ],
+        "cheatSheet": "Cache-aside is the default; invalidate on write."
+      },
+      {
+        "id": "ms-growth",
+        "title": "Growth Mindset & Collaboration",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "High (Microsoft AA round)",
+        "summary": "Learn, listen, and make others better.",
+        "concepts": [
+          "Learning from failure",
+          "Customer empathy",
+          "Collaborating across teams",
+          "Technical ambition"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a time you learned from a failure.",
+            "path": "/tell-me-about-a-time-you-learned-from-a-failure?id=behavioral-41"
+          },
+          {
+            "title": "Tell me about a time you showed empathy for a customer.",
+            "path": "/tell-me-about-a-time-you-showed-empathy-for-a-customer?id=behavioral-42"
+          },
+          {
+            "title": "Tell me about a time you collaborated across teams to deliver.",
+            "path": "/tell-me-about-a-time-you-collaborated-across-teams-to-deliver?id=behavioral-43"
+          },
+          {
+            "title": "Tell me about a time you raised the quality bar for code.",
+            "path": "/tell-me-about-a-time-you-raised-the-quality-bar-for-code?id=behavioral-44"
+          },
+          {
+            "title": "How do you handle a teammate who is struggling?",
+            "path": "/how-do-you-handle-a-teammate-who-is-struggling?id=behavioral-45"
+          },
+          {
+            "title": "Mock interview: Growth Mindset & Collaboration",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Show what you changed in your approach after feedback."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "uber": [
+      {
+        "id": "u-ride",
+        "title": "Design Ride-Sharing (Uber)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Very Hard",
+        "weightage": "Highest (Uber)",
+        "summary": "Matching riders to drivers in real time.",
+        "concepts": [
+          "Geospatial indexing: Geohash / QuadTree / H3",
+          "Location ingestion every ~4s",
+          "Dispatch & matching engine",
+          "Distributed lock on ride acceptance"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Uber.",
+            "path": "/design-uber?id=hld-908"
+          },
+          {
+            "title": "Design a ride-location tracking system.",
+            "path": "/design-a-ride-location-tracking-system?id=hld-975"
+          },
+          {
+            "title": "Design Ola.",
+            "path": "/design-ola?id=hld-909"
+          }
+        ],
+        "cheatSheet": "H3 hexagons give uniform neighbour distances."
+      },
+      {
+        "id": "u-eats",
+        "title": "Design Uber Eats / Food Delivery",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Uber)",
+        "summary": "Three-sided marketplace: eater, restaurant, courier.",
+        "concepts": [
+          "Order state machine",
+          "Courier dispatch & batching",
+          "ETA prediction"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design an online food-delivery platform.",
+            "path": "/design-an-online-food-delivery-platform?id=hld-914"
+          },
+          {
+            "title": "Design an order-processing pipeline.",
+            "path": "/design-an-order-processing-pipeline?id=hld-860"
+          }
+        ],
+        "cheatSheet": "Model the order as a state machine; every transition is an event."
+      },
+      {
+        "id": "u-surge",
+        "title": "Design Surge Pricing & Real-Time Analytics",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Uber)",
+        "summary": "Compute demand-supply per region in near real time.",
+        "concepts": [
+          "Stream processing windows",
+          "Per-cell aggregation",
+          "Price smoothing & fairness"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a real-time analytics platform.",
+            "path": "/design-a-real-time-analytics-platform?id=hld-979"
+          },
+          {
+            "title": "Design a Kafka-based analytics pipeline.",
+            "path": "/design-a-kafka-based-analytics-pipeline?id=hld-863"
+          }
+        ],
+        "cheatSheet": "Aggregate per geo-cell over a sliding window."
+      },
+      {
+        "id": "u-pay",
+        "title": "Design Payments, Wallet & Ledger",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Uber)",
+        "summary": "Exactly-once money movement.",
+        "concepts": [
+          "Idempotency keys",
+          "Double-entry ledger",
+          "Saga & reconciliation"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a payment processing system.",
+            "path": "/design-a-payment-processing-system?id=hld-920"
+          },
+          {
+            "title": "Design a wallet system.",
+            "path": "/design-a-wallet-system?id=hld-921"
+          },
+          {
+            "title": "Design double-entry accounting.",
+            "path": "/design-double-entry-accounting?id=hld-933"
+          },
+          {
+            "title": "Design payment idempotency.",
+            "path": "/design-payment-idempotency?id=hld-930"
+          }
+        ],
+        "cheatSheet": "Money is a ledger of immutable entries, never an updated balance column."
+      },
+      {
+        "id": "u-lock",
+        "title": "Concurrency & Distributed Locks",
+        "track": "system-design",
+        "category": "Concurrency",
+        "difficulty": "Hard",
+        "weightage": "High (Uber)",
+        "summary": "Race conditions during booking.",
+        "concepts": [
+          "Optimistic vs pessimistic locking",
+          "Redlock caveats",
+          "Deadlock prevention"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a distributed lock.",
+            "path": "/design-a-distributed-lock?id=hld-783"
+          },
+          {
+            "title": "Design a distributed lock service at scale.",
+            "path": "/design-a-distributed-lock-service-at-scale?id=hld-953"
+          },
+          {
+            "title": "What is deadlock and how do you prevent it?",
+            "path": "/what-is-deadlock-and-how-do-you-prevent-it?id=java-178"
+          }
+        ],
+        "cheatSheet": "Prefer a single owner (a partition) over a distributed lock."
+      },
+      {
+        "id": "u-culture",
+        "title": "Bar Raiser & Ownership",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "High (Uber)",
+        "summary": "High standards, ownership, cross-functional collaboration.",
+        "concepts": [
+          "Technical ownership",
+          "Data-driven decisions",
+          "Handling production incidents"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a production incident you owned end to end.",
+            "path": "/tell-me-about-a-production-incident-you-owned-end-to-end?id=behavioral-46"
+          },
+          {
+            "title": "Tell me about a data-driven decision you made.",
+            "path": "/tell-me-about-a-data-driven-decision-you-made?id=behavioral-47"
+          },
+          {
+            "title": "Tell me about a time you raised the bar for your team.",
+            "path": "/tell-me-about-a-time-you-raised-the-bar-for-your-team?id=behavioral-48"
+          },
+          {
+            "title": "Tell me about a time you worked with product and operations.",
+            "path": "/tell-me-about-a-time-you-worked-with-product-and-operations?id=behavioral-49"
+          },
+          {
+            "title": "Tell me about a time you had to balance speed with safety.",
+            "path": "/tell-me-about-a-time-you-had-to-balance-speed-with-safety?id=behavioral-50"
+          },
+          {
+            "title": "Mock interview: Bar Raiser & Ownership",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Use incident stories: detection, mitigation, root cause, prevention."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "netflix": [
+      {
+        "id": "n-stream",
+        "title": "Design Netflix Video Streaming",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Highest (Netflix)",
+        "summary": "Encoding pipeline, adaptive streaming and playback.",
+        "concepts": [
+          "Parallel chunked transcoding",
+          "ABR ladders (HLS/DASH)",
+          "Open Connect CDN appliances",
+          "Playback telemetry"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Netflix.",
+            "path": "/design-netflix?id=hld-892"
+          },
+          {
+            "title": "What is a CDN?",
+            "path": "/what-is-a-cdn?id=hld-710"
+          },
+          {
+            "title": "Design a live-streaming platform.",
+            "path": "/design-a-live-streaming-platform?id=hld-977"
+          }
+        ],
+        "cheatSheet": "Pre-position popular titles at the ISP edge overnight."
+      },
+      {
+        "id": "n-resilience",
+        "title": "Resilience, Chaos Engineering & Circuit Breakers",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Highest (Netflix)",
+        "summary": "Design for dependency failure and region loss.",
+        "concepts": [
+          "Circuit breaker / bulkhead (Hystrix)",
+          "Retry storms & backoff",
+          "Region evacuation",
+          "Multi-region active-active"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a circuit-breaker service.",
+            "path": "/design-a-circuit-breaker-service?id=hld-813"
+          },
+          {
+            "title": "Explain the Bulkhead pattern at the architecture level.",
+            "path": "/explain-the-bulkhead-pattern-at-the-architecture-level?id=design-patterns-2615"
+          },
+          {
+            "title": "How do you prevent retry storms?",
+            "path": "/how-do-you-prevent-retry-storms?id=hld-1027"
+          },
+          {
+            "title": "Design a system that survives an entire region failure.",
+            "path": "/design-a-system-that-survives-an-entire-region-failure?id=hld-968"
+          },
+          {
+            "title": "Design an active-active architecture.",
+            "path": "/design-an-active-active-architecture?id=hld-817"
+          }
+        ],
+        "cheatSheet": "Every remote call needs a timeout, a fallback and a breaker."
+      },
+      {
+        "id": "n-gateway",
+        "title": "Design an API Gateway (Zuul) & Service Discovery (Eureka)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Medium-Hard",
+        "weightage": "High (Netflix)",
+        "summary": "Edge routing, auth, filters and discovery.",
+        "concepts": [
+          "Request filters",
+          "Dynamic routing",
+          "Client-side discovery"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design an API gateway for microservices.",
+            "path": "/design-an-api-gateway-for-microservices?id=hld-810"
+          },
+          {
+            "title": "Design a service discovery system.",
+            "path": "/design-a-service-discovery-system?id=hld-787"
+          },
+          {
+            "title": "What is a reverse proxy?",
+            "path": "/what-is-a-reverse-proxy?id=hld-711"
+          }
+        ],
+        "cheatSheet": "Shed low-priority traffic first when overloaded."
+      },
+      {
+        "id": "n-telemetry",
+        "title": "Design Logging, Metrics & Tracing",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Netflix)",
+        "summary": "Ingest millions of events per second.",
+        "concepts": [
+          "Kafka ingestion",
+          "Time-series metrics",
+          "Distributed tracing"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a Kafka-based logging pipeline.",
+            "path": "/design-a-kafka-based-logging-pipeline?id=hld-862"
+          },
+          {
+            "title": "Design a metrics collection system.",
+            "path": "/design-a-metrics-collection-system?id=hld-790"
+          },
+          {
+            "title": "Design a distributed tracing system.",
+            "path": "/design-a-distributed-tracing-system?id=hld-791"
+          }
+        ],
+        "cheatSheet": "Buffer in Kafka so downstream outages never drop events."
+      },
+      {
+        "id": "n-conc",
+        "title": "Concurrency & High-Performance Internals",
+        "track": "system-design",
+        "category": "Concurrency",
+        "difficulty": "Hard",
+        "weightage": "High (Netflix)",
+        "summary": "Senior-level JVM and concurrency depth.",
+        "concepts": [
+          "Executors & thread pools",
+          "Lock-free structures",
+          "Async pipelines"
+        ],
+        "practiceProblems": [
+          {
+            "title": "What is an `ExecutorService` and why would you use it instead of raw threads?",
+            "path": "/what-is-an-executorservice-and-why-would-you-use-it-instead-of-raw-threads?id=java-171"
+          },
+          {
+            "title": "Explain the `ThreadPoolExecutor` parameters.",
+            "path": "/explain-the-threadpoolexecutor-parameters?id=java-173"
+          },
+          {
+            "title": "What is `CompletableFuture`?",
+            "path": "/what-is-completablefuture?id=java-175"
+          },
+          {
+            "title": "How does `ConcurrentHashMap` work internally (Java 8+)?",
+            "path": "/how-does-concurrenthashmap-work-internally-java-8?id=java-198"
+          }
+        ],
+        "cheatSheet": "Know the cost of each lock and when not to use one."
+      },
+      {
+        "id": "n-culture",
+        "title": "Freedom & Responsibility (Culture Memo)",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Decisive (Netflix)",
+        "summary": "Context not control, candor, high performance.",
+        "concepts": [
+          "Candid feedback",
+          "Owning decisions end to end",
+          "Stunning colleagues",
+          "Disagree and commit"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a decision you made without needing approval.",
+            "path": "/tell-me-about-a-decision-you-made-without-needing-approval?id=behavioral-51"
+          },
+          {
+            "title": "Tell me about candid feedback you gave to someone senior.",
+            "path": "/tell-me-about-candid-feedback-you-gave-to-someone-senior?id=behavioral-52"
+          },
+          {
+            "title": "Tell me about a time you provided context instead of control.",
+            "path": "/tell-me-about-a-time-you-provided-context-instead-of-control?id=behavioral-53"
+          },
+          {
+            "title": "Tell me about the hardest technical trade-off you made in a distributed system.",
+            "path": "/tell-me-about-the-hardest-technical-trade-off-you-made-in-a-distributed-system?id=behavioral-54"
+          },
+          {
+            "title": "How do you keep your skills sharp and stay a 'stunning colleague'?",
+            "path": "/how-do-you-keep-your-skills-sharp-and-stay-a-stunning-colleague?id=behavioral-55"
+          },
+          {
+            "title": "Mock interview: Freedom & Responsibility (Culture Memo)",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Read the Culture Memo and bring real examples of each value."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "atlassian": [
+      {
+        "id": "at-craft",
+        "title": "Code Craftsmanship: SOLID, Patterns & Refactoring",
+        "track": "system-design",
+        "category": "OOP & LLD",
+        "difficulty": "Medium-Hard",
+        "weightage": "Highest (Atlassian)",
+        "summary": "Extend an existing codebase cleanly, with tests.",
+        "concepts": [
+          "SOLID",
+          "Strategy, Observer, Factory, State",
+          "Refactor to patterns",
+          "Unit tests as you code"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Explain the Single Responsibility Principle with a refactor example.",
+            "path": "/explain-the-single-responsibility-principle-with-a-refactor-example?id=design-patterns-2589"
+          },
+          {
+            "title": "Explain the Strategy pattern.",
+            "path": "/explain-the-strategy-pattern?id=design-patterns-2575"
+          },
+          {
+            "title": "Explain the Observer pattern.",
+            "path": "/explain-the-observer-pattern?id=design-patterns-2576"
+          },
+          {
+            "title": "Explain the State pattern.",
+            "path": "/explain-the-state-pattern?id=design-patterns-2580"
+          },
+          {
+            "title": "Explain the Factory Method pattern.",
+            "path": "/explain-the-factory-method-pattern?id=design-patterns-2562"
+          }
+        ],
+        "cheatSheet": "Write the test first; extend via new classes, not edits to old ones."
+      },
+      {
+        "id": "at-jira",
+        "title": "Design Jira: Issue Tracker with Workflows",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Atlassian)",
+        "summary": "Custom workflows, search and real-time updates.",
+        "concepts": [
+          "State machine for workflows",
+          "Event-driven updates",
+          "Search index (JQL)",
+          "Audit history"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a simple task management system.",
+            "path": "/design-a-simple-task-management-system?id=hld-758"
+          },
+          {
+            "title": "Design a workflow orchestration system.",
+            "path": "/design-a-workflow-orchestration-system?id=hld-805"
+          },
+          {
+            "title": "Design a search system using Elasticsearch.",
+            "path": "/design-a-search-system-using-elasticsearch?id=hld-835"
+          }
+        ],
+        "cheatSheet": "Model workflow as a state machine with guarded transitions."
+      },
+      {
+        "id": "at-canvas",
+        "title": "Design Confluence / Collaborative Whiteboard",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Atlassian)",
+        "summary": "Concurrent editing with OT or CRDTs.",
+        "concepts": [
+          "Operational Transformation",
+          "WebSocket sessions",
+          "Conflict resolution"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design Google Docs (collaborative editing).",
+            "path": "/design-google-docs-collaborative-editing?id=hld-904"
+          },
+          {
+            "title": "Design conflict resolution.",
+            "path": "/design-conflict-resolution?id=hld-963"
+          },
+          {
+            "title": "Design millions of WebSocket connections.",
+            "path": "/design-millions-of-websocket-connections?id=hld-981"
+          }
+        ],
+        "cheatSheet": "Prefer CRDTs when clients go offline."
+      },
+      {
+        "id": "at-tenancy",
+        "title": "Design Multi-Tenant SaaS: Permissions & Tenancy",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Atlassian)",
+        "summary": "Isolation, RBAC and noisy neighbours.",
+        "concepts": [
+          "Tenant isolation models",
+          "RBAC / ABAC",
+          "Per-tenant rate limits"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a multi-tenant SaaS platform.",
+            "path": "/design-a-multi-tenant-saas-platform?id=hld-990"
+          },
+          {
+            "title": "Design tenant isolation architecture.",
+            "path": "/design-tenant-isolation-architecture?id=hld-991"
+          },
+          {
+            "title": "Design RBAC + ABAC authorization architecture.",
+            "path": "/design-rbac-abac-authorization-architecture?id=hld-994"
+          },
+          {
+            "title": "Design a distributed rate limiter.",
+            "path": "/design-a-distributed-rate-limiter?id=hld-780"
+          }
+        ],
+        "cheatSheet": "Always carry tenant id in every query path."
+      },
+      {
+        "id": "at-events",
+        "title": "Event-Driven Architecture & Webhooks",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Medium-Hard",
+        "weightage": "High (Atlassian)",
+        "summary": "Reliable integrations at scale.",
+        "concepts": [
+          "Outbox pattern",
+          "Retries and DLQ",
+          "Idempotent consumers"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a webhook delivery system.",
+            "path": "/design-a-webhook-delivery-system?id=hld-808"
+          },
+          {
+            "title": "Design a webhook retry mechanism.",
+            "path": "/design-a-webhook-retry-mechanism?id=hld-809"
+          },
+          {
+            "title": "Design an outbox pattern using Kafka.",
+            "path": "/design-an-outbox-pattern-using-kafka?id=hld-880"
+          },
+          {
+            "title": "Design duplicate-event handling.",
+            "path": "/design-duplicate-event-handling?id=hld-873"
+          }
+        ],
+        "cheatSheet": "Write the event in the same transaction as the state change (outbox)."
+      },
+      {
+        "id": "at-values",
+        "title": "Atlassian Values: Open Company, No Bullshit",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "High (Atlassian)",
+        "summary": "Teamwork, candor, and being the change you seek.",
+        "concepts": [
+          "Open company, no bullshit",
+          "Build with heart and balance",
+          "Play as a team",
+          "Constructive code critique"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about a time you were open and transparent about a problem (Open Company, No Bullshit).",
+            "path": "/tell-me-about-a-time-you-were-open-and-transparent-about-a-problem-open-company-?id=behavioral-56"
+          },
+          {
+            "title": "Tell me about a time you played as a team.",
+            "path": "/tell-me-about-a-time-you-played-as-a-team?id=behavioral-57"
+          },
+          {
+            "title": "Tell me about a time you were the change you seek.",
+            "path": "/tell-me-about-a-time-you-were-the-change-you-seek?id=behavioral-58"
+          },
+          {
+            "title": "Tell me about a time you received critique on your code and how you handled it.",
+            "path": "/tell-me-about-a-time-you-received-critique-on-your-code-and-how-you-handled-it?id=behavioral-59"
+          },
+          {
+            "title": "Tell me about a time you balanced building with heart and keeping balance.",
+            "path": "/tell-me-about-a-time-you-balanced-building-with-heart-and-keeping-balance?id=behavioral-60"
+          },
+          {
+            "title": "Mock interview: Atlassian Values: Open Company, No Bullshit",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Show humility: credit teammates and say what you would do differently."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          },
+          {
+            "title": "Mock interview: Core STAR Story Bank",
+            "path": "/interview"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ]
+  },
+  "trackLabel": {
+    "dsa": "DSA",
+    "system-design": "SYSTEM DESIGN",
+    "behavioral": "BEHAVIORAL"
+  }
+}

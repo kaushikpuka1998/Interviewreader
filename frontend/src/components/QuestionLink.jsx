@@ -11,6 +11,7 @@ export default function QuestionLink({ question, isActive, onClick, selectedId, 
     sql: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400',
     microservices: 'bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400',
     'design-patterns': 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400',
+    behavioral: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400',
     kafka: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400',
     default: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400',
   }

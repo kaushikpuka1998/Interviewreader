@@ -15,7 +15,7 @@ import FeedbackPanel from './FeedbackPanel.jsx'
 import InterviewsPanel from './InterviewsPanel.jsx'
 import DuplicatesPanel from './DuplicatesPanel.jsx'
 
-const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'misc', 'angular', 'rails']
+const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'misc', 'angular', 'rails', 'behavioral']
 const DIFFICULTIES = ['Basic', 'Intermediate', 'Advanced', 'Experienced']
 const EMPTY = { id: '', tech: 'java', title: '', question: '', answer: '', difficulty: 'Basic', category: '' }
 const inputCls = 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500'

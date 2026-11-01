@@ -96,6 +96,9 @@ public class SecurityConfig {
                         .requestMatchers("/code/**").authenticated()
                         .requestMatchers("/interviews/admin/**").hasRole("ADMIN")
                         .requestMatchers("/interviews/**").authenticated()
+                        // Billing: Razorpay calls the webhook (HMAC-verified in BillingService); the rest is per member.
+                        .requestMatchers(HttpMethod.POST, "/billing/webhook").permitAll()
+                        .requestMatchers("/billing/**").authenticated()
                         // Public: auth
                         .requestMatchers("/auth/**", "/health").permitAll()
                         // Reads are open so signed-out visitors can browse the free topics.

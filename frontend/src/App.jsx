@@ -13,6 +13,7 @@ import ResumePromo from './components/ResumePromo.jsx'
 import CodePracticePromo from './components/CodePracticePromo.jsx'
 import { fetchFeatures } from './lib/features.js'
 import SignupGate from './components/SignupGate.jsx'
+import { techLabel } from './lib/badges.js'
 import { getUser, isLoggedIn, logout as authLogout, fetchProgress, mergeProgress, markVisitedRemote, markReadRemote, toggleFlaggedRemote, toggleImportantRemote, searchCompanies } from './lib/auth.js'
 import { trackView } from './lib/analytics.js'
 import LocationPrompt from './components/LocationPrompt.jsx'
@@ -23,7 +24,13 @@ function App({ path = '/', onPathChange = () => {} }) {
   const [loaded, setLoaded] = useState(false)
   const [page, setPage] = useState(0)
   const [selectedId, setSelectedId] = useState(null)
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search)
+      return p.get('search') || p.get('q') || ''
+    }
+    return ''
+  })
   const [tech, setTech] = useState(() => new URLSearchParams(window.location.search).get('tech') || 'all')
   const [category, setCategory] = useState('all')
   const [difficulty, setDifficulty] = useState('all')
@@ -207,7 +214,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   // Whole-dataset offline sync: quietly pull every accessible question into
   // IndexedDB (once every 6h) so browsing keeps working with the network off.
   // Techs the current user can't access (401) are just skipped, not an error.
-  const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'microservices', 'design-patterns', 'misc', 'angular', 'rails']
+  const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'microservices', 'design-patterns', 'misc', 'angular', 'rails', 'behavioral']
   useEffect(() => {
     if (!navigator.onLine) return
     const SIX_HOURS = 6 * 60 * 60 * 1000
@@ -253,16 +260,29 @@ function App({ path = '/', onPathChange = () => {} }) {
   // Keep track of the very first ID we loaded with so we don't overwrite it while fetching
   const [pendingUrlId, setPendingUrlId] = useState(initialId)
   const [urlNotFound, setUrlNotFound] = useState(false)   // the id in the URL matches no question
+  const [urlGate, setUrlGate] = useState(null)   // { id, tech, message } when the linked question needs an account
   const lastUrlId = useRef(initialId)
 
   // If the URL changes (e.g. popstate or pushState), update our tracking.
   if (initialId !== lastUrlId.current) {
     lastUrlId.current = initialId
     setUrlNotFound(false)
+    setUrlGate(null)
     if (initialId && !questionsData.some(q => q.id === initialId)) {
       setPendingUrlId(initialId)
     }
   }
+
+  // Back/forward: the URL is the truth again, so drop the last clicked question.
+  useEffect(() => {
+    const onPop = () => {
+      setSelectedId(null); setUrlGate(null); setUrlNotFound(false)
+      // Resolve the URL's question (fetching it if it isn't loaded) instead of falling back to the first one.
+      setPendingUrlId(new URLSearchParams(window.location.search).get('id'))
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   useEffect(() => {
     if (!pendingUrlId) return
@@ -284,6 +304,7 @@ function App({ path = '/', onPathChange = () => {} }) {
       })
       .catch(err => {
         if (err.notFound) setUrlNotFound(true)
+        else if (err.signupRequired) setUrlGate({ id: pendingUrlId, tech: err.tech, message: err.message })
         else console.error(err)
       })
       .finally(() => {
@@ -301,7 +322,16 @@ function App({ path = '/', onPathChange = () => {} }) {
   // Prefer the current selection, then the URL slug, then default to the first result.
   // ONLY fallback to first result if we aren't waiting for the URL ID to load!
   const isPending = pendingUrlId && initialId === pendingUrlId && !byId && !bySlug
-  const selected = byId || bySlug || (isPending || urlNotFound ? null : (filtered[0] || questionsData[0] || null))
+  // A locked or missing linked question must never silently fall back to another question.
+  const selected = byId || bySlug || (isPending || urlNotFound || urlGate ? null : (filtered[0] || null))
+
+  // After signing in, retry the locked question the visitor originally linked to.
+  useEffect(() => {
+    if (user && urlGate) {
+      setPendingUrlId(urlGate.id)
+      setUrlGate(null)
+    }
+  }, [user])
   // Reader shows a loading state until the first list load and any linked question have resolved.
   const readerLoading = !loaded || isPending || (isLoading && !selected)
 
@@ -315,9 +345,15 @@ function App({ path = '/', onPathChange = () => {} }) {
   // (in main.jsx) handles back/forward, so we never feed `path` back and loop.
   useEffect(() => {
     if (!selected) return
+    const params = new URLSearchParams(window.location.search)
+    const hasSearch = params.has('search') || params.has('q')
+    // Don't wipe out search parameter from address bar unless user explicitly selected a question
+    if (hasSearch && !selectedId && !initialId) return
+
     const next = `/${slugify(selected.question || selected.title)}?id=${selected.id}`
     const current = window.location.pathname + window.location.search
     if (next !== current) window.history.pushState({}, '', next)
+    lastUrlId.current = selected.id   // we moved the URL ourselves; only back/forward should count as a URL change
     // Record the view for the admin analytics dashboard.
     trackView({ path: next, questionId: selected.id })
     // Per-question title/description/canonical + QAPage structured data.
@@ -360,6 +396,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   // Select a question, mark it visited, and close the mobile menu.
   const selectQuestion = useCallback((id) => {
     setSelectedId(id)
+    setUrlGate(null)   // picking a question replaces the locked link the page was opened with
     setVisited(prev => {
       if (!prev.has(id)) {
         const next = new Set(prev)
@@ -541,13 +578,14 @@ function App({ path = '/', onPathChange = () => {} }) {
         }}
       />
 
-      {gate ? (
+      {urlGate || gate ? (
         <SignupGate
-          tech={gate.tech}
-          message={gate.message}
+          tech={(urlGate || gate).tech}
+          message={urlGate ? `Sign in to read this ${techLabel(urlGate.tech) || ''} question. You'll land right back on it.` : gate.message}
+          title={urlGate ? 'Sign in to read this question' : undefined}
           freeTechs={freeTechs}
           onSignup={() => setAuthOpen(true)}
-          onBrowseFree={(t) => setTech(t)}
+          onBrowseFree={(t) => { setUrlGate(null); setTech(t) }}
         />
       ) : (
       <ReaderPane

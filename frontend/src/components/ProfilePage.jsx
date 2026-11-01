@@ -13,6 +13,7 @@ import Markdown from './Markdown.jsx'
 import ActivityHeatmap from './ActivityHeatmap.jsx'
 import { resumeBuilderLink } from '../lib/analytics.js'
 import { updateUsername, fetchNotes, saveNote, removeNote } from '../lib/auth.js'
+import { cancelSubscription } from '../lib/billing.js'
 
 export const TECH_COLOR = {
   java: 'bg-orange-500', react: 'bg-cyan-500', node: 'bg-green-500', sql: 'bg-purple-500',
@@ -391,6 +392,7 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <PremiumStatus profile={profile} />
           {profile.league && (
             <a href="/leaderboard" title="View leaderboard" className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
               <LeagueBadge league={profile.league} size="xs" />
@@ -508,5 +510,31 @@ function Shell({ children }) {
         {children}
       </div>
     </div>
+  )
+}
+
+// Premium (paid roadmaps): current state, renewal/end date, and cancel. Non-members get a link to the upsell.
+function PremiumStatus({ profile }) {
+  const [status, setStatus] = useState(profile.subscriptionStatus)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const until = profile.premiumUntil ? new Date(profile.premiumUntil).toLocaleDateString() : ''
+  if (!profile.premium) {
+    return <a href="/roadmaps" className="rounded-lg bg-gradient-to-r from-amber-400 to-pink-500 px-2.5 py-1 text-xs font-bold text-white hover:opacity-90">★ Get Premium</a>
+  }
+  const cancel = async () => {
+    if (!window.confirm(`Cancel Premium? You keep access until ${until || 'the end of this billing period'}.`)) return
+    setBusy(true); setErr('')
+    try { setStatus((await cancelSubscription()).status) } catch (e) { setErr(e.message) } finally { setBusy(false) }
+  }
+  return (
+    <span className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-300/60 px-2.5 py-1 text-xs dark:border-amber-500/30">
+      <span className="font-bold text-amber-600 dark:text-amber-400">★ Premium</span>
+      {until && <span className="text-slate-500 dark:text-slate-400">{status === 'active' ? 'renews' : 'until'} {until}</span>}
+      {status === 'active' && (
+        <button onClick={cancel} disabled={busy} className="text-slate-400 underline hover:text-rose-500 disabled:opacity-50">{busy ? 'Cancelling…' : 'Cancel'}</button>
+      )}
+      {err && <span className="text-rose-500">{err}</span>}
+    </span>
   )
 }

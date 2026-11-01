@@ -5,6 +5,7 @@ import TopBar from './TopBar.jsx'
 import { techLabel, techBadge, difficultyBadge } from '../lib/badges.js'
 import { TECH_COLOR, DIFF_COLOR } from './ProfilePage.jsx'
 import ActivityHeatmap from './ActivityHeatmap.jsx'
+import { slugify } from '../lib/slug.js'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
@@ -139,7 +140,7 @@ export default function PublicProfilePage({ username }) {
                   <ul className="min-h-0 flex-1 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-700">
                     {shownQs.map(q => (
                       <li key={q.id}>
-                        <a href={`/?id=${encodeURIComponent(q.id)}`} className="flex items-center justify-between gap-3 py-1.5 hover:text-blue-600 dark:hover:text-blue-400">
+                        <a href={`/${slugify(q.question || q.title)}?id=${encodeURIComponent(q.id)}`} className="flex items-center justify-between gap-3 py-1.5 hover:text-blue-600 dark:hover:text-blue-400">
                           <span className="break-words text-sm text-slate-800 dark:text-slate-100">{q.title}</span>
                           <span className="flex flex-shrink-0 gap-1.5">
                             <span className={`rounded-full px-2 py-0.5 text-[11px] ${techBadge(q.tech)}`}>{techLabel(q.tech)}</span>

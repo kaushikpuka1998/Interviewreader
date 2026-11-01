@@ -73,4 +73,13 @@ public class User {
     private String guardianName;
     private String guardianEmail;
     private Instant guardianConsentAt;
+
+    /** Premium (paid roadmaps) is active while this is in the future. Set by Razorpay payment / webhook. */
+    private Instant premiumUntil;
+    /** The member's current Razorpay subscription (sub_...), if any. */
+    @Column(length = 40)
+    private String razorpaySubscriptionId;
+    /** Razorpay subscription status as last reported: created, active, cancelled, halted, completed. */
+    @Column(length = 20)
+    private String subscriptionStatus;
 }

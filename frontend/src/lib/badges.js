@@ -14,6 +14,7 @@ const TECH_BADGE = {
   misc: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
   angular: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   rails: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
+  behavioral: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
 }
 
 const DIFFICULTY_BADGE = {
