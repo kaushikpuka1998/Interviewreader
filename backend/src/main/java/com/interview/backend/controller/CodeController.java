@@ -293,7 +293,7 @@ public class CodeController {
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("number", i + 1);
                 row.put("passed", ok);
-                row.put("status", r.status());
+                row.put("status", ok ? "Accepted" : ("Accepted".equals(r.status()) ? "Wrong Answer" : r.status()));
                 row.put("hidden", hidden);
                 // Visible tests show their details, like LeetCode. Hidden tests show only pass or fail.
                 if (!hidden) {

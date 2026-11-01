@@ -68,11 +68,6 @@ export default function LiveInterview({ id }) {
           <div className="flex flex-wrap gap-2">
             {s.callUrl && <a href={s.callUrl} target="_blank" rel="noopener noreferrer" className={primary}>Join video call ↗</a>}
             {s.whiteboardUrl && <a href={s.whiteboardUrl} target="_blank" rel="noopener noreferrer" className={secondary}>Shared whiteboard ↗</a>}
-            {s.allDone && !ended && (
-              <button className={primary} disabled={busy} onClick={() => run(() => completeInterview(id).then(load))}>
-                Mark as finished Interview
-              </button>
-            )}
             {interviewer && <a href="/interview" className={secondary}>All interviews</a>}
           </div>
         </div>
@@ -261,7 +256,11 @@ function SharedEditor({ id, remote, problemId }) {
     let text
     try {
       const r = await runTests({ problemId, language: lang, code, submit, onStatus: setStatus })
-      const lines = (r.results || []).map(c => `${c.passed ? '✓' : '✗'} Test ${c.number}${c.passed ? '' : `: ${c.status || 'failed'}`}`)
+      const lines = (r.results || []).map(c => {
+        if (c.passed) return `✓ Test ${c.number}`
+        const reason = (!c.status || c.status === 'Accepted' || c.status === 'Wrong Answer' || c.status.toLowerCase() === 'failed') ? 'Failed' : c.status
+        return `✗ Test ${c.number}: ${reason}`
+      })
       text = `${submit ? 'Submitted, with the hidden tests. ' : ''}${r.passed === r.total ? '✅ All tests passed' : `❌ ${r.passed} of ${r.total} tests passed`}\n${lines.join('\n')}`
     } catch (e) {
       text = e.message

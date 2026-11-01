@@ -78,9 +78,13 @@ export default function InterviewPage() {
             </div>
           ) : list === null ? <Loader label="Loading your interviews…" /> : null}
 
-          {signedIn && list !== null && openOnes.map(item => (
-            <ActiveInterview key={item.id} item={item} busy={busy} act={act} load={load} />
-          ))}
+          {signedIn && list !== null && openOnes.length > 0 && (
+            <div className="space-y-6">
+              {openOnes.map(item => (
+                <ActiveInterview key={item.id} item={item} busy={busy} act={act} load={load} />
+              ))}
+            </div>
+          )}
 
           {signedIn && list !== null && !asCandidate && (
             <div className="space-y-4 rounded-2xl bg-white p-5 dark:bg-slate-950">
@@ -129,7 +133,7 @@ export default function InterviewPage() {
               )}
               <button className={primary} disabled={busy || !slot || (type === 'RESUME' && !resumeId)}
                 onClick={() => act(() => requestInterview(type, resumeId, slotToIso(slot), wantsToInterview))}>
-                Request an interview
+                {busy ? 'Sending request…' : 'Request an interview'}
               </button>
               <p className="text-xs text-slate-500 dark:text-slate-400">Once an interviewer accepts, you are notified here and by email, and the interview shows as upcoming with its date and time.</p>
             </div>
@@ -187,14 +191,22 @@ function ActiveInterview({ item, busy, act, load }) {
   const interviewerOnline = isOnline(item.interviewerLastSeen)
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl bg-white p-5 dark:bg-slate-950">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950 space-y-5">
+      <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{typeLabel(item.type)} interview · you are the {item.role}</p>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              {waiting ? 'Waiting for an interviewer…' : interviewer ? `Interview with ${item.partner || 'a member'}${item.partnerEmail ? ` (${item.partnerEmail})` : ''}` : `Upcoming interview with ${item.partner || 'your interviewer'}`}
-            </h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {waiting ? 'Interview Request Pending' : interviewer ? `Interview with ${item.partner || 'a member'}${item.partnerEmail ? ` (${item.partnerEmail})` : ''}` : `Upcoming interview with ${item.partner || 'your interviewer'}`}
+              </h2>
+              {waiting && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Pending Acceptance
+                </span>
+              )}
+            </div>
             <p className="text-sm text-slate-600 dark:text-slate-400">Planned for <span className="font-medium">{formatSlot(item.slotAt)}</span></p>
             {!waiting && !item.startedAt && (
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
@@ -206,10 +218,62 @@ function ActiveInterview({ item, busy, act, load }) {
           <button className={secondary} disabled={busy} onClick={() => act(() => cancelInterview(item.id))}>{waiting ? 'Cancel request' : 'Cancel interview'}</button>
         </div>
         {waiting ? (
-          <div className="mt-2"><Loader compact label="You will be notified here and by email when someone takes your interview." /></div>
+          <div className="mt-4 space-y-4">
+            {/* 3-step visual tracker */}
+            <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-900/40 dark:bg-emerald-950/30">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[11px] font-bold text-white">✓</span>
+                <div>
+                  <p className="font-semibold text-emerald-900 dark:text-emerald-200">1. Request Submitted</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{formatSlot(item.slotAt)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 shadow-xs dark:border-amber-700/60 dark:bg-amber-950/40">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-600 text-[11px] font-bold text-white animate-pulse">2</span>
+                <div>
+                  <p className="font-semibold text-amber-900 dark:text-amber-200">2. Waiting for Acceptance</p>
+                  <p className="text-[11px] text-amber-700 dark:text-amber-400">Interviewer queue notified</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-slate-400 dark:border-slate-800 dark:bg-slate-900/30 dark:text-slate-500">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[11px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">3</span>
+                <div>
+                  <p className="font-medium text-slate-700 dark:text-slate-300">3. Interview Starts</p>
+                  <p className="text-[11px] text-slate-400">Join call & live room</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Explanatory notification panel */}
+            <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">
+                    Interviewers have been notified of your request
+                  </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Your request for <span className="font-semibold text-slate-800 dark:text-slate-200">{formatSlot(item.slotAt)}</span> is visible in the interviewers' dashboard. It may take some time for an available interviewer to accept.
+                  </p>
+                  <div className="mt-2 flex flex-col gap-1 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">✓</span> You will automatically receive an email confirmation as soon as an interviewer accepts.
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">✓</span> This card will update automatically with your Google Meet and live whiteboard room links.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
-          <>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Both of you have been notified. Join the call, open the shared whiteboard, and start.</p>
+          <div className="mt-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400">Both of you have been notified. Join the call, open the shared whiteboard, and start.</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {item.callUrl ? <a href={item.callUrl} target="_blank" rel="noopener noreferrer" className={primary} onClick={() => { window.location.href = `/interview/live/${item.id}` }}>Join video call ↗</a>
                 : !interviewer && <span className="self-center rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">Your interviewer will add the Google Meet link here shortly. This page updates by itself.</span>}
@@ -219,18 +283,33 @@ function ActiveInterview({ item, busy, act, load }) {
             </div>
             {!canFinish(item) && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">"Mark as finished Interview" turns on once all questions are completed in the live room, or 1 hour after the start time (at {new Date(finishAt(item)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}).</p>}
             <NoShow item={item} busy={busy} act={act} />
-          </>
+          </div>
         )}
       </div>
-      {!waiting && interviewer && <MeetLink item={item} busy={busy} act={act} />}
-      {!waiting && interviewer && <WhiteboardLink item={item} busy={busy} act={act} />}
+
+      {!waiting && interviewer && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <MeetLink item={item} busy={busy} act={act} />
+          <WhiteboardLink item={item} busy={busy} act={act} />
+        </div>
+      )}
+
       {!waiting && interviewer && (item.prepOpen
-        ? <InterviewerTools item={item} onChanged={load} />
-        : <div className="rounded-2xl bg-white p-5 text-sm text-slate-600 dark:bg-slate-950 dark:text-slate-400">
+        ? <div className="border-t border-slate-200 pt-5 dark:border-slate-800"><InterviewerTools item={item} onChanged={load} /></div>
+        : <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-400">
             The questions and the candidate's resume open <span className="font-medium">10 minutes before the start time</span>, at {new Date(item.prepOpensAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on {new Date(item.prepOpensAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}. This page opens them by itself.
           </div>)}
-      {!interviewer && <FeedbackView feedback={item.feedback} />}
-      {!waiting && !interviewer && <p className="text-sm text-slate-500 dark:text-slate-400">Your interviewer will ask the questions. Use the whiteboard to draw and explain your answers.</p>}
+
+      {!interviewer && item.feedback && (
+        <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+          <FeedbackView feedback={item.feedback} />
+        </div>
+      )}
+      {!waiting && !interviewer && (
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Your interviewer will ask the questions. Use the whiteboard to draw and explain your answers.
+        </p>
+      )}
     </div>
   )
 }
@@ -262,14 +341,18 @@ function NoShow({ item, busy, act }) {
 function MeetLink({ item, busy, act }) {
   const [url, setUrl] = useState(item.callUrl || '')
   return (
-    <form onSubmit={e => { e.preventDefault(); act(() => saveCallLink(item.id, url)) }} className="rounded-2xl bg-white p-5 dark:bg-slate-950">
-      <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Google Meet link</h3>
-      <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">Create a meeting at <a href="https://meet.google.com/new" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">meet.google.com/new</a>, paste its link here, and the candidate gets the Join button.</p>
-      <div className="flex flex-wrap gap-2">
-        <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://meet.google.com/abc-defg-hij" required className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
-        <button type="submit" disabled={busy} className={primary}>{item.callUrl ? 'Update link' : 'Share link'}</button>
+    <form onSubmit={e => { e.preventDefault(); act(() => saveCallLink(item.id, url)) }} className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+      <div>
+        <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Google Meet link</h3>
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">Create a meeting at <a href="https://meet.google.com/new" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">meet.google.com/new</a>, paste its link here, and the candidate gets the Join button.</p>
       </div>
-      {item.callUrl && <p className="mt-2 text-xs text-green-600 dark:text-green-400">The candidate can see the call link.</p>}
+      <div>
+        <div className="flex flex-wrap gap-2">
+          <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://meet.google.com/abc-defg-hij" required className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
+          <button type="submit" disabled={busy} className={primary}>{item.callUrl ? 'Update link' : 'Share link'}</button>
+        </div>
+        {item.callUrl && <p className="mt-2 text-xs text-green-600 dark:text-green-400">✓ The candidate can see the call link.</p>}
+      </div>
     </form>
   )
 }
@@ -277,17 +360,21 @@ function MeetLink({ item, busy, act }) {
 function WhiteboardLink({ item, busy, act }) {
   const [url, setUrl] = useState(item.whiteboardUrl || '')
   return (
-    <form onSubmit={e => { e.preventDefault(); act(() => saveWhiteboardLink(item.id, url)) }} className="rounded-2xl bg-white p-5 dark:bg-slate-950">
-      <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Shared whiteboard link</h3>
-      <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">
-        Update the whiteboard link if you prefer a different tool. Default: <a href="https://excalidraw.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Excalidraw</a>.
-        You can also use <a href="https://miro.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Miro</a>, <a href="https://www.figma.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Figma</a>, or any other whiteboard.
-      </p>
-      <div className="flex flex-wrap gap-2">
-        <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://excalidraw.com/#room=..." required className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
-        <button type="submit" disabled={busy} className={primary}>Update link</button>
+    <form onSubmit={e => { e.preventDefault(); act(() => saveWhiteboardLink(item.id, url)) }} className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+      <div>
+        <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Shared whiteboard link</h3>
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+          Update the whiteboard link if you prefer a different tool. Default: <a href="https://excalidraw.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Excalidraw</a>.
+          You can also use <a href="https://miro.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Miro</a>, <a href="https://www.figma.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">Figma</a>, or any other whiteboard.
+        </p>
       </div>
-      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Both you and the candidate can access this whiteboard.</p>
+      <div>
+        <div className="flex flex-wrap gap-2">
+          <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://excalidraw.com/#room=..." required className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
+          <button type="submit" disabled={busy} className={primary}>Update link</button>
+        </div>
+        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Both you and the candidate can access this whiteboard.</p>
+      </div>
     </form>
   )
 }
@@ -319,13 +406,13 @@ function InterviewerTools({ item, onChanged }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[2fr_3fr]">
-      <div className="rounded-2xl bg-white p-5 dark:bg-slate-950">
+      <div className="rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/40">
         <div className="mb-2 flex items-center justify-between gap-2">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Questions to ask (only you see these)</h3>
           <button type="button" disabled={saving} onClick={() => run(() => randomInterviewQuestions(item.id))} className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">🎲 Random 3</button>
         </div>
         {item.questions.length ? item.questions.map((q, i) => (
-          <details key={q.ref || i} className="mb-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+          <details key={q.ref || i} className="mb-2 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/80">
             <summary className="cursor-pointer text-sm font-medium text-slate-900 dark:text-slate-100">
               {i + 1}. {q.title}
               {q.ref && <button type="button" onClick={e => { e.preventDefault(); remove(q.ref) }} aria-label="Remove question" className="ml-2 text-xs text-red-600 hover:underline">remove</button>}
@@ -351,7 +438,7 @@ function InterviewerTools({ item, onChanged }) {
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Up to 8 questions. Your list is kept while the interview lasts.</p>
         </div>
       </div>
-      <div className="rounded-2xl bg-white p-5 dark:bg-slate-950">
+      <div className="rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/40">
         <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Candidate's resume</h3>
         {resume ? (
           <FitPage><ResumePreview data={resume.data} layout={layout} fit /></FitPage>
