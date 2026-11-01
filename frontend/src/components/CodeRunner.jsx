@@ -257,8 +257,8 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 xl:flex xl:h-full xl:flex-col dark:border-slate-700 dark:bg-slate-900/40">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 flex h-full flex-col dark:border-slate-700 dark:bg-slate-900/40">
+      <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
         <select
           value={language}
           onChange={e => pickLanguage(e.target.value)}
@@ -331,12 +331,12 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
         aria-orientation="horizontal"
         aria-label="Resize the panel below the editor"
         onMouseDown={startBottomDrag}
-        className="mt-3 flex cursor-row-resize flex-col items-center gap-3 py-2"
+        className="mt-3 flex shrink-0 cursor-row-resize flex-col items-center gap-3 py-2"
       >
         <span className="h-1 w-16 rounded-full bg-slate-300 dark:bg-slate-700" />
       </div>
 
-      <div ref={bottomRef} style={bottomH ? { maxHeight: bottomH } : undefined} className={`xl:min-h-0 xl:max-h-[45%] xl:overflow-y-auto ${bottomH ? 'overflow-y-auto pr-1' : ''}`}>
+      <div ref={bottomRef} style={bottomH ? { maxHeight: bottomH } : undefined} className={`min-h-0 max-h-[45%] overflow-y-auto ${bottomH ? 'overflow-y-auto pr-1' : ''}`}>
 
       {problemId && showInput && (
         <div className="mt-3 rounded-xl border border-slate-200 dark:border-slate-700">

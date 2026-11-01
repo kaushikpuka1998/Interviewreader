@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Loader from './Loader.jsx'
-import { fetchAdminCodingProblems, fetchAdminCodingProblem, saveCodingProblem, deleteCodingProblem, importCodingProblems } from '../lib/codingProblems.js'
+import { fetchAdminCodingProblems, fetchAdminCodingProblem, saveCodingProblem, deleteCodingProblem, importCodingProblems, saveCodingProblemAnalysis } from '../lib/codingProblems.js'
+import { uploadImage } from '../lib/auth.js'
 import Markdown from './Markdown.jsx'
 
 const TEMPLATE_LANGS = [['cpp', 'C++'], ['c', 'C'], ['python', 'Python'], ['ruby', 'Ruby'], ['rust', 'Rust'], ['csharp', 'C#'], ['php', 'PHP'], ['swift', 'Swift'], ['java', 'Java'], ['go', 'Go'], ['javascript', 'JavaScript']]
@@ -150,6 +151,7 @@ export default function CodingProblemsAdmin({ onExport }) {
   const shown = (problems || []).filter(p => !needle || p.title.toLowerCase().includes(needle) || String(numberOf.get(p.id)) === needle)
   const [form, setForm] = useState(EMPTY)
   const [editingId, setEditingId] = useState(null)
+  const [editingAnalysis, setEditingAnalysis] = useState('')   // analysis of the problem being edited, as loaded
   const [msg, setMsg] = useState(null)
   const [busy, setBusy] = useState(false)
   const [bulk, setBulk] = useState('')
@@ -186,6 +188,7 @@ export default function CodingProblemsAdmin({ onExport }) {
       tests: tests.length ? tests.map(t => ({ input: String(t.input ?? ''), expected: String(t.expected ?? ''), hidden: !!t.hidden })) : EMPTY.tests,
     })
     setEditingId(p.id)
+    setEditingAnalysis(p.analysis || '')
     setMsg(null)
   }
 
@@ -301,7 +304,7 @@ export default function CodingProblemsAdmin({ onExport }) {
           <ul className="divide-y divide-slate-200 dark:divide-slate-800">
             {shown.slice(page * PAGE, (page + 1) * PAGE).map(p => (
               <li key={p.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                <span className="min-w-0 text-slate-800 dark:text-slate-200"><span className="mr-2 inline-block w-12 text-xs tabular-nums text-slate-400">#{numberOf.get(p.id)}</span>{p.title} <span className="text-xs text-slate-400">· {p.difficulty}</span></span>
+                <span className="min-w-0 text-slate-800 dark:text-slate-200"><span className="mr-2 inline-block w-12 text-xs tabular-nums text-slate-400">#{numberOf.get(p.id)}</span>{p.title} <span className="text-xs text-slate-400">· {p.difficulty}</span>{p.hasAnalysis && <span className="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Analysis</span>}</span>
                 <span className="flex gap-3">
                   <button type="button" onClick={() => edit(p)} className="text-blue-600 hover:underline dark:text-blue-400">Edit</button>
                   <button type="button" onClick={() => remove(p)} className="text-red-600 hover:underline dark:text-red-400">Delete</button>
@@ -317,12 +320,118 @@ export default function CodingProblemsAdmin({ onExport }) {
             </div>
           )}
         </div>
+        {editingId && (
+          <AnalysisEditor key={editingId} problemId={editingId} title={form.title} initial={editingAnalysis}
+            onSaved={has => setProblems(list => list?.map(x => (x.id === editingId ? { ...x, hasAnalysis: has } : x)))} />
+        )}
         {form.statement && (
           <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/40">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Preview</p>
             <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">{form.title || 'Untitled problem'}</h3>
             <Markdown text={form.statement} />
           </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Question analysis for one problem: write Markdown or upload a .md file, add images, preview, save.
+// Saved separately from the problem form. Members only see the "Question Analysis" tab when this is non-empty.
+function AnalysisEditor({ problemId, title, initial, onSaved }) {
+  const [text, setText] = useState(initial)
+  const [saved, setSaved] = useState(initial)
+  const [busy, setBusy] = useState('')     // '' | 'uploading' | 'saving'
+  const [msg, setMsg] = useState(null)
+  const [preview, setPreview] = useState(false)
+  const box = useRef(null)
+
+  const loadMarkdown = async e => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!/\.(md|markdown|txt)$/i.test(file.name)) { setMsg({ ok: false, text: 'Choose a .md file.' }); return }
+    if (text.trim() && !window.confirm('Replace the current analysis with this file?')) return
+    setText(await file.text())
+    setMsg({ ok: true, text: `Loaded ${file.name}. Add its images below, then save.` })
+  }
+
+  // Upload images; a reference to the same file name in the Markdown (e.g. ![x](tree.png)) is swapped for
+  // the uploaded URL, anything else is inserted at the cursor.
+  const addImages = async e => {
+    const files = [...(e.target.files || [])]
+    e.target.value = ''
+    if (!files.length) return
+    setBusy('uploading'); setMsg(null)
+    let next = text
+    const inserted = []
+    try {
+      for (const file of files) {
+        const url = await uploadImage(file)
+        const name = file.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const ref = new RegExp(`\\]\\((?:\\./)?(?:[^)]*/)?${name}\\)`, 'g')
+        if (ref.test(next)) next = next.replace(ref, `](${url})`)
+        else inserted.push(`![${file.name.replace(/\.[^.]+$/, '')}](${url})`)
+      }
+      if (inserted.length) {
+        const at = box.current?.selectionStart ?? next.length
+        next = next.slice(0, at) + (at && next[at - 1] !== '\n' ? '\n\n' : '') + inserted.join('\n\n') + '\n\n' + next.slice(at)
+      }
+      setText(next)
+      setMsg({ ok: true, text: `Uploaded ${files.length} image${files.length > 1 ? 's' : ''}.` })
+    } catch (err) {
+      setText(next)
+      setMsg({ ok: false, text: err.message })
+    } finally {
+      setBusy('')
+    }
+  }
+
+  const save = async (value = text) => {
+    setBusy('saving'); setMsg(null)
+    try {
+      const r = await saveCodingProblemAnalysis(problemId, value)
+      setSaved(value.trim()); setText(value.trim())
+      onSaved?.(r.hasAnalysis)
+      setMsg({ ok: true, text: r.hasAnalysis ? 'Analysis saved. The Question Analysis tab is now shown for this problem.' : 'Analysis removed. The tab is hidden for this problem.' })
+    } catch (err) {
+      setMsg({ ok: false, text: err.message })
+    } finally {
+      setBusy('')
+    }
+  }
+
+  const dirty = text.trim() !== (saved || '').trim()
+  const btn = 'rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800'
+  return (
+    <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/40">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Question analysis</h2>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${saved ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
+          {saved ? 'Shown to members' : 'Hidden (no analysis)'}
+        </span>
+      </div>
+      <p className="text-xs text-slate-500 dark:text-slate-400">For "{title || 'this problem'}". Markdown: approach, complexity, code, diagrams. Members see the tab only when this is filled in.</p>
+      <div className="flex flex-wrap gap-2">
+        <label className={`${btn} cursor-pointer`}>Upload .md<input type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" onChange={loadMarkdown} className="hidden" /></label>
+        <label className={`${btn} cursor-pointer ${busy ? 'pointer-events-none opacity-50' : ''}`}>{busy === 'uploading' ? 'Uploading…' : 'Add images'}<input type="file" accept="image/*" multiple onChange={addImages} className="hidden" /></label>
+        <button type="button" onClick={() => setPreview(p => !p)} className={btn}>{preview ? 'Edit' : 'Preview'}</button>
+      </div>
+      {preview ? (
+        <div className="min-h-[12rem] rounded-lg border border-slate-200 p-4 text-sm dark:border-slate-700">{text.trim() ? <Markdown text={text} /> : <p className="text-slate-400">Nothing to preview yet.</p>}</div>
+      ) : (
+        <textarea ref={box} value={text} onChange={e => setText(e.target.value)} rows={14}
+          placeholder={'## Approach\nUse a hash map to remember each value\'s index...\n\n## Complexity\nO(n) time, O(n) space.'}
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
+      )}
+      {msg && <p className={`text-sm ${msg.ok ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{msg.text}</p>}
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={() => save()} disabled={!!busy || !dirty} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+          {busy === 'saving' ? 'Saving…' : 'Save analysis'}
+        </button>
+        {saved && (
+          <button type="button" disabled={!!busy} onClick={() => { if (window.confirm('Remove the analysis? The tab will be hidden for members.')) save('') }}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-900/20">Remove analysis</button>
         )}
       </div>
     </div>

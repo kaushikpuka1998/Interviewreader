@@ -10,7 +10,6 @@ import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
 import OnlineCount from './OnlineCount.jsx'
 import CodeRunner, { languageLabel } from './CodeRunner.jsx'
-import { fetchQuestions } from '../lib/api.js'
 import { byProminence } from '../lib/companyGroups.js'
 
 const CUSTOM = 'custom'
@@ -106,9 +105,14 @@ export default function PracticePage() {
   }
 
   const loadHistory = () => { if (detail && isLoggedIn()) fetchSubmissions(detail.id).then(setHistory).catch(() => {}) }
+  // ?tab=... from the link the page was opened with. Read once: the URL is rewritten to /practice?id=N as soon as
+  // a problem is selected, before its details load, so re-reading it later would always miss the tab.
+  const requestedTab = useRef(typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null)
   useEffect(() => {
-    const t = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null
-    setTab(t === 'analysis' ? 'analysis' : t === 'submissions' ? 'submissions' : 'description')
+    const t = requestedTab.current
+    if (detail) requestedTab.current = null   // only the first problem opened from the link gets it
+    // ?tab=analysis only applies when this problem actually has an analysis.
+    setTab(t === 'analysis' && detail?.analysis ? 'analysis' : t === 'submissions' ? 'submissions' : 'description')
     setHistory([])
     setOpenRequest(null)
     if (detail) loadHistory()
@@ -281,22 +285,21 @@ export default function PracticePage() {
   }, [detail, problems, selected])
 
   return (
-    <>
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-100 dark:bg-slate-900">
       <TopBar />
-    <div className="min-h-[calc(100vh-5.4rem)] bg-slate-100 p-3 sm:p-4 xl:flex xl:h-[calc(100vh-5.4rem)] xl:flex-col xl:overflow-hidden xl:pb-8 dark:bg-slate-900">
-      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
-      <div className="mx-auto w-full max-w-[1800px] xl:flex xl:min-h-0 xl:flex-1 xl:flex-col">
+      <div className="mx-auto flex w-full max-w-[1800px] min-h-0 flex-1 flex-col p-3 sm:p-4">
+        {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
         {!isLoggedIn() && (
-          <p className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+          <p className="mb-4 shrink-0 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
             <button type="button" onClick={() => setAuthOpen(true)} className="font-semibold underline hover:no-underline">Sign in</button> to run your code. You can still read the problems.
           </p>
         )}
-        {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {error && <p className="mb-4 shrink-0 text-sm text-red-600 dark:text-red-400">{error}</p>}
         {!problems && !error && <Loader label="Loading problems…" />}
 
         {problems && (
-          <div className={`grid grid-cols-[minmax(0,1fr)] items-start gap-5 xl:min-h-0 xl:flex-1 xl:grid-rows-[minmax(0,1fr)] xl:items-stretch ${listOpen ? 'lg:grid-cols-[260px_minmax(0,1fr)]' : 'lg:grid-cols-1'}`}>
-            {listOpen && <div className="space-y-2">
+          <div className={`grid grid-cols-[minmax(0,1fr)] min-h-0 flex-1 items-stretch gap-5 ${listOpen ? 'lg:grid-cols-[260px_minmax(0,1fr)]' : 'lg:grid-cols-1'}`}>
+            {listOpen && <div className="space-y-2 min-h-0 overflow-y-auto">
             {listOpen && <>
             <ul className="overflow-hidden rounded-2xl bg-white dark:bg-slate-950">
               <li>
@@ -389,9 +392,9 @@ export default function PracticePage() {
             </>}
             </div>}
 
-            <div className="min-w-0 space-y-4 xl:flex xl:min-h-0 xl:flex-col xl:space-y-0 xl:gap-4">
+            <div className="min-w-0 flex min-h-0 flex-1 flex-col gap-4">
             {/* Top bar across the statement and the code box: home and problem navigation on the left, Run and Submit in the middle. */}
-            <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-3 rounded-2xl bg-white p-3 dark:bg-slate-950 lg:grid-cols-[1fr_auto_1fr]">
+            <div className="shrink-0 grid grid-cols-[minmax(0,1fr)] items-center gap-3 rounded-2xl bg-white p-3 dark:bg-slate-950 lg:grid-cols-[1fr_auto_1fr]">
               <div className="flex min-w-0 items-center gap-2">
                 <a
                   href="/"
@@ -451,10 +454,10 @@ export default function PracticePage() {
             </div>
 
             {/* Wide screens show the statement and the code box side by side, with a draggable divider. */}
-            <div ref={splitRef} className="flex flex-col gap-4 xl:min-h-0 xl:flex-1 xl:flex-row xl:items-stretch" style={{ '--split': `${split}%` }}>
+            <div ref={splitRef} className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:items-stretch" style={{ '--split': `${split}%` }}>
               {selected === CUSTOM && (
                 <>
-                  <div className="min-w-0 rounded-2xl bg-white p-5 dark:bg-slate-950 xl:w-[var(--split)] xl:shrink-0">
+                  <div className="min-w-0 rounded-2xl bg-white p-5 dark:bg-slate-950 min-h-0 lg:w-[var(--split)] lg:shrink-0 overflow-y-auto">
                     <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Playground</h1>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Write any program, choose a language, and run it. No tests are checked here.</p>
                   </div>
@@ -463,23 +466,24 @@ export default function PracticePage() {
                     aria-orientation="vertical"
                     aria-label="Resize panels"
                     onMouseDown={startDrag}
-                    className="hidden w-3 shrink-0 cursor-col-resize items-center justify-center xl:flex"
+                    className="hidden w-3 shrink-0 cursor-col-resize items-center justify-center lg:flex"
                   >
                     <span className="h-16 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
                   </div>
-                  <div className="min-w-0 flex-1 xl:min-h-0 xl:overflow-y-auto">
+                  <div className="min-w-0 flex-1 min-h-0 overflow-hidden">
                     <CodeRunner key={`custom-${getUser()?.email ?? 'guest'}`} actionsRef={codeRef} onBusyChange={setBusy} />
                   </div>
                 </>
               )}
               {selected !== CUSTOM && detail && (
                 <>
-                  <div className="flex min-w-0 flex-col rounded-2xl bg-white p-5 pb-0 dark:bg-slate-950 xl:w-[var(--split)] xl:shrink-0 xl:overflow-y-auto">
-                    <div role="tablist" className="mb-4 flex items-center justify-between gap-1 border-b border-slate-200 dark:border-slate-800">
+                  <div className="flex min-w-0 flex-col rounded-2xl bg-white p-5 pb-0 dark:bg-slate-950 min-h-0 lg:w-[var(--split)] lg:shrink-0">
+                    <div role="tablist" className="mb-4 flex shrink-0 items-center justify-between gap-1 border-b border-slate-200 dark:border-slate-800">
                       <div className="flex gap-1">
                         {[
                           ['description', 'Description'],
-                          ['analysis', 'Question Analysis'],
+                          // Only problems with a written analysis get this tab.
+                          ...(detail.analysis ? [['analysis', 'Question Analysis']] : []),
                           ['submissions', `Submissions${history.length ? ` (${history.length})` : ''}`]
                         ].map(([key, label]) => (
                           <button
@@ -494,46 +498,31 @@ export default function PracticePage() {
                           </button>
                         ))}
                       </div>
-                      <a
-                        href={`/questions?search=${encodeURIComponent(detail.title)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Open in Question Reader"
-                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-slate-800"
-                      >
-                        <span>Reader ↗</span>
-                      </a>
                     </div>
-                    {tab === 'description' ? (
-                      <>
-                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                          <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                            {numberOf.has(detail.id) && <><span className="font-normal tabular-nums text-slate-400 dark:text-slate-500">#{numberOf.get(detail.id)}</span>{' '}</>}
-                            {detail.title}
-                          </h1>
-                          <a
-                            href={`/questions?search=${encodeURIComponent(detail.title)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
-                          >
-                            <span>Question Analysis ↗</span>
-                          </a>
+                    <div className="pr-1 min-h-0 flex-1 overflow-y-auto">
+                      {tab === 'description' ? (
+                        <>
+                          <div className="mb-3">
+                            <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                              {numberOf.has(detail.id) && <><span className="font-normal tabular-nums text-slate-400 dark:text-slate-500">#{numberOf.get(detail.id)}</span>{' '}</>}
+                              {detail.title}
+                            </h1>
+                          </div>
+                          <div className="pb-5 text-sm text-slate-700 dark:text-slate-300">
+                            <Markdown text={detail.statement} />
+                          </div>
+                        </>
+                      ) : tab === 'analysis' && detail.analysis ? (
+                        <div className="pb-5 text-sm text-slate-700 dark:text-slate-300">
+                          <Markdown text={detail.analysis} />
                         </div>
-                        <div className="text-sm text-slate-700 dark:text-slate-300">
-                          <Markdown text={detail.statement} />
+                      ) : (
+                        <div className="pb-5">
+                          <SubmissionList items={history} signedIn={isLoggedIn()} onOpen={id => setOpenRequest({ id, at: Date.now() })} />
                         </div>
-                      </>
-                    ) : tab === 'analysis' ? (
-                      <QuestionAnalysisTab title={detail.title} problemId={detail.id} />
-                    ) : (
-                      <SubmissionList items={history} signedIn={isLoggedIn()} onOpen={id => setOpenRequest({ id, at: Date.now() })} />
-                    )}
-                    {/* The panel has no bottom padding: a sticky footer stops at the padding edge, so padding here would
-                        float it above the bottom. The spacer keeps text off the footer; mt-auto pins the footer
-                        down when the statement is short, and sticky keeps it there when the statement scrolls. */}
-                    <div aria-hidden="true" className="h-5 shrink-0" />
-                    <div className="sticky bottom-0 -mx-5 mt-auto flex justify-end border-t border-slate-200 bg-white px-5 py-2 dark:border-slate-800 dark:bg-slate-950">
+                      )}
+                    </div>
+                    <div className="-mx-5 mt-auto flex shrink-0 justify-end border-t border-slate-200 bg-white px-5 py-2 dark:border-slate-800 dark:bg-slate-950">
                       <OnlineCount />
                     </div>
                   </div>
@@ -542,11 +531,11 @@ export default function PracticePage() {
                     aria-orientation="vertical"
                     aria-label="Resize panels"
                     onMouseDown={startDrag}
-                    className="hidden w-3 shrink-0 cursor-col-resize items-center justify-center xl:flex"
+                    className="hidden w-3 shrink-0 cursor-col-resize items-center justify-center lg:flex"
                   >
                     <span className="h-16 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
                   </div>
-                  <div className="min-w-0 flex-1 xl:min-h-0 xl:overflow-y-auto">
+                  <div className="min-w-0 flex-1 min-h-0 overflow-hidden">
                     <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
                       afterAccepted={<SolveNext items={solveNext} onPick={id => setSelected(id)} onRandom={goToRandom} />} />
                   </div>
@@ -558,7 +547,6 @@ export default function PracticePage() {
         )}
       </div>
     </div>
-    </>
   )
 }
 
@@ -581,98 +569,6 @@ function SubmissionList({ items, signedIn, onOpen }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-// Question Analysis tab: loads matching question analysis, approach, and code walkthrough from the questions library.
-function QuestionAnalysisTab({ title, problemId }) {
-  const [loading, setLoading] = useState(true)
-  const [matched, setMatched] = useState(null)
-
-  useEffect(() => {
-    let active = true
-    setLoading(true)
-    fetchQuestions({ search: title, size: 5 })
-      .then(res => {
-        if (!active) return
-        const list = res?.content || []
-        const clean = t => String(t || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-        const target = clean(title)
-        const exact = list.find(q => clean(q.title).includes(target) || target.includes(clean(q.title)))
-        setMatched(exact || list[0] || null)
-        setLoading(false)
-      })
-      .catch(() => {
-        if (active) setLoading(false)
-      })
-    return () => { active = false }
-  }, [title])
-
-  const readerUrl = `/questions?search=${encodeURIComponent(title)}`
-
-  if (loading) return <div className="py-8"><Loader label="Loading question analysis…" /></div>
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-slate-800">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Deep Dive Analysis</span>
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{title}</h2>
-        </div>
-        <a
-          href={matched ? `/questions/${matched.id}` : readerUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 shadow-sm"
-        >
-          <span>Open Full Question in Reader</span>
-          <span aria-hidden="true">↗</span>
-        </a>
-      </div>
-
-      {matched ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-              {matched.tech?.toUpperCase()} · {matched.category}
-            </span>
-            {matched.difficulty && (
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${difficultyBadge(matched.difficulty)}`}>
-                {matched.difficulty}
-              </span>
-            )}
-          </div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-sm text-slate-800 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-200 leading-relaxed">
-            <Markdown text={matched.answer} />
-          </div>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Algorithmic Approach & Analysis</h3>
-          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-            Read the theoretical breakdown, optimal data structure tradeoffs, and complexity analysis in the Questions Reader.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a
-              href={readerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 dark:border-blue-700 dark:bg-slate-800 dark:text-blue-400"
-            >
-              <span>Search Question Bank for "{title}" ↗</span>
-            </a>
-            <a
-              href="/roadmaps"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-            >
-              <span>View in Company Roadmaps ↗</span>
-            </a>
-          </div>
-        </div>
-      )}
-    </div>
   )
 }
 

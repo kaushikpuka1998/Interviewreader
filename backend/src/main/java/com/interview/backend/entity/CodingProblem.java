@@ -52,6 +52,10 @@ public class CodingProblem {
     @Column(name = "companies", columnDefinition = "TEXT")
     private String companies;
 
+    /** Question analysis in Markdown (approach, complexity, walkthrough; images as links). Null = none, and the tab is hidden. */
+    @Column(name = "analysis", columnDefinition = "TEXT")
+    private String analysis;
+
     @Column(name = "created_at", updatable = false)
     private Instant createdAt = Instant.now();
 }

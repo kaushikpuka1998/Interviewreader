@@ -106,6 +106,7 @@ public class CodingProblemController {
     /** Public list: id, title and difficulty only. */
     @GetMapping("/coding-problems")
     public List<Map<String, Object>> list() {
+        java.util.Set<Long> analysed = new java.util.HashSet<>(problems.idsWithAnalysis());
         return problems.findSummariesByOrderByIdAsc().stream().map(p -> {
             Map<String, Object> row = new LinkedHashMap<>();
             row.put("id", p.getId());
@@ -114,6 +115,7 @@ public class CodingProblemController {
             row.put("topics", topicList(p.getTopics()));
             row.put("companies", topicList(p.getCompanies()));
             row.put("createdAt", p.getCreatedAt());
+            row.put("hasAnalysis", analysed.contains(p.getId()));
             return row;
         }).toList();
     }
@@ -146,6 +148,8 @@ public class CodingProblemController {
             out.put("topics", topicList(p.getTopics()));
             out.put("statement", p.getStatement());
             out.put("starters", startersOf(p));
+            // Only problems with a written analysis carry it; the practice page hides the tab otherwise.
+            if (p.getAnalysis() != null && !p.getAnalysis().isBlank()) out.put("analysis", p.getAnalysis());
             return ResponseEntity.ok(out);
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -210,6 +214,20 @@ public class CodingProblemController {
         if (error != null) return ResponseEntity.badRequest().body(Map.of("error", error));
         apply(p, in);
         return ResponseEntity.ok(problems.save(p));
+    }
+
+    public record AnalysisInput(String analysis) {}
+
+    /** Admin: set or clear a problem's question analysis (Markdown). Blank removes it, which hides the tab again. */
+    @PutMapping("/admin/coding-problems/{id}/analysis")
+    public ResponseEntity<?> saveAnalysis(@PathVariable Long id, @RequestBody AnalysisInput in) {
+        CodingProblem p = problems.findById(id).orElse(null);
+        if (p == null) return ResponseEntity.notFound().build();
+        String text = in == null || in.analysis() == null ? "" : in.analysis().strip();
+        if (text.length() > 200_000) return ResponseEntity.badRequest().body(Map.of("error", "The analysis is too long (200,000 characters max)."));
+        p.setAnalysis(text.isEmpty() ? null : text);
+        problems.save(p);
+        return ResponseEntity.ok(Map.of("id", p.getId(), "hasAnalysis", p.getAnalysis() != null));
     }
 
     @DeleteMapping("/admin/coding-problems/{id}")

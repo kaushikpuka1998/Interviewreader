@@ -25,4 +25,8 @@ public interface CodingProblemRepository extends JpaRepository<CodingProblem, Lo
     }
 
     List<Summary> findSummariesByOrderByIdAsc();
+
+    /** Ids of problems that have a question analysis, so the list can flag them without loading the text. */
+    @org.springframework.data.jpa.repository.Query("select p.id from CodingProblem p where p.analysis is not null and length(trim(p.analysis)) > 0")
+    List<Long> idsWithAnalysis();
 }

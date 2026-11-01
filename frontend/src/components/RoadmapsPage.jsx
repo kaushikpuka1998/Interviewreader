@@ -195,7 +195,7 @@ export default function RoadmapsPage() {
         id: `${company.id}:${pt.id}`, patternId: pt.id, poolSize: matches(pt).length, title: pt.title, track: 'dsa', category: pt.category, difficulty: label[avg],
         weightage: `${matches(pt).length} ${company.name} problems`, summary: pt.summary, concepts: pt.concepts, cheatSheet: pt.cheatSheet,
         // Teaser: the pattern's problem picks are part of the premium roadmap, so they stay hidden.
-        practiceProblems: locked ? [] : picks.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty })),
+        practiceProblems: locked ? [] : picks.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty, hasAnalysis: !!p.hasAnalysis })),
       }
     })
     const out = DSA_PHASES.map(ph => ({
@@ -759,10 +759,12 @@ export default function RoadmapsPage() {
                                                           className="inline-flex items-center gap-1 rounded bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-blue-700">
                                                           <span>Practice</span><span aria-hidden="true" className="text-[10px]">✎</span>
                                                         </a>
-                                                        <a href={`/practice?id=${prob.id}&tab=analysis`} target="_blank" rel="noopener noreferrer"
-                                                          title={`Analysis for "${prob.title}"`} className={linkCls}>
-                                                          <span>Analysis</span><span aria-hidden="true" className="text-[10px]">↗</span>
-                                                        </a>
+                                                        {prob.hasAnalysis && (
+                                                          <a href={`/practice?id=${prob.id}&tab=analysis`} target="_blank" rel="noopener noreferrer"
+                                                            title={`Analysis for "${prob.title}"`} className={linkCls}>
+                                                            <span>Analysis</span><span aria-hidden="true" className="text-[10px]">↗</span>
+                                                          </a>
+                                                        )}
                                                       </>
                                                     ) : (
                                                       <a href={prob.path} target="_blank" rel="noopener noreferrer"

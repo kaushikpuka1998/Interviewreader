@@ -77,6 +77,17 @@ export async function saveCodingProblem(id, input) {
   return res.json()
 }
 
+// Admin: set (or clear, with blank text) a problem's question analysis in Markdown.
+export async function saveCodingProblemAnalysis(id, analysis) {
+  const res = await fetch(`${API_BASE}/admin/coding-problems/${id}/analysis`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ analysis }),
+  })
+  if (!res.ok) throw new Error(await parseError(res) || 'Could not save the analysis.')
+  return res.json()
+}
+
 // Admin: saves many problems from one list. Returns { saved, failed: [{ index, title, error }] }.
 export async function importCodingProblems(items) {
   const res = await fetch(`${API_BASE}/admin/coding-problems/bulk`, {

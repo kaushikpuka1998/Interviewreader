@@ -111,8 +111,8 @@ function Routes() {
   return <App path={path === '/questions' ? '/' : path} onPathChange={setPath} />
 }
 
-// Pages that do not lay out their own footer (home, terms and the reader do) get one underneath.
-const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/practice', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
+// Pages that do not lay out their own footer (home, terms, practice, and the reader do) get one underneath.
+const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
