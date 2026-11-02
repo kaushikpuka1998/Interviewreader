@@ -7,9 +7,17 @@ const headers = () => {
 async function call(path, options = {}) {
   const res = await fetch(`${API_BASE}/interviews${path}`, { ...options, headers: headers(), credentials: 'include' })
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+  if (!res.ok) {
+    const err = new Error(data.error || `Request failed (${res.status})`)
+    err.status = res.status
+    err.quota = data.quota   // 402: out of interviews, with the plans to offer
+    throw err
+  }
   return data
 }
+
+// How many interviews the candidate can still book: free launch period, Premium's monthly ones, monthly plan.
+export const fetchInterviewQuota = () => call('/quota')
 
 export const fetchMyInterviews = () => call('/mine')
 export const requestInterview = (type, resumeId, slot, wantsToInterview) => call('/request', { method: 'POST', body: JSON.stringify({ type, resumeId: resumeId || null, slot, wantsToInterview: !!wantsToInterview }) })

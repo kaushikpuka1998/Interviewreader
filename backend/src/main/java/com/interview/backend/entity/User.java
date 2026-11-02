@@ -82,4 +82,43 @@ public class User {
     /** Razorpay subscription status as last reported: created, active, cancelled, halted, completed. */
     @Column(length = 20)
     private String subscriptionStatus;
+
+    /** Premium bought as a one-time pass: monthly, yearly or lifetime (null for the old recurring subscription). */
+    @Column(length = 10)
+    private String premiumPlan;
+    /** A Premium checkout in progress (Razorpay order_...): granted once its payment is verified. */
+    @Column(length = 10)
+    private String premiumPendingPlan;
+    @Column(length = 40)
+    private String premiumPendingOrderId;
+
+    /** Peer (real person) mock interview plan (i5, i10): monthly interview allowance, billed separately from Premium. */
+    @Column(length = 8)
+    private String interviewPlan;
+    @Column(length = 40)
+    private String interviewSubscriptionId;
+    @Column(length = 20)
+    private String interviewStatus;
+    private Instant interviewPeriodStart;
+    private Instant interviewPeriodEnd;
+    @Column(length = 8)
+    private String interviewPendingPlan;
+    @Column(length = 40)
+    private String interviewPendingSubscriptionId;
+
+    /** System design practice plan (p12, p18, p24): monthly attempt allowance, billed separately from Premium. */
+    @Column(length = 8)
+    private String practicePlan;
+    @Column(length = 40)
+    private String practiceSubscriptionId;
+    @Column(length = 20)
+    private String practiceStatus;
+    /** The current billing period; plan attempts are counted from its start, and the allowance ends with it. */
+    private Instant practicePeriodStart;
+    private Instant practicePeriodEnd;
+    /** A practice checkout in progress: becomes the plan above once its payment is verified. */
+    @Column(length = 8)
+    private String practicePendingPlan;
+    @Column(length = 40)
+    private String practicePendingSubscriptionId;
 }

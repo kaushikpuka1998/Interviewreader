@@ -111,6 +111,7 @@ public class ProfileController {
         body.put("memberSince", u.getCreatedAt());
         body.put("premium", billing.isPremium(u));
         body.put("premiumUntil", u.getPremiumUntil() == null ? "" : u.getPremiumUntil().toString());
+        body.put("premiumPlan", u.getPremiumPlan() == null ? "" : u.getPremiumPlan());
         body.put("subscriptionStatus", u.getSubscriptionStatus() == null ? "" : u.getSubscriptionStatus());
         body.put("country", u.getCountry() == null ? "" : u.getCountry());
         body.put("city", u.getCity() == null ? "" : u.getCity());

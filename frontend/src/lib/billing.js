@@ -1,5 +1,5 @@
-// Premium (paid roadmaps) via a Razorpay monthly subscription. The backend creates the subscription
-// and verifies every payment; this file only loads Checkout and relays the result.
+// Premium (paid roadmaps) is a one-time pass paid as a Razorpay order; system design practice is a monthly subscription.
+// The backend creates the order/subscription and verifies every payment; this file only loads Checkout and relays the result.
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 function headers() {
@@ -16,6 +16,7 @@ async function call(path, method = 'GET', body) {
 
 // Full roadmap for premium members, a teaser (no concepts / cheat sheets / practice links) for everyone else.
 export const fetchRoadmaps = () => call('/roadmaps')
+export const fetchPremiumPlans = () => call('/billing/plans')
 export const fetchBillingStatus = () => call('/billing/status')
 export const cancelSubscription = () => call('/billing/cancel', 'POST')
 
@@ -31,22 +32,45 @@ function loadCheckout() {
   return checkoutScript
 }
 
-// Opens Razorpay Checkout for the monthly plan. Resolves with the new billing status once the
-// backend has verified the payment; rejects if the member closes the window or payment fails.
-export async function subscribe() {
-  const [sub] = await Promise.all([call('/billing/subscribe', 'POST'), loadCheckout()])
+// Opens Razorpay Checkout for an order or subscription the backend just created, and resolves once the backend has verified it;
+// rejects if the member closes the window or payment fails.
+function checkout(sub, { name, description, verifyPath }) {
   return new Promise((resolve, reject) => {
     const rzp = new window.Razorpay({
       key: sub.keyId,
-      subscription_id: sub.subscriptionId,
-      name: 'Interview Reader Premium',
-      description: `Personalized company roadmaps · ${sub.priceLabel}`,
+      ...(sub.orderId ? { order_id: sub.orderId, amount: sub.amount, currency: 'INR' } : { subscription_id: sub.subscriptionId }),
+      name,
+      description,
       prefill: { email: sub.email, name: sub.name },
       theme: { color: '#db2777' },
-      handler: resp => call('/billing/verify', 'POST', resp).then(resolve, reject),
+      handler: resp => call(verifyPath, 'POST', resp).then(resolve, reject),
       modal: { ondismiss: () => reject(new Error('Payment cancelled.')) },
     })
     rzp.on('payment.failed', r => reject(new Error(r.error?.description || 'Payment failed.')))
     rzp.open()
   })
 }
+
+export const PREMIUM_PLAN_NAMES = { monthly: 'Monthly', yearly: 'Yearly', lifetime: 'Lifetime' }
+
+// Premium (roadmaps) pass: 'monthly' | 'yearly' | 'lifetime', one-time payment, no auto-renewal.
+export async function buyPremium(plan) {
+  const [order] = await Promise.all([call('/billing/premium/order', 'POST', { plan }), loadCheckout()])
+  return checkout(order, { name: 'Interview Reader Premium', description: `${PREMIUM_PLAN_NAMES[plan]} pass · ₹${(order.amount / 100).toLocaleString('en-IN')}`, verifyPath: '/billing/premium/verify' })
+}
+
+// System design practice plan: 'p12' | 'p18' | 'p24' (attempts per month). Separate from Premium.
+export async function subscribePractice(plan) {
+  const [sub] = await Promise.all([call('/billing/practice/subscribe', 'POST', { plan }), loadCheckout()])
+  return checkout(sub, { name: 'System Design Practice', description: `${sub.attempts} scored attempts a month · ${sub.priceLabel}`, verifyPath: '/billing/practice/verify' })
+}
+
+export const cancelPracticePlan = () => call('/billing/practice/cancel', 'POST')
+
+// Peer mock interview plan: 'i5' | 'i10' (interviews per month). Separate from Premium, which includes a few a month.
+export async function subscribeInterviewPlan(plan) {
+  const [sub] = await Promise.all([call('/billing/interviews/subscribe', 'POST', { plan }), loadCheckout()])
+  return checkout(sub, { name: 'Mock Interviews', description: `${sub.interviews} mock interviews a month · ${sub.priceLabel}`, verifyPath: '/billing/interviews/verify' })
+}
+
+export const cancelInterviewPlan = () => call('/billing/interviews/cancel', 'POST')

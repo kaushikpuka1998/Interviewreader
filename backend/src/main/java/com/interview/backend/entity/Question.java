@@ -58,6 +58,11 @@ public class Question implements Serializable {
     @Column(name = "tech", length = 50, nullable = false)
     private String tech;
 
+    /** Scoring rubric for solo system design practice (JSON). Never sent to clients with the question. */
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Column(name = "rubric", columnDefinition = "TEXT")
+    private String rubric;
+
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

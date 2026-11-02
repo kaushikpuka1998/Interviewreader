@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import TopBar from './TopBar.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import { fetchCodingProblems } from '../lib/codingProblems.js'
-import { fetchRoadmaps, subscribe } from '../lib/billing.js'
+import { fetchRoadmaps } from '../lib/billing.js'
+import PremiumPlans from './PremiumPlans.jsx'
 import { getUser } from '../lib/auth.js'
 import AuthModal from './AuthModal.jsx'
 import Loader from './Loader.jsx'
@@ -30,8 +31,6 @@ export default function RoadmapsPage() {
   const [roadmap, setRoadmap] = useState(null)
   const [loadError, setLoadError] = useState('')
   const [authOpen, setAuthOpen] = useState(false)
-  const [paying, setPaying] = useState(false)
-  const [payError, setPayError] = useState('')
   const [celebrate, setCelebrate] = useState(false) // Premium just unlocked: show the welcome overlay
   const [justUnlocked, setJustUnlocked] = useState(false) // ease the unlocked roadmap into view once
   const loadRoadmap = () => fetchRoadmaps().then(r => { setRoadmap(r); setLoadError('') }).catch(e => setLoadError(e.message))
@@ -39,21 +38,14 @@ export default function RoadmapsPage() {
   const COMPANIES = roadmap?.companies || []
   const locked = roadmap ? !roadmap.premium : true
 
-  // Upsell CTA: sign in first, then Razorpay Checkout; reload the roadmap once the payment is verified.
-  const unlock = async () => {
-    setPayError('')
-    if (!getUser()) { setAuthOpen(true); return }
-    setPaying(true)
-    try {
-      await subscribe()
-      await loadRoadmap()
-      setCelebrate(true)
-      setJustUnlocked(true)
-    } catch (e) {
-      if (e.message !== 'Payment cancelled.') setPayError(e.message)
-    } finally {
-      setPaying(false)
-    }
+  // Upsell CTA: sign in first, then the pass picker; reload the roadmap once the payment is verified.
+  const [plansOpen, setPlansOpen] = useState(false)
+  const unlock = () => (getUser() ? setPlansOpen(true) : setAuthOpen(true))
+  const onBought = async () => {
+    await loadRoadmap()
+    setPlansOpen(false)
+    setCelebrate(true)
+    setJustUnlocked(true)
   }
   const [track, setTrack] = useState('all') // 'all' | 'dsa' | 'system-design' | 'behavioral'
   const [level, setLevel] = useState('sde2') // 'sde1' | 'sde2' | 'sde3'
@@ -540,10 +532,8 @@ export default function RoadmapsPage() {
           {locked && (
             <PremiumUpsell
               company={company}
-              priceLabel={roadmap.priceLabel}
+              plans={roadmap.premiumPlans}
               signedIn={Boolean(getUser())}
-              paying={paying}
-              error={payError}
               onUnlock={unlock}
             />
           )}
@@ -838,6 +828,7 @@ export default function RoadmapsPage() {
         </div>
 
         {/* Customize Plan Modal */}
+        {plansOpen && <PremiumPlans onBought={onBought} onClose={() => setPlansOpen(false)} />}
         {celebrate && <PremiumCelebration company={company} onClose={() => setCelebrate(false)} />}
 
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => { setAuthOpen(false); loadRoadmap() }} />}
@@ -975,7 +966,9 @@ function LockedTopicBody({ onUnlock }) {
   )
 }
 
-function PremiumUpsell({ company, priceLabel, signedIn, paying, error, onUnlock }) {
+function PremiumUpsell({ company, plans, signedIn, onUnlock }) {
+  const monthlyPlan = plans?.find(p => p.key === 'monthly')
+  const from = monthlyPlan?.price
   return (
     <div className="mt-6 overflow-hidden rounded-2xl border border-amber-300/60 bg-gradient-to-br from-amber-50 via-white to-pink-50 p-5 shadow-sm dark:border-amber-500/30 dark:from-amber-950/30 dark:via-slate-900 dark:to-pink-950/30">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -992,18 +985,24 @@ function PremiumUpsell({ company, priceLabel, signedIn, paying, error, onUnlock 
           </ul>
         </div>
         <div className="flex flex-col items-start gap-1.5 md:items-end">
-          {priceLabel && <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{priceLabel}</span>}
-          <button type="button" onClick={onUnlock} disabled={paying}
+          {from && (
+            <span className="text-sm text-slate-600 dark:text-slate-300">from{' '}
+              {monthlyPlan.regular > from && <span className="mr-1 text-base text-slate-400 line-through">{rupees(monthlyPlan.regular)}</span>}
+              <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{rupees(from)}</span>
+            </span>
+          )}
+          <button type="button" onClick={onUnlock}
             className="rounded-xl bg-gradient-to-r from-amber-500 to-pink-600 px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:opacity-95 disabled:opacity-60">
-            {paying ? 'Opening payment…' : signedIn ? 'Get Premium' : 'Sign in to get Premium'}
+            {signedIn ? 'See plans' : 'Sign in to get Premium'}
           </button>
-          <span className="text-[11px] text-slate-500 dark:text-slate-400">Billed monthly · cancel anytime</span>
-          {error && <span className="text-xs text-rose-600 dark:text-rose-400">{error}</span>}
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">Monthly, yearly or lifetime · one-time payment</span>
         </div>
       </div>
     </div>
   )
 }
+
+const rupees = n => `₹${Number(n).toLocaleString('en-IN')}`
 
 // Company logo, falling back to the letter badge if the image can't load (offline, blocked, ...).
 function CompanyLogo({ company, className = '' }) {

@@ -13,7 +13,9 @@ import Markdown from './Markdown.jsx'
 import ActivityHeatmap from './ActivityHeatmap.jsx'
 import { resumeBuilderLink } from '../lib/analytics.js'
 import { updateUsername, fetchNotes, saveNote, removeNote } from '../lib/auth.js'
-import { cancelSubscription } from '../lib/billing.js'
+import { cancelSubscription, cancelPracticePlan, cancelInterviewPlan, PREMIUM_PLAN_NAMES } from '../lib/billing.js'
+import { fetchInterviewQuota } from '../lib/interviews.js'
+import { fetchPracticeQuota } from '../lib/designPractice.js'
 
 export const TECH_COLOR = {
   java: 'bg-orange-500', react: 'bg-cyan-500', node: 'bg-green-500', sql: 'bg-purple-500',
@@ -393,6 +395,8 @@ export default function ProfilePage() {
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <PremiumStatus profile={profile} />
+          <PracticePlanStatus />
+          <InterviewPlanStatus />
           {profile.league && (
             <a href="/leaderboard" title="View leaderboard" className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
               <LeagueBadge league={profile.league} size="xs" />
@@ -513,7 +517,7 @@ function Shell({ children }) {
   )
 }
 
-// Premium (paid roadmaps): current state, renewal/end date, and cancel. Non-members get a link to the upsell.
+// Premium (paid roadmaps): pass and end date. Cancel only applies to the older recurring subscription. Non-members get a link to the upsell.
 function PremiumStatus({ profile }) {
   const [status, setStatus] = useState(profile.subscriptionStatus)
   const [busy, setBusy] = useState(false)
@@ -529,11 +533,62 @@ function PremiumStatus({ profile }) {
   }
   return (
     <span className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-300/60 px-2.5 py-1 text-xs dark:border-amber-500/30">
-      <span className="font-bold text-amber-600 dark:text-amber-400">★ Premium</span>
-      {until && <span className="text-slate-500 dark:text-slate-400">{status === 'active' ? 'renews' : 'until'} {until}</span>}
+      <span className="font-bold text-amber-600 dark:text-amber-400">★ Premium{profile.premiumPlan ? ` · ${PREMIUM_PLAN_NAMES[profile.premiumPlan] || profile.premiumPlan}` : ''}</span>
+      {until && profile.premiumPlan !== 'lifetime' && <span className="text-slate-500 dark:text-slate-400">{status === 'active' ? 'renews' : 'until'} {until}</span>}
       {status === 'active' && (
         <button onClick={cancel} disabled={busy} className="text-slate-400 underline hover:text-rose-500 disabled:opacity-50">{busy ? 'Cancelling…' : 'Cancel'}</button>
       )}
+      {err && <span className="text-rose-500">{err}</span>}
+    </span>
+  )
+}
+
+// Peer mock interview plan (separate from Premium, which includes a few a month): left this period, renewal, cancel.
+function InterviewPlanStatus() {
+  const [quota, setQuota] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  useEffect(() => { fetchInterviewQuota().then(setQuota).catch(() => {}) }, [])
+  if (!quota || quota.unlimited || !quota.plan) return null
+  const until = quota.periodEnd ? new Date(quota.periodEnd).toLocaleDateString() : ''
+  const cancelled = quota.status === 'cancelled'
+  const cancel = async () => {
+    if (!window.confirm(`Cancel your interview plan? Your remaining interviews stay bookable until ${until}.`)) return
+    setBusy(true); setErr('')
+    try { await cancelInterviewPlan(); setQuota(await fetchInterviewQuota()) } catch (e) { setErr(e.message) } finally { setBusy(false) }
+  }
+  return (
+    <span className="flex flex-wrap items-center gap-2 rounded-lg border border-blue-300/60 px-2.5 py-1 text-xs dark:border-blue-500/30">
+      <a href="/interview" className="font-bold text-blue-600 hover:underline dark:text-blue-400">🎤 Interviews {quota.planInterviews}</a>
+      <span className="text-slate-500 dark:text-slate-400">{quota.planLeft}/{quota.planInterviews} left · {cancelled ? 'ends' : 'renews'} {until}</span>
+      {!cancelled && <button onClick={cancel} disabled={busy} className="text-slate-400 underline hover:text-rose-500 disabled:opacity-50">{busy ? 'Cancelling…' : 'Cancel'}</button>}
+      {err && <span className="text-rose-500">{err}</span>}
+    </span>
+  )
+}
+
+// System design practice plan (separate from Premium): attempts left this month, renewal, cancel.
+function PracticePlanStatus() {
+  const [quota, setQuota] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  useEffect(() => { fetchPracticeQuota().then(setQuota).catch(() => {}) }, [])
+  if (!quota || quota.unlimited) return null
+  if (!quota.plan) {
+    return <a href="/interview/practice" className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">🎙 Design practice · {quota.freeLeft} free left</a>
+  }
+  const until = quota.periodEnd ? new Date(quota.periodEnd).toLocaleDateString() : ''
+  const cancelled = quota.status === 'cancelled'
+  const cancel = async () => {
+    if (!window.confirm(`Cancel your practice plan? Your remaining attempts stay usable until ${until}.`)) return
+    setBusy(true); setErr('')
+    try { await cancelPracticePlan(); setQuota(await fetchPracticeQuota()) } catch (e) { setErr(e.message) } finally { setBusy(false) }
+  }
+  return (
+    <span className="flex flex-wrap items-center gap-2 rounded-lg border border-violet-300/60 px-2.5 py-1 text-xs dark:border-violet-500/30">
+      <a href="/interview/practice" className="font-bold text-violet-600 hover:underline dark:text-violet-400">🎙 Practice {quota.planAttempts}</a>
+      <span className="text-slate-500 dark:text-slate-400">{quota.planLeft}/{quota.planAttempts} left · {cancelled ? 'ends' : 'renews'} {until}</span>
+      {!cancelled && <button onClick={cancel} disabled={busy} className="text-slate-400 underline hover:text-rose-500 disabled:opacity-50">{busy ? 'Cancelling…' : 'Cancel'}</button>}
       {err && <span className="text-rose-500">{err}</span>}
     </span>
   )

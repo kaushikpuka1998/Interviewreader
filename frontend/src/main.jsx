@@ -18,6 +18,7 @@ import ResetPasswordPage from './components/ResetPasswordPage.jsx'
 import { trackView } from './lib/analytics.js'
 import PracticePage from './components/PracticePage.jsx'
 import RoadmapsPage from './components/RoadmapsPage.jsx'
+import DesignPracticePage from './components/DesignPracticePage.jsx'
 import { useFeature } from './lib/features.js'
 
 // Shown in place of a page whose feature is switched off in the admin Feature flags tab.
@@ -82,6 +83,9 @@ function Routes() {
   if (path === '/roadmaps' || path.startsWith('/roadmaps/')) return <RoadmapsPage />
 
   if (path.startsWith('/sheets/')) return <Gate flag="code_practice" what="The DSA sheets"><SheetPage slug={path.split('/')[2]} /></Gate>
+
+  // Solo system design practice (no interviewer). Before the /interview routes so it isn't taken for one.
+  if (path === '/interview/practice') return <DesignPracticePage />
 
   if (path.startsWith('/interview/live/')) return <Gate flag="mock_interview" what="Mock interviews"><LiveInterview id={path.split('/')[3]} /></Gate>
 

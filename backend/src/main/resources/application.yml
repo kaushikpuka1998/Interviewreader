@@ -93,14 +93,45 @@ app:
       access-key: ${AWS_ACCESS_KEY_ID:test}
       secret-key: ${AWS_SECRET_ACCESS_KEY:test}
   razorpay:
-    # Razorpay keys (test keys locally, live in prod). Plan = the monthly Premium plan created in the dashboard.
+    # Razorpay keys (test keys locally, live in prod).
     key-id: ${RAZORPAY_KEY_ID:}
     key-secret: ${RAZORPAY_KEY_SECRET:}
     webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
-    plan-id: ${RAZORPAY_PLAN_ID:}
+    # System design practice: one monthly Razorpay plan per tier (12 / 18 / 24 attempts a month).
+    practice-plan-12: ${RAZORPAY_PRACTICE_PLAN_12:}
+    practice-plan-18: ${RAZORPAY_PRACTICE_PLAN_18:}
+    practice-plan-24: ${RAZORPAY_PRACTICE_PLAN_24:}
+    # Peer mock interviews: one monthly Razorpay plan per tier (5 / 10 interviews a month).
+    interview-plan-5: ${RAZORPAY_INTERVIEW_PLAN_5:}
+    interview-plan-10: ${RAZORPAY_INTERVIEW_PLAN_10:}
   premium:
-    # Shown on the upsell; the real price lives in the Razorpay plan.
-    price-label: ${PREMIUM_PRICE_LABEL:}
+    # One-time Premium passes, in rupees (charged as Razorpay orders; no dashboard plans needed).
+    price-monthly: ${PREMIUM_PRICE_MONTHLY:2200}
+    price-yearly: ${PREMIUM_PRICE_YEARLY:6500}
+    price-lifetime: ${PREMIUM_PRICE_LIFETIME:14000}
+    # Regular prices, shown crossed out next to the offer price (0 = no strikethrough). Keep them real prices.
+    regular-monthly: ${PREMIUM_REGULAR_MONTHLY:2999}
+    regular-yearly: ${PREMIUM_REGULAR_YEARLY:9999}
+    regular-lifetime: ${PREMIUM_REGULAR_LIFETIME:19999}
+  interviews:
+    # Peer mock interviews are free for everyone for requests made up to this moment (launch period).
+    free-until: ${INTERVIEW_FREE_UNTIL:2026-11-15T23:59:59+05:30}
+    # Interviews a month included with Premium; plan price labels (the real prices live in the Razorpay plans).
+    premium-monthly: ${INTERVIEW_PREMIUM_MONTHLY:6}
+    price-label-5: ${INTERVIEW_PRICE_LABEL_5:₹499/month}
+    price-label-10: ${INTERVIEW_PRICE_LABEL_10:₹799/month}
+    # Regular price shown crossed out next to the launch price (blank = no strikethrough). Keep it the real price after the offer.
+    regular-label-5: ${INTERVIEW_REGULAR_LABEL_5:₹799/month}
+    regular-label-10: ${INTERVIEW_REGULAR_LABEL_10:₹1,299/month}
+  practice:
+    # Shown on the practice plan picker; the real prices live in the Razorpay plans.
+    price-label-12: ${PRACTICE_PRICE_LABEL_12:₹499/month}
+    price-label-18: ${PRACTICE_PRICE_LABEL_18:₹699/month}
+    price-label-24: ${PRACTICE_PRICE_LABEL_24:₹999/month}
+    # Regular prices shown crossed out next to the offer price (blank = no strikethrough).
+    regular-label-12: ${PRACTICE_REGULAR_LABEL_12:₹699/month}
+    regular-label-18: ${PRACTICE_REGULAR_LABEL_18:₹999/month}
+    regular-label-24: ${PRACTICE_REGULAR_LABEL_24:₹1,399/month}
   admin:
     # Comma-separated emails that get ROLE_ADMIN (can publish questions). Override with ADMIN_EMAILS.
     emails: ${ADMIN_EMAILS:kaushikghosh199832@gmail.com}

@@ -303,6 +303,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .result-pop { animation: result-pop 0.45s ease-out both; }
 .result-shake { animation: result-shake 0.5s ease-in-out; }
 .bar-grow { transform-origin: left center; animation: bar-grow 0.7s ease-out both; }
+/* Interview mode: drains while the candidate is quiet; the reply is sent when it empties. */
+@keyframes quiet-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.quiet-drain { transform-origin: left center; animation: quiet-drain var(--quiet-ms, 4s) linear both; }
 .confetti-piece {
   position: absolute;
   top: 40px;

@@ -3,16 +3,18 @@ import { useEffect, useState } from 'react'
 import { useFeatures } from '../lib/features.js'
 import Notifications from './Notifications.jsx'
 import AuthModal from './AuthModal.jsx'
+import PremiumPlans from './PremiumPlans.jsx'
 
 // Shared top bar (LeetCode style): brand and page links on the left, theme toggle, notifications, avatar and log out on the right.
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
-// [label, href, feature flag that must be on, flag that turns on the "New" badge]
+// [label, href, feature flag that must be on, flag that turns on the "New" badge (true = always, 'hot' = 🔥 Hot)]
 const NAV = [
   ['Questions', '/questions'],
+  ['Problems (System Design)', '/interview/practice', null, true],
   ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
   ['Practice', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
   ['Roadmaps', '/roadmaps', null, null, true],
-  ['Interview', '/interview', 'mock_interview', 'new_badge_interview'],
+  ['Interview', '/interview', 'mock_interview', 'hot'],
   ['Leaderboard', '/leaderboard'],
   ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
 ]
@@ -21,6 +23,7 @@ function NavLink({ label, href, flag, badge, premium, path, features, mobile = f
   if (flag && features[flag] === false) return null
   const active = href === '/questions'
     ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+    : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
     : path === href || (href !== '/' && path.startsWith(href + '/'))
   const handleClick = (e) => {
     if (href === '/practice' && typeof window !== 'undefined' && window.location.pathname === '/practice' && window.location.search) {
@@ -34,11 +37,12 @@ function NavLink({ label, href, flag, badge, premium, path, features, mobile = f
       href={href}
       onClick={handleClick}
       aria-current={active ? 'page' : undefined}
-      className={`whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex items-center px-3 py-2.5 text-base' : 'px-3 py-1.5'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+      className={`whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex items-center px-3 py-2.5 text-base' : 'px-2.5 py-1.5 xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
       {label}
       {premium && <span className="ml-1.5 rounded-full bg-gradient-to-r from-amber-400 to-pink-500 px-1.5 py-0.5 align-middle text-[10px] font-bold text-white">Premium</span>}
-      {badge && features[badge] === true && <span className="ml-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 align-middle text-[10px] font-bold text-amber-950">New</span>}
+      {badge === 'hot' && <span className="ml-1.5 rounded-full bg-gradient-to-r from-orange-500 to-rose-600 px-1.5 py-0.5 align-middle text-[10px] font-bold text-white">🔥 Hot</span>}
+      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <span className="ml-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 align-middle text-[10px] font-bold text-amber-950">New</span>}
     </a>
   )
 }
@@ -48,6 +52,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
   // `dark` class and saved 'theme' value that the reader uses, so the choice carries between pages.
   const features = useFeatures()
   const [ownAuthOpen, setOwnAuthOpen] = useState(false) // pages that pass no onLogin get their own sign-in modal
+  const [plansOpen, setPlansOpen] = useState(false)
   const [ownDark, setOwnDark] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'))
   const isDark = onToggleProp ? isDarkProp : ownDark
   const onToggleDark = onToggleProp || (() => {
@@ -94,10 +99,19 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
           <img src="/logo.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
           <span className="hidden whitespace-nowrap sm:inline">Interview Reader</span>
         </a>
-        <nav className="hidden min-w-0 items-center gap-1 text-sm lg:flex" aria-label="Main">
+        <nav className="hidden min-w-0 items-center gap-0.5 overflow-x-auto text-sm [scrollbar-width:none] lg:flex xl:gap-1" aria-label="Main">
           {links(false)}
         </nav>
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          {/* Premium pass picker; signed-out visitors sign in first. Members can buy again to extend. */}
+          <button type="button" onClick={() => (signedIn ? setPlansOpen(true) : (onLogin || (() => setOwnAuthOpen(true)))())}
+            title={user?.premium ? 'You have Premium · extend your pass' : 'Get Premium'} aria-label="Premium plans"
+            className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-1.5 text-sm font-semibold text-amber-600 ring-1 ring-amber-500/20 transition-colors hover:bg-amber-500/20 sm:px-3 dark:text-amber-400">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z" />
+            </svg>
+            <span className="hidden sm:inline">Premium</span>
+          </button>
           {(
             <button onClick={onToggleDark} aria-label="Toggle dark mode" aria-pressed={isDark} title="Toggle dark mode" className="rounded-lg bg-slate-100 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
               {isDark ? (
@@ -129,6 +143,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
         </nav>
       )}
     </header>
+    {plansOpen && <PremiumPlans onClose={() => setPlansOpen(false)} onBought={() => window.location.reload()} />}
     {ownAuthOpen && <AuthModal onClose={() => setOwnAuthOpen(false)} onSuccess={() => window.location.reload()} />}
     </>
   )

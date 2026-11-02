@@ -128,4 +128,13 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     /** Question totals per difficulty in one query: row = [difficulty, count]. */
     @Query("SELECT q.difficulty, COUNT(q) FROM Question q WHERE q.difficulty IS NOT NULL GROUP BY q.difficulty")
     List<Object[]> countAllByDifficulty();
+
+    /**
+     * Stores a practice rubric without touching updated_at: a rubric isn't a content change, and bumping updated_at
+     * would send members "updated question" digest emails and move the sitemap's lastmod.
+     */
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = "UPDATE questions SET rubric = :rubric WHERE id = :id", nativeQuery = true)
+    int updateRubric(@org.springframework.data.repository.query.Param("id") String id, @org.springframework.data.repository.query.Param("rubric") String rubric);
 }

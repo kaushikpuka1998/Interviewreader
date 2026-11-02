@@ -57,6 +57,13 @@ public class MockInterviewController {
     private final EmailService email;
     private final com.interview.backend.repository.FeatureFlagRepository flags;
     private final com.interview.backend.service.ImageService imageService;
+    private final com.interview.backend.service.InterviewAccessService access;
+
+    /** Candidate: how many interviews they can still book (free period, Premium's monthly ones, plan). */
+    @GetMapping("/quota")
+    public Map<String, Object> quota() {
+        return access.quota(me());
+    }
 
     /** Candidate: ask for an interview. */
     @PostMapping("/request")
@@ -78,7 +85,13 @@ public class MockInterviewController {
                 return bad("You already have an interview within an hour of that time. Pick another time.");
         }
         if (open >= MAX_OPEN_AS_CANDIDATE) return bad("You can have at most " + MAX_OPEN_AS_CANDIDATE + " interviews open at once. Finish or cancel one first.");
+        String billedAs;
+        try { billedAs = access.charge(me); }
+        catch (com.interview.backend.service.InterviewAccessService.OutOfInterviews e) {
+            return ResponseEntity.status(402).body(Map.of("error", e.getMessage(), "quota", access.quota(me)));
+        }
         MockInterview m = new MockInterview();
+        m.setBilledAs(billedAs);
         m.setSlotAt(slot);
         m.setWantsToInterview(Boolean.TRUE.equals(in.wantsToInterview()));
         m.setCandidateId(me.getId());

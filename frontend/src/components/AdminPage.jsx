@@ -14,6 +14,7 @@ import SuggestionsPanel from './SuggestionsPanel.jsx'
 import FeedbackPanel from './FeedbackPanel.jsx'
 import InterviewsPanel from './InterviewsPanel.jsx'
 import DuplicatesPanel from './DuplicatesPanel.jsx'
+import DesignRubricsAdmin from './DesignRubricsAdmin.jsx'
 
 const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'misc', 'angular', 'rails', 'behavioral']
 const DIFFICULTIES = ['Basic', 'Intermediate', 'Advanced', 'Experienced']
@@ -324,7 +325,7 @@ export default function AdminPage() {
   return (
     <Shell tabWide={tab === "analytics"}>
       <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback', 'Feedback'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
+        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback', 'Feedback'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
           <button key={t} onClick={() => { setTab(t); setMsg(null) }}
             className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
             {label}
@@ -334,6 +335,7 @@ export default function AdminPage() {
 
       <div className="mb-4"><Banner msg={msg} /></div>
 
+      {tab === 'rubrics' && <DesignRubricsAdmin />}
       {tab === 'single' && (
         <form onSubmit={submitSingle}>
           {editingId && (

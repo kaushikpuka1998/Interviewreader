@@ -99,6 +99,10 @@ public class MockInterview {
     @Column(length = 12)
     private String editorBy;
 
+    /** What paid for this interview (the candidate's side): free (launch period), premium (6 a month), plan, admin. */
+    @Column(length = 10)
+    private String billedAs;
+
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 

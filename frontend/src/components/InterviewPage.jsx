@@ -9,7 +9,9 @@ import InterviewQuestionPicker from './InterviewQuestionPicker.jsx'
 import { isLoggedIn, getUser } from '../lib/auth.js'
 import { useFeatures } from '../lib/features.js'
 import { fetchResumes, fetchTemplates } from '../lib/resume.js'
-import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, saveCallLink, saveWhiteboardLink, reportNoShow, completeInterview, cancelInterview } from '../lib/interviews.js'
+import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, saveCallLink, saveWhiteboardLink, reportNoShow, completeInterview, cancelInterview, fetchInterviewQuota } from '../lib/interviews.js'
+import { subscribeInterviewPlan } from '../lib/billing.js'
+import PremiumPlans from './PremiumPlans.jsx'
 
 const btn = 'rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60'
 const primary = `${btn} bg-blue-600 text-white hover:bg-blue-700`
@@ -33,14 +35,18 @@ export default function InterviewPage() {
   const canInterview = !!getUser()?.admin || features.interviewer_open === true
   const [upcoming, setUpcoming] = useState([])
 
+  const [quota, setQuota] = useState(null)
+  const [plansOpen, setPlansOpen] = useState(false)
+  const loadQuota = useCallback(() => fetchInterviewQuota().then(setQuota).catch(() => {}), [])
   const load = useCallback(() => fetchMyInterviews().then(setList).catch(e => setError(e.message)), [])
   useEffect(() => {
     if (!signedIn) return
     load()
+    loadQuota()
     fetchResumes().then(r => { setResumes(r); if (r[0]) setResumeId(String(r[0].id)) }).catch(() => {})
     const timer = setInterval(load, 6000)   // pick up a match without a refresh
     return () => clearInterval(timer)
-  }, [signedIn, load])
+  }, [signedIn, load, loadQuota])
 
   useEffect(() => {
     if (!signedIn || !canInterview) return
@@ -53,7 +59,10 @@ export default function InterviewPage() {
 
   const act = async fn => {
     setBusy(true); setError('')
-    try { await fn(); await load() } catch (e) { setError(e.message) } finally { setBusy(false) }
+    try { await fn(); await load(); loadQuota() } catch (e) {
+      if (e.status === 402) { if (e.quota) setQuota(e.quota); setPlansOpen(true) }
+      setError(e.message)
+    } finally { setBusy(false) }
   }
 
   // An interviewer can hold several interviews at different times, so every open one is shown, soonest first.
@@ -72,6 +81,16 @@ export default function InterviewPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400">Practise with a real person. Request an interview for a date and time; an interviewer accepts it and you are notified.</p>
           </div>
 
+          {/* Voice mock interviewer: no human needed, no waiting. Ends with a hiring decision. */}
+          <a href="/interview/practice" className="group relative flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 p-5 text-white shadow-md transition hover:shadow-lg">
+            <span className="max-w-2xl">
+              <span className="inline-block rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">🗣 New · No waiting for an interviewer</span>
+              <span className="mt-1 block text-lg font-extrabold">Take a system design mock interview right now</span>
+              <span className="block text-sm text-white/90">A voice interviewer asks, listens and follows up, then gives you a Strong Hire to Rejected decision with a rating and feedback. Your first 3 interviews are free.</span>
+            </span>
+            <span className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-violet-700 group-hover:bg-violet-50">Try it free →</span>
+          </a>
+
           {!signedIn ? (
             <div className="rounded-2xl bg-white p-6 text-center dark:bg-slate-950">
               <p className="text-slate-700 dark:text-slate-300">Log in to request or give a mock interview.</p>
@@ -89,6 +108,7 @@ export default function InterviewPage() {
 
           {signedIn && list !== null && !asCandidate && (
             <div className="space-y-4 rounded-2xl bg-white p-5 dark:bg-slate-950">
+              {quota && <InterviewQuotaBar quota={quota} onPlans={() => setPlansOpen(true)} />}
               <div>
                 {openOnes.some(i => i.role === 'candidate') && <p className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950/40 dark:text-blue-200">You can request another interview at a different time.</p>}
                 <p className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">1. Interview type</p>
@@ -132,10 +152,14 @@ export default function InterviewPage() {
                   </label>
                 </>
               )}
-              <button className={primary} disabled={busy || !slot || (type === 'RESUME' && !resumeId)}
-                onClick={() => act(() => requestInterview(type, resumeId, slotToIso(slot), wantsToInterview))}>
-                {busy ? 'Sending request…' : 'Request an interview'}
-              </button>
+              {quota && !quota.canRequest ? (
+                <button className={primary} onClick={() => setPlansOpen(true)}>Get more interviews to book</button>
+              ) : (
+                <button className={primary} disabled={busy || !slot || (type === 'RESUME' && !resumeId)}
+                  onClick={() => act(() => requestInterview(type, resumeId, slotToIso(slot), wantsToInterview))}>
+                  {busy ? 'Sending request…' : 'Request an interview'}
+                </button>
+              )}
               <p className="text-xs text-slate-500 dark:text-slate-400">Once an interviewer accepts, you are notified here and by email, and the interview shows as upcoming with its date and time.</p>
             </div>
           )}
@@ -177,8 +201,104 @@ export default function InterviewPage() {
           )}
         </div>
       </div>
+      {plansOpen && quota && <InterviewPlans quota={quota} onClose={() => setPlansOpen(false)} onBought={() => { setPlansOpen(false); setError(''); loadQuota() }} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
     </>
+  )
+}
+
+const shortDate = iso => (iso ? new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short' }) : '')
+
+// What the candidate can still book: free launch period, Premium's monthly interviews, a monthly plan.
+function InterviewQuotaBar({ quota, onPlans }) {
+  if (quota.unlimited) return <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">Admin · unlimited interviews</p>
+  if (quota.freePeriod) {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-100">
+        <span>🎉 <strong>Free for everyone until {shortDate(quota.freeUntil)}.</strong> After that, Premium includes {quota.premiumMonthly} interviews a month, or pick a monthly plan.</span>
+        <button type="button" onClick={onPlans} className="text-xs font-semibold underline">See plans</button>
+      </div>
+    )
+  }
+  const parts = []
+  if (quota.premium) parts.push(<span key="p">★ Premium: <strong>{quota.premiumLeft}</strong> of {quota.premiumMonthly} left this month · resets {shortDate(quota.premiumResets)}</span>)
+  if (quota.plan) parts.push(<span key="pl">Plan {quota.planInterviews}: <strong>{quota.planLeft}</strong> of {quota.planInterviews} left{quota.periodEnd ? ` · renews ${shortDate(quota.periodEnd)}` : ''}</span>)
+  return (
+    <div className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-sm ${quota.canRequest ? 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200' : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-200'}`}>
+      <span className="flex flex-wrap gap-x-4 gap-y-1">{parts.length ? parts : <span>Mock interviews need Premium ({quota.premiumMonthly} a month included) or a monthly plan.</span>}{!quota.canRequest && parts.length > 0 && <strong>No interviews left.</strong>}</span>
+      <button type="button" onClick={onPlans} className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-600 px-3 py-1 text-xs font-bold text-white">{quota.plan ? 'Change plan' : 'Get more interviews'}</button>
+    </div>
+  )
+}
+
+// Ways to book peer interviews after the free period: Premium (includes a few a month, plus roadmaps) or a plan.
+function InterviewPlans({ quota, onClose, onBought }) {
+  const [busy, setBusy] = useState('')
+  const [error, setError] = useState('')
+  const [premiumOpen, setPremiumOpen] = useState(false)
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  const buy = async plan => {
+    setBusy(plan); setError('')
+    try { await subscribeInterviewPlan(plan); onBought() } catch (e) { if (e.message !== 'Payment cancelled.') setError(e.message) } finally { setBusy('') }
+  }
+  if (premiumOpen) return <PremiumPlans onClose={() => setPremiumOpen(false)} onBought={() => window.location.reload()} />
+  return (
+    <div role="dialog" aria-modal="true" aria-labelledby="iv-plans-title" onClick={onClose} className="premium-fade fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm">
+      <div onClick={e => e.stopPropagation()} className="w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 id="iv-plans-title" className="text-lg font-bold text-slate-900 dark:text-white">Mock interviews with real interviewers</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {quota.freePeriod ? `Free for everyone until ${shortDate(quota.freeUntil)}. After that, choose one of these.` : 'Choose how you want to keep booking interviews.'}
+              {' '}Cancelled interviews and interviewer no-shows don't count.
+            </p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">✕</button>
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="relative flex flex-col rounded-xl border-2 border-amber-400 p-4 text-center shadow-md">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-500 to-pink-600 px-2.5 py-0.5 text-[10px] font-bold text-white">BEST VALUE</span>
+            <p className="text-sm font-bold text-amber-600 dark:text-amber-400">★ Premium</p>
+            <p className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">{quota.premiumMonthly}</p>
+            <p className="text-xs text-slate-500">interviews / month included</p>
+            <p className="mt-2 flex-1 text-xs text-slate-600 dark:text-slate-400">Plus personalized company roadmaps, cheat sheets and more. Monthly, yearly or lifetime pass.</p>
+            <button type="button" onClick={() => setPremiumOpen(true)} disabled={quota.premium}
+              className="mt-3 w-full rounded-lg bg-gradient-to-r from-amber-500 to-pink-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
+              {quota.premium ? 'You have Premium' : 'See Premium passes'}
+            </button>
+          </div>
+          {quota.plans.map(p => {
+            const current = quota.plan === p.key
+            const rupees = label => parseInt(String(label || '').replace(/[^\d]/g, ''), 10) || 0
+            const now = rupees(p.priceLabel), was = rupees(p.regularLabel)
+            const off = was > now ? Math.round((1 - now / was) * 100) : 0
+            return (
+              <div key={p.key} className="relative flex flex-col rounded-xl border border-slate-200 p-4 text-center dark:border-slate-700">
+                {off > 0 && <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-bold text-white">LAUNCH OFFER · {off}% OFF</span>}
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Interview plan</p>
+                <p className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">{p.interviews}</p>
+                <p className="text-xs text-slate-500">interviews / month</p>
+                <p className="mt-2 flex flex-wrap items-baseline justify-center gap-x-2">
+                  {off > 0 && <span className="text-sm text-slate-400 line-through decoration-rose-500/70" aria-label={`was ${p.regularLabel}`}>{p.regularLabel.replace('/month', '')}</span>}
+                  <span className="text-lg font-bold text-slate-900 dark:text-white">{p.priceLabel}</span>
+                </p>
+                <p className="flex-1 text-xs text-slate-500">≈ ₹{Math.round(parseInt(String(p.priceLabel).replace(/[^\d]/g, ''), 10) / p.interviews)} per interview · renews monthly, cancel any time</p>
+                <button type="button" disabled={!!busy || current || !p.available} onClick={() => buy(p.key)}
+                  className="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900">
+                  {current ? 'Current plan' : busy === p.key ? 'Opening payment…' : !p.available ? 'Coming soon' : quota.plan ? 'Switch' : 'Choose'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+        {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">Premium's interviews are used first, then your plan's. Unused interviews don't carry over. Giving interviews is always free.</p>
+      </div>
+    </div>
   )
 }
 

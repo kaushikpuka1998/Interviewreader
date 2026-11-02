@@ -49,7 +49,7 @@ public class RoadmapController {
         ObjectNode body = (premium ? full : teaser).deepCopy();
         body.put("premium", premium);
         body.put("signedIn", auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName()));
-        body.put("priceLabel", billing.priceLabel());
+        body.set("premiumPlans", new ObjectMapper().valueToTree(billing.premiumPlans()));
         return body;
     }
 }

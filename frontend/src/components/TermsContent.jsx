@@ -9,7 +9,7 @@ const SECTIONS = [
       'Resume content you write in the resume builder, including the PDFs and LaTeX you generate.',
       'Code you run or submit in the practice editor, and mock-interview bookings (the slot, interview type and any notes you add).',
       'Feedback you send us: your rating, message, optional email and any screenshots you attach.',
-      'If you buy Premium: your Razorpay subscription ID, its status and the date your Premium access ends. Card, UPI and bank details are entered on Razorpay\'s checkout and never reach or get stored on our servers.',
+      'If you buy Premium: the pass you bought, its Razorpay order or subscription ID and the date your Premium access ends. Card, UPI and bank details are entered on Razorpay\'s checkout and never reach or get stored on our servers.',
       'Usage data: pages viewed, clicks, device type, referring site, and campaign tags (UTM), linked to your account while you are signed in.',
     ],
   },
@@ -18,7 +18,7 @@ const SECTIONS = [
     items: [
       'To run the service: save your progress, keep your resumes, and show your profile.',
       'To show the leaderboard: your username and XP appear there. Your profile is public only if you share your username link.',
-      'To process payments and manage Premium: unlock paid features, show your renewal date and handle cancellations.',
+      'To process payments and manage Premium: unlock paid features, show when your access ends and handle cancellations.',
       'To send emails you have opted into: new-question digests, announcements, product updates (for example new roadmaps or features) and occasional requests for feedback. Every email has an unsubscribe link.',
       'To improve the product: usage is analysed in aggregate to understand which features are used.',
     ],
@@ -58,19 +58,39 @@ const SECTIONS = [
     ],
   },
   {
-    title: 'Premium subscription',
+    title: 'Premium passes',
     items: [
-      'Premium unlocks personalized company roadmaps: company-tagged practice problems, cheat sheets, direct question links and progress tracking. Free features stay free.',
-      'Premium renews automatically every month on the same card or UPI mandate until you cancel. The price is shown before you pay; if it changes, we will tell you before your next renewal.',
-      'If a renewal payment fails, Premium ends at the close of the period you already paid for.',
+      'Premium unlocks personalized company roadmaps: company-tagged practice problems, cheat sheets, direct question links and progress tracking. It also includes 6 mock interviews with real interviewers per calendar month (India time), which do not carry over. Free features stay free.',
+      'Premium is sold as a one-time pass: Monthly (31 days), Yearly (365 days) or Lifetime (for as long as the service runs). The price is shown before you pay. Passes do not renew automatically.',
+      'Buying another pass while Premium is active adds its time after your current end date.',
+      'Members who subscribed to the earlier monthly Premium subscription keep it until they cancel; it renews monthly on the same card or UPI mandate and ends at the close of the period already paid for if a renewal fails.',
       'Roadmap content is for your personal preparation. Do not share your account or republish Premium content.',
+    ],
+  },
+  {
+    title: 'Mock interviews with real interviewers',
+    items: [
+      'Booking a mock interview as a candidate is free for everyone for requests made until 15 November 2026. Giving interviews as an interviewer is always free.',
+      'After that, each booking uses one interview from your allowance: first the 6 a month included with Premium, then a monthly interview plan (5 or 10 interviews per billing month, at the price shown before you pay). Unused interviews do not carry over.',
+      'An interview you cancel, or one where the interviewer does not turn up, does not use your allowance. One where you do not turn up does.',
+      'Interview plans renew automatically each month until you cancel from your profile; your remaining interviews stay bookable until the end of the month you paid for. Interviewers are volunteers and members; we do not guarantee that a request is accepted, and an unaccepted request can be cancelled at no cost.',
+    ],
+  },
+  {
+    title: 'System design practice plans',
+    items: [
+      'Solo system design practice scores your answer automatically, out of 10, by how much of a strong design it covers. It is a practice aid, not an assessment of your ability or a hiring signal.',
+      'Every member gets 3 free scored attempts in total. After that, monthly plans give 12, 18 or 24 scored attempts per billing month at the price shown before you pay. Unused attempts do not carry over.',
+      'Plans renew automatically each month until you cancel from your profile; you keep the remaining attempts until the end of the month you paid for. Switching plans starts the new plan straight away and ends the old one.',
+      'Your answers (typed or transcribed from speech) and scores are saved so you can review your progress. Voice answers are transcribed by your browser\'s speech recognition service (in Chrome and Edge, the audio is sent to Google or Microsoft for this); we never receive or store audio, only the resulting text.',
+      'Practice plans are separate from Premium.',
     ],
   },
   {
     title: 'Returns and refunds',
     items: [
-      'Most of the service is free. Premium (personalized company roadmaps) is a monthly subscription billed in advance through Razorpay at the price shown before you pay.',
-      'You can cancel Premium at any time from your profile. Cancelling stops future renewals; you keep Premium until the end of the period you already paid for.',
+      'Most of the service is free. Premium (personalized company roadmaps) is a one-time pass (Monthly, Yearly or Lifetime) paid in advance through Razorpay at the price shown before you pay.',
+      'Passes do not renew, so there is nothing to cancel. Members on the earlier monthly subscription can cancel from their profile; cancelling stops future renewals and keeps Premium until the end of the period already paid for.',
       'Payments for a period that has already started are not refunded, except where the law requires it or a charge was made in error. For billing problems email us within 7 days of the charge. [Confirm this refund wording before launch.]',
     ],
   },
