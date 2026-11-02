@@ -76,8 +76,8 @@ export default function HomePage() {
 
           <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-400">
             One real answer at a time:{' '}
-            {stats?.total ? <strong className="font-semibold text-slate-900 dark:text-slate-100">{stats.total.toLocaleString()}+ questions</strong> : 'Thousands of questions'} with
-            clear answers, hands-on coding problems and company-specific roadmaps for Java, React, Node.js, Go, SQL, system design and more.
+            {stats?.total ? <strong className="font-semibold text-slate-900 dark:text-slate-100">{stats.total.toLocaleString()}+ questions</strong> : 'Thousands of questions'} with clear answers
+            hands-on <strong className="font-semibold text-slate-900 dark:text-slate-100"> DSA coding problems</strong>, focused preparation roadmaps for <strong className="font-semibold text-slate-900 dark:text-slate-100">DSA, System Design, Behavioural Interviews</strong> plus<strong className="font-semibold text-slate-900 dark:text-slate-100"> technical interview discussions</strong> covering for Java, React, Node.js, Go, SQL, system design and more.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

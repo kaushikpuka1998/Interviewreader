@@ -9,8 +9,8 @@ import AuthModal from './AuthModal.jsx'
 // [label, href, feature flag that must be on, flag that turns on the "New" badge]
 const NAV = [
   ['Questions', '/questions'],
-  ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice'],
-  ['Practice', '/practice', 'code_practice', 'new_badge_code_practice'],
+  ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
+  ['Practice', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
   ['Roadmaps', '/roadmaps', null, null, true],
   ['Interview', '/interview', 'mock_interview', 'new_badge_interview'],
   ['Leaderboard', '/leaderboard'],
@@ -71,9 +71,12 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
-  const links = mobile => NAV.map(([label, href, flag, badge, premium]) => (
-    <NavLink key={href} label={label} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
-  ))
+  const links = mobile => NAV.map(([label, href, flag, badge, premium, authRequired]) => {
+    if (authRequired && !signedIn) return null
+    return (
+      <NavLink key={href} label={label} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
+    )
+  })
   return (
     <>
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">

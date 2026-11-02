@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Loader from './Loader.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import TopBar from './TopBar.jsx'
+import AuthModal from './AuthModal.jsx'
 import { fetchCodingProblems } from '../lib/codingProblems.js'
 import { fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
 import { isLoggedIn } from '../lib/auth.js'
@@ -14,6 +15,7 @@ const STATUSES = [['all', 'All'], ['solved', 'Solved'], ['todo', 'Not solved']]
 
 // Every coding problem on one page, with search and filters. Each row opens the problem in the practice page.
 export default function ProblemsPage() {
+  const [authOpen, setAuthOpen] = useState(() => !isLoggedIn())
   const [problems, setProblems] = useState(null)
   const [solved, setSolved] = useState(() => new Set())
   const [attempted, setAttempted] = useState(() => new Set())
@@ -156,6 +158,41 @@ export default function ProblemsPage() {
       ))}
     </div>
   )
+
+  if (!isLoggedIn()) {
+    return (
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
+        <TopBar />
+        <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-slate-950">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+              ✎
+            </div>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Sign in to View Problems</h1>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              Please sign in to access the coding problems list and practice coding.
+            </p>
+            <div className="mt-6 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => setAuthOpen(true)}
+                className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                Sign In or Register
+              </button>
+              <a
+                href="/"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Back to Home
+              </a>
+            </div>
+          </div>
+        </div>
+        {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
+      </div>
+    )
+  }
 
   return (
     <>
