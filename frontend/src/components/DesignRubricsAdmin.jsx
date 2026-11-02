@@ -101,10 +101,10 @@ export default function DesignRubricsAdmin() {
   return (
     <div className="space-y-4">
     <PrivateImport onDone={() => searchRubrics(q).then(setList).catch(() => {})} />
-    <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
-      <div className="space-y-3">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="min-w-0 space-y-3 lg:sticky lg:top-4 lg:self-start">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search design questions…" className={input} />
-        <p className="text-xs text-slate-500 dark:text-slate-400">{list.length} design questions · <span className="font-semibold">manual</span> = hand-written or edited, <span className="font-semibold">auto</span> = drafted from the model answer, <span className="font-semibold">none</span> = drafted on first use.</p>
+        <p className="break-words text-xs text-slate-500 dark:text-slate-400">{list.length} design questions · <span className="font-semibold">manual</span> = hand-written or edited, <span className="font-semibold">auto</span> = drafted from the model answer, <span className="font-semibold">none</span> = drafted on first use.</p>
         <ul className="max-h-[36rem] divide-y divide-slate-200 overflow-y-auto rounded-xl border border-slate-200 dark:divide-slate-800 dark:border-slate-700">
           {list.map(item => (
             <li key={item.id}>
@@ -117,25 +117,28 @@ export default function DesignRubricsAdmin() {
         </ul>
       </div>
 
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
         {!selected ? (
           <p className="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500 dark:border-slate-700">Pick a question to review or edit what its practice answers are scored on.</p>
         ) : !stages ? <p className="text-sm text-slate-500">Loading…</p> : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{selected.title}</h2>
+              <h2 className="min-w-0 text-lg font-semibold text-slate-900 dark:text-slate-100">{selected.title}</h2>
               <span className={`rounded px-2 py-0.5 text-xs font-semibold ${SOURCE_STYLE[source] || ''}`}>{source}</span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">One concept per line: <code>Name: term | term | term</code>. A stage earns full marks when about 60% of its concepts are covered. Weights set how much each stage counts.</p>
             {stages.map((s, i) => (
               <div key={s.key} className="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-                <div className="mb-2 flex items-center gap-2">
-                  <input value={s.label} onChange={e => setStage(i, 'label', e.target.value)} aria-label="Stage name" className={`${input} font-semibold`} />
-                  <label className="flex shrink-0 items-center gap-1 text-xs text-slate-500">weight
-                    <input type="number" min="0.5" max="10" step="0.5" value={s.weight} onChange={e => setStage(i, 'weight', e.target.value)} className={`${input} w-20`} />
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{i + 1}</span>
+                  <input value={s.label} onChange={e => setStage(i, 'label', e.target.value)} aria-label="Stage name" className={`${input} min-w-[10rem] flex-1 !w-auto font-semibold`} />
+                  <label className="flex shrink-0 items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">Weight
+                    <input type="number" min="0.5" max="10" step="0.5" value={s.weight} onChange={e => setStage(i, 'weight', e.target.value)} className={`${input} !w-20 text-center`} />
                   </label>
+                  <span className="text-xs text-slate-400">{s.text.split('\n').filter(l => l.trim()).length} concepts</span>
                 </div>
-                <textarea value={s.text} onChange={e => setStage(i, 'text', e.target.value)} rows={Math.max(3, s.text.split('\n').length)} className={`${input} font-mono text-xs`} />
+                <textarea value={s.text} onChange={e => setStage(i, 'text', e.target.value)} rows={Math.min(14, Math.max(3, s.text.split('\n').length + 1))} spellCheck={false}
+                  className={`${input} resize-y whitespace-pre font-mono text-xs leading-relaxed`} />
               </div>
             ))}
             {msg && <p className={`text-sm ${msg.ok ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{msg.text}</p>}
