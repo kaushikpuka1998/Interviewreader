@@ -137,4 +137,10 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     @org.springframework.data.jpa.repository.Modifying
     @Query(value = "UPDATE questions SET rubric = :rubric WHERE id = :id", nativeQuery = true)
     int updateRubric(@org.springframework.data.repository.query.Param("id") String id, @org.springframework.data.repository.query.Param("rubric") String rubric);
+
+    /** Stores a voice interviewer bank, also without touching updated_at. */
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = "UPDATE questions SET interview_bank = :bank WHERE id = :id", nativeQuery = true)
+    int updateInterviewBank(@org.springframework.data.repository.query.Param("id") String id, @org.springframework.data.repository.query.Param("bank") String bank);
 }

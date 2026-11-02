@@ -63,6 +63,14 @@ public class Question implements Serializable {
     @Column(name = "rubric", columnDefinition = "TEXT")
     private String rubric;
 
+    /**
+     * Voice interviewer's hand-written bank for this design (JSON: scope, stage questions, deep dives, pushbacks).
+     * Lives only in the database, imported by an admin, so it isn't published with the open-source code.
+     */
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Column(name = "interview_bank", columnDefinition = "TEXT")
+    private String interviewBank;
+
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

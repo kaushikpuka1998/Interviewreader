@@ -37,6 +37,10 @@ public class DesignAttempt {
     @Column(length = 10)
     private String mode;
 
+    /** Interview mode: how the candidate handled pushback, as JSON [{topic, outcome, terms}] (outcome: strong, ok, caved, unsure). */
+    @Column(columnDefinition = "TEXT")
+    private String signals;
+
     /** Interview mode: the interviewer style the candidate chose (soft, moderate, hard); sets the hiring bar. */
     @Column(length = 10)
     private String difficulty;

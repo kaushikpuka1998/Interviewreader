@@ -3494,3 +3494,6 @@ dist/*
 storybook-static
 *stories/*
 scripts/
+
+# Private interview content (question banks, hand-written rubrics): imported into the database from Admin, never published.
+private-data/

@@ -34,9 +34,10 @@ public class DesignPracticeController {
     private final UserRepository users;
     private final RubricService rubrics;
     private final PracticeService practice;
+    private final com.interview.backend.practice.InterviewBanks banks;
     private final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
 
-    public record AttemptInput(String answer, String mode, Integer durationSec, String difficulty) {}
+    public record AttemptInput(String answer, String mode, Integer durationSec, String difficulty, List<Map<String, Object>> signals) {}
 
     private User me() {
         return users.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow();
@@ -80,6 +81,9 @@ public class DesignPracticeController {
         out.put("difficulty", q.getDifficulty() == null ? "" : q.getDifficulty());
         out.put("stages", r.stages().stream().map(s -> Map.of("key", s.key(), "label", s.label())).toList());
         out.put("scale", userScale(q.getAnswer()));
+        out.put("challenges", challenges(q.getAnswer()));
+        out.put("bank", banks.of(q));
+        out.put("followUps", followUps(q.getAnswer()));
         out.put("quota", practice.quota(me()));
         return ResponseEntity.ok(out);
     }
@@ -128,8 +132,11 @@ public class DesignPracticeController {
         a.setUserId(u.getId());
         a.setQuestionId(q.getId());
         a.setAnswer(answer);
-        a.setMode(Set.of("voice", "interview").contains(in.mode()) ? in.mode() : "text");
-        a.setDifficulty(Set.of("soft", "hard").contains(in.difficulty()) ? in.difficulty() : "moderate");
+        a.setMode("voice".equals(in.mode()) || "interview".equals(in.mode()) ? in.mode() : "text");   // Set.of().contains(null) throws
+        a.setDifficulty("soft".equals(in.difficulty()) || "hard".equals(in.difficulty()) ? in.difficulty() : "moderate");
+        if (in.signals() != null && !in.signals().isEmpty()) {
+            try { a.setSignals(json.writeValueAsString(in.signals().stream().limit(20).toList())); } catch (Exception ignored) { }
+        }
         a.setDurationSec(in.durationSec() == null ? null : Math.max(0, Math.min(in.durationSec(), 6 * 3600)));
         a.setScore(result.score());
         a.setSource(source);
@@ -208,6 +215,69 @@ public class DesignPracticeController {
         return out;
     }
 
+    private static final java.util.regex.Pattern CHALLENGES_LINE = java.util.regex.Pattern.compile("(?i)\\*\\*challenges?\\*\\*\\s*:?\\s*([^\\n]+)");
+    private static final java.util.regex.Pattern DEEP_DIVE_HEADING = java.util.regex.Pattern.compile("(?im)^#{1,4}\\s*(?:\\d+\\.\\s*)?deep dive\\s*:\\s*(.+)$");
+
+    /**
+     * Interview mode: this design's hard parts, so the interviewer can ask about them by name ("How would you handle the
+     * celebrity problem?"). From the model answer's "**Challenges**:" list, else its "Deep dive: …" headings. Names only.
+     */
+    static List<String> challenges(String modelAnswer) {
+        if (modelAnswer == null) return List.of();
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+        var m = CHALLENGES_LINE.matcher(modelAnswer);
+        if (m.find()) {
+            // Split on commas that are not inside parentheses: "timeline generation (hybrid fan-out), celebrity problem".
+            StringBuilder cur = new StringBuilder();
+            int depth = 0;
+            for (char c : (m.group(1) + ",").toCharArray()) {
+                if (c == '(') depth++;
+                if (c == ')') depth = Math.max(0, depth - 1);
+                if (c == ',' && depth == 0) { add(out, cur.toString()); cur.setLength(0); } else cur.append(c);
+            }
+        }
+        var h = DEEP_DIVE_HEADING.matcher(modelAnswer);
+        while (h.find()) add(out, h.group(1));
+        return out.stream().limit(6).toList();
+    }
+
+    private static final java.util.regex.Pattern QUESTION_HEADING =
+            java.util.regex.Pattern.compile("(?m)^#{2,5}\\s*(?:\\d+(?:\\.\\d+)*\\.?\\s+)?(?:Q\\d*[:.]\\s*)?([^\\n#]{12,160}\\?)\\s*$");
+
+    /**
+     * Interview mode: the follow-up questions the current model answer itself poses, i.e. headings ending in "?"
+     * ("## 20.1 How do you prevent double booking?"). Read from the answer on every request, so when an answer is
+     * rewritten the interviewer's questions follow it.
+     */
+    static List<String> followUps(String modelAnswer) {
+        if (modelAnswer == null) return List.of();
+        LinkedHashSet<String> out = new LinkedHashSet<>();
+        var m = QUESTION_HEADING.matcher(modelAnswer.replaceAll("(?s)```.*?```", ""));
+        while (m.find() && out.size() < 15) {
+            String q = m.group(1).replaceAll("[*`_]", "").replaceAll("\\s+", " ").strip();
+            String lower = q.toLowerCase(Locale.ROOT);
+            // Definitions ("What is idempotency?") are study questions, not interviewer follow-ups.
+            if (lower.startsWith("why this") || lower.matches("^what (is|are) (a |an |the )?[\\w-]+( [\\w-]+){0,4}\\?$") || q.split(" ").length < 3) continue;
+            out.add(sentenceCase(q));
+        }
+        return new ArrayList<>(out);
+    }
+
+    /** "Why Use a Search Engine?" -> "Why use a search engine?" (acronyms like API or CDN stay as they are). */
+    static String sentenceCase(String q) {
+        String[] w = q.split(" ");
+        long capitalised = java.util.Arrays.stream(w).skip(1).filter(x -> !x.isEmpty() && Character.isUpperCase(x.charAt(0))).count();
+        if (w.length < 3 || capitalised * 2 < w.length - 1) return q;
+        StringBuilder b = new StringBuilder(w[0]);
+        for (int i = 1; i < w.length; i++) b.append(' ').append(w[i].equals(w[i].toUpperCase(Locale.ROOT)) ? w[i] : w[i].toLowerCase(Locale.ROOT));
+        return b.toString();
+    }
+
+    private static void add(Set<String> out, String raw) {
+        String item = raw.replaceAll("[*`_]", "").replaceAll("\\.\\s*$", "").replaceAll("\\s+", " ").strip();
+        if (item.length() >= 4 && item.length() <= 120) out.add(item);
+    }
+
     private Map<String, Object> view(DesignAttempt a, Question q) {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("id", a.getId());
@@ -216,6 +286,7 @@ public class DesignPracticeController {
         out.put("answer", a.getAnswer());
         out.put("mode", a.getMode());
         out.put("difficulty", a.getDifficulty() == null ? "moderate" : a.getDifficulty());
+        try { out.put("signals", a.getSignals() == null ? List.of() : json.readTree(a.getSignals())); } catch (Exception e) { out.put("signals", List.of()); }
         out.put("durationSec", a.getDurationSec());
         out.put("score", a.getScore());
         out.put("createdAt", a.getCreatedAt().toString());

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { searchRubrics, fetchRubric, saveRubric, resetRubric, testRubric } from '../lib/designPractice.js'
+import { searchRubrics, fetchRubric, saveRubric, resetRubric, testRubric, importInterviewBanks, importRubrics } from '../lib/designPractice.js'
 
 // Admin: the rubrics behind solo system design practice. One line per concept: "Name: term | term | term".
 // Any term counts; a term's last word matches as a stem when it's 5+ letters ("replicat" matches "replication").
@@ -17,6 +17,50 @@ const fromLines = text => text.split('\n').map(l => l.trim()).filter(Boolean).ma
   const terms = (i > 0 ? l.slice(i + 1) : l).split('|').map(t => t.trim()).filter(Boolean)
   return { name, terms: terms.length ? terms : [name] }
 })
+
+// Upload the private JSON files (interview banks, hand-written rubrics) that are kept out of the public repository.
+// The kind of each file is recognised from its content: banks have "ask"/"push", rubrics have stage lists.
+function PrivateImport({ onDone }) {
+  const [overwrite, setOverwrite] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [lines, setLines] = useState([])
+  const upload = async files => {
+    setBusy(true)
+    const out = []
+    for (const file of files) {
+      try {
+        const data = JSON.parse(await file.text())
+        const first = Object.entries(data).find(([k]) => !k.startsWith('_'))?.[1] || {}
+        const isBank = 'ask' in first || 'push' in first
+        const r = isBank ? await importInterviewBanks(data) : await importRubrics(data, overwrite)
+        out.push({ ok: !(r.invalid?.length), text: `${file.name}: ${isBank ? 'banks' : 'rubrics'} stored ${r.stored}${r.kept ? `, kept ${r.kept} existing` : ''}${r.unknown?.length ? `, ${r.unknown.length} unknown ids (${r.unknown.slice(0, 3).join(', ')})` : ''}${r.invalid?.length ? `, ${r.invalid.length} invalid: ${r.invalid.slice(0, 2).join('; ')}` : ''}` })
+      } catch (e) {
+        out.push({ ok: false, text: `${file.name}: ${e.message}` })
+      }
+    }
+    setLines(out)
+    setBusy(false)
+    onDone?.()
+  }
+  return (
+    <details className="rounded-xl border border-slate-200 p-3 text-sm dark:border-slate-700">
+      <summary className="cursor-pointer font-semibold text-slate-800 dark:text-slate-100">Import private files (interview banks, hand-written rubrics)</summary>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">These files are not in the public repository. Upload the JSON from your private-data folder; you can select several at once. Banks always replace a question's bank; rubrics only fill questions that have none, unless you tick overwrite.</p>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <input type="file" accept="application/json,.json" multiple disabled={busy} onChange={e => e.target.files.length && upload([...e.target.files])} className="text-xs" />
+        <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+          <input type="checkbox" checked={overwrite} onChange={e => setOverwrite(e.target.checked)} /> Overwrite existing rubrics (loses Admin edits)
+        </label>
+        {busy && <span className="text-xs text-slate-500">Importing…</span>}
+      </div>
+      {lines.length > 0 && (
+        <ul className="mt-2 space-y-0.5 text-xs">
+          {lines.map((l, i) => <li key={i} className={l.ok ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>{l.ok ? '✓' : '✗'} {l.text}</li>)}
+        </ul>
+      )}
+    </details>
+  )
+}
 
 export default function DesignRubricsAdmin() {
   const [q, setQ] = useState('')
@@ -55,6 +99,8 @@ export default function DesignRubricsAdmin() {
   const setStage = (i, field, value) => setStages(st => st.map((s, j) => (j === i ? { ...s, [field]: value } : s)))
 
   return (
+    <div className="space-y-4">
+    <PrivateImport onDone={() => searchRubrics(q).then(setList).catch(() => {})} />
     <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
       <div className="space-y-3">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search design questions…" className={input} />
@@ -118,6 +164,7 @@ export default function DesignRubricsAdmin() {
           </>
         )}
       </div>
+    </div>
     </div>
   )
 }

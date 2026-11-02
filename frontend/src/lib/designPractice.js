@@ -21,7 +21,7 @@ async function call(path, method = 'GET', body) {
 
 export const fetchDesignQuestions = () => call('/questions')
 export const fetchDesignQuestion = id => call(`/questions/${encodeURIComponent(id)}`)
-export const submitDesignAttempt = (id, answer, mode, durationSec, difficulty) => call(`/questions/${encodeURIComponent(id)}/attempts`, 'POST', { answer, mode, durationSec, difficulty })
+export const submitDesignAttempt = (id, answer, mode, durationSec, difficulty, signals) => call(`/questions/${encodeURIComponent(id)}/attempts`, 'POST', { answer, mode, durationSec, difficulty, signals })
 export const probeDesignAnswer = (id, answer) => call(`/questions/${encodeURIComponent(id)}/probe`, 'POST', { answer })
 export const fetchDesignAttempts = () => call('/attempts')
 export const fetchDesignAttempt = id => call(`/attempts/${id}`)
@@ -45,3 +45,6 @@ export const fetchRubric = id => admin(`/${encodeURIComponent(id)}`)
 export const saveRubric = (id, rubric) => admin(`/${encodeURIComponent(id)}`, 'PUT', rubric)
 export const resetRubric = id => admin(`/${encodeURIComponent(id)}`, 'DELETE')
 export const testRubric = (id, answer) => admin(`/${encodeURIComponent(id)}/test`, 'POST', { answer })
+// Private content kept out of the public repo: interview banks and hand-written rubrics, imported from JSON files.
+export const importInterviewBanks = data => admin('/import/banks', 'POST', data)
+export const importRubrics = (data, overwrite) => admin(`/import/rubrics?overwrite=${overwrite ? 'true' : 'false'}`, 'POST', data)

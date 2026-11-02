@@ -19,8 +19,21 @@ public class DesignRubricAdminController {
 
     private final QuestionRepository questions;
     private final RubricService rubrics;
+    private final com.interview.backend.practice.InterviewBanks banks;
 
     public record TestInput(String answer) {}
+
+    /** Import the voice interviewer's banks from a private JSON file ({questionId: bank}); replaces each question's bank. */
+    @PostMapping("/import/banks")
+    public Map<String, Object> importBanks(@RequestBody com.fasterxml.jackson.databind.JsonNode body) {
+        return banks.importBanks(body);
+    }
+
+    /** Import hand-written rubric additions ({questionId: {stage: [[concept, terms…]]}}); existing rubrics kept unless overwrite. */
+    @PostMapping("/import/rubrics")
+    public Map<String, Object> importRubrics(@RequestBody com.fasterxml.jackson.databind.JsonNode body, @RequestParam(defaultValue = "false") boolean overwrite) {
+        return rubrics.importHandWritten(body, overwrite);
+    }
 
     @GetMapping
     public List<Map<String, Object>> list(@RequestParam(defaultValue = "") String q) {

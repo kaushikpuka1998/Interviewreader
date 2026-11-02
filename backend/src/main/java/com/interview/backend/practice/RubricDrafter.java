@@ -62,7 +62,7 @@ public final class RubricDrafter {
             while (b.find()) {
                 String term = b.group(1).replaceAll("[:.,]+$", "").trim();
                 String key = DesignScorer.normalise(term);
-                if (key.length() < 3 || key.split(" ").length > 5 || !seen.add(key) || isStageWord(key)) continue;
+                if (key.length() < 3 || key.split(" ").length > 5 || isNotAConcept(term) || !seen.add(key) || isStageWord(key)) continue;
                 var bucket = specific.computeIfAbsent(stageKey, k -> new LinkedHashMap<>());
                 if (bucket.size() < MAX_SPECIFIC_PER_STAGE) bucket.put(key, new Rubric.Concept(term, termsFor(term)));
             }
@@ -107,6 +107,19 @@ public final class RubricDrafter {
     private static boolean isStageWord(String key) {
         return Set.of("requirement", "requirements", "functional", "non functional", "estimation", "trade off", "trade offs",
                 "tradeoffs", "challenges", "challenge", "summary", "example", "note", "flow", "api", "design").contains(key);
+    }
+
+    // Bold text in long model answers that is emphasis, not a concept a candidate would say: figures ("1.73 TB/day"),
+    // section labels ("Phase 1 --- Foundation", "Goal"), questions and verdict words. Kept out so they don't show up
+    // as "missed" points and drag scores down.
+    private static final Pattern FIGURE = Pattern.compile("^[~≈$₹]?\\s*[\\d.,]+\\s*[%a-zA-Z/]{0,12}(\\s*/\\s*\\w+)?$");
+    private static final Pattern LABEL = Pattern.compile("(?i)^(phase|step|stage|option|case|example|note|goal|problem|solution|result|answer|summary|"
+            + "takeaway|rule|tip|important|key|why|what|how|when|pros|cons|yes|no|bad|good|better|best|wrong|correct|avoid|"
+            + "do|don't|never|always|warning|caution|insight|interview|q\\d*|a\\d*|tl;dr|recommended|decision)\\b");
+    static boolean isNotAConcept(String term) {
+        String t = term.trim();
+        return FIGURE.matcher(t).matches() || LABEL.matcher(t).find() || t.contains("---") || t.contains("—")
+                || t.endsWith("?") || t.endsWith(":") || t.chars().filter(Character::isDigit).count() * 3 > t.length();
     }
 
     private static Rubric.Stage stage(String key, String label, double weight, Rubric.Concept... concepts) {

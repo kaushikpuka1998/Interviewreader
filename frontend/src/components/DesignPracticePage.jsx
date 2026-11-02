@@ -6,6 +6,7 @@ import AuthModal from './AuthModal.jsx'
 import { getUser } from '../lib/auth.js'
 import { setPageSeo } from '../lib/seo.js'
 import { subscribePractice } from '../lib/billing.js'
+import { respond, newInterviewState, systemName } from '../lib/interviewer.js'
 import { fetchDesignQuestions, fetchDesignQuestion, submitDesignAttempt, fetchDesignAttempts, fetchDesignAttempt, fetchPracticeQuota, probeDesignAnswer } from '../lib/designPractice.js'
 
 // Solo system design practice: pick a "Design …" question, answer by voice or typing under a timer, and get a
@@ -396,17 +397,8 @@ function FreeSession({ question, quota, onScored, onOutOfAttempts, onBack, onInt
 }
 
 // Interview mode: no AI. The browser speaks each question (speechSynthesis) and listens (speech recognition).
-// After every reply the answer so far is checked against the rubric (free probe) and the interviewer asks about
-// the first stage that is still thin, in interview order: a general question first, then the specific missed point.
-const STAGE_QUESTIONS = {
-  requirements: 'Before we go deeper, what are the core features we need to support, and which non-functional requirements, like latency, availability or consistency, matter most here?',
-  estimation: "Let's size it. Roughly how many users and requests per second do you expect, and how much storage will we need over a few years?",
-  api: 'What would the main APIs look like, and how would you model the data? Which database would you choose, and why?',
-  highlevel: 'Walk me through the high-level architecture. What are the main components, and how does a request flow through them?',
-  scaling: 'Say traffic grows ten times. Where are the bottlenecks, and how would you scale them, for example with caching, sharding or replication?',
-  reliability: 'What happens when one of these components fails? How do you keep the system available and make sure no data is lost?',
-  tradeoffs: 'What trade-offs did you make in this design, and what would you change with more time or a different scale?',
-}
+// After every reply the answer so far is checked against the rubric (free probe), and lib/interviewer.js picks the next
+// question: a technology the candidate just named, the first thin stage, this design's known challenges, what-ifs.
 // Interviewer styles. Friendly gives hints and stops probing once a stage is roughly there; Hard (a bar raiser) keeps
 // pushing until each stage is solid, challenges choices, and is judged against a higher hiring bar on the result.
 const INTERVIEWERS = {
@@ -415,7 +407,6 @@ const INTERVIEWERS = {
     threshold: 0.4, perStage: 1, maxFollowUps: 6,
     acks: ['Nice, that makes sense.', 'Great, thanks.', 'Good thinking.', 'Okay, I like that.', 'Lovely, that works.'],
     opening: d => `Take your time, there's no rush, and feel free to ask me anything. To start, how would you approach ${d}?`,
-    deeper: (stage, missed) => `Here's a small hint on ${stage}: think about ${missed}. How would you handle it?`,
     clarify: "Good question! Keep it simple: make a reasonable assumption, say it out loud, and carry on.",
     end: "Great job, I think you've covered the important parts. Thanks for the lovely discussion. Let me put your feedback together.",
   },
@@ -424,7 +415,6 @@ const INTERVIEWERS = {
     threshold: 0.5, perStage: 2, maxFollowUps: 10,
     acks: ['Okay, that makes sense.', 'Got it, thanks.', 'Right, good.', 'Alright.', 'Mm-hmm, okay.', 'Nice, that works.', 'Sure, fair enough.'],
     opening: d => `Take a moment to think, and then walk me through how you'd approach ${d}. Start wherever you like.`,
-    deeper: (stage, missed) => `Let's go a bit deeper on ${stage}. Can you also cover ${missed}?`,
     clarify: "Good question. That's your call: state the assumption you'd make out loud, and carry on from there.",
     end: "Great, I think we've covered the design well. Thanks, that's all from my side. Let me put your score together.",
   },
@@ -433,8 +423,6 @@ const INTERVIEWERS = {
     threshold: 0.75, perStage: 3, maxFollowUps: 14,
     acks: ['Okay.', 'Go on.', 'Hmm.', 'Right.', 'Noted.', "Okay, but I'm not fully convinced."],
     opening: d => `Let's get started. Design ${d}. Drive the discussion; I'll interrupt where I need more depth.`,
-    deeper: (stage, missed) => `That's not enough on ${stage} yet. What about ${missed}? Be specific.`,
-    pushback: stage => `Let's stress-test your ${stage}. What breaks first at ten times the load, and why is your choice better than the alternatives?`,
     clarify: "What would you assume? Pick a number or a constraint, justify it, and move on.",
     end: "Okay, we'll stop here. Thank you. You'll get the feedback now.",
   },
@@ -584,8 +572,7 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
   const [phase, setPhase] = useState('ready')     // ready | asking | answering | thinking | wrapping
   const [error, setError] = useState('')
   const [startedAt, setStartedAt] = useState(null)
-  const asked = useRef({})                          // stage key -> times asked
-  const followUps = useRef(0)
+  const plan = useRef(newInterviewState())       // what has been asked, pushback in flight, what they said earlier
   const [style, setStyle] = useState(() => (INTERVIEWERS[localStorage.getItem('ir_interviewer_style')] ? localStorage.getItem('ir_interviewer_style') : 'moderate'))
   const chooseStyle = k => { setStyle(k); localStorage.setItem('ir_interviewer_style', k) }
   const persona = INTERVIEWERS[style]
@@ -598,11 +585,12 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
   const lastStage = useRef(null)   // the stage the interviewer last asked about
 
   // Interviewer speaks, then the mic opens for the reply.
-  const ask = async text => {
+  // `beat` is a thinking pause before speaking, longer after a longer answer.
+  const ask = async (text, beat) => {
     speech.stop()
     setTurns(t => [...t, { who: 'interviewer', text }])
     setPhase('asking')
-    await voice.say(text)
+    await voice.say(text, beat ? { beat } : undefined)
     setPhase('answering')
     if (speech.supported) speech.start()
   }
@@ -621,7 +609,7 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
     const answer = myAnswer(list)
     if (answer.trim().split(/\s+/).length < 5) { setError('Say a little more before ending, so there is something to score.'); setPhase('answering'); return }
     try {
-      onScored(await submitDesignAttempt(question.id, answer, 'interview', Math.round((Date.now() - (startedAt || Date.now())) / 1000), style))
+      onScored(await submitDesignAttempt(question.id, answer, 'interview', Math.round((Date.now() - (startedAt || Date.now())) / 1000), style, plan.current.signals))
     } catch (e) {
       if (e.status === 402) onOutOfAttempts(e.quota)
       setError(e.message)
@@ -633,7 +621,8 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
   const answerQuestion = text => {
     const aboutScale = SCALE_TOPIC.test(text) || lastStage.current === 'estimation'
     if (aboutScale) return ask(scaleAnswer(text, question.scale || { dau: 10_000_000, mau: 20_000_000, users: 100_000_000 }))
-    return ask(persona.clarify)
+    // "Should I support video?": answer from this design's real scope when its bank has one.
+    return ask(question.bank?.scope ? `${pick(['Good question.', 'Sure.', 'Fair question.'])} ${question.bank.scope}` : persona.clarify)
   }
 
   const done = async () => {
@@ -650,18 +639,10 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
     setPhase('thinking')
     try {
       const { stages } = await probeDesignAnswer(question.id, myAnswer(list))
-      const next = followUps.current < persona.maxFollowUps && stages.find(s => s.score < persona.threshold && (asked.current[s.key] || 0) < persona.perStage)
-      if (!next) return finish(list, persona.end)
-      const n = asked.current[next.key] || 0
-      asked.current[next.key] = n + 1
-      lastStage.current = next.key
-      followUps.current++
-      const stage = next.label.toLowerCase()
-      const q = n === 0 || !next.missed
-        ? STAGE_QUESTIONS[next.key] || `Let's talk about ${stage}. How would you approach it?`
-        : n === 2 && persona.pushback ? persona.pushback(stage)
-          : persona.deeper(stage, next.missed.toLowerCase())
-      ask(`${pick(persona.acks)} ${q}`)
+      const next = respond({ style, persona, stages, system: systemName(question.title), reply: answer || text, challenges: question.challenges || [], bank: question.bank, followUps: question.followUps || [], state: plan.current, acks: persona.acks })
+      if (next.end) return finish(list, `${next.text ? `${next.text} ` : ''}${persona.end}`)
+      if (next.stageKey) lastStage.current = next.stageKey
+      ask(next.text, next.beat)
     } catch (e) {
       setError(e.message)
       setPhase('answering')
@@ -675,6 +656,9 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
   const doneRef = useRef(done)
   doneRef.current = done
   const quiet = autoSend && phase === 'answering' && speech.listening && reply.trim() !== '' && !speech.interim
+  // The Hard interviewer cuts a very long answer short, like a real bar raiser keeping time.
+  const rambling = style === 'hard' && phase === 'answering' && speech.listening && reply.trim().split(/\s+/).length > 250
+  useEffect(() => { if (rambling) doneRef.current() }, [rambling])
   useEffect(() => {
     if (!quiet) return
     const t = setTimeout(() => doneRef.current(), QUIET_MS)
@@ -846,7 +830,6 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
         <p className="pt-1 text-xs text-slate-500 dark:text-slate-400">
           {startedAt ? `${minutes}-minute round · ` : ''}{quota && !quota.unlimited ? `Uses 1 attempt at the end (${quota.freeLeft > 0 ? `${quota.freeLeft} free left` : `${quota.planLeft} left on your plan`}).` : 'Uses 1 attempt at the end.'}
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">The interviewer is scripted, not AI: questions come from the rubric for this design.</p>
       </aside>
     </div>
   )
@@ -872,7 +855,7 @@ const HIRING_BARS = {
   moderate: { label: 'Moderate', mins: [0, 4, 5.5, 7, 8.5], strongNeeds: 0.5 },
   hard: { label: 'Hard', mins: [0, 5, 6.5, 8, 9], strongNeeds: 0.75, hireNeeds: 0.4 },
 }
-function hiringDecision(score, stages, difficulty = 'moderate') {
+function hiringDecision(score, stages, difficulty = 'moderate', signals = []) {
   const bar = HIRING_BARS[difficulty] || HIRING_BARS.moderate
   const verdicts = VERDICTS.map((v, k) => ({ ...v, min: bar.mins[k] }))
   let i = verdicts.findLastIndex(v => score >= v.min)
@@ -883,6 +866,15 @@ function hiringDecision(score, stages, difficulty = 'moderate') {
   if (verdicts[i].key === 'hire' && shaky.length) { i--; notes.push(`The Hard bar doesn't pass a Hire with a weak stage: ${shaky.map(s => s.label.toLowerCase()).join(', ')}.`) }
   const core = stages.find(s => s.key === 'highlevel')
   if (core && core.score < 0.3 && i > 1) { i = 1; notes.push('Capped at No Hire: the core high-level design was missing, and no panel passes a design round without it.') }
+  // How they held up when the interviewer pushed back: giving in or guessing costs a level at the Hard bar (three times
+  // at Moderate); defending well twice lifts a borderline answer.
+  const shaken = signals.filter(s => s.outcome === 'caved' || s.outcome === 'unsure')
+  const solid = signals.filter(s => s.outcome === 'strong')
+  const shakeLimit = difficulty === 'hard' ? 2 : difficulty === 'moderate' ? 3 : 99
+  if (shaken.length >= shakeLimit && i > 0) { i--; notes.push(`Marked down a level: gave way under pushback on ${shaken.map(s => s.topic).join(', ')}.`) }
+  else if (difficulty !== 'soft' && solid.length >= 2 && !shaken.length && verdicts[i + 1] && score >= verdicts[i + 1].min - 0.5) {
+    i++; notes.push(`Nudged up a level: defended ${solid.map(s => s.topic).join(' and ')} convincingly under pushback.`)
+  }
   return { verdict: verdicts[i], next: verdicts[i + 1], verdicts, bar, notes }
 }
 const stageSignal = s => s >= 0.75 ? { label: 'Strong signal', cls: 'text-emerald-600 dark:text-emerald-400' } : s >= 0.4 ? { label: 'Mixed signal', cls: 'text-amber-600 dark:text-amber-400' } : { label: 'Weak signal', cls: 'text-rose-600 dark:text-rose-400' }
@@ -891,9 +883,10 @@ function HiringDecision({ attempt }) {
   const stages = attempt.result?.stages || []
   const score = Number(attempt.score) || 0
   const difficulty = attempt.difficulty || 'moderate'
-  const { verdict, next, verdicts, bar, notes } = hiringDecision(score, stages, difficulty)
+  const signals = Array.isArray(attempt.signals) ? attempt.signals : []
+  const { verdict, next, verdicts, bar, notes } = hiringDecision(score, stages, difficulty, signals)
   // The same answer at the other bars, so the candidate sees how much the interviewer changes the outcome.
-  const elsewhere = Object.keys(HIRING_BARS).filter(k => k !== difficulty).map(k => ({ k, label: HIRING_BARS[k].label, verdict: hiringDecision(score, stages, k).verdict }))
+  const elsewhere = Object.keys(HIRING_BARS).filter(k => k !== difficulty).map(k => ({ k, label: HIRING_BARS[k].label, verdict: hiringDecision(score, stages, k, signals).verdict }))
   const strengths = stages.filter(s => s.score >= 0.75)
   const concerns = [...stages].filter(s => s.score < 0.5).sort((a, b) => b.weight - a.weight)
   const focus = [...stages].sort((a, b) => (a.score - b.score) || (b.weight - a.weight)).slice(0, 2)
@@ -949,9 +942,25 @@ function HiringDecision({ attempt }) {
             ) : <p className="text-slate-500">No major gaps.</p>}
           </div>
         </div>
+        {signals.length > 0 && (
+          <div>
+            <h4 className="mb-1.5 font-semibold text-slate-900 dark:text-slate-100">Under pressure</h4>
+            <ul className="space-y-1">
+              {signals.map((s, k) => {
+                const line = {
+                  strong: ['💪', 'text-emerald-600 dark:text-emerald-400', `Defended ${s.topic} with solid reasoning${s.terms?.length ? ` (${s.terms.join(', ')})` : ''}.`],
+                  ok: ['👍', 'text-slate-600 dark:text-slate-300', `Gave a reasonable defence of ${s.topic}, though it could be sharper.`],
+                  caved: ['⚠️', 'text-rose-600 dark:text-rose-400', `Gave in on ${s.topic} without a reason. Interviewers push back to see if you can defend a choice: explain the trade-off instead.`],
+                  unsure: ['❓', 'text-amber-600 dark:text-amber-400', `Wasn't sure how to defend ${s.topic}. Worth reading up on before a real round.`],
+                }[s.outcome] || ['•', '', s.topic]
+                return <li key={k} className={`flex gap-2 ${line[1]}`}><span aria-hidden="true">{line[0]}</span><span>{line[2]}</span></li>
+              })}
+            </ul>
+          </div>
+        )}
         {next && (
           <p className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-100">
-            <strong>To reach {next.label}</strong> ({next.min.toFixed(1)}+): spend more time on {focus.map(s => s.label.toLowerCase()).join(' and ')}
+            <strong>To move up to {next.label}</strong> ({next.min.toFixed(1)}+): spend more time on {focus.map(s => s.label.toLowerCase()).join(' and ')}
             {focus[0]?.missed?.length ? `, e.g. ${focus[0].missed.slice(0, 2).join(' and ').toLowerCase()}` : ''}.
           </p>
         )}
