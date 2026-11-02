@@ -5,10 +5,11 @@ import Loader from './Loader.jsx'
 import { FeedbackView } from './InterviewFeedback.jsx'
 import Markdown from './Markdown.jsx'
 import ResumePreview from './ResumePreview.jsx'
+import InterviewQuestionPicker from './InterviewQuestionPicker.jsx'
 import { isLoggedIn, getUser } from '../lib/auth.js'
 import { useFeatures } from '../lib/features.js'
 import { fetchResumes, fetchTemplates } from '../lib/resume.js'
-import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, searchQuestionOptions, setInterviewQuestions, randomInterviewQuestions, saveCallLink, saveWhiteboardLink, reportNoShow, completeInterview, cancelInterview } from '../lib/interviews.js'
+import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, saveCallLink, saveWhiteboardLink, reportNoShow, completeInterview, cancelInterview } from '../lib/interviews.js'
 
 const btn = 'rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60'
 const primary = `${btn} bg-blue-600 text-white hover:bg-blue-700`
@@ -294,11 +295,8 @@ function ActiveInterview({ item, busy, act, load }) {
         </div>
       )}
 
-      {!waiting && interviewer && (item.prepOpen
-        ? <div className="border-t border-slate-200 pt-5 dark:border-slate-800"><InterviewerTools item={item} onChanged={load} /></div>
-        : <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-400">
-            The questions and the candidate's resume open <span className="font-medium">10 minutes before the start time</span>, at {new Date(item.prepOpensAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on {new Date(item.prepOpensAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}. This page opens them by itself.
-          </div>)}
+      {/* Questions can be prepared as soon as the interview is matched; only the resume waits for the 10-minute window. */}
+      {!waiting && interviewer && <div className="border-t border-slate-200 pt-5 dark:border-slate-800"><InterviewerTools item={item} onChanged={load} /></div>}
 
       {!interviewer && item.feedback && (
         <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
@@ -383,60 +381,22 @@ function InterviewerTools({ item, onChanged }) {
   const [resume, setResume] = useState(null)
   const [layout, setLayout] = useState(null)
   const [note, setNote] = useState('')
-  const [term, setTerm] = useState('')
-  const [results, setResults] = useState([])
-  const [saving, setSaving] = useState(false)
-  const refs = item.questions.map(q => q.ref).filter(Boolean)
-
-  const run = async fn => { setSaving(true); try { await fn(); await onChanged() } finally { setSaving(false) } }
-  const remove = ref => run(() => setInterviewQuestions(item.id, refs.filter(r => r !== ref)))
-
-  // Search as the interviewer types (a short pause first, so each letter does not hit the server).
-  useEffect(() => {
-    const t = setTimeout(() => searchQuestionOptions(item.id, term).then(setResults).catch(() => setResults([])), term ? 300 : 0)
-    return () => clearTimeout(t)
-  }, [term, item.id])
 
   useEffect(() => {
     if (!item.hasResume) { setNote('The candidate did not share a resume.'); return }
+    if (!item.prepOpen) {
+      setNote(`The candidate's resume opens 10 minutes before the start time${item.prepOpensAt ? `, at ${new Date(item.prepOpensAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} on ${new Date(item.prepOpensAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}` : ''}. This page opens it by itself.`)
+      return
+    }
     Promise.all([fetchInterviewResume(item.id), fetchTemplates()])
       .then(([r, t]) => { setResume(r); setLayout(t.find(x => x.id === r.templateId)?.layout) })
       .catch(e => setNote(e.message))
-  }, [item.id, item.hasResume])
+  }, [item.id, item.hasResume, item.prepOpen])
 
   return (
     <div className="grid gap-4 lg:grid-cols-[2fr_3fr]">
       <div className="rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/40">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Questions to ask (only you see these)</h3>
-          <button type="button" disabled={saving} onClick={() => run(() => randomInterviewQuestions(item.id))} className="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400">🎲 Random 3</button>
-        </div>
-        {item.questions.length ? item.questions.map((q, i) => (
-          <details key={q.ref || i} className="mb-2 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/80">
-            <summary className="cursor-pointer text-sm font-medium text-slate-900 dark:text-slate-100">
-              {i + 1}. {q.title}
-              {q.ref && <button type="button" onClick={e => { e.preventDefault(); remove(q.ref) }} aria-label="Remove question" className="ml-2 text-xs text-red-600 hover:underline">remove</button>}
-            </summary>
-            <div className="mt-2 text-sm text-slate-700 dark:text-slate-300"><Markdown text={q.body} /></div>
-          </details>
-        )) : <p className="text-sm text-slate-500">No questions yet. Search below or press Random 3.</p>}
-        <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700">
-          <input value={term} onChange={e => setTerm(e.target.value)} placeholder={item.type === 'CODING' ? 'Search by title or number (e.g. 1328 or #12)…' : item.type === 'SYSTEM_DESIGN' ? 'Search by text or id…' : 'Search by text or id…'} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
-          {results.length > 0 && (
-            <ul className="mt-2 max-h-56 divide-y divide-slate-200 overflow-auto rounded-lg border border-slate-200 text-sm dark:divide-slate-800 dark:border-slate-700">
-              {results.map(r => {
-                const chosen = refs.includes(r.ref)
-                return (
-                  <li key={r.ref} className="flex items-center justify-between gap-2 px-3 py-1.5">
-                    <span className="min-w-0 truncate text-slate-800 dark:text-slate-200">{r.title}</span>
-                    <button type="button" disabled={chosen || saving || refs.length >= 8} onClick={() => run(() => setInterviewQuestions(item.id, [...refs, r.ref]))} className="shrink-0 text-xs font-semibold text-blue-600 hover:underline disabled:text-slate-400 dark:text-blue-400">{chosen ? 'Added' : 'Add'}</button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Up to 8 questions. Your list is kept while the interview lasts.</p>
-        </div>
+        <InterviewQuestionPicker id={item.id} type={item.type} questions={item.questions} onChanged={onChanged} />
       </div>
       <div className="rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/40">
         <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Candidate's resume</h3>

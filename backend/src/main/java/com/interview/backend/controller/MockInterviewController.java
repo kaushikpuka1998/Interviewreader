@@ -232,7 +232,7 @@ public class MockInterviewController {
     /** Interviewer: search questions to ask. Coding interviews search coding problems; system design searches HLD and LLD questions; resume discussions search all questions. */
     @GetMapping("/{id}/question-options")
     public ResponseEntity<?> questionOptions(@PathVariable Long id, @RequestParam(defaultValue = "") String q) {
-        MockInterview m = mineAsInterviewer(id);
+        MockInterview m = matchedAsInterviewer(id);
         if (m == null) return ResponseEntity.notFound().build();
         String text = q.trim().toLowerCase();
         List<Map<String, String>> out = new ArrayList<>();
@@ -279,8 +279,9 @@ public class MockInterviewController {
     /** Interviewer: set the questions to ask, by reference ("c:<id>" coding problem, "q:<id>" question). */
     @PutMapping("/{id}/questions")
     public ResponseEntity<?> setQuestions(@PathVariable Long id, @RequestBody PickInput in) {
-        MockInterview m = mineAsInterviewer(id);
+        MockInterview m = matchedAsInterviewer(id);
         if (m == null) return ResponseEntity.notFound().build();
+        if (m.getCurrentIndex() != null) return bad("The interview has started, so the questions are fixed.");
         List<String> refs = in.items() == null ? List.of() : in.items();
         if (refs.size() > MAX_QUESTIONS) return bad("Pick at most " + MAX_QUESTIONS + " questions.");
         List<Map<String, String>> picked = new ArrayList<>();
@@ -301,20 +302,27 @@ public class MockInterviewController {
         return ResponseEntity.ok(view(m, me()));
     }
 
-    /** Interviewer: replace the questions with three new random ones. */
+    /** Interviewer: replace the questions with new random ones (one for system design, three otherwise). */
     @PostMapping("/{id}/questions/random")
     public ResponseEntity<?> randomQuestions(@PathVariable Long id) {
-        MockInterview m = mineAsInterviewer(id);
+        MockInterview m = matchedAsInterviewer(id);
         if (m == null) return ResponseEntity.notFound().build();
+        if (m.getCurrentIndex() != null) return bad("The interview has started, so the questions are fixed.");
         m.setQuestionsJson(pickQuestions(m));
         interviews.save(m);
         return ResponseEntity.ok(view(m, me()));
     }
 
     private MockInterview mineAsInterviewer(Long id) {
+        MockInterview m = matchedAsInterviewer(id);
+        return m != null && prepOpen(m) ? m : null;
+    }
+
+    /** My matched interview as its interviewer, at any time: questions can be prepared as soon as the interview is matched. */
+    private MockInterview matchedAsInterviewer(Long id) {
         User me = me();
         MockInterview m = interviews.findById(id).orElse(null);
-        return m != null && me.getId().equals(m.getInterviewerId()) && MockInterview.MATCHED.equals(m.getStatus()) && prepOpen(m) ? m : null;
+        return m != null && me.getId().equals(m.getInterviewerId()) && MockInterview.MATCHED.equals(m.getStatus()) ? m : null;
     }
 
     /** Interviewer: share the Google Meet link. The candidate sees the call button once it is set. */
@@ -570,6 +578,8 @@ public class MockInterviewController {
             List<String> titles = new ArrayList<>();
             for (Map<String, Object> q : qs) titles.add(String.valueOf(q.get("title")));
             out.put("titles", titles);
+            // Before the start the interviewer can review and change the questions from the room itself.
+            if (m.getCurrentIndex() == null) out.put("plan", qs);
         }
         return ResponseEntity.ok(out);
     }
@@ -672,7 +682,7 @@ public class MockInterviewController {
                 "improve", m.getFeedbackImprove() == null ? "" : m.getFeedbackImprove(), "at", m.getFeedbackAt().toString()));
         out.put("prepOpen", prepOpen(m));
         out.put("prepOpensAt", m.getSlotAt() == null ? null : m.getSlotAt().minusSeconds(PREP_MINUTES * 60));
-        out.put("questions", interviewer && matched && prepOpen(m) && m.getQuestionsJson() != null ? readJson(m.getQuestionsJson()) : List.of());
+        out.put("questions", interviewer && matched && m.getQuestionsJson() != null ? readJson(m.getQuestionsJson()) : List.of());
         Long otherId = interviewer ? m.getCandidateId() : m.getInterviewerId();
         out.put("partner", otherId == null ? null : users.findById(otherId).map(MockInterviewController::displayName).orElse("A member"));
         // The interviewer also sees the candidate's email, to reach them if the call does not start.
@@ -716,7 +726,8 @@ public class MockInterviewController {
                 allDesignQuestions.addAll(lldQuestions);
 
                 Collections.shuffle(allDesignQuestions, RNG);
-                for (Question q : allDesignQuestions.subList(0, Math.min(3, allDesignQuestions.size()))) {
+                // One design question fills a system design round; the interviewer can add more before starting.
+                for (Question q : allDesignQuestions.subList(0, Math.min(1, allDesignQuestions.size()))) {
                     String prefix = filteredHld.contains(q) ? "[HLD] " : "[LLD] ";
                     picked.add(Map.of("ref", "q:" + q.getId(),
                                      "title", prefix + (q.getQuestion() == null ? q.getTitle() : q.getQuestion()),

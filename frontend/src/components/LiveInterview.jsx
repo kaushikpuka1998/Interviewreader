@@ -10,6 +10,7 @@ import { fetchCodingProblem } from '../lib/codingProblems.js'
 import { typeLabel, fetchLive, startLive, stepLive, saveLiveEditor, uploadDesignImage, saveDesignImageUrl, completeInterview } from '../lib/interviews.js'
 import { uploadImage } from '../lib/auth.js'
 import ImageLightbox from './ImageLightbox.jsx'
+import InterviewQuestionPicker from './InterviewQuestionPicker.jsx'
 
 const btn = 'rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60'
 const primary = `${btn} bg-blue-600 text-white hover:bg-blue-700`
@@ -80,15 +81,27 @@ export default function LiveInterview({ id }) {
           <a href="/interview" className={`${secondary} mt-3 inline-block`}>Back to interviews</a>
         </div>
       ) : !s.started ? (
-        <div className="rounded-2xl bg-white p-8 text-center dark:bg-slate-950">
-          {interviewer ? (
-            <>
-              <p className="text-slate-700 dark:text-slate-300">{s.total} question{s.total === 1 ? '' : 's'} ready. Start when the candidate has joined.</p>
-              <button className={`${primary} mt-4`} disabled={busy || s.total === 0} onClick={() => run(() => startLive(id))}>Start the interview</button>
-              {s.total === 0 && <p className="mt-2 text-xs text-slate-500">Pick or randomise questions on the interviews page first.</p>}
-            </>
-          ) : <Loader compact label="Waiting for your interviewer to start the interview…" />}
-        </div>
+        interviewer ? (
+          // Before starting, the interviewer fixes the questions right here; the candidate sees none of them yet.
+          <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
+            <div className="rounded-2xl bg-white p-5 dark:bg-slate-950">
+              <InterviewQuestionPicker id={id} type={s.type} questions={s.plan || []} onChanged={load} />
+            </div>
+            <div className="flex flex-col justify-center rounded-2xl bg-white p-6 text-center dark:bg-slate-950">
+              <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                {s.total ? `${s.total} question${s.total === 1 ? '' : 's'} ready` : 'No questions yet'}
+              </p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {s.total ? 'Review them on the left, then start once the candidate has joined. The list is fixed after you start.' : 'Add at least one question on the left to start.'}
+              </p>
+              <button className={`${primary} mx-auto mt-4`} disabled={busy || s.total === 0} onClick={() => run(() => startLive(id))}>Start the interview</button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-white p-8 text-center dark:bg-slate-950">
+            <Loader compact label="Waiting for your interviewer to start the interview…" />
+          </div>
+        )
       ) : s.allDone ? (
         <div className="rounded-2xl bg-white p-8 text-center dark:bg-slate-950">
           <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">All {s.total} questions are done 🎉</p>
@@ -160,6 +173,17 @@ export default function LiveInterview({ id }) {
 
 const LANGS = LANGUAGES.map(l => [l.key, l.label])
 
+// Output of a plain run. A compile error leads with a clear heading and the compiler's message.
+function runText(r, note = '') {
+  if (r.compileOutput && /compil/i.test(r.status || '')) return [`❌ Compilation error`, note, '', r.compileOutput.trim()].filter(x => x !== undefined && x !== null).join('\n').replace(/\n{3,}/g, '\n\n')
+  return [`${r.status}${r.time ? ` · ${r.time}s` : ''}`, note, r.compileOutput, r.stdout, r.stderr].filter(Boolean).join('\n')
+}
+
+// Shared output is plain text (it is synced through the server); colour it red when it reports a failure.
+function isErrorOutput(text) {
+  return /^(❌|✗|Compilation|Runtime Error|Time Limit|Memory Limit|Wrong Answer|Internal Error|Exec Format)/i.test(String(text).trim())
+}
+
 // The Java runner compiles the code as Main.java, so the class that holds main must be called Main. Whatever the
 // candidate named it, rename it for the run, and drop `public` from other top-level classes (a file can have one).
 // Returns { code } to run, or { error } when there is no main method at all (such as a problem's `class Solution`).
@@ -226,7 +250,7 @@ function SharedEditor({ id, remote, problemId }) {
       // For coding problems, use runCode with problemId so it calls the Solution method
       if (problemId) {
         const r = await runCode({ language: lang, code, stdin, problemId, onStatus: setStatus })
-        text = [`${r.status}${r.time ? ` · ${r.time}s` : ''}`, r.compileOutput, r.stdout, r.stderr].filter(Boolean).join('\n')
+        text = runText(r)
       } else {
         let toRun = code
         let note = ''
@@ -237,7 +261,7 @@ function SharedEditor({ id, remote, problemId }) {
           if (j.renamed) note = `(The class ${j.renamed} was renamed to Main for this run.)`
         }
         const r = await runCode({ language: lang, code: toRun, stdin, onStatus: setStatus })
-        text = [`${r.status}${r.time ? ` · ${r.time}s` : ''}`, note, r.compileOutput, r.stdout, r.stderr].filter(Boolean).join('\n')
+        text = runText(r, note)
       }
     } catch (e) {
       text = e.message
@@ -256,12 +280,26 @@ function SharedEditor({ id, remote, problemId }) {
     let text
     try {
       const r = await runTests({ problemId, language: lang, code, submit, onStatus: setStatus })
-      const lines = (r.results || []).map(c => {
-        if (c.passed) return `✓ Test ${c.number}`
-        const reason = (!c.status || c.status === 'Accepted' || c.status === 'Wrong Answer' || c.status.toLowerCase() === 'failed') ? 'Failed' : c.status
-        return `✗ Test ${c.number}: ${reason}`
-      })
-      text = `${submit ? 'Submitted, with the hidden tests. ' : ''}${r.passed === r.total ? '✅ All tests passed' : `❌ ${r.passed} of ${r.total} tests passed`}\n${lines.join('\n')}`
+      const results = r.results || []
+      const compile = results.find(c => !c.passed && c.compileOutput)
+      if (compile) {
+        // The code didn't compile: every test fails the same way, so show the compiler's message once.
+        text = `❌ Compilation error\n\n${compile.compileOutput.trim()}`
+      } else {
+        const lines = results.map(c => {
+          if (c.passed) return `✓ Test ${c.number}`
+          const reason = (!c.status || c.status === 'Accepted' || c.status === 'Wrong Answer' || c.status.toLowerCase() === 'failed') ? 'Failed' : c.status
+          return `✗ Test ${c.number}: ${reason}`
+        })
+        // Details of the first failing visible test: its error, or what was expected against what came out.
+        const first = results.find(c => !c.passed && !c.hidden)
+        const detail = !first ? '' : first.stderr
+          ? `\n\nTest ${first.number} error:\n${first.stderr.trim()}`
+          : first.expected !== undefined
+            ? `\n\nTest ${first.number}\nInput:\n${String(first.input ?? '').trim()}\nExpected:\n${String(first.expected).trim()}\nGot:\n${String(first.actual ?? '').trim() || '(no output)'}`
+            : ''
+        text = `${submit ? 'Submitted, with the hidden tests. ' : ''}${r.passed === r.total ? '✅ All tests passed' : `❌ ${r.passed} of ${r.total} tests passed`}\n${lines.join('\n')}${detail}`
+      }
     } catch (e) {
       text = e.message
     }
@@ -291,7 +329,8 @@ function SharedEditor({ id, remote, problemId }) {
         </select>
         </div>
       </div>
-      <div className="min-h-[320px] overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+      {/* Fixed height: the editor fills it and scrolls inside, instead of a short editor in a taller empty frame. */}
+      <div className="flex h-[360px]">
         <CodeEditor value={code} onChange={v => { setCode(v); save(v, lang) }} language={lang} font={font} />
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -309,7 +348,7 @@ function SharedEditor({ id, remote, problemId }) {
       {output && (
         <div className="mt-3">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Output (shared)</p>
-          <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-3 text-xs text-emerald-300">{output}</pre>
+          <pre className={`max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-3 text-xs ${isErrorOutput(output) ? 'border border-rose-500/40 text-rose-300' : 'text-emerald-300'}`}>{output}</pre>
         </div>
       )}
     </div>

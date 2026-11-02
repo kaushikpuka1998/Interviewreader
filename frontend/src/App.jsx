@@ -114,6 +114,12 @@ function App({ path = '/', onPathChange = () => {} }) {
   const readRef = useRef(read)
   visitedRef.current = visited
   readRef.current = read
+  // Flags and important marks are read through refs too: toggling one must not refetch the list, which reset it to
+  // page 1, pinned the open question to the top and broke Previous/Next. The next filter change picks them up.
+  const flaggedRef = useRef(flagged)
+  const importantRef = useRef(important)
+  flaggedRef.current = flagged
+  importantRef.current = important
 
   // Refs mirror pagination state so the scroll handler always reads fresh values
   // (avoids stale-closure double-loads of the same page)
@@ -138,8 +144,8 @@ function App({ path = '/', onPathChange = () => {} }) {
         status: status === 'all' ? undefined : status,
         visitedIds: Array.from(visitedRef.current),
         readIds: Array.from(readRef.current),
-        flaggedIds: Array.from(flagged),
-        importantIds: Array.from(important),
+        flaggedIds: Array.from(flaggedRef.current),
+        importantIds: Array.from(importantRef.current),
         page: pageToLoad,
         size: PAGE
       })
@@ -177,7 +183,7 @@ function App({ path = '/', onPathChange = () => {} }) {
       setIsLoading(false)
       setLoaded(true)
     }
-  }, [tech, category, difficulty, company, query, status, flagged, important])
+  }, [tech, category, difficulty, company, query, status])
 
   // Load page 0 fresh whenever filters or per-user status change.
   useEffect(() => {

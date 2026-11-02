@@ -290,6 +290,7 @@ public class AnalyticsController {
                 m.put("clicks", clicks);
                 m.put("status", status);
                 m.put("location", r[9] == null ? (r[8] == null ? "" : r[8]) : r[9] + ", " + r[8]);
+                m.put("username", r[10] == null ? "" : r[10]);   // links the row to the public profile /u/{username}
                 members.add(m);
             }
         }

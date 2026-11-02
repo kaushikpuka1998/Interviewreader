@@ -194,6 +194,12 @@ export default function CodingProblemsAdmin({ onExport }) {
 
   const reset = () => { setForm(EMPTY); setEditingId(null) }
 
+  // Opens the problem and jumps to its Question analysis panel (after the editor has rendered).
+  const openAnalysis = async p => {
+    await edit(p)
+    setTimeout(() => document.getElementById('analysis-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
+
   const save = async e => {
     e.preventDefault()
     setMsg(null); setBusy(true)
@@ -288,6 +294,18 @@ export default function CodingProblemsAdmin({ onExport }) {
       </form>
 
       <div className="space-y-4">
+        {/* Question analysis sits at the top so it's easy to find; the hint shows until a problem is opened. */}
+        <div id="analysis-editor" className="scroll-mt-4">
+          {editingId ? (
+            <AnalysisEditor key={editingId} problemId={editingId} title={form.title} initial={editingAnalysis}
+              onSaved={has => setProblems(list => list?.map(x => (x.id === editingId ? { ...x, hasAnalysis: has } : x)))} />
+          ) : (
+            <div className="rounded-xl border border-dashed border-emerald-300 bg-emerald-50/60 p-4 text-sm text-slate-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-slate-300">
+              <p className="font-semibold text-slate-900 dark:text-slate-100">Question analysis</p>
+              <p className="mt-1">Click <strong>Analysis</strong> on any problem below to add a .md analysis with images. Members only see the Question Analysis tab when one is saved.</p>
+            </div>
+          )}
+        </div>
         <BulkImport onImported={load} onExport={onExport} />
         <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/40">
           <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">Problems ({problems?.length ?? 0})</h2>
@@ -307,6 +325,7 @@ export default function CodingProblemsAdmin({ onExport }) {
                 <span className="min-w-0 text-slate-800 dark:text-slate-200"><span className="mr-2 inline-block w-12 text-xs tabular-nums text-slate-400">#{numberOf.get(p.id)}</span>{p.title} <span className="text-xs text-slate-400">· {p.difficulty}</span>{p.hasAnalysis && <span className="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Analysis</span>}</span>
                 <span className="flex gap-3">
                   <button type="button" onClick={() => edit(p)} className="text-blue-600 hover:underline dark:text-blue-400">Edit</button>
+                  <button type="button" onClick={() => openAnalysis(p)} className="whitespace-nowrap text-emerald-600 hover:underline dark:text-emerald-400">{p.hasAnalysis ? 'Edit analysis' : 'Analysis'}</button>
                   <button type="button" onClick={() => remove(p)} className="text-red-600 hover:underline dark:text-red-400">Delete</button>
                 </span>
               </li>
@@ -320,10 +339,6 @@ export default function CodingProblemsAdmin({ onExport }) {
             </div>
           )}
         </div>
-        {editingId && (
-          <AnalysisEditor key={editingId} problemId={editingId} title={form.title} initial={editingAnalysis}
-            onSaved={has => setProblems(list => list?.map(x => (x.id === editingId ? { ...x, hasAnalysis: has } : x)))} />
-        )}
         {form.statement && (
           <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/40">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Preview</p>

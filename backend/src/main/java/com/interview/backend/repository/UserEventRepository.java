@@ -37,7 +37,7 @@ public interface UserEventRepository extends JpaRepository<UserEvent, Long> {
             SELECT u.email, u.name, u.last_login_at,
                    COALESCE(pv.views, 0), COALESCE(ev.read_seconds, 0), COALESCE(ev.max_scroll, 0),
                    COALESCE(ev.clicks, 0), GREATEST(pv.last_seen, ev.last_seen, u.last_login_at),
-                   u.country, u.city
+                   u.country, u.city, u.username
             FROM app_users u
             LEFT JOIN (SELECT user_id, COUNT(*) views, MAX(created_at) last_seen
                        FROM page_views WHERE created_at > :since AND user_id IS NOT NULL

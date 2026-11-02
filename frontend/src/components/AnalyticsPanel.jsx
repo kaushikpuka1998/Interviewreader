@@ -282,16 +282,36 @@ function EngagementBlock({ engagement, topQuestions }) {
           {!members.length ? <p className="text-sm text-slate-400">No signed-in activity yet.</p> : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[40rem] overflow-y-auto">
               {members.map(m => (
-                <li key={m.email} className="py-2 flex items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm text-slate-800 dark:text-slate-100 truncate">{m.name || m.email}</p>
-                    <p className="text-xs text-slate-400 truncate">
-                      {m.location && <>📍 {m.location} · </>}{m.views} views · {fmtSecs(m.readSeconds)} read · {m.maxScroll}% scroll · {m.clicks} clicks
-                    </p>
-                  </div>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_STYLE[m.status] || ''}`}>
-                    {m.status}
-                  </span>
+                <li key={m.email}>
+                  {(() => {
+                    // Members with a username open their public profile (new tab, so the dashboard stays put).
+                    const body = (
+                      <>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-slate-800 dark:text-slate-100 truncate">
+                            {m.name || m.email}
+                            {m.username && <span className="ml-1.5 text-xs text-slate-400">@{m.username}</span>}
+                          </p>
+                          <p className="text-xs text-slate-400 truncate">
+                            {m.location && <>📍 {m.location} · </>}{m.views} views · {fmtSecs(m.readSeconds)} read · {m.maxScroll}% scroll · {m.clicks} clicks
+                          </p>
+                        </div>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_STYLE[m.status] || ''}`}>
+                          {m.status}
+                        </span>
+                        {m.username && <span aria-hidden="true" className="flex-shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-500 dark:text-slate-600">→</span>}
+                      </>
+                    )
+                    return m.username ? (
+                      <a href={`/u/${encodeURIComponent(m.username)}`} target="_blank" rel="noopener noreferrer"
+                        title={`Open ${m.name || m.username}'s profile`}
+                        className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                        {body}
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-3 py-2" title="No username yet, so no public profile">{body}</div>
+                    )
+                  })()}
                 </li>
               ))}
             </ul>
