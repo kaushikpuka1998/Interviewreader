@@ -18,6 +18,7 @@ export default function SuggestEdit({ question }) {
   const [busy, setBusy] = useState(false)
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef(null)
+  const mdRef = useRef(null)
   const [sent, setSent] = useState('')
   const [error, setError] = useState('')
 
@@ -40,6 +41,24 @@ export default function SuggestEdit({ question }) {
     } catch (err) {
       setError(err.message)
     } finally { setUploading(false) }
+  }
+
+  // Load a .md file as the suggested answer (same limits as the admin editor).
+  async function handleMarkdown(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''   // allow re-picking the same file
+    if (!file) return
+    setError('')
+    if (!/\.(md|markdown|mdown|txt)$/i.test(file.name)) { setError('Choose a Markdown (.md) file.'); return }
+    if (file.size > 2 * 1024 * 1024) { setError('Markdown file exceeds 2 MB.'); return }
+    // The box starts with the published answer and may hold edits: don't replace it silently.
+    if (answer.trim() && !window.confirm(`Replace the answer with the contents of "${file.name}"?`)) return
+    try {
+      setAnswer(await file.text())
+      setPane(p => (p === 'off' ? 'preview' : p))
+    } catch {
+      setError('Could not read that file.')
+    }
   }
 
   if (!isLoggedIn()) return null
@@ -110,6 +129,20 @@ export default function SuggestEdit({ question }) {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* Load a Markdown file as the whole suggested answer. */}
+            <input ref={mdRef} type="file" accept=".md,.markdown,.mdown,.txt,text/markdown,text/plain" onChange={handleMarkdown} className="hidden" />
+            <button
+              type="button"
+              onClick={() => mdRef.current?.click()}
+              title="Load a Markdown (.md) file as your suggested answer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.9A5 5 0 1115.9 6H16a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v9" />
+              </svg>
+              Upload .md
+            </button>
+
             {/* Upload an image and drop it into the answer as Markdown. */}
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
             <button
