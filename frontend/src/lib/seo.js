@@ -3,6 +3,8 @@
 // them up, but see docs/SEO.md for the prerender step that makes indexing faster.
 
 const SITE_NAME = 'Interview Reader'
+// The one-word spellings people also search for. Google reads these from the WebSite / Organization markup.
+const ALT_NAMES = ['InterviewReader', 'interviewreader', 'Interview Reader Cloud']
 const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://interviewreader.cloud').replace(/\/+$/, '')
 
 const TECH_NAMES = {
@@ -151,8 +153,8 @@ export function setQuestionSeo(question, { gated = false } = {}) {
 
 /** Home / listing pages. */
 export function setDefaultSeo(total) {
-  const title = `${total ? total.toLocaleString() + '+ ' : ''}Interview Questions with Answers | ${SITE_NAME}`
-  const description = 'Free interview questions and detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka and Microservices. Track your progress as you prepare.'
+  const title = `${SITE_NAME} (InterviewReader): ${total ? total.toLocaleString() + '+ ' : ''}Interview Questions with Answers`
+  const description = 'InterviewReader: free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka and Microservices, plus coding problems and company roadmaps.'
   document.title = title
   setRobots(false)
   upsertMeta('meta[name="description"]', { name: 'description', content: description })
@@ -164,6 +166,7 @@ export function setDefaultSeo(total) {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
+    alternateName: ALT_NAMES,
     url: SITE_URL,
     potentialAction: {
       '@type': 'SearchAction',
