@@ -197,6 +197,13 @@ export async function fetchAnalytics(days = 30) {
   return res.json()
 }
 
+// Admin: visitor-to-member funnel, with likely bots left out, split by source and device.
+export async function fetchFunnel(days = 30) {
+  const res = await fetch(`${API_BASE}/analytics/funnel?days=${days}`, { headers: authHeaders() })
+  if (!res.ok) throw new Error('Failed to load the funnel')
+  return res.json()
+}
+
 // Admin: who is online right now. Members by name and email, visitors as a count.
 export async function fetchOnline() {
   const res = await fetch(`${API_BASE}/analytics/online`, { headers: authHeaders() })

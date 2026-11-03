@@ -73,17 +73,28 @@ public class AuthController {
         if (!Boolean.TRUE.equals(req.termsAccepted())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Please accept the Terms and Privacy notice to create an account."));
         }
-        java.time.LocalDate dob;
-        try {
-            dob = java.time.LocalDate.parse(req.dateOfBirth());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Please enter your date of birth."));
+        // Members confirm they are 18+ with a checkbox; under-18s go through guardian consent instead.
+        // A date of birth is still accepted from older clients.
+        java.time.LocalDate dob = null;
+        boolean minor;
+        if (req.dateOfBirth() != null && !req.dateOfBirth().isBlank()) {
+            try {
+                dob = java.time.LocalDate.parse(req.dateOfBirth());
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Please enter a valid date of birth."));
+            }
+            int age = java.time.Period.between(dob, java.time.LocalDate.now()).getYears();
+            if (dob.isAfter(java.time.LocalDate.now()) || age > 120) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Please enter a valid date of birth."));
+            }
+            minor = age < 18;
+        } else if (Boolean.TRUE.equals(req.adult())) {
+            minor = false;
+        } else if (Boolean.TRUE.equals(req.guardianConsent())) {
+            minor = true;
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "Please confirm you are 18 or older, or add a parent or guardian's consent."));
         }
-        int age = java.time.Period.between(dob, java.time.LocalDate.now()).getYears();
-        if (dob.isAfter(java.time.LocalDate.now()) || age > 120) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Please enter a valid date of birth."));
-        }
-        boolean minor = age < 18;
         if (minor && (req.guardianName() == null || req.guardianName().isBlank()
                 || req.guardianEmail() == null || !req.guardianEmail().contains("@")
                 || !Boolean.TRUE.equals(req.guardianConsent()))) {
@@ -95,11 +106,14 @@ public class AuthController {
         if (req.email() == null || req.password() == null || req.email().isBlank() || req.password().length() < 6) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and a password of at least 6 characters are required"));
         }
-        LocationRules.Location loc;
-        try {
-            loc = LocationRules.validate(req.country(), req.city());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        // Location is optional at sign-up; when left out it is filled in from the IP (resolveFromIp below).
+        LocationRules.Location loc = null;
+        if (!isBlank(req.country()) || !isBlank(req.city())) {
+            try {
+                loc = LocationRules.validate(req.country(), req.city());
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            }
         }
         String email = req.email().trim().toLowerCase();
         if (userRepository.existsByEmail(email)) {
@@ -128,7 +142,7 @@ public class AuthController {
             user.setGuardianConsentAt(Instant.now());
         }
         user.setLastLoginAt(Instant.now());
-        GeoService.applyUserLocation(user, loc.country(), loc.city());
+        if (loc != null) GeoService.applyUserLocation(user, loc.country(), loc.city());
         user.setUtmSource(trimTo(req.utmSource(), 100));
         user.setUtmCampaign(trimTo(req.utmCampaign(), 100));
         user = userRepository.save(user);
@@ -167,6 +181,10 @@ public class AuthController {
             userRepository.save(u);
         });
         return ResponseEntity.ok("You've been unsubscribed from new-question emails.");
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
     }
 
     private static String trimTo(String s, int max) {

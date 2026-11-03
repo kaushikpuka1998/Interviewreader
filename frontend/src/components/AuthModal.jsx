@@ -1,23 +1,31 @@
-import { useState } from 'react'
-import { login, register, checkUsername } from '../lib/auth.js'
+import { useEffect, useState } from 'react'
+import { login, register } from '../lib/auth.js'
+import { trackClick, flushEvents } from '../lib/analytics.js'
 import TermsContent from './TermsContent.jsx'
 
+// Set after any successful sign-in on this device: returning people see "Log in" first, new people "Create account".
+const HAD_ACCOUNT_KEY = 'ir_had_account'
+// Which kind of page the dialog was opened from, for the sign-up funnel.
+const pageKind = () => {
+  const p = location.pathname
+  if (p === '/') return 'home'
+  const top = p.split('/')[1]
+  return ['problems', 'practice', 'roadmaps', 'resume', 'interview', 'profile', 'leaderboard', 'u'].includes(top) ? top : 'question'
+}
+
 // Login / signup modal. Calls onSuccess(user) after a successful auth.
+// Sign-up asks only for email and password (name optional); location comes from the IP and can be edited on the profile.
 export default function AuthModal({ onClose, onSuccess }) {
-  const [mode, setMode] = useState('login') // 'login' | 'signup' | 'forgot'
+  const [mode, setMode] = useState(() => (localStorage.getItem(HAD_ACCOUNT_KEY) ? 'login' : 'signup')) // 'login' | 'signup' | 'forgot'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [country, setCountry] = useState('')
-  const [city, setCity] = useState('')
-  const [username, setUsername] = useState('')
-  const [nameStatus, setNameStatus] = useState(null)   // null | { available, error }
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [busy, setBusy] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [agreed, setAgreed] = useState(false)     // sign-up: Terms and Privacy accepted
-  const [dob, setDob] = useState('')
+  const [agreed, setAgreed] = useState(false)     // sign-up: Terms accepted (and, unless under 18, aged 18+)
+  const [minor, setMinor] = useState(false)       // sign-up: "I'm under 18" chosen
   const [guardianName, setGuardianName] = useState('')
   const [guardianEmail, setGuardianEmail] = useState('')
   const [guardianConsent, setGuardianConsent] = useState(false)
@@ -25,28 +33,23 @@ export default function AuthModal({ onClose, onSuccess }) {
 
   const isSignup = mode === 'signup'
   const isForgot = mode === 'forgot'
-  const today = new Date().toISOString().slice(0, 10)
-  const age = (() => {
-    if (!dob) return null
-    const d = new Date(dob), n = new Date()
-    let a = n.getFullYear() - d.getFullYear()
-    if (n < new Date(n.getFullYear(), d.getMonth(), d.getDate())) a--
-    return a
-  })()
-  const minor = isSignup && age !== null && age < 18
+
+  useEffect(() => { trackClick(`auth_open:${mode}@${pageKind()}`) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const switchMode = m => { setMode(m); setError(''); setSuccess(''); trackClick(`auth_mode:${m}`) }
 
   async function submit(e) {
     e.preventDefault()
     setError('')
     setSuccess('')
     if (isSignup && !agreed) {
-      setError('Please accept the Terms and Privacy notice to create an account.')
+      setError(minor ? 'Please accept the Terms to create an account.' : 'Please confirm you are 18 or older and accept the Terms.')
       return
     }
-    if (minor && !guardianConsent) {
+    if (isSignup && minor && !guardianConsent) {
       setError("A parent or guardian's consent is needed if you are under 18.")
       return
     }
+    if (!isForgot) trackClick(`auth_submit:${mode}`)
     setBusy(true)
     try {
       if (isForgot) {
@@ -60,12 +63,16 @@ export default function AuthModal({ onClose, onSuccess }) {
         setSuccess(data.message)
       } else {
         const user = isSignup
-          ? await register({ email, password, name, country, city, username, termsAccepted: agreed, dateOfBirth: dob, ...(minor && { guardianName, guardianEmail, guardianConsent }) })
+          ? await register({ email, password, name, termsAccepted: agreed, ...(minor ? { guardianName, guardianEmail, guardianConsent } : { adult: true }) })
           : await login({ email, password })
+        localStorage.setItem(HAD_ACCOUNT_KEY, '1')
+        trackClick(`auth_success:${mode}`)
+        flushEvents()   // onSuccess often reloads the page
         onSuccess(user)
       }
     } catch (err) {
       setError(err.message || 'Something went wrong')
+      if (!isForgot) trackClick(`auth_error:${mode}:${err.message || 'unknown'}`)
     } finally {
       setBusy(false)
     }
@@ -93,38 +100,14 @@ export default function AuthModal({ onClose, onSuccess }) {
 
         <form onSubmit={submit} className="space-y-4">
           {isSignup && (
-            <input
-              type="text" placeholder="Username (optional, for your public link)" value={username}
-              onChange={(e) => { setUsername(e.target.value); setNameStatus(null) }}
-              onBlur={() => username.trim() && checkUsername(username.trim()).then(setNameStatus).catch(() => {})}
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          )}
-          {isSignup && nameStatus && (
-            <p className={`-mt-2 text-xs ${nameStatus.available ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {nameStatus.available ? `interviewreader.com/u/${nameStatus.username} is free` : (nameStatus.error || 'That username is taken')}
-            </p>
+            <p className="-mt-1 text-sm text-slate-500 dark:text-slate-400">Free forever. Save progress, unlock every topic and earn streak points.</p>
           )}
           {isSignup && (
             <input
-              type="text" placeholder="Name (optional)" value={name}
+              type="text" placeholder="Name (optional)" value={name} autoComplete="name"
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          )}
-          {isSignup && (
-            <div className="flex gap-2">
-              <input
-                type="text" required placeholder="Country" value={country} autoComplete="country-name"
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text" required placeholder="City" value={city} autoComplete="address-level2"
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
           )}
           <input
             type="email" required placeholder="Email" value={email} autoComplete="email"
@@ -161,17 +144,7 @@ export default function AuthModal({ onClose, onSuccess }) {
             </div>
           )}
 
-          {isSignup && (
-            <label className="block text-sm text-slate-600 dark:text-slate-400">
-              Date of birth
-              <input
-                type="date" required value={dob} max={today} autoComplete="bday"
-                onChange={(e) => setDob(e.target.value)}
-                className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </label>
-          )}
-          {minor && (
+          {isSignup && minor && (
             <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-700/60 dark:bg-amber-900/20">
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">Parent or guardian consent needed</p>
               <p className="text-xs text-amber-800 dark:text-amber-300">You are under 18, so a parent or guardian must agree to how your data is used.</p>
@@ -203,12 +176,15 @@ export default function AuthModal({ onClose, onSuccess }) {
                   className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span>
-                  I agree to the Terms and how my data is used.{' '}
+                  {minor ? 'I agree to the Terms and how my data is used.' : "I'm 18 or older and agree to the Terms and how my data is used."}{' '}
                   <button type="button" onClick={() => setShowTerms(v => !v)} className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
                     {showTerms ? 'Hide terms' : 'Read terms'}
                   </button>
                 </span>
               </label>
+              <button type="button" onClick={() => { setMinor(m => !m); setError('') }} className="text-xs text-slate-500 hover:text-blue-600 hover:underline dark:text-slate-400">
+                {minor ? "I'm 18 or older" : 'Under 18?'}
+              </button>
               {showTerms && (
                 <div className="mt-2 max-h-56 overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
                   <TermsContent />
@@ -224,7 +200,7 @@ export default function AuthModal({ onClose, onSuccess }) {
             type="submit" disabled={busy || (isSignup && (!agreed || (minor && !guardianConsent)))}
             className="w-full py-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold shadow-lg hover:opacity-95 disabled:opacity-60 transition"
           >
-            {busy ? 'Please wait…' : isForgot ? 'Send reset link' : isSignup ? 'Sign up' : 'Log in'}
+            {busy ? 'Please wait…' : isForgot ? 'Send reset link' : isSignup ? 'Create free account' : 'Log in'}
           </button>
         </form>
 
@@ -232,7 +208,7 @@ export default function AuthModal({ onClose, onSuccess }) {
           <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
             {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
-              onClick={() => { setMode(isSignup ? 'login' : 'signup'); setError(''); setSuccess('') }}
+              onClick={() => switchMode(isSignup ? 'login' : 'signup')}
               className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
             >
               {isSignup ? 'Log in' : 'Sign up'}
@@ -242,7 +218,7 @@ export default function AuthModal({ onClose, onSuccess }) {
 
         {mode === 'login' && (
           <div className="mt-2 text-center">
-            <button onClick={() => { setMode('forgot'); setError(''); setSuccess('') }} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+            <button onClick={() => switchMode('forgot')} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
               Forgot password?
             </button>
           </div>
@@ -250,7 +226,7 @@ export default function AuthModal({ onClose, onSuccess }) {
 
         {isForgot && (
           <div className="mt-4 text-center">
-            <button onClick={() => { setMode('login'); setError(''); setSuccess('') }} className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
+            <button onClick={() => switchMode('login')} className="text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
               ← Back to login
             </button>
           </div>

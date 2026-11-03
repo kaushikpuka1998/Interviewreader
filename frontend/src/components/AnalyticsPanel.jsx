@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Loader from './Loader.jsx'
-import { fetchAnalytics, fetchSignups, fetchOnline } from '../lib/analytics.js'
+import { fetchAnalytics, fetchSignups, fetchOnline, fetchFunnel } from '../lib/analytics.js'
 
 // When the admin last acknowledged the signup list — used to badge new joiners.
 const SEEN_KEY = 'ir_signups_seen_at'
@@ -368,6 +368,78 @@ function OnlineNow() {
   )
 }
 
+const pct = (n, of) => (of ? `${Math.round((n * 100) / of)}%` : '–')
+
+// Visitor → member funnel. Each bar is a share of real visitors; the drop from the previous step is shown beside it.
+function FunnelBlock({ days }) {
+  const [f, setF] = useState(null)
+  const [error, setError] = useState('')
+  useEffect(() => { setF(null); fetchFunnel(days).then(setF).catch(e => setError(e.message)) }, [days])
+  if (error) return <p className="text-sm text-red-500">{error}</p>
+  if (!f) return <Loader compact label="Loading funnel…" />
+  const t = f.totals
+  const real = t.real_visitors
+  const steps = [
+    ['Real visitors', real],
+    ['Opened a question', t.opened_question],
+    ['Read properly (30s or half the page)', t.engaged_read],
+    ['Read 3+ questions', t.read_three],
+    ['Opened sign-up / log-in', t.opened_signup],
+    ['Submitted sign-up', t.submitted_signup],
+    ['Signed in', t.signed_in],
+    ['Came back on another day', t.returned],
+  ]
+  const table = (title, col, rows) => (
+    <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+      <h4 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h4>
+      <table className="w-full text-xs tabular-nums">
+        <thead className="text-slate-400"><tr><th className="text-left font-medium">{col}</th><th className="text-right font-medium">Visitors</th><th className="text-right font-medium">Bounce</th><th className="text-right font-medium">Opened sign-up</th><th className="text-right font-medium">Signed in</th></tr></thead>
+        <tbody className="text-slate-700 dark:text-slate-300">
+          {rows.map(r => (
+            <tr key={r.k} className="border-t border-slate-100 dark:border-slate-800">
+              <td className="py-1.5 pr-2 truncate">{r.k}</td><td className="text-right">{r.visitors}</td>
+              <td className="text-right">{pct(r.bounced, r.visitors)}</td><td className="text-right">{r.opened_signup}</td><td className="text-right">{r.signed_in}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+  return (
+    <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/40">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Conversion funnel ({f.windowDays}d)</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {t.visitors} visitors, {t.no_interaction} left out as likely bots (one view, no scroll or click) · {pct(t.bounced, real)} of real visitors left after one page · {f.newMembers} new members
+        </p>
+      </div>
+      <ol className="space-y-1.5">
+        {steps.map(([label, n], i) => (
+          <li key={label} className="grid grid-cols-[minmax(0,14rem)_1fr_7rem] items-center gap-3 text-sm">
+            <span className="truncate text-slate-700 dark:text-slate-300">{label}</span>
+            <span className="h-5 overflow-hidden rounded bg-slate-100 dark:bg-slate-800">
+              <span className="block h-full rounded bg-blue-500" style={{ width: pct(n, real) === '–' ? 0 : pct(n, real) }} />
+            </span>
+            <span className="text-right tabular-nums text-slate-600 dark:text-slate-300">
+              {n} <span className="text-slate-400">· {pct(n, real)}</span>
+              {/* Steps recorded only recently (submitted sign-up) can be smaller than the next one; skip the drop there. */}
+              {i > 0 && i < 7 && steps[i - 1][1] > 0 && n <= steps[i - 1][1] && <span className="block text-[10px] text-rose-500">−{100 - Math.round((n * 100) / steps[i - 1][1])}% from previous</span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        {table('By source', 'Source', f.bySource)}
+        {table('By device', 'Device', f.byDevice)}
+      </div>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <BarList title="Sign-up dialog opened from" rows={f.signupOpenedFrom} labelKey="k" valueKey="sessions" empty="Recorded from the next deploy onwards." />
+        <BarList title="Sign-up / log-in errors" rows={f.authErrors} labelKey="k" valueKey="sessions" empty="No failed attempts recorded." />
+      </div>
+    </div>
+  )
+}
+
 export default function AnalyticsPanel() {
   const [days, setDays] = useState(30)
   const [data, setData] = useState(null)
@@ -444,6 +516,8 @@ export default function AnalyticsPanel() {
         <Stat label="Visitors" value={t.uniqueInWindow ?? 0} sub={`${(t.uniqueVisitors ?? 0).toLocaleString()} all time`} tone="violet" />
         <Stat label="Members" value={s.total ?? 0} sub={`+${s.today ?? 0} today · +${s.thisWeek ?? 0} this week`} tone="green" />
       </div>
+
+      <FunnelBlock days={days} />
 
       <AudienceBlock audience={data.audience} days={data.windowDays} />
 

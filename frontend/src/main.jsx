@@ -55,7 +55,8 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps']
+const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
+  '/interview', '/problems', '/sheets/', '/terms']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -69,7 +70,7 @@ function Routes() {
   // Question pages are tracked by App. Every other page here needs its own page view,
   // otherwise the analytics never see it (e.g. the resume builder).
   useEffect(() => {
-    if (TRACKED_PAGES.some(p => path === p || path.startsWith(p))) trackView({ path })
+    if (path === '/' || TRACKED_PAGES.some(p => path === p || path.startsWith(p))) trackView({ path })
   }, [path])
 
   // Dedicated admin route (create / edit / delete questions).

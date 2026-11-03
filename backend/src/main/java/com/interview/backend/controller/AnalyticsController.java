@@ -257,6 +257,70 @@ public class AnalyticsController {
         return ResponseEntity.ok(out);
     }
 
+    // ---------- admin: conversion funnel ----------
+
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    // One row per visitor session in the window. A session with a single view and no read, scroll or click
+    // ("no interaction") is most likely a bot or link preview, so it is reported but left out of the funnel.
+    private static final String SESSIONS = """
+        WITH v AS (SELECT session_id, COUNT(*) views, COUNT(DISTINCT question_id) qs, COUNT(DISTINCT DATE(created_at)) days,
+                          BOOL_OR(user_id IS NOT NULL) signed
+                   FROM page_views WHERE created_at > ? AND path NOT LIKE '/admin%' AND session_id IS NOT NULL GROUP BY session_id),
+             f AS (SELECT DISTINCT ON (session_id) session_id, referrer_host, device
+                   FROM page_views WHERE created_at > ? AND path NOT LIKE '/admin%' ORDER BY session_id, created_at),
+             e AS (SELECT session_id,
+                          BOOL_OR(type = 'read' AND (seconds >= 30 OR scroll_pct >= 50)) engaged,
+                          -- auth_open is recorded by the dialog itself (sent after sign-in, so it may carry the new user's id);
+                          -- the button labels cover visits from before it existed.
+                          BOOL_OR(label LIKE 'auth_open:%' OR (user_id IS NULL AND label IN ('Sign up', 'Log in / Sign up', 'Log in',
+                                  'Start practicing free →', 'Sign in or create a free account', 'Create a free account'))) opened_auth,
+                          BOOL_OR(label = 'auth_submit:signup') submitted
+                   FROM user_events WHERE created_at > ? GROUP BY session_id)
+        SELECT v.*, f.referrer_host, f.device, COALESCE(e.engaged, false) engaged, COALESCE(e.opened_auth, false) opened_auth,
+               COALESCE(e.submitted, false) submitted, (v.views = 1 AND e.session_id IS NULL AND NOT v.signed) no_interaction
+        FROM v JOIN f USING (session_id) LEFT JOIN e USING (session_id)
+        """;
+
+    @GetMapping("/funnel")
+    public Map<String, Object> funnel(@RequestParam(defaultValue = "30") int days) {
+        int window = Math.min(Math.max(days, 1), 365);
+        java.sql.Timestamp since = java.sql.Timestamp.from(Instant.now().minus(window, ChronoUnit.DAYS));
+        String agg = """
+            SELECT COUNT(*) visitors,
+                   COUNT(*) FILTER (WHERE no_interaction) no_interaction,
+                   COUNT(*) FILTER (WHERE NOT no_interaction) real_visitors,
+                   COUNT(*) FILTER (WHERE NOT no_interaction AND views = 1) bounced,
+                   COUNT(*) FILTER (WHERE NOT no_interaction AND qs >= 1) opened_question,
+                   COUNT(*) FILTER (WHERE engaged) engaged_read,
+                   COUNT(*) FILTER (WHERE qs >= 3) read_three,
+                   COUNT(*) FILTER (WHERE opened_auth) opened_signup,
+                   COUNT(*) FILTER (WHERE submitted) submitted_signup,
+                   COUNT(*) FILTER (WHERE signed) signed_in,
+                   COUNT(*) FILTER (WHERE NOT no_interaction AND days >= 2) returned
+            FROM (%s) s""".formatted(SESSIONS);
+        Map<String, Object> t = jdbc.queryForMap(agg, since, since, since);
+        long newMembers = users.countByCreatedAtAfter(since.toInstant());
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("windowDays", window);
+        out.put("totals", t);
+        out.put("newMembers", newMembers);
+        String split = """
+            SELECT %s k, COUNT(*) visitors, COUNT(*) FILTER (WHERE views = 1) bounced,
+                   COUNT(*) FILTER (WHERE opened_auth) opened_signup, COUNT(*) FILTER (WHERE signed) signed_in
+            FROM (%s) s WHERE NOT no_interaction GROUP BY 1 ORDER BY 2 DESC LIMIT 10""";
+        out.put("bySource", jdbc.queryForList(split.formatted("COALESCE(referrer_host, 'direct')", SESSIONS), since, since, since));
+        out.put("byDevice", jdbc.queryForList(split.formatted("COALESCE(device, 'unknown')", SESSIONS), since, since, since));
+        // Where the sign-up dialog was opened, and why sign-ups and logins failed (recorded by the dialog itself).
+        String labels = """
+            SELECT SUBSTRING(label FROM %d) k, COUNT(DISTINCT session_id) sessions
+            FROM user_events WHERE created_at > ? AND label LIKE ? GROUP BY 1 ORDER BY 2 DESC LIMIT 10""";
+        out.put("signupOpenedFrom", jdbc.queryForList(labels.formatted("auth_open:".length() + 1), since, "auth_open:%"));
+        out.put("authErrors", jdbc.queryForList(labels.formatted("auth_error:".length() + 1), since, "auth_error:%"));
+        return out;
+    }
+
     /** Scroll/read-time/click analytics plus who is actually using the site vs. only signing in. */
     private Map<String, Object> engagement(Instant since) {
         Map<String, Object> out = new LinkedHashMap<>();
