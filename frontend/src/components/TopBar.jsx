@@ -6,6 +6,7 @@ import AuthModal from './AuthModal.jsx'
 import PremiumPlans from './PremiumPlans.jsx'
 import ProfileMenu from './ProfileMenu.jsx'
 import StreakBadge from './StreakBadge.jsx'
+import PromoBanner from './PromoBanner.jsx'
 
 // Shared top bar (LeetCode style): brand and page links on the left, theme toggle, notifications, avatar and log out on the right.
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
@@ -150,6 +151,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
       }))
   return (
     <>
+    <PromoBanner />
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
       <div className="flex h-14 items-center gap-2 px-3 sm:gap-4 sm:px-4">
         <button

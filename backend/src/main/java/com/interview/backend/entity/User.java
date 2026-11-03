@@ -54,6 +54,10 @@ public class User {
     private String username;
 
     // ---- Optional details the member chooses to show on their public profile (/u/<username>). All nullable; see PublicDetails. ----
+    /** The coupon code on the Premium order the member is about to pay for (counted once the payment is confirmed). */
+    @Column(length = 24)
+    private String premiumPendingCoupon;
+
     @Column(length = 120)
     private String headline;        // e.g. "Software Engineer at Acme"
     @Column(length = 120)

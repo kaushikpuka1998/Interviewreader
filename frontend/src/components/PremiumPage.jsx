@@ -24,9 +24,11 @@ const ROWS = [
 const cell = v => (v === true ? <span className="text-emerald-600 dark:text-emerald-400" aria-label="Included">✓</span>
   : v === false ? <span className="text-slate-300 dark:text-slate-600" aria-label="Not included">–</span> : <span className="text-slate-700 dark:text-slate-300">{v}</span>)
 
-export default function PremiumPage() {
-  const [plans, setPlans] = useState(false)
-  const [auth, setAuth] = useState(false)
+// At /premium it is the Free vs Premium comparison. At /pricing (autoOpen) the same page opens the "Choose your Premium pass" screen straight away,
+// after sign-in if needed, so offers and emails can link to one address: /pricing, or /pricing?coupon=CODE to pre-fill a coupon.
+export default function PremiumPage({ autoOpen = false }) {
+  const [plans, setPlans] = useState(autoOpen && isLoggedIn())
+  const [auth, setAuth] = useState(autoOpen && !isLoggedIn())
   const [trial, setTrial] = useState(null)   // null | { available, days, used }
   const [msg, setMsg] = useState('')
   const user = getUser()

@@ -12,6 +12,7 @@ import Markdown from './Markdown.jsx'
 import AnalyticsPanel from './AnalyticsPanel.jsx'
 import EngagementPanel from './EngagementPanel.jsx'
 import DiscussionsAdmin from './DiscussionsAdmin.jsx'
+import PromoAdmin from './PromoAdmin.jsx'
 import EmailCenter from './EmailCenter.jsx'
 import ResumeTemplatesAdmin from './ResumeTemplatesAdmin.jsx'
 import FeatureFlagsPanel from './FeatureFlagsPanel.jsx'
@@ -349,7 +350,7 @@ export default function AdminPage() {
   return (
     <Shell tabWide={tab === "analytics"}>
       <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback-dashboard', 'Feedback dashboard'], ['feedback', 'Feedback'], ['answers', 'Answer ratings'], ['comments', 'Comments'], ['community', 'Community'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['engagement', 'Engagement'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['premium', 'Premium'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
+        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback-dashboard', 'Feedback dashboard'], ['feedback', 'Feedback'], ['answers', 'Answer ratings'], ['comments', 'Comments'], ['community', 'Community'], ['offers', 'Offers'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['engagement', 'Engagement'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['premium', 'Premium'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
           <button key={t} onClick={() => { setTab(t); setMsg(null) }}
             className={`inline-flex shrink-0 items-center whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
             {label}
@@ -407,6 +408,7 @@ export default function AdminPage() {
       {tab === 'analytics' && <AnalyticsPanel />}
       {tab === 'engagement' && <EngagementPanel />}
       {tab === 'community' && <DiscussionsAdmin />}
+      {tab === 'offers' && <PromoAdmin />}
       {tab === 'emails' && <EmailCenter />}
       {tab === 'templates' && <ResumeTemplatesAdmin />}
       {tab === 'coding' && <CodingProblemsAdmin onExport={() => { setExportSource('coding'); setTab('export') }} />}

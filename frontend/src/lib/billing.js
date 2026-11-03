@@ -53,8 +53,8 @@ function checkout(sub, { name, description, verifyPath }) {
 export const PREMIUM_PLAN_NAMES = { monthly: 'Monthly', yearly: 'Yearly', lifetime: 'Lifetime' }
 
 // Premium (roadmaps) pass: 'monthly' | 'yearly' | 'lifetime', one-time payment, no auto-renewal.
-export async function buyPremium(plan) {
-  const [order] = await Promise.all([call('/billing/premium/order', 'POST', { plan }), loadCheckout()])
+export async function buyPremium(plan, coupon) {
+  const [order] = await Promise.all([call('/billing/premium/order', 'POST', { plan, coupon: coupon || undefined }), loadCheckout()])
   return checkout(order, { name: 'Interview Reader Premium', description: `${PREMIUM_PLAN_NAMES[plan]} pass · ₹${(order.amount / 100).toLocaleString('en-IN')}`, verifyPath: '/billing/premium/verify' })
 }
 

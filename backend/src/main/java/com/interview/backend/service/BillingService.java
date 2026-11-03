@@ -69,6 +69,10 @@ public class BillingService {
     private final Map<String, String> interviewPriceLabels;
     private final Map<String, String> interviewRegularLabels;   // crossed-out "was" price; blank = none
 
+    // Coupons are optional extras on a Premium order, so this is injected after construction rather than widening the long constructor.
+    @org.springframework.beans.factory.annotation.Autowired
+    private CouponService coupons;
+
     public BillingService(UserRepository users,
                           @Value("${app.admin.emails:}") String adminEmailsCsv,
                           @Value("${app.razorpay.key-id:}") String keyId,
@@ -265,18 +269,40 @@ public class BillingService {
                 "status", u.getSubscriptionStatus() == null ? "" : u.getSubscriptionStatus());
     }
 
-    /** Creates a Razorpay order for a Premium pass; the amount comes from config, never from the client. */
-    public Map<String, Object> createPremiumOrder(User u, String plan) {
+    /** What a coupon would do to a pass, for the "Have a coupon?" box: valid or not, the reason, and the new price in rupees. */
+    public Map<String, Object> quoteCoupon(User u, String plan, String code) {
         Integer price = premiumPrices.get(plan);
         if (price == null) throw new IllegalArgumentException("Unknown plan.");
+        var q = coupons.quote(code, plan, price, u.getId());
+        return Map.of("valid", q.valid(), "message", q.message(), "code", q.code() == null ? "" : q.code(),
+                "price", price, "discount", q.discount(), "finalPrice", q.finalPrice());
+    }
+
+    /**
+     * Creates a Razorpay order for a Premium pass. The amount is worked out here (config price, less a valid coupon), never taken
+     * from the client. The coupon is remembered on the member and counted only once the payment is confirmed.
+     */
+    public Map<String, Object> createPremiumOrder(User u, String plan, String couponCode) {
+        Integer price = premiumPrices.get(plan);
+        if (price == null) throw new IllegalArgumentException("Unknown plan.");
+        String applied = null;
+        int pay = price;
+        if (couponCode != null && !couponCode.isBlank()) {
+            var q = coupons.quote(couponCode, plan, price, u.getId());
+            if (!q.valid()) throw new IllegalArgumentException(q.message());
+            applied = q.code();
+            pay = q.finalPrice();
+        }
         requireConfigured(null, null);
+        Map<String, String> notes = new java.util.HashMap<>(Map.of("email", u.getEmail(), "product", "premium", "plan", plan));
+        if (applied != null) notes.put("coupon", applied);
         JsonNode order = call("POST", "/orders", Map.of(
-                "amount", price * 100, "currency", "INR", "receipt", "premium-" + u.getId() + "-" + System.currentTimeMillis(),
-                "notes", Map.of("email", u.getEmail(), "product", "premium", "plan", plan)));
+                "amount", pay * 100, "currency", "INR", "receipt", "premium-" + u.getId() + "-" + System.currentTimeMillis(), "notes", notes));
         u.setPremiumPendingPlan(plan);
+        u.setPremiumPendingCoupon(applied);
         u.setPremiumPendingOrderId(order.path("id").asText());
         users.save(u);
-        return Map.of("orderId", u.getPremiumPendingOrderId(), "keyId", keyId, "amount", price * 100, "plan", plan,
+        return Map.of("orderId", u.getPremiumPendingOrderId(), "keyId", keyId, "amount", pay * 100, "plan", plan,
                 "email", u.getEmail(), "name", u.getName() == null ? "" : u.getName());
     }
 
@@ -310,6 +336,10 @@ public class BillingService {
         }
         u.setPremiumPendingPlan(null);
         u.setPremiumPendingOrderId(null);
+        if (u.getPremiumPendingCoupon() != null) {
+            coupons.redeem(u.getPremiumPendingCoupon(), u.getId());   // the payment went through: now the code counts as used
+            u.setPremiumPendingCoupon(null);
+        }
         users.save(u);
     }
 

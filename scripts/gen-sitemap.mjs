@@ -39,6 +39,7 @@ const STATIC_PAGES = [
   ['/question-of-the-day', 'daily', '0.8'],
   ['/discuss', 'daily', '0.7'],
   ['/premium', 'monthly', '0.7'],
+  ['/pricing', 'monthly', '0.7'],
   ['/practice', 'weekly', '0.7'],
   ['/interview', 'weekly', '0.7'],
   ['/terms', 'yearly', '0.2'],

@@ -45,35 +45,41 @@ public final class PublicDetails {
         return t;
     }
 
-    /** "octocat", "@octocat", "github.com/octocat" or "https://github.com/octocat/" all become "octocat". */
+    // A profile link must be on github.com / linkedin.com itself (not "evil.com/github.com/x" or "github.com.evil.com/x").
+    private static final Pattern GITHUB_URL = Pattern.compile("^(?:https?://)?(?:www\\.)?github\\.com/([A-Za-z0-9][A-Za-z0-9-]{0,38})/?(?:[?#].*)?$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LINKEDIN_URL = Pattern.compile("^(?:https?://)?(?:www\\.|[a-z]{2,3}\\.)?linkedin\\.com/in/([A-Za-z0-9_%-]{3,100})/?(?:[?#].*)?$", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * "octocat", "@octocat" or a github.com profile link become "octocat". Any other address is refused, so the field can't be used
+     * to point visitors somewhere else.
+     */
     static String github(String s) {
-        String t = handle(s, "github.com/");
+        String t = handleOrLink(s, GITHUB_URL, "Use your GitHub username, or a link like github.com/your-name.");
         if (t == null) return null;
         if (!GITHUB.matcher(t).matches() || t.endsWith("-")) throw new IllegalArgumentException("That doesn't look like a GitHub username.");
         return t;
     }
 
-    /** "janedoe", "linkedin.com/in/janedoe" or the full URL all become "janedoe". */
+    /** "janedoe" or a linkedin.com/in/... link become "janedoe". Company pages and other sites are refused. */
     static String linkedin(String s) {
-        String t = handle(s, "linkedin.com/in/");
+        String t = handleOrLink(s, LINKEDIN_URL, "Use your LinkedIn profile name, or a link like linkedin.com/in/your-name.");
         if (t == null) return null;
         if (!LINKEDIN.matcher(t).matches()) throw new IllegalArgumentException("That doesn't look like a LinkedIn profile name (the part after linkedin.com/in/).");
         return t;
     }
 
-    private static String handle(String s, String marker) {
+    /** A bare handle is taken as is; anything with a slash, dot or colon must be a link on the right site. */
+    private static String handleOrLink(String s, Pattern link, String refusal) {
         if (s == null) return null;
         String t = s.strip();
         if (t.isEmpty()) return null;
-        String low = t.toLowerCase(Locale.ROOT);
-        int i = low.indexOf(marker);
-        if (i >= 0) t = t.substring(i + marker.length());
-        t = t.replaceFirst("^@", "");
-        int cut = t.indexOf('/');
-        if (cut >= 0) t = t.substring(0, cut);
-        cut = t.indexOf('?');
-        if (cut >= 0) t = t.substring(0, cut);
-        return t.isEmpty() ? null : t;
+        if (t.startsWith("@")) t = t.substring(1);
+        if (t.indexOf('/') >= 0 || t.indexOf('.') >= 0 || t.indexOf(':') >= 0) {
+            var m = link.matcher(t);
+            if (!m.matches()) throw new IllegalArgumentException(refusal);
+            return m.group(1);
+        }
+        return t;
     }
 
     /** An http(s) address with a real host. A bare "example.com" gets https:// in front. */

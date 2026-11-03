@@ -34,13 +34,25 @@ public class BillingController {
         return billing.premiumPlans();
     }
 
-    public record PlanInput(String plan) {}
+    public record PlanInput(String plan, String coupon) {}
+
+    public record CouponCheck(String plan, String code) {}
+
+    /** "Have a coupon?": what the code would do to this pass. The same check runs again when the order is created. */
+    @PostMapping("/coupon/validate")
+    public ResponseEntity<?> validateCoupon(@RequestBody CouponCheck in) {
+        try {
+            return ResponseEntity.ok(billing.quoteCoupon(currentUser(), in == null ? null : in.plan(), in == null ? null : in.code()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 
     // Premium one-time pass: monthly / yearly / lifetime.
     @PostMapping("/premium/order")
     public ResponseEntity<?> premiumOrder(@RequestBody PlanInput in) {
         try {
-            return ResponseEntity.ok(billing.createPremiumOrder(currentUser(), in == null ? null : in.plan()));
+            return ResponseEntity.ok(billing.createPremiumOrder(currentUser(), in == null ? null : in.plan(), in == null ? null : in.coupon()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {

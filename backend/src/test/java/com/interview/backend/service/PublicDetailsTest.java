@@ -19,6 +19,19 @@ class PublicDetailsTest {
     }
 
     @Test
+    void linksOnOtherSitesAreRefused() {
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.github("https://evil.com/octocat"));
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.github("https://evil.com/github.com/octocat"));
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.github("github.com.evil.com/octocat"));
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.github("https://gist.github.com/octocat"));
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.linkedin("https://evil.com/in/jane-doe"));
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.linkedin("linkedin.com.evil.com/in/jane-doe"));
+        assertThrows(IllegalArgumentException.class, () -> PublicDetails.linkedin("https://www.linkedin.com/company/acme"));
+        assertEquals("jane-doe", PublicDetails.linkedin("https://in.linkedin.com/in/jane-doe?trk=x"));
+        assertEquals("jane-doe", PublicDetails.linkedin("HTTPS://WWW.LINKEDIN.COM/in/jane-doe/"));
+    }
+
+    @Test
     void badHandlesAreRefused() {
         assertThrows(IllegalArgumentException.class, () -> PublicDetails.github("bad name"));
         assertThrows(IllegalArgumentException.class, () -> PublicDetails.github("-leading"));

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { savePublicDetails } from '../lib/auth.js'
+import { parseGithub, parseLinkedin } from '../lib/profileLinks.js'
 
 const input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
 const label = 'mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300'
@@ -13,6 +14,7 @@ export default function PublicDetailsDialog({ details, username, onClose, onSave
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const set = k => e => setF(s => ({ ...s, [k]: e.target.value }))
+  const gh = parseGithub(f.github), li = parseLinkedin(f.linkedin)   // checked as you type: only github.com / linkedin.com links get through
   const addSkill = (raw = draft) => {
     const parts = raw.split(',').map(x => x.trim()).filter(Boolean)
     if (!parts.length) return
@@ -24,7 +26,9 @@ export default function PublicDetailsDialog({ details, username, onClose, onSave
     setDraft('')
   }
   const submit = async e => {
-    e.preventDefault(); setBusy(true); setError('')
+    e.preventDefault()
+    if (!gh.ok || !li.ok) return setError(gh.error || li.error)
+    setBusy(true); setError('')
     try {
       const pending = draft.trim() ? [...skills, ...draft.split(',').map(x => x.trim()).filter(Boolean)] : skills
       const r = await savePublicDetails({ ...f, skills: pending })
@@ -56,11 +60,13 @@ export default function PublicDetailsDialog({ details, username, onClose, onSave
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label className={label} htmlFor="pd-gh">GitHub username</label>
-            <input id="pd-gh" className={input} value={f.github} onChange={set('github')} maxLength={80} placeholder="octocat or github.com/octocat" autoComplete="off" />
+            <input id="pd-gh" className={`${input} ${gh.ok ? '' : '!border-rose-500'}`} value={f.github} onChange={set('github')} maxLength={80} placeholder="octocat or github.com/octocat" autoComplete="off" aria-invalid={!gh.ok} />
+            {!gh.ok && <p className="mt-1 text-xs text-rose-600">{gh.error}</p>}
           </div>
           <div>
             <label className={label} htmlFor="pd-li">LinkedIn profile</label>
-            <input id="pd-li" className={input} value={f.linkedin} onChange={set('linkedin')} maxLength={160} placeholder="linkedin.com/in/your-name" autoComplete="off" />
+            <input id="pd-li" className={`${input} ${li.ok ? '' : '!border-rose-500'}`} value={f.linkedin} onChange={set('linkedin')} maxLength={160} placeholder="linkedin.com/in/your-name" autoComplete="off" aria-invalid={!li.ok} />
+            {!li.ok && <p className="mt-1 text-xs text-rose-600">{li.error}</p>}
           </div>
         </div>
         <div>
@@ -86,7 +92,7 @@ export default function PublicDetailsDialog({ details, username, onClose, onSave
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex items-center justify-end gap-2 pt-1">
           <button type="button" onClick={onClose} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">Cancel</button>
-          <button type="submit" disabled={busy} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">{busy ? 'Saving…' : 'Save'}</button>
+          <button type="submit" disabled={busy || !gh.ok || !li.ok} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">{busy ? 'Saving…' : 'Save'}</button>
         </div>
       </form>
     </div>

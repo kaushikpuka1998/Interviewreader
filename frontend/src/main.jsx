@@ -69,7 +69,7 @@ window.fetch = function() {
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
 const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
-  '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/discuss']
+  '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -112,6 +112,7 @@ function Routes() {
   if (path === '/question-of-the-day') return <QuestionOfTheDayPage />
 
   if (path === '/premium') return <PremiumPage />
+  if (path === '/pricing') return <PremiumPage autoOpen />
 
   if (path === '/leaderboard') return <LeaderboardPage />
   if (path === '/streak') return <StreakPage />
