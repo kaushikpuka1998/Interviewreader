@@ -91,6 +91,9 @@ public class User {
     private String premiumPendingPlan;
     @Column(length = 40)
     private String premiumPendingOrderId;
+    /** Admin who gave this member Premium (null when it was paid for). Cleared when the member pays. */
+    @Column(length = 150)
+    private String premiumGrantedBy;
 
     /** Daily login streak: consecutive days (India time) with a sign-in, the best ever, and the last day counted. */
     private Integer streakCount;

@@ -38,7 +38,13 @@ export default function StreakBadge() {
         <span className={`flex items-center gap-0.5 ${lit ? 'text-orange-500' : 'text-slate-400'}`} title="Daily streak">
           <span aria-hidden="true" className={lit ? '' : 'grayscale opacity-60'}>🔥</span>{data.streak}
         </span>
-        <span className="hidden items-center gap-0.5 text-amber-500 sm:flex" title="Points this week"><span aria-hidden="true">⭐</span>{Number(data.weekPoints).toLocaleString('en-IN')}</span>
+        <span className="hidden items-center gap-1 text-amber-500 sm:flex" title="Points this week">
+          {/* A drawn star instead of the ⭐ emoji, which renders small and washed out on dark backgrounds. */}
+          <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] drop-shadow-[0_0_4px_rgba(251,191,36,0.55)]" aria-hidden="true">
+            <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8L12 2.5z" fill="#fbbf24" stroke="#f59e0b" strokeWidth="1.2" strokeLinejoin="round" />
+          </svg>
+          {Number(data.weekPoints).toLocaleString('en-IN')}
+        </span>
       </button>
 
       {toast && (

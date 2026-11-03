@@ -300,6 +300,7 @@ public class BillingService {
         Instant until = length == null ? LIFETIME : base.plus(length);
         if (u.getPremiumUntil() == null || u.getPremiumUntil().isBefore(until)) u.setPremiumUntil(until);
         if (!"lifetime".equals(u.getPremiumPlan())) u.setPremiumPlan(plan);
+        u.setPremiumGrantedBy(null);   // paid now, so an admin "revoke" must not take it away
         // Moving from the old recurring subscription to a pass: stop the renewals so they aren't charged twice.
         if (u.getRazorpaySubscriptionId() != null && "active".equals(u.getSubscriptionStatus())) {
             try {

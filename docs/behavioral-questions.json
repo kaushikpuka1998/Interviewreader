@@ -1,0 +1,542 @@
+[
+  {
+    "id": "behavioral-1",
+    "tech": "behavioral",
+    "title": "Tell me about yourself.",
+    "question": "Tell me about yourself.",
+    "answer": "**What the interviewer is testing:** Whether you can give a crisp, relevant 2-minute narrative that sets up the rest of the interview.\n\n**How to structure it (STAR):**\n- Present: current role, scope, and the one thing you are known for\n- Past: 1-2 earlier experiences that explain how you got here\n- Future: why this role / company is the logical next step\n\n**Sample answer outline:**\n\n> I'm a backend engineer at X, owning the payments service that handles 4M transactions a day. Before that I built data pipelines at Y, which is where I got hooked on reliability. I'm looking for a team where I can own larger distributed systems, which is why this role stood out.\n\n**Pitfalls to avoid:**\n- Reading your resume line by line\n- Going past 2-3 minutes\n- Personal life story with no link to the job",
+    "difficulty": "Basic",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-2",
+    "tech": "behavioral",
+    "title": "Walk me through a project you are most proud of.",
+    "question": "Walk me through a project you are most proud of.",
+    "answer": "**What the interviewer is testing:** Depth of ownership, technical judgement, and whether you can explain impact in business terms.\n\n**How to structure it (STAR):**\n- Situation: the business problem and why it mattered\n- Task: your specific responsibility\n- Action: 2-3 key technical decisions and trade-offs you made\n- Result: quantified outcome (latency, cost, revenue, users)\n\n**Sample answer outline:**\n\n> Our checkout p99 was 2.4s and cart abandonment was rising. I owned the redesign: I moved price calculation behind a cache, split the monolith endpoint into two async calls, and added load tests to CI. p99 dropped to 600ms and abandonment fell 8% in a month.\n\n**Pitfalls to avoid:**\n- Saying 'we' for everything\n- No numbers in the result\n- Spending all the time on Situation",
+    "difficulty": "Basic",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-3",
+    "tech": "behavioral",
+    "title": "Tell me about a time you failed.",
+    "question": "Tell me about a time you failed.",
+    "answer": "**What the interviewer is testing:** Self-awareness, accountability, and whether you actually changed your behaviour afterwards.\n\n**How to structure it (STAR):**\n- Pick a real failure with real consequences (not a humble-brag)\n- Own your part clearly, without blaming others\n- Explain what you did to recover\n- End with the concrete change you made and evidence it worked\n\n**Sample answer outline:**\n\n> I shipped a schema migration without a rollback plan and it locked a hot table for 12 minutes in production. I led the incident, restored service, and wrote the postmortem. Since then every migration I write ships with an online-migration tool and a tested rollback, and I added that check to our PR template.\n\n**Pitfalls to avoid:**\n- Choosing a fake failure like 'I work too hard'\n- Blaming teammates or process\n- No lesson or no evidence the lesson stuck",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-4",
+    "tech": "behavioral",
+    "title": "Describe a conflict with a teammate and how you resolved it.",
+    "question": "Describe a conflict with a teammate and how you resolved it.",
+    "answer": "**What the interviewer is testing:** Emotional maturity, empathy, and whether you resolve disagreements with data rather than authority.\n\n**How to structure it (STAR):**\n- Situation: what the disagreement was about (keep it technical/professional)\n- Action: how you understood their view, 1:1 conversation, used data or a prototype\n- Result: the decision, and the state of the relationship afterwards\n\n**Sample answer outline:**\n\n> A senior teammate wanted to adopt GraphQL for a new service; I thought it added risk to our deadline. I asked to pair for an hour to understand his reasons, then we agreed on a one-day spike measuring both options. The data showed REST was faster for our use case, he agreed, and we later used GraphQL for the dashboard where it fit better.\n\n**Pitfalls to avoid:**\n- Making the other person the villain\n- A conflict that was never resolved\n- Escalating to the manager as the first step",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-5",
+    "tech": "behavioral",
+    "title": "Tell me about a time you disagreed with your manager.",
+    "question": "Tell me about a time you disagreed with your manager.",
+    "answer": "**What the interviewer is testing:** Whether you can push back respectfully and then commit once a decision is made.\n\n**How to structure it (STAR):**\n- State the decision and why you disagreed\n- Show how you raised it (privately, with data, offering alternatives)\n- Explain the outcome and how you committed either way\n\n**Sample answer outline:**\n\n> My manager wanted to skip load testing to hit a launch date. I showed a quick estimate that Black Friday traffic was 6x our tested peak and proposed a 2-day reduced test. He agreed; we found a connection-pool limit that would have caused an outage.\n\n**Pitfalls to avoid:**\n- Sounding resentful\n- Going around your manager\n- Not committing after being overruled",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-6",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had a very tight deadline.",
+    "question": "Tell me about a time you had a very tight deadline.",
+    "answer": "**What the interviewer is testing:** Prioritisation, scope negotiation and calm execution under pressure.\n\n**How to structure it (STAR):**\n- Context: what the deadline was and why it was fixed\n- Action: how you cut scope, parallelised, and communicated risk early\n- Result: what shipped, what was deferred, and the follow-up\n\n**Sample answer outline:**\n\n> A partner integration had to go live in 10 days for a contractual date. I split the work into must-have vs nice-to-have with the PM, took the riskiest piece myself, and posted a daily status. We shipped the core flow on day 9 and the reporting features two weeks later.\n\n**Pitfalls to avoid:**\n- Glorifying overtime as the only solution\n- Not mentioning trade-offs\n- Missing the deadline without having flagged it",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-7",
+    "tech": "behavioral",
+    "title": "Tell me about the most technically challenging problem you solved.",
+    "question": "Tell me about the most technically challenging problem you solved.",
+    "answer": "**What the interviewer is testing:** Depth: can you go 3-4 levels deep on the technical details and explain why your solution was right.\n\n**How to structure it (STAR):**\n- Explain the problem and constraints precisely\n- Show your debugging / investigation process\n- Explain the options you considered and why you chose one\n- Quantify the result\n\n**Sample answer outline:**\n\n> We had random 30s request stalls. I correlated them with GC logs, found a 6GB heap filled by a cache with no eviction, reproduced it with a heap dump, and replaced it with a bounded Caffeine cache plus metrics. Stalls disappeared and heap usage dropped 70%.\n\n**Pitfalls to avoid:**\n- Staying high level\n- Not explaining why alternatives were rejected\n- Skipping the result",
+    "difficulty": "Advanced",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-8",
+    "tech": "behavioral",
+    "title": "Tell me about a time you made a mistake in production.",
+    "question": "Tell me about a time you made a mistake in production.",
+    "answer": "**What the interviewer is testing:** Ownership and incident handling: detect, mitigate, communicate, prevent.\n\n**How to structure it (STAR):**\n- What happened and how it was detected\n- Immediate mitigation (rollback, feature flag)\n- Communication to stakeholders\n- Prevention: tests, alerts, process\n\n**Sample answer outline:**\n\n> I deployed a config change that sent 5% of emails to the wrong template. An alert caught it in 8 minutes; I rolled back, identified affected users, and we sent a correction. I added config validation in CI so a wrong template key now fails the build.\n\n**Pitfalls to avoid:**\n- Hiding or minimising the impact\n- No prevention step",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-9",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had to learn something quickly.",
+    "question": "Tell me about a time you had to learn something quickly.",
+    "answer": "**What the interviewer is testing:** Learning agility and how you get productive in unfamiliar territory.\n\n**How to structure it (STAR):**\n- What you had to learn and the time pressure\n- Your learning strategy (docs, experts, small prototypes)\n- How you applied it and the result\n\n**Sample answer outline:**\n\n> I joined a team using Kafka with no prior experience and was on-call in 3 weeks. I read the internals docs, built a toy producer/consumer, and shadowed two incidents. By week 3 I fixed a consumer-lag issue by tuning partition assignment.\n\n**Pitfalls to avoid:**\n- Saying 'I just read the docs'\n- No evidence you actually became effective",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-10",
+    "tech": "behavioral",
+    "title": "Describe a time you received critical feedback.",
+    "question": "Describe a time you received critical feedback.",
+    "answer": "**What the interviewer is testing:** Coachability and whether feedback actually changes your behaviour.\n\n**How to structure it (STAR):**\n- What the feedback was and who gave it\n- Your initial reaction (honest)\n- What you changed\n- Evidence the change worked\n\n**Sample answer outline:**\n\n> My lead told me my design docs were too long for reviewers. I started writing a one-page summary with a decision table at the top. Review turnaround dropped from a week to two days, and I now coach new hires on the same format.\n\n**Pitfalls to avoid:**\n- Being defensive\n- Feedback that was really a compliment",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-11",
+    "tech": "behavioral",
+    "title": "Tell me about a time you influenced without authority.",
+    "question": "Tell me about a time you influenced without authority.",
+    "answer": "**What the interviewer is testing:** Ability to drive change across teams using data, empathy and persuasion.\n\n**How to structure it (STAR):**\n- The change you wanted and who you needed to convince\n- How you built the case (data, prototype, allies)\n- How you handled objections\n- The outcome\n\n**Sample answer outline:**\n\n> I wanted three teams to adopt a shared retry library. I measured that 40% of our incidents were retry storms, built a drop-in library, migrated one team myself as a proof, and presented the before/after. All three teams adopted it within a quarter.\n\n**Pitfalls to avoid:**\n- Using your manager's authority\n- No data behind the proposal",
+    "difficulty": "Advanced",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-12",
+    "tech": "behavioral",
+    "title": "Tell me about a time you went above and beyond.",
+    "question": "Tell me about a time you went above and beyond.",
+    "answer": "**What the interviewer is testing:** Ownership beyond your job description and customer focus.\n\n**How to structure it (STAR):**\n- What was outside your scope\n- Why you chose to act\n- What you did and the impact\n\n**Sample answer outline:**\n\n> A customer escalation sat in the support queue over a weekend. Although I wasn't on-call, I saw it, found the bug was in my service, shipped a fix, and called the customer's engineer myself. They renewed a contract that was at risk.\n\n**Pitfalls to avoid:**\n- Implying you neglect your own work\n- No business impact",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-13",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had to make a decision with incomplete information.",
+    "question": "Tell me about a time you had to make a decision with incomplete information.",
+    "answer": "**What the interviewer is testing:** Judgement under ambiguity: reversible vs irreversible decisions, managing risk.\n\n**How to structure it (STAR):**\n- What was unknown and why you couldn't wait\n- How you bounded the risk (reversibility, flags, metrics)\n- What you decided and how you validated it\n\n**Sample answer outline:**\n\n> We had to pick a queue technology before load numbers were known. I chose SQS because it was cheaper to reverse, wrapped it behind an interface, and set a metric threshold to revisit. Six months later we stayed on SQS at 3x the original volume.\n\n**Pitfalls to avoid:**\n- Waiting for perfect data\n- Not explaining how you limited downside",
+    "difficulty": "Advanced",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-14",
+    "tech": "behavioral",
+    "title": "Tell me about a time you mentored someone.",
+    "question": "Tell me about a time you mentored someone.",
+    "answer": "**What the interviewer is testing:** Leadership and whether you multiply the team's output.\n\n**How to structure it (STAR):**\n- Who you mentored and what they needed\n- Your approach (pairing, stretch tasks, feedback)\n- Their measurable growth\n\n**Sample answer outline:**\n\n> I mentored a new grad who struggled with code reviews. We paired weekly, I gave her ownership of a small service, and reviewed her design docs. Within six months she led a feature end to end and was promoted.\n\n**Pitfalls to avoid:**\n- Taking credit for their success\n- Vague 'I helped them'",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-15",
+    "tech": "behavioral",
+    "title": "Tell me about a time you improved a process.",
+    "question": "Tell me about a time you improved a process.",
+    "answer": "**What the interviewer is testing:** Initiative and making the team more effective, not just yourself.\n\n**How to structure it (STAR):**\n- The pain point and its cost\n- What you changed\n- Adoption and measured improvement\n\n**Sample answer outline:**\n\n> Our deploys took 45 minutes and failed often. I parallelised the test suite and added flaky-test quarantine. Deploys dropped to 12 minutes and failed deploys fell 80%.\n\n**Pitfalls to avoid:**\n- No metric\n- A change only you used",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-16",
+    "tech": "behavioral",
+    "title": "How do you prioritise when everything is urgent?",
+    "question": "How do you prioritise when everything is urgent?",
+    "answer": "**What the interviewer is testing:** Frameworks for prioritisation and stakeholder communication.\n\n**How to structure it (STAR):**\n- Clarify impact and deadlines with stakeholders\n- Rank by impact vs effort / reversibility\n- Communicate what will slip and why\n- Give a real example\n\n**Sample answer outline:**\n\n> When three teams asked for features in the same sprint, I listed each with revenue impact and effort, reviewed with my manager, and told the third team it would ship two weeks later with a clear reason. No one was surprised and the top two shipped on time.\n\n**Pitfalls to avoid:**\n- Saying you just work harder\n- Not communicating trade-offs",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-17",
+    "tech": "behavioral",
+    "title": "Tell me about a time you handled a production incident.",
+    "question": "Tell me about a time you handled a production incident.",
+    "answer": "**What the interviewer is testing:** Calm execution, communication and blameless follow-up.\n\n**How to structure it (STAR):**\n- Detection and severity\n- Mitigation steps you led\n- Communication cadence\n- Root cause and prevention\n\n**Sample answer outline:**\n\n> Checkout errors spiked to 30% at 2am. As incident lead I rolled back the last deploy, which didn't help, then found a certificate expiry on a payment provider endpoint. We rotated it in 25 minutes, posted updates every 10, and added certificate-expiry alerts.\n\n**Pitfalls to avoid:**\n- Hero narrative without process\n- Blame",
+    "difficulty": "Advanced",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-18",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had to say no.",
+    "question": "Tell me about a time you had to say no.",
+    "answer": "**What the interviewer is testing:** Ability to protect focus and quality while keeping relationships.\n\n**How to structure it (STAR):**\n- The request and why it wasn't the right thing\n- How you said no (with reasoning and an alternative)\n- Outcome\n\n**Sample answer outline:**\n\n> Sales asked for a custom export for one client. I showed it would cost a sprint and offered a CSV endpoint instead that covered 90% of the need in two days. The client accepted and three others later used it too.\n\n**Pitfalls to avoid:**\n- A flat no with no alternative",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-19",
+    "tech": "behavioral",
+    "title": "Why do you want to work here?",
+    "question": "Why do you want to work here?",
+    "answer": "**What the interviewer is testing:** Genuine motivation and whether you researched the company.\n\n**How to structure it (STAR):**\n- Mission / product you connect with\n- Engineering challenges specific to this company\n- How it fits your growth\n\n**Sample answer outline:**\n\n> I use your product daily and I'm excited by the scale problems in your real-time infrastructure. My background in event-driven systems fits, and I want to grow toward owning systems at that scale.\n\n**Pitfalls to avoid:**\n- Generic answers that fit any company\n- Talking only about compensation or perks",
+    "difficulty": "Intermediate",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-20",
+    "tech": "behavioral",
+    "title": "Where do you see yourself in five years?",
+    "question": "Where do you see yourself in five years?",
+    "answer": "**What the interviewer is testing:** Ambition, alignment with the role, and likelihood you will stay and grow.\n\n**How to structure it (STAR):**\n- Growth in scope (technical depth or leadership)\n- Link it to what this role offers\n\n**Sample answer outline:**\n\n> I want to be the engineer teams rely on for the hardest distributed-systems problems, leading designs across teams. This role's scope is the right next step toward that.\n\n**Pitfalls to avoid:**\n- 'Running my own startup'\n- No link to the role",
+    "difficulty": "Basic",
+    "category": "Core STAR Stories"
+  },
+  {
+    "id": "behavioral-21",
+    "tech": "behavioral",
+    "title": "Tell me about a time you obsessed over a customer (Customer Obsession).",
+    "question": "Tell me about a time you obsessed over a customer (Customer Obsession).",
+    "answer": "**What the interviewer is testing:** Whether you start from the customer and work backwards, even against internal convenience.\n\n**How to structure it (STAR):**\n- Who the customer was and their pain\n- How you learned about it (data, direct contact)\n- What you changed\n- Customer-facing result\n\n**Sample answer outline:**\n\n> Support tickets showed sellers confused by payout delays. I added a payout timeline to the dashboard and proactive emails. Related tickets dropped 45%.\n\n**Pitfalls to avoid:**\n- Internal 'customers' only with no real impact\n- No data",
+    "difficulty": "Intermediate",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-22",
+    "tech": "behavioral",
+    "title": "Tell me about a time you took ownership of something outside your area (Ownership).",
+    "question": "Tell me about a time you took ownership of something outside your area (Ownership).",
+    "answer": "**What the interviewer is testing:** Acting on behalf of the whole company and never saying 'that's not my job'.\n\n**How to structure it (STAR):**\n- The problem nobody owned\n- Why you stepped in\n- Actions and long-term fix\n\n**Sample answer outline:**\n\n> Our shared CI was flaky and no team owned it. I tracked flaky tests for two weeks, fixed the top 10, and set up a rotation. Build success rose from 70% to 97%.\n\n**Pitfalls to avoid:**\n- Abandoning your own commitments",
+    "difficulty": "Intermediate",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-23",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had to Dive Deep to find a root cause.",
+    "question": "Tell me about a time you had to Dive Deep to find a root cause.",
+    "answer": "**What the interviewer is testing:** Whether you go to the data and details instead of accepting surface explanations.\n\n**How to structure it (STAR):**\n- Symptom and the easy (wrong) explanation\n- How you dug: logs, metrics, queries\n- Real root cause and fix\n\n**Sample answer outline:**\n\n> Revenue dashboards were 2% off. Everyone blamed rounding. I diffed raw events and found a timezone bug double-counting midnight orders. Fixed and back-filled.\n\n**Pitfalls to avoid:**\n- Stopping at the first plausible answer",
+    "difficulty": "Advanced",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-24",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had a Bias for Action.",
+    "question": "Tell me about a time you had a Bias for Action.",
+    "answer": "**What the interviewer is testing:** Making calculated decisions fast when the decision is reversible.\n\n**How to structure it (STAR):**\n- Situation where waiting was costly\n- Why the decision was reversible\n- Action and result\n\n**Sample answer outline:**\n\n> A vendor API degraded on a Friday. Instead of waiting for their fix, I put a feature flag to route to our fallback provider within an hour. Zero failed orders that weekend.\n\n**Pitfalls to avoid:**\n- Recklessness on irreversible decisions",
+    "difficulty": "Intermediate",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-25",
+    "tech": "behavioral",
+    "title": "Tell me about a time you disagreed and committed (Have Backbone; Disagree and Commit).",
+    "question": "Tell me about a time you disagreed and committed (Have Backbone; Disagree and Commit).",
+    "answer": "**What the interviewer is testing:** Challenging decisions respectfully, then fully committing.\n\n**How to structure it (STAR):**\n- Decision and your objection\n- How you raised it with data\n- How you committed and delivered\n\n**Sample answer outline:**\n\n> I argued against a monorepo migration timeline. I was overruled, so I volunteered to own the tooling and we delivered on time, with my risk list used as the checklist.\n\n**Pitfalls to avoid:**\n- Passive-aggressive compliance",
+    "difficulty": "Advanced",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-26",
+    "tech": "behavioral",
+    "title": "Tell me about a time you delivered results despite obstacles (Deliver Results).",
+    "question": "Tell me about a time you delivered results despite obstacles (Deliver Results).",
+    "answer": "**What the interviewer is testing:** Focus on the key inputs and delivering with quality and on time.\n\n**How to structure it (STAR):**\n- Goal and obstacles\n- How you adapted\n- Delivered result with numbers\n\n**Sample answer outline:**\n\n> Two engineers left mid-project. I re-scoped with the PM, automated our manual testing, and we launched only one week late with all P0 features.\n\n**Pitfalls to avoid:**\n- Excuses",
+    "difficulty": "Intermediate",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-27",
+    "tech": "behavioral",
+    "title": "Tell me about a time you simplified something (Invent and Simplify).",
+    "question": "Tell me about a time you simplified something (Invent and Simplify).",
+    "answer": "**What the interviewer is testing:** Innovation and reducing complexity.\n\n**How to structure it (STAR):**\n- The complex status quo\n- Your simpler idea\n- Adoption and impact\n\n**Sample answer outline:**\n\n> We had 4 services for notifications. I proposed one service with pluggable channels; we removed 12k lines and cut on-call pages by half.\n\n**Pitfalls to avoid:**\n- Complexity for its own sake",
+    "difficulty": "Advanced",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-28",
+    "tech": "behavioral",
+    "title": "Tell me about a time you earned the trust of a skeptical stakeholder (Earn Trust).",
+    "question": "Tell me about a time you earned the trust of a skeptical stakeholder (Earn Trust).",
+    "answer": "**What the interviewer is testing:** Listening, candour, and admitting mistakes.\n\n**How to structure it (STAR):**\n- Who was skeptical and why\n- How you built trust\n- Outcome\n\n**Sample answer outline:**\n\n> The finance team distrusted our numbers after an error. I shared weekly reconciliation reports and admitted the past bug openly. Within two months they used our data for the board deck.\n\n**Pitfalls to avoid:**\n- Overpromising",
+    "difficulty": "Intermediate",
+    "category": "Amazon Leadership Principles"
+  },
+  {
+    "id": "behavioral-29",
+    "tech": "behavioral",
+    "title": "Tell me about a time you navigated a highly ambiguous problem.",
+    "question": "Tell me about a time you navigated a highly ambiguous problem.",
+    "answer": "**What the interviewer is testing:** Comfort with ambiguity and structuring an unclear problem.\n\n**How to structure it (STAR):**\n- What was ambiguous\n- How you clarified goals and constraints\n- How you made progress incrementally\n\n**Sample answer outline:**\n\n> I was asked to 'improve search quality' with no metric. I defined three proxy metrics with the PM, ran a small A/B test, and iterated. Click-through improved 6%.\n\n**Pitfalls to avoid:**\n- Waiting for someone to define the problem",
+    "difficulty": "Intermediate",
+    "category": "Googleyness & Leadership"
+  },
+  {
+    "id": "behavioral-30",
+    "tech": "behavioral",
+    "title": "Tell me about a time you helped a teammate succeed.",
+    "question": "Tell me about a time you helped a teammate succeed.",
+    "answer": "**What the interviewer is testing:** Collaboration and caring about others' success.\n\n**How to structure it (STAR):**\n- Teammate's challenge\n- What you did\n- Their outcome\n\n**Sample answer outline:**\n\n> A teammate was stuck on a migration. I paired with him for two afternoons and wrote a runbook together. He finished the migration and later presented it to the org.\n\n**Pitfalls to avoid:**\n- Taking credit",
+    "difficulty": "Intermediate",
+    "category": "Googleyness & Leadership"
+  },
+  {
+    "id": "behavioral-31",
+    "tech": "behavioral",
+    "title": "Tell me about a time you did the right thing even when it was hard.",
+    "question": "Tell me about a time you did the right thing even when it was hard.",
+    "answer": "**What the interviewer is testing:** Integrity and user trust.\n\n**How to structure it (STAR):**\n- The pressure to cut a corner\n- Your decision and reasoning\n- Consequences\n\n**Sample answer outline:**\n\n> We could launch faster by logging raw user emails. I pushed back, proposed hashing, and delayed by two days. Privacy review later flagged similar launches that had to roll back.\n\n**Pitfalls to avoid:**\n- Moralising without action",
+    "difficulty": "Advanced",
+    "category": "Googleyness & Leadership"
+  },
+  {
+    "id": "behavioral-32",
+    "tech": "behavioral",
+    "title": "Tell me about a time you challenged the status quo.",
+    "question": "Tell me about a time you challenged the status quo.",
+    "answer": "**What the interviewer is testing:** Intellectual humility combined with courage to question assumptions.\n\n**How to structure it (STAR):**\n- The assumption\n- Evidence you gathered\n- Result\n\n**Sample answer outline:**\n\n> Everyone assumed our cache was needed. I measured hit rate at 4%, removed it in a canary, and latency stayed flat. We deleted 3k lines and a Redis cluster.\n\n**Pitfalls to avoid:**\n- Arrogance",
+    "difficulty": "Intermediate",
+    "category": "Googleyness & Leadership"
+  },
+  {
+    "id": "behavioral-33",
+    "tech": "behavioral",
+    "title": "Tell me about a time you worked with a diverse team.",
+    "question": "Tell me about a time you worked with a diverse team.",
+    "answer": "**What the interviewer is testing:** Inclusion and getting the best from different perspectives.\n\n**How to structure it (STAR):**\n- Team composition and challenge\n- How you included perspectives\n- Better outcome\n\n**Sample answer outline:**\n\n> Our team spanned 3 timezones; async decisions excluded the India team. I moved design reviews to written docs with a 48h comment window. Participation doubled.\n\n**Pitfalls to avoid:**\n- Token answers",
+    "difficulty": "Intermediate",
+    "category": "Googleyness & Leadership"
+  },
+  {
+    "id": "behavioral-34",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had to learn from a hint or feedback during problem solving.",
+    "question": "Tell me about a time you had to learn from a hint or feedback during problem solving.",
+    "answer": "**What the interviewer is testing:** Coachability in real time, a core Google interview signal.\n\n**How to structure it (STAR):**\n- What you were stuck on\n- The hint\n- How you incorporated it\n\n**Sample answer outline:**\n\n> During a design review a staff engineer asked about write amplification. I hadn't considered it, re-ran the numbers, and switched to an LSM-based store, which halved our disk costs.\n\n**Pitfalls to avoid:**\n- Defensiveness",
+    "difficulty": "Advanced",
+    "category": "Googleyness & Leadership"
+  },
+  {
+    "id": "behavioral-35",
+    "tech": "behavioral",
+    "title": "Tell me about a time you moved fast to ship something.",
+    "question": "Tell me about a time you moved fast to ship something.",
+    "answer": "**What the interviewer is testing:** Velocity and pragmatic trade-offs.\n\n**How to structure it (STAR):**\n- Why speed mattered\n- What you cut and what you kept\n- Impact and follow-up\n\n**Sample answer outline:**\n\n> To beat a competitor launch, we shipped a v1 with manual moderation instead of ML. It launched in 3 weeks; we added ML in v2 using the labels collected.\n\n**Pitfalls to avoid:**\n- Shipping broken quality",
+    "difficulty": "Intermediate",
+    "category": "Meta Values & Impact"
+  },
+  {
+    "id": "behavioral-36",
+    "tech": "behavioral",
+    "title": "Tell me about your most impactful project.",
+    "question": "Tell me about your most impactful project.",
+    "answer": "**What the interviewer is testing:** Scale of impact, measured in metrics Meta cares about.\n\n**How to structure it (STAR):**\n- Problem and metric\n- Your role\n- Impact numbers\n\n**Sample answer outline:**\n\n> I rebuilt the notification ranking, raising daily actives by 0.8% across 50M users.\n\n**Pitfalls to avoid:**\n- No numbers",
+    "difficulty": "Advanced",
+    "category": "Meta Values & Impact"
+  },
+  {
+    "id": "behavioral-37",
+    "tech": "behavioral",
+    "title": "Tell me about a time you resolved cross-team friction.",
+    "question": "Tell me about a time you resolved cross-team friction.",
+    "answer": "**What the interviewer is testing:** Collaboration at scale and direct communication.\n\n**How to structure it (STAR):**\n- Teams involved and the friction\n- Your approach\n- Outcome\n\n**Sample answer outline:**\n\n> Two teams fought over API ownership. I set up a shared doc defining contracts and an SLA; integration bugs dropped by half.\n\n**Pitfalls to avoid:**\n- Taking sides",
+    "difficulty": "Intermediate",
+    "category": "Meta Values & Impact"
+  },
+  {
+    "id": "behavioral-38",
+    "tech": "behavioral",
+    "title": "Tell me about a time you were bold and took a risk.",
+    "question": "Tell me about a time you were bold and took a risk.",
+    "answer": "**What the interviewer is testing:** Willingness to bet on big ideas.\n\n**How to structure it (STAR):**\n- The risky bet\n- How you de-risked it\n- Outcome (even if it failed)\n\n**Sample answer outline:**\n\n> I proposed rewriting a legacy service in a new language. I de-risked with a shadow-traffic rollout; it cut CPU 40%.\n\n**Pitfalls to avoid:**\n- Recklessness",
+    "difficulty": "Intermediate",
+    "category": "Meta Values & Impact"
+  },
+  {
+    "id": "behavioral-39",
+    "tech": "behavioral",
+    "title": "Tell me about a time you gave direct feedback to a peer.",
+    "question": "Tell me about a time you gave direct feedback to a peer.",
+    "answer": "**What the interviewer is testing:** Being direct and respectful.\n\n**How to structure it (STAR):**\n- The issue\n- How you delivered feedback\n- Change it produced\n\n**Sample answer outline:**\n\n> A peer's PRs were too large to review. I told him privately with examples and suggested stacking. His review time halved.\n\n**Pitfalls to avoid:**\n- Avoiding the conversation",
+    "difficulty": "Intermediate",
+    "category": "Meta Values & Impact"
+  },
+  {
+    "id": "behavioral-40",
+    "tech": "behavioral",
+    "title": "How do you decide what not to work on?",
+    "question": "How do you decide what not to work on?",
+    "answer": "**What the interviewer is testing:** Focus on long-term impact and prioritisation.\n\n**How to structure it (STAR):**\n- Your prioritisation framework\n- An example of dropping work\n- Result\n\n**Sample answer outline:**\n\n> I scored ideas by impact and confidence; we dropped a dashboard redesign to focus on a latency fix that moved retention.\n\n**Pitfalls to avoid:**\n- Doing everything",
+    "difficulty": "Advanced",
+    "category": "Meta Values & Impact"
+  },
+  {
+    "id": "behavioral-41",
+    "tech": "behavioral",
+    "title": "Tell me about a time you learned from a failure.",
+    "question": "Tell me about a time you learned from a failure.",
+    "answer": "**What the interviewer is testing:** Growth mindset: treating failure as learning.\n\n**How to structure it (STAR):**\n- The failure\n- What you learned\n- How you applied it later\n\n**Sample answer outline:**\n\n> My first launch had no telemetry so we couldn't tell why adoption was low. Since then every feature I ship has success metrics defined in the spec.\n\n**Pitfalls to avoid:**\n- Fixed-mindset framing",
+    "difficulty": "Intermediate",
+    "category": "Microsoft Growth Mindset"
+  },
+  {
+    "id": "behavioral-42",
+    "tech": "behavioral",
+    "title": "Tell me about a time you showed empathy for a customer.",
+    "question": "Tell me about a time you showed empathy for a customer.",
+    "answer": "**What the interviewer is testing:** Customer empathy and listening.\n\n**How to structure it (STAR):**\n- Customer situation\n- What you learned by listening\n- What you changed\n\n**Sample answer outline:**\n\n> I sat in on support calls and saw admins struggling with bulk setup. I built a CSV import; onboarding time fell 60%.\n\n**Pitfalls to avoid:**\n- Abstract answers",
+    "difficulty": "Intermediate",
+    "category": "Microsoft Growth Mindset"
+  },
+  {
+    "id": "behavioral-43",
+    "tech": "behavioral",
+    "title": "Tell me about a time you collaborated across teams to deliver.",
+    "question": "Tell me about a time you collaborated across teams to deliver.",
+    "answer": "**What the interviewer is testing:** One Microsoft collaboration.\n\n**How to structure it (STAR):**\n- Teams and goal\n- Coordination approach\n- Result\n\n**Sample answer outline:**\n\n> I coordinated identity and storage teams for SSO in our file app with a weekly sync and a shared test plan. We shipped on schedule.\n\n**Pitfalls to avoid:**\n- Solo-hero story",
+    "difficulty": "Intermediate",
+    "category": "Microsoft Growth Mindset"
+  },
+  {
+    "id": "behavioral-44",
+    "tech": "behavioral",
+    "title": "Tell me about a time you raised the quality bar for code.",
+    "question": "Tell me about a time you raised the quality bar for code.",
+    "answer": "**What the interviewer is testing:** Engineering quality, testing and maintainability.\n\n**How to structure it (STAR):**\n- Quality problem\n- What you introduced (tests, reviews, linting)\n- Measured improvement\n\n**Sample answer outline:**\n\n> I introduced contract tests between services, which caught 12 breaking changes before release in the first quarter.\n\n**Pitfalls to avoid:**\n- No measurement",
+    "difficulty": "Advanced",
+    "category": "Microsoft Growth Mindset"
+  },
+  {
+    "id": "behavioral-45",
+    "tech": "behavioral",
+    "title": "How do you handle a teammate who is struggling?",
+    "question": "How do you handle a teammate who is struggling?",
+    "answer": "**What the interviewer is testing:** Empathy and helping others grow.\n\n**How to structure it (STAR):**\n- Noticing the struggle\n- Supportive actions\n- Outcome\n\n**Sample answer outline:**\n\n> I noticed a teammate missing standups. I asked privately, learned he was overwhelmed, and helped split his work. He recovered and shipped.\n\n**Pitfalls to avoid:**\n- Going to the manager first",
+    "difficulty": "Intermediate",
+    "category": "Microsoft Growth Mindset"
+  },
+  {
+    "id": "behavioral-46",
+    "tech": "behavioral",
+    "title": "Tell me about a production incident you owned end to end.",
+    "question": "Tell me about a production incident you owned end to end.",
+    "answer": "**What the interviewer is testing:** Ownership, operational excellence and postmortem culture.\n\n**How to structure it (STAR):**\n- Detection\n- Mitigation\n- Root cause\n- Prevention\n\n**Sample answer outline:**\n\n> Surge pricing froze in one city. I led mitigation by falling back to the last good multiplier, found a stuck Kafka consumer, and added lag alerts and auto-restart.\n\n**Pitfalls to avoid:**\n- Blame",
+    "difficulty": "Advanced",
+    "category": "Uber Ownership & Bar Raiser"
+  },
+  {
+    "id": "behavioral-47",
+    "tech": "behavioral",
+    "title": "Tell me about a data-driven decision you made.",
+    "question": "Tell me about a data-driven decision you made.",
+    "answer": "**What the interviewer is testing:** Using data over opinion.\n\n**How to structure it (STAR):**\n- The decision\n- Data gathered\n- Outcome\n\n**Sample answer outline:**\n\n> We debated a matching radius. I ran a simulation on historical trips; a 1.5km radius cut wait time 12% without raising cancellations.\n\n**Pitfalls to avoid:**\n- Gut feel only",
+    "difficulty": "Intermediate",
+    "category": "Uber Ownership & Bar Raiser"
+  },
+  {
+    "id": "behavioral-48",
+    "tech": "behavioral",
+    "title": "Tell me about a time you raised the bar for your team.",
+    "question": "Tell me about a time you raised the bar for your team.",
+    "answer": "**What the interviewer is testing:** High standards.\n\n**How to structure it (STAR):**\n- Standard that was low\n- What you changed\n- Result\n\n**Sample answer outline:**\n\n> I introduced design reviews for every service change; incidents from config changes dropped 40%.\n\n**Pitfalls to avoid:**\n- Gatekeeping",
+    "difficulty": "Intermediate",
+    "category": "Uber Ownership & Bar Raiser"
+  },
+  {
+    "id": "behavioral-49",
+    "tech": "behavioral",
+    "title": "Tell me about a time you worked with product and operations.",
+    "question": "Tell me about a time you worked with product and operations.",
+    "answer": "**What the interviewer is testing:** Cross-functional collaboration.\n\n**How to structure it (STAR):**\n- Stakeholders\n- How you aligned\n- Result\n\n**Sample answer outline:**\n\n> Ops needed driver payout fixes; I joined their weekly calls, prioritised top issues and cut payout disputes 30%.\n\n**Pitfalls to avoid:**\n- Ignoring non-engineers",
+    "difficulty": "Intermediate",
+    "category": "Uber Ownership & Bar Raiser"
+  },
+  {
+    "id": "behavioral-50",
+    "tech": "behavioral",
+    "title": "Tell me about a time you had to balance speed with safety.",
+    "question": "Tell me about a time you had to balance speed with safety.",
+    "answer": "**What the interviewer is testing:** Judgement in high-stakes systems (payments, safety).\n\n**How to structure it (STAR):**\n- The trade-off\n- How you reduced risk\n- Result\n\n**Sample answer outline:**\n\n> For a payments change I used a 1% canary with automatic rollback on error rate. We caught a currency bug at 1% instead of 100%.\n\n**Pitfalls to avoid:**\n- Choosing speed blindly",
+    "difficulty": "Advanced",
+    "category": "Uber Ownership & Bar Raiser"
+  },
+  {
+    "id": "behavioral-51",
+    "tech": "behavioral",
+    "title": "Tell me about a decision you made without needing approval.",
+    "question": "Tell me about a decision you made without needing approval.",
+    "answer": "**What the interviewer is testing:** Freedom & Responsibility: acting with context, owning the outcome.\n\n**How to structure it (STAR):**\n- Context you had\n- Decision\n- Outcome and accountability\n\n**Sample answer outline:**\n\n> I switched our team's CDN cache rules after measuring hit ratio, informed stakeholders, and tracked results. Egress cost fell 18%.\n\n**Pitfalls to avoid:**\n- Recklessness\n- No accountability",
+    "difficulty": "Advanced",
+    "category": "Netflix Culture (Freedom & Responsibility)"
+  },
+  {
+    "id": "behavioral-52",
+    "tech": "behavioral",
+    "title": "Tell me about candid feedback you gave to someone senior.",
+    "question": "Tell me about candid feedback you gave to someone senior.",
+    "answer": "**What the interviewer is testing:** Candour and courage.\n\n**How to structure it (STAR):**\n- The issue\n- How you gave feedback\n- Result\n\n**Sample answer outline:**\n\n> I told my director our roadmap had too many parallel bets. I backed it with velocity data; we cut two projects and shipped the rest faster.\n\n**Pitfalls to avoid:**\n- Avoiding hard truths",
+    "difficulty": "Intermediate",
+    "category": "Netflix Culture (Freedom & Responsibility)"
+  },
+  {
+    "id": "behavioral-53",
+    "tech": "behavioral",
+    "title": "Tell me about a time you provided context instead of control.",
+    "question": "Tell me about a time you provided context instead of control.",
+    "answer": "**What the interviewer is testing:** Leading through context.\n\n**How to structure it (STAR):**\n- Situation\n- Context you shared\n- How the team decided\n\n**Sample answer outline:**\n\n> Instead of dictating a design, I shared the latency budget and traffic data; the team chose a solution I hadn't thought of that was simpler.\n\n**Pitfalls to avoid:**\n- Micromanagement",
+    "difficulty": "Intermediate",
+    "category": "Netflix Culture (Freedom & Responsibility)"
+  },
+  {
+    "id": "behavioral-54",
+    "tech": "behavioral",
+    "title": "Tell me about the hardest technical trade-off you made in a distributed system.",
+    "question": "Tell me about the hardest technical trade-off you made in a distributed system.",
+    "answer": "**What the interviewer is testing:** Senior-level judgement and production battle scars.\n\n**How to structure it (STAR):**\n- Constraints\n- Options and trade-offs\n- Decision and results\n\n**Sample answer outline:**\n\n> I chose eventual consistency for watch history to survive region failures, adding client-side reconciliation. Availability rose to 99.99%.\n\n**Pitfalls to avoid:**\n- No real trade-off",
+    "difficulty": "Advanced",
+    "category": "Netflix Culture (Freedom & Responsibility)"
+  },
+  {
+    "id": "behavioral-55",
+    "tech": "behavioral",
+    "title": "How do you keep your skills sharp and stay a 'stunning colleague'?",
+    "question": "How do you keep your skills sharp and stay a 'stunning colleague'?",
+    "answer": "**What the interviewer is testing:** Self-driven growth and high performance.\n\n**How to structure it (STAR):**\n- Concrete habits\n- Recent example of applying new knowledge\n\n**Sample answer outline:**\n\n> I read one postmortem a week from other companies; one inspired our retry-budget change that prevented a cascading failure.\n\n**Pitfalls to avoid:**\n- Vague answers",
+    "difficulty": "Intermediate",
+    "category": "Netflix Culture (Freedom & Responsibility)"
+  },
+  {
+    "id": "behavioral-56",
+    "tech": "behavioral",
+    "title": "Tell me about a time you were open and transparent about a problem (Open Company, No Bullshit).",
+    "question": "Tell me about a time you were open and transparent about a problem (Open Company, No Bullshit).",
+    "answer": "**What the interviewer is testing:** Transparency and candour.\n\n**How to structure it (STAR):**\n- Problem\n- How you communicated it\n- Result\n\n**Sample answer outline:**\n\n> I discovered our sprint commitment was unrealistic and told stakeholders on day 2 with a revised plan. They re-planned and trusted our next estimates.\n\n**Pitfalls to avoid:**\n- Hiding bad news",
+    "difficulty": "Intermediate",
+    "category": "Atlassian Values"
+  },
+  {
+    "id": "behavioral-57",
+    "tech": "behavioral",
+    "title": "Tell me about a time you played as a team.",
+    "question": "Tell me about a time you played as a team.",
+    "answer": "**What the interviewer is testing:** Team-first behaviour.\n\n**How to structure it (STAR):**\n- Team goal\n- Your contribution beyond your task\n- Team result\n\n**Sample answer outline:**\n\n> I paused my feature to help QA clear a release-blocking backlog; we shipped on time.\n\n**Pitfalls to avoid:**\n- Lone hero",
+    "difficulty": "Intermediate",
+    "category": "Atlassian Values"
+  },
+  {
+    "id": "behavioral-58",
+    "tech": "behavioral",
+    "title": "Tell me about a time you were the change you seek.",
+    "question": "Tell me about a time you were the change you seek.",
+    "answer": "**What the interviewer is testing:** Proactively improving things.\n\n**How to structure it (STAR):**\n- What frustrated you\n- What you did\n- Result\n\n**Sample answer outline:**\n\n> Onboarding took two weeks. I wrote a setup script and docs; new hires shipped code on day two.\n\n**Pitfalls to avoid:**\n- Complaining without acting",
+    "difficulty": "Intermediate",
+    "category": "Atlassian Values"
+  },
+  {
+    "id": "behavioral-59",
+    "tech": "behavioral",
+    "title": "Tell me about a time you received critique on your code and how you handled it.",
+    "question": "Tell me about a time you received critique on your code and how you handled it.",
+    "answer": "**What the interviewer is testing:** Constructive code critique and humility.\n\n**How to structure it (STAR):**\n- The critique\n- Response\n- Learning\n\n**Sample answer outline:**\n\n> A reviewer said my class violated single responsibility. I split it into two, added tests, and later the split made a feature twice as easy to add.\n\n**Pitfalls to avoid:**\n- Defensiveness",
+    "difficulty": "Advanced",
+    "category": "Atlassian Values"
+  },
+  {
+    "id": "behavioral-60",
+    "tech": "behavioral",
+    "title": "Tell me about a time you balanced building with heart and keeping balance.",
+    "question": "Tell me about a time you balanced building with heart and keeping balance.",
+    "answer": "**What the interviewer is testing:** Customer care plus sustainable pace.\n\n**How to structure it (STAR):**\n- Situation\n- How you cared for customers and the team\n- Outcome\n\n**Sample answer outline:**\n\n> During a big launch I set up an on-call rotation so nobody worked weekends twice, and we still met our customer SLA.\n\n**Pitfalls to avoid:**\n- Burnout as a badge",
+    "difficulty": "Intermediate",
+    "category": "Atlassian Values"
+  }
+]

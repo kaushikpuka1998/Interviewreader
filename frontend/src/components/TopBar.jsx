@@ -21,6 +21,11 @@ const NAV = [
   ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
 ]
 
+// Small pill next to a nav label (Premium / Hot / New): one height and baseline for all of them.
+const NavBadge = ({ className, children }) => (
+  <span className={`inline-flex h-[18px] items-center gap-0.5 rounded-full px-2 text-[10px] font-bold uppercase leading-none tracking-wide shadow-sm ${className}`}>{children}</span>
+)
+
 function NavLink({ label, href, flag, badge, premium, path, features, mobile = false }) {
   if (flag && features[flag] === false) return null
   const active = href === '/questions'
@@ -39,12 +44,17 @@ function NavLink({ label, href, flag, badge, premium, path, features, mobile = f
       href={href}
       onClick={handleClick}
       aria-current={active ? 'page' : undefined}
-      className={`whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex items-center px-3 py-2.5 text-base' : 'px-2.5 py-1.5 xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : 'inline-flex px-2.5 py-1.5 xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
       {label}
-      {premium && <span className="ml-1.5 rounded-full bg-gradient-to-r from-amber-400 to-pink-500 px-1.5 py-0.5 align-middle text-[10px] font-bold text-white">Premium</span>}
-      {badge === 'hot' && <span className="ml-1.5 rounded-full bg-gradient-to-r from-orange-500 to-rose-600 px-1.5 py-0.5 align-middle text-[10px] font-bold text-white">🔥 Hot</span>}
-      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <span className="ml-1.5 rounded-full bg-amber-400 px-1.5 py-0.5 align-middle text-[10px] font-bold text-amber-950">New</span>}
+      {premium && <NavBadge className="bg-gradient-to-r from-amber-500 to-pink-600 text-white">Premium</NavBadge>}
+      {badge === 'hot' && (
+        <NavBadge className="bg-gradient-to-r from-orange-500 to-rose-600 text-white">
+          <svg viewBox="0 0 24 24" className="-ml-0.5 h-3 w-3" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.5 0 2.2-1.2 2.2-2.6 2 1.7 3 4 3 6.1A6 6 0 0 1 6 15.5C6 10 12 8 12 2z" /></svg>
+          Hot
+        </NavBadge>
+      )}
+      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <NavBadge className="bg-amber-400 text-amber-950">New</NavBadge>}
     </a>
   )
 }

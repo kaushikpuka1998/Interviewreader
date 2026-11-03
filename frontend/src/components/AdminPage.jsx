@@ -1,3 +1,4 @@
+import PremiumAdmin from './PremiumAdmin.jsx'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getUser, isLoggedIn, logout } from '../lib/auth.js'
 import { createQuestion, createQuestionsBulk, updateQuestion, deleteQuestion, uploadImage } from '../lib/auth.js'
@@ -333,7 +334,7 @@ export default function AdminPage() {
   return (
     <Shell tabWide={tab === "analytics"}>
       <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback', 'Feedback'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
+        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback', 'Feedback'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['premium', 'Premium'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
           <button key={t} onClick={() => { setTab(t); setMsg(null) }}
             className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
             {label}
@@ -389,6 +390,7 @@ export default function AdminPage() {
       {tab === 'templates' && <ResumeTemplatesAdmin />}
       {tab === 'coding' && <CodingProblemsAdmin onExport={() => { setExportSource('coding'); setTab('export') }} />}
       {tab === 'features' && <FeatureFlagsPanel />}
+      {tab === 'premium' && <PremiumAdmin />}
 
       {tab === 'suggestions' && <SuggestionsPanel />}
       {tab === 'feedback' && <FeedbackPanel />}

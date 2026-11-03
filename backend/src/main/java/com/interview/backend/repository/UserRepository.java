@@ -83,4 +83,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @org.springframework.data.jpa.repository.Query(
             "SELECT u.country, COUNT(u) FROM User u GROUP BY u.country ORDER BY COUNT(u) DESC")
     List<Object[]> countByCountry();
+
+    // Admin Premium tab: members matching an email, name or username, and everyone on Premium right now.
+    @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.name) LIKE LOWER(CONCAT('%', :q, '%')) " +
+           "OR LOWER(u.username) LIKE LOWER(CONCAT('%', :q, '%')) ORDER BY u.createdAt DESC")
+    List<User> searchMembers(@org.springframework.data.repository.query.Param("q") String q, Pageable pageable);
+
+    List<User> findByPremiumUntilAfterOrderByPremiumUntilDesc(Instant now);
 }
