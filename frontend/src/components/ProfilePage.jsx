@@ -16,6 +16,7 @@ import { updateUsername, fetchNotes, saveNote, removeNote } from '../lib/auth.js
 import { cancelSubscription, cancelPracticePlan, cancelInterviewPlan, PREMIUM_PLAN_NAMES } from '../lib/billing.js'
 import { fetchInterviewQuota } from '../lib/interviews.js'
 import { fetchPracticeQuota } from '../lib/designPractice.js'
+import { fetchPoints } from '../lib/points.js'
 
 export const TECH_COLOR = {
   java: 'bg-orange-500', react: 'bg-cyan-500', node: 'bg-green-500', sql: 'bg-purple-500',
@@ -302,7 +303,11 @@ export default function ProfilePage() {
   const [visited, setVisited] = useState(() => cache?.visited ?? [])
   const [coding, setCoding] = useState(null)   // { solved, total } for the coding problems
   const [visitedLoaded, setVisitedLoaded] = useState(false)   // the visited list loads when its tab is opened
-  const [listFilter, setListFilter] = useState('solved')   // which tab of the bottom panel is open
+  // Which tab of the bottom panel is open; /profile?tab=notes (from the account menu) opens that tab.
+  const [listFilter, setListFilter] = useState(() => {
+    const t = new URLSearchParams(window.location.search).get('tab')
+    return ['solved', 'visited', 'flagged', 'important', 'notes'].includes(t) ? t : 'solved'
+  })
   useEffect(() => {
     if (listFilter !== 'visited' || visitedLoaded) return
     let alive = true
@@ -402,7 +407,7 @@ export default function ProfilePage() {
               <LeagueBadge league={profile.league} size="xs" />
               <span className="leading-tight">
                 <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">{profile.league}</span>
-                <span className="block text-[11px] tabular-nums text-slate-500 dark:text-slate-400">{profile.weeklyXp} XP this week</span>
+                <span className="block text-[11px] tabular-nums text-slate-500 dark:text-slate-400">{profile.weeklyXp} points this week</span>
               </span>
             </a>
           )}
@@ -428,7 +433,8 @@ export default function ProfilePage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <StreakCard />
         <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
           <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Solved by technology</h3>
           {topics.length === 0 ? <p className="text-sm text-slate-400">Nothing solved yet.</p> : (
@@ -513,6 +519,35 @@ function Shell({ children }) {
       <div className="mx-auto flex max-w-6xl flex-col gap-3 p-4">
         {children}
       </div>
+    </div>
+  )
+}
+
+// Streak and points: current and best streak, this week's points by kind, the next milestone.
+const KIND = { login: ['📅', 'Daily sign-ins'], read: ['📖', 'New questions read'], solve: ['💻', 'Problems solved'], streak: ['🔥', 'Streak bonuses'] }
+function StreakCard() {
+  const [d, setD] = useState(null)
+  useEffect(() => { fetchPoints().then(setD).catch(() => {}) }, [])
+  return (
+    <div className="rounded-xl border border-orange-200/70 bg-gradient-to-br from-orange-50 to-white p-3 dark:border-orange-500/20 dark:from-orange-500/10 dark:to-slate-950">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Streak & points</h3>
+        <a href="/leaderboard" className="text-[11px] font-semibold text-orange-600 hover:underline dark:text-orange-400">Leaderboard →</a>
+      </div>
+      {!d ? <p className="text-sm text-slate-400">Loading…</p> : (
+        <>
+          <div className="flex items-end gap-4">
+            <div><p className="text-2xl font-bold tabular-nums text-orange-500">🔥 {d.streak}</p><p className="text-[11px] text-slate-500 dark:text-slate-400">day streak · best {d.best}</p></div>
+            <div><p className="text-2xl font-bold tabular-nums text-amber-500">⭐ {d.weekPoints}</p><p className="text-[11px] text-slate-500 dark:text-slate-400">this week · {d.totalPoints} all time</p></div>
+          </div>
+          <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-slate-600 dark:text-slate-300">
+            {Object.entries(KIND).map(([k, [icon, label]]) => (
+              <li key={k} className="flex justify-between"><span>{icon} {label}</span><span className="font-semibold tabular-nums">{d.weekBreakdown?.[k]?.points || 0}</span></li>
+            ))}
+          </ul>
+          {d.nextMilestone && <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">{d.nextMilestone.daysLeft} more day{d.nextMilestone.daysLeft > 1 ? 's' : ''} to a {d.nextMilestone.days}-day streak: <span className="font-semibold text-amber-600 dark:text-amber-400">+{d.nextMilestone.bonus}</span></p>}
+        </>
+      )}
     </div>
   )
 }

@@ -92,6 +92,11 @@ public class User {
     @Column(length = 40)
     private String premiumPendingOrderId;
 
+    /** Daily login streak: consecutive days (India time) with a sign-in, the best ever, and the last day counted. */
+    private Integer streakCount;
+    private Integer streakBest;
+    private java.time.LocalDate streakLastDate;
+
     /** Peer (real person) mock interview plan (i5, i10): monthly interview allowance, billed separately from Premium. */
     @Column(length = 8)
     private String interviewPlan;

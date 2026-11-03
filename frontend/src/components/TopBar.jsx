@@ -4,6 +4,8 @@ import { useFeatures } from '../lib/features.js'
 import Notifications from './Notifications.jsx'
 import AuthModal from './AuthModal.jsx'
 import PremiumPlans from './PremiumPlans.jsx'
+import ProfileMenu from './ProfileMenu.jsx'
+import StreakBadge from './StreakBadge.jsx'
 
 // Shared top bar (LeetCode style): brand and page links on the left, theme toggle, notifications, avatar and log out on the right.
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
@@ -112,7 +114,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
             </svg>
             <span className="hidden sm:inline">Premium</span>
           </button>
-          {(
+          {!signedIn && (
             <button onClick={onToggleDark} aria-label="Toggle dark mode" aria-pressed={isDark} title="Toggle dark mode" className="rounded-lg bg-slate-100 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
               {isDark ? (
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -121,15 +123,11 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
               )}
             </button>
           )}
-          {signedIn && <Notifications />}
-          {signedIn && user?.admin && (
-            <button onClick={goAdmin} title="Open the admin dashboard" className="rounded-md bg-blue-600/10 px-2.5 py-1 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-600/20 dark:text-blue-300">Admin</button>
-          )}
+          {signedIn && <StreakBadge />}
+          {signedIn && <Notifications align="right" />}
           {signedIn ? (
-            <>
-              <a href="/profile" aria-label="Your profile" title="Your profile" className={`flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white dark:bg-blue-500 ${onProfile ? 'ring-2 ring-blue-300/60' : ''}`}>{initial}</a>
-              <button onClick={doLogout} className="whitespace-nowrap rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500">Log out</button>
-            </>
+            <ProfileMenu user={user} initial={initial} onProfile={onProfile} isDark={isDark} onToggleDark={onToggleDark}
+              onAdmin={goAdmin} onLogout={doLogout} onPremium={() => setPlansOpen(true)} />
           ) : (
             <button onClick={onLogin || (() => setOwnAuthOpen(true))} className="whitespace-nowrap rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:opacity-95">
               Log in<span className="hidden sm:inline"> / Sign up</span>

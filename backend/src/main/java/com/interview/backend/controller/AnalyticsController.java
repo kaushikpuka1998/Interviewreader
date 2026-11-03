@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class AnalyticsController {
 
     private final PageViewRepository pageViews;
+    private final com.interview.backend.service.PointsService pointsService;
     private final UserRepository users;
     private final QuestionRepository questions;
     private final UserProgressRepository progress;
@@ -92,6 +93,11 @@ public class AnalyticsController {
                 rows.add(e);
             }
             events.saveAll(rows);
+            // A qualifying read (30 seconds or half the page) of a question earns points the first time.
+            for (UserEvent e : rows)
+                if ("read".equals(e.getType()) && e.getUserId() != null && e.getQuestionId() != null
+                        && ((e.getSeconds() != null && e.getSeconds() >= 30) || (e.getScrollPct() != null && e.getScrollPct() >= 50)))
+                    pointsService.read(e.getUserId(), e.getQuestionId());
         } catch (Exception ignored) {
             // swallow: a failed metric must never surface to the visitor
         }

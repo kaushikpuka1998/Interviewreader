@@ -8,7 +8,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 // Weekly leaderboard. Only the last 7 days count, so members who stop reading drop off on their own.
 export default function LeaderboardPage() {
-  useEffect(() => { setPageSeo({ title: 'Leaderboard: Top Interview Prep Learners | Interview Reader', description: 'See who is leading the weekly Interview Reader leagues. Earn XP by reading questions and solving coding problems, and climb from Bronze to Platinum.', path: '/leaderboard', jsonLd: undefined, noindex: true }) }, [])
+  useEffect(() => { setPageSeo({ title: 'Leaderboard: Top Interview Prep Learners | Interview Reader', description: 'See who is leading the weekly Interview Reader leagues. Earn points by signing in daily, reading questions and solving coding problems, and climb from Bronze to Platinum.', path: '/leaderboard', jsonLd: undefined, noindex: true }) }, [])
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
 
@@ -36,7 +36,7 @@ export default function LeaderboardPage() {
         {data && (
           <>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-              Each read earns {data.xpPerRead} XP. A read is 30 seconds on a question or scrolling halfway down it.
+              Earn points: +{data.rules?.login ?? 25} for your daily sign-in, +{data.rules?.read ?? 50} for reading a new question (30 seconds or halfway down it), +{data.rules?.solve ?? 100} for solving a new coding problem, and streak bonuses at 7, 30 and 100 days.
               Only the last {data.windowDays} days count, so the board refreshes every week.
             </p>
 
@@ -44,7 +44,7 @@ export default function LeaderboardPage() {
               {[...data.leagues].reverse().map(l => (
                 <div key={l.name} className="rounded-xl bg-white dark:bg-slate-800 p-3 shadow-sm">
                   <LeagueBadge league={l.name} size="sm" />
-                  <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{l.minXp}+ XP this week</p>
+                  <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{l.minXp}+ points this week</p>
                 </div>
               ))}
             </div>
@@ -61,7 +61,7 @@ export default function LeaderboardPage() {
                 <div>
                   <p className="text-xs uppercase tracking-wide text-white/80">Your standing</p>
                   <p className="text-2xl font-bold tabular-nums">
-                    {data.me.rank ? `#${data.me.rank}` : 'Not ranked'} <span className="text-base font-medium text-white/80">· {data.me.xp} XP</span>
+                    {data.me.rank ? `#${data.me.rank}` : 'Not ranked'} <span className="text-base font-medium text-white/80">· {data.me.xp} points</span>
                   </p>
                 </div>
                 <LeagueBadge league={data.me.league} size="sm" />
@@ -79,7 +79,7 @@ export default function LeaderboardPage() {
                         <span className={`w-8 text-center font-bold tabular-nums ${row.rank <= 3 ? 'text-amber-500' : 'text-slate-400'}`}>{row.rank}</span>
                         <span className="flex-1 min-w-0 truncate text-slate-800 dark:text-slate-100">{row.name}</span>
                         <LeagueBadge league={row.league} size="sm" />
-                        <span className="w-20 text-right text-sm font-semibold tabular-nums text-slate-700 dark:text-slate-200">{row.xp} XP</span>
+                        <span className="w-28 whitespace-nowrap text-right text-sm font-semibold tabular-nums text-slate-700 dark:text-slate-200">{row.xp.toLocaleString()} points</span>
                       </a>
                     </li>
                   ))}

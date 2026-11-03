@@ -42,6 +42,8 @@ public class CodeController {
     private static final int RUNS_PER_MINUTE = 100_000;   // per signed-in user
 
     private final CodeRunner runner;
+    private final com.interview.backend.service.PointsService pointsService;
+    private final com.interview.backend.repository.UserRepository users;
     private final CodingProblemRepository problems;
     private final CodeJobs jobs;
     private final FeatureFlagRepository flags;
@@ -50,8 +52,11 @@ public class CodeController {
     // user -> [windowStartMillis, count]
     private final Map<String, long[]> windows = new ConcurrentHashMap<>();
 
-    public CodeController(CodeRunner runner, CodingProblemRepository problems, CodeJobs jobs, FeatureFlagRepository flags, CodeSubmissionRepository submissions) {
+    public CodeController(CodeRunner runner, CodingProblemRepository problems, CodeJobs jobs, FeatureFlagRepository flags, CodeSubmissionRepository submissions,
+                          com.interview.backend.service.PointsService pointsService, com.interview.backend.repository.UserRepository users) {
         this.submissions = submissions;
+        this.pointsService = pointsService;
+        this.users = users;
         this.runner = runner;
         this.problems = problems;
         this.jobs = jobs;
@@ -149,6 +154,10 @@ public class CodeController {
                 saved.setResults("[]");
             }
             submissions.save(saved);
+            // The first accepted solve of a problem earns points.
+            if ("Accepted".equals(saved.getStatus())) {
+                try { users.findByEmail(user).ifPresent(u -> pointsService.solve(u.getId(), problemId)); } catch (Exception ignored) { }
+            }
             Map<String, Object> body = new LinkedHashMap<>(out.body());
             body.put("submissionId", saved.getId());
             body.put("status", saved.getStatus());

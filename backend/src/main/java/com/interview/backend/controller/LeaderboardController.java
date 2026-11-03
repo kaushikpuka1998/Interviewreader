@@ -30,7 +30,8 @@ public class LeaderboardController {
 
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("windowDays", LeagueService.WINDOW_DAYS);
-        out.put("xpPerRead", LeagueService.XP_PER_READ);
+        out.put("rules", java.util.Map.of("login", com.interview.backend.service.PointsService.LOGIN, "read", com.interview.backend.service.PointsService.READ,
+                "solve", com.interview.backend.service.PointsService.SOLVE, "milestones", com.interview.backend.service.PointsService.MILESTONES));
         out.put("leagues", LeagueService.TIERS.stream()
                 .map(t -> Map.of("name", t.getKey(), "minXp", t.getValue())).toList());
         out.put("board", board.stream().map(s -> Map.of(

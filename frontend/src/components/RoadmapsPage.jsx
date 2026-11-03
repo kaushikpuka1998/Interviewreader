@@ -167,7 +167,9 @@ export default function RoadmapsPage() {
     const { dsaPatterns: DSA_PATTERNS, dsaPhases: DSA_PHASES, companyTopics: COMPANY_TOPICS } = roadmap
     const rank = { Basic: 0, Intermediate: 1, Advanced: 2 }
     const label = ['Easy', 'Medium', 'Hard']
-    const mine = dbProblems.filter(p => (p.companies || []).includes(company.name))
+    // Companies with few tagged problems list similar companies in problemsFrom; their DSA comes from those.
+    const mine = companyProblems(dbProblems, company)
+    const source = company.problemsFrom ? 'commonly asked' : company.name
     const matches = pt => mine.filter(p => (p.topics || []).some(t => pt.tags.includes(t)))
     const used = new Set()
     const built = {}
@@ -185,7 +187,7 @@ export default function RoadmapsPage() {
       const avg = Math.round(picks.reduce((n, p) => n + (rank[p.difficulty] ?? 1), 0) / picks.length)
       built[pt.id] = {
         id: `${company.id}:${pt.id}`, patternId: pt.id, poolSize: matches(pt).length, title: pt.title, track: 'dsa', category: pt.category, difficulty: label[avg],
-        weightage: `${matches(pt).length} ${company.name} problems`, summary: pt.summary, concepts: pt.concepts, cheatSheet: pt.cheatSheet,
+        weightage: `${matches(pt).length} ${source} problems`, summary: pt.summary, concepts: pt.concepts, cheatSheet: pt.cheatSheet,
         // Teaser: the pattern's problem picks are part of the premium roadmap, so they stay hidden.
         practiceProblems: locked ? [] : picks.map(p => ({ id: p.id, title: p.title, difficulty: p.difficulty, hasAnalysis: !!p.hasAnalysis })),
       }
@@ -351,7 +353,7 @@ export default function RoadmapsPage() {
             {/* Company Selection Bar */}
             <div className="mt-8">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Select Target Company</p>
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-none sm:flex-wrap sm:overflow-visible">
                 {COMPANIES.map(c => {
                   const active = c.id === selectedCompanyId
                   return (
@@ -403,10 +405,12 @@ export default function RoadmapsPage() {
                   className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                   {copied === `/roadmaps?company=${company.id}` ? '✓ Link copied' : '🔗 Share roadmap'}
                 </button>
-                <a href={`/problems?company=${encodeURIComponent(company.name)}`} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">
-                  {dbLoaded ? `All ${dbProblems.filter(p => (p.companies || []).includes(company.name)).length} ${company.name} problems ↗` : 'Company problems ↗'}
-                </a>
+                {!company.problemsFrom && (
+                  <a href={`/problems?company=${encodeURIComponent(company.tag || company.name)}`} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">
+                    {dbLoaded ? `All ${companyProblems(dbProblems, company).length} ${company.name} problems ↗` : 'Company problems ↗'}
+                  </a>
+                )}
               </div>
             </div>
 
@@ -758,14 +762,14 @@ export default function RoadmapsPage() {
                                                       </>
                                                     ) : (
                                                       <a href={prob.path} target="_blank" rel="noopener noreferrer"
-                                                        title={prob.path.startsWith('/interview') ? 'Open peer mock interviews' : `Open "${prob.title}" in the reader`}
+                                                        title={`Open "${prob.title}" in the reader`}
                                                         className={linkCls}>
-                                                        <span>{prob.path.startsWith('/interview') ? 'Interview' : 'Open question'}</span><span aria-hidden="true" className="text-[10px]">↗</span>
+                                                        <span>Open question</span><span aria-hidden="true" className="text-[10px]">↗</span>
                                                       </a>
                                                     )}
                                                     {(() => {
                                                       const link = prob.id ? `/practice?id=${prob.id}` : prob.path
-                                                      return link === '/interview' ? null : (
+                                                      return (
                                                         <button type="button" onClick={() => copyLink(link)} title="Copy shareable link"
                                                           className="rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-500 hover:border-blue-400 hover:text-blue-600 dark:border-slate-700 dark:text-slate-400">
                                                           {copied === link ? '✓' : '🔗'}
@@ -1002,7 +1006,14 @@ function PremiumUpsell({ company, plans, signedIn, onUnlock }) {
   )
 }
 
-const rupees = n => `₹${Number(n).toLocaleString('en-IN')}`
+// Problems tagged with the company (tag = its name in the problem bank when that differs, e.g. "Phonepe"),
+// or with any company in problemsFrom.
+const companyProblems = (problems, company) => {
+  const tags = company.problemsFrom || [company.tag || company.name]
+  return problems.filter(p => (p.companies || []).some(c => tags.includes(c)))
+}
+
+const rupees = n =>`₹${Number(n).toLocaleString('en-IN')}`
 
 // Company logo, falling back to the letter badge if the image can't load (offline, blocked, ...).
 function CompanyLogo({ company, className = '' }) {

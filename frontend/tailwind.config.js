@@ -6,6 +6,8 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "../index.html",
+    // Company badge colours live in the roadmap data the backend serves.
+    "../backend/src/main/resources/roadmaps.json",
   ],
   darkMode: 'class',
   theme: {

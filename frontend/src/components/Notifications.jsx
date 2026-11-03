@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchMySuggestions, markSuggestionsSeen } from '../lib/auth.js'
+import { slugify } from '../lib/slug.js'
 
 const LABEL = {
   PENDING: { text: 'Waiting for admin review', cls: 'text-amber-600 dark:text-amber-400' },
@@ -9,9 +10,10 @@ const LABEL = {
 
 /**
  * Bell showing what happened to this reader's suggested edits. The badge counts
- * decisions they haven't looked at; opening the panel clears it.
+ * decisions they haven't looked at; opening the panel clears it. Each item opens its question.
+ * align: "center" under the bell (sidebar), or "right" so the panel stays on screen at the right edge (top bar).
  */
-export default function Notifications() {
+export default function Notifications({ align = 'center' }) {
   const [data, setData] = useState({ unseen: 0, items: [] })
   const [open, setOpen] = useState(false)
   const boxRef = useRef(null)
@@ -54,19 +56,26 @@ export default function Notifications() {
         )}
       </button>
 
-      {/* Centred on the bell and clamped to the viewport: right-anchoring pushed the
-          panel off-screen, since the bell sits near the sidebar's left edge. */}
+      {/* In the sidebar the bell sits near the left edge, so the panel is centred on it; in the top bar it sits near
+          the right edge, so the panel is right-aligned. Either way it's clamped to the viewport. */}
       {open && (
-        <div className="absolute left-1/2 -translate-x-1/2 z-30 mt-2 w-72 max-w-[calc(100vw-1rem)] max-h-96 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl p-2">
+        <div className={`absolute z-30 mt-2 w-80 max-w-[calc(100vw-1rem)] max-h-96 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl p-2 ${align === 'right' ? 'right-0' : 'left-1/2 -translate-x-1/2'}`}>
           <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Your suggested edits</p>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {data.items.map((s) => {
               const l = LABEL[s.status] || LABEL.PENDING
               return (
-                <li key={s.id} className="px-2 py-2">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{s.questionTitle}</p>
-                  <p className={`text-xs font-semibold ${l.cls}`}>{l.text}</p>
-                  {s.adminNote && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">“{s.adminNote}”</p>}
+                <li key={s.id}>
+                  <a href={`/${slugify(s.questionTitle || s.questionId)}?id=${encodeURIComponent(s.questionId)}`} onClick={() => setOpen(false)}
+                    title={`Open “${s.questionTitle}”`}
+                    className="group flex items-start gap-2 rounded-md px-2 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70">
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-slate-800 group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-400">{s.questionTitle}</span>
+                      <span className={`block text-xs font-semibold ${l.cls}`}>{l.text}</span>
+                      {s.adminNote && <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">“{s.adminNote}”</span>}
+                    </span>
+                    <span aria-hidden="true" className="mt-0.5 shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-500 dark:text-slate-600">→</span>
+                  </a>
                 </li>
               )
             })}
