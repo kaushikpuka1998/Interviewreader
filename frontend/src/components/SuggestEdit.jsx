@@ -54,7 +54,8 @@ export default function SuggestEdit({ question }) {
     // The box starts with the published answer and may hold edits: don't replace it silently.
     if (answer.trim() && !window.confirm(`Replace the answer with the contents of "${file.name}"?`)) return
     try {
-      setAnswer(await file.text())
+      const raw = await file.text()
+      setAnswer(raw.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1'))
       setPane(p => (p === 'off' ? 'preview' : p))
     } catch {
       setError('Could not read that file.')
@@ -72,7 +73,8 @@ export default function SuggestEdit({ question }) {
     try {
       // Only the question text and answer are reader-editable; `title` (the internal
       // label) stays whatever the admin set.
-      const res = await suggestEdit(question.id, { question: title, answer, note })
+      const cleanedAnswer = answer ? answer.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1') : answer
+      const res = await suggestEdit(question.id, { question: title, answer: cleanedAnswer, note })
       setSent(res.message)
       setOpen(false)
     } catch (err) {

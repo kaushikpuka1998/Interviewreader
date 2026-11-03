@@ -181,8 +181,8 @@ function parseFile(relPath, tech) {
 
   // Finalize
   for (const q of questions) {
-    q.answer = q.answer.trim()
-    if (q.code) q.code = q.code.trim()
+    q.answer = q.answer.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1').trim()
+    if (q.code) q.code = q.code.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1').trim()
   }
   return questions
 }

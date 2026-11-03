@@ -127,10 +127,11 @@ const HEADING_STYLES = {
  */
 export default function Markdown({ text }) {
   const [lightbox, setLightbox] = useState(null)   // { src, alt } while an image is open
-  const parts = String(text || '').split(/```(\w+)?\n([\s\S]*?)```/g)
+  const normalized = String(text || '').replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1')
+  const parts = normalized.split(/```[ \t]*([^\s`\r\n]+)?[ \t]*\r?\n([\s\S]*?)```/g)
 
   // Precomputed deduplicated ids, consumed in document order as headings render.
-  const ids = headingIds(text)
+  const ids = headingIds(normalized)
   let headingCursor = 0
 
   return (
@@ -141,7 +142,7 @@ export default function Markdown({ text }) {
       {parts.map((part, index) => {
         if (index % 3 === 2) {
           const lang = (parts[index - 1] || '').toLowerCase()
-          const body = part.replace(/\n$/, '')
+          const body = part.replace(/\r?\n$/, '')
 
           // Mermaid blocks render as real diagrams (lazy-loaded).
           if (lang === 'mermaid') return <Mermaid key={index} code={body.trim()} />

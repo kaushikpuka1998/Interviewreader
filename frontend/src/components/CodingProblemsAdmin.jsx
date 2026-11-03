@@ -367,7 +367,8 @@ function AnalysisEditor({ problemId, title, initial, onSaved }) {
     if (!file) return
     if (!/\.(md|markdown|txt)$/i.test(file.name)) { setMsg({ ok: false, text: 'Choose a .md file.' }); return }
     if (text.trim() && !window.confirm('Replace the current analysis with this file?')) return
-    setText(await file.text())
+    const raw = await file.text()
+    setText(raw.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1'))
     setMsg({ ok: true, text: `Loaded ${file.name}. Add its images below, then save.` })
   }
 
@@ -404,9 +405,10 @@ function AnalysisEditor({ problemId, title, initial, onSaved }) {
 
   const save = async (value = text) => {
     setBusy('saving'); setMsg(null)
+    const cleaned = (value || '').replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1')
     try {
-      const r = await saveCodingProblemAnalysis(problemId, value)
-      setSaved(value.trim()); setText(value.trim())
+      const r = await saveCodingProblemAnalysis(problemId, cleaned)
+      setSaved(cleaned.trim()); setText(cleaned.trim())
       onSaved?.(r.hasAnalysis)
       setMsg({ ok: true, text: r.hasAnalysis ? 'Analysis saved. The Question Analysis tab is now shown for this problem.' : 'Analysis removed. The tab is hidden for this problem.' })
     } catch (err) {

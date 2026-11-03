@@ -151,7 +151,7 @@ public class QuestionService {
                     .sortKey(sortKey)
                     .title(in.title().trim())
                     .question(questionText)
-                    .answer(in.answer())
+                    .answer(normalizeMarkdown(in.answer()))
                     .difficulty(in.difficulty() == null || in.difficulty().isBlank() ? "Basic" : in.difficulty())
                     .category(in.category() == null ? "" : in.category())
                     .tech(tech)
@@ -202,13 +202,18 @@ public class QuestionService {
         // Only overwrite fields the admin actually supplied.
         if (in.title() != null && !in.title().isBlank()) q.setTitle(in.title().trim());
         if (in.question() != null && !in.question().isBlank()) q.setQuestion(in.question());
-        if (in.answer() != null && !in.answer().isBlank()) q.setAnswer(in.answer());
+        if (in.answer() != null && !in.answer().isBlank()) q.setAnswer(normalizeMarkdown(in.answer()));
         if (in.difficulty() != null && !in.difficulty().isBlank()) q.setDifficulty(in.difficulty());
         if (in.category() != null) q.setCategory(in.category());
         if (in.tech() != null && !in.tech().isBlank()) q.setTech(in.tech().trim().toLowerCase());
         // Saving without a real change must not bump updatedAt, or members get an "updated" email for nothing.
         if (contentOf(q).equals(before)) return q;
         return questionRepository.save(q);
+    }
+
+    public static String normalizeMarkdown(String text) {
+        if (text == null) return null;
+        return text.replaceAll("```[ \\t]+text[ \\t]*(\\r?\\n|$)", "```text$1");
     }
 
     private static String contentOf(Question q) {

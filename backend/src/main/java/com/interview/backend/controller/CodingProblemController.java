@@ -223,7 +223,7 @@ public class CodingProblemController {
     public ResponseEntity<?> saveAnalysis(@PathVariable Long id, @RequestBody AnalysisInput in) {
         CodingProblem p = problems.findById(id).orElse(null);
         if (p == null) return ResponseEntity.notFound().build();
-        String text = in == null || in.analysis() == null ? "" : in.analysis().strip();
+        String text = in == null || in.analysis() == null ? "" : com.interview.backend.service.QuestionService.normalizeMarkdown(in.analysis().strip());
         if (text.length() > 200_000) return ResponseEntity.badRequest().body(Map.of("error", "The analysis is too long (200,000 characters max)."));
         p.setAnalysis(text.isEmpty() ? null : text);
         problems.save(p);

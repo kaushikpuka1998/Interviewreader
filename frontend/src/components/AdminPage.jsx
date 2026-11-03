@@ -217,7 +217,7 @@ export default function AdminPage() {
   // the body so the heading is not duplicated above the question text.
   const loadMarkdown = (text, file) => {
     setForm((f) => {
-      let answer = text.replace(/^﻿/, '').replace(/\r\n/g, '\n')
+      let answer = text.replace(/^﻿/, '').replace(/\r\n/g, '\n').replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1')
       let title = f.title
 
       const m = answer.match(/^\s*#\s+(.+?)\s*\n/)
@@ -250,11 +250,15 @@ export default function AdminPage() {
   async function submitSingle(e) {
     e.preventDefault(); setBusy(true); setMsg(null)
     try {
+      const cleanForm = {
+        ...form,
+        answer: form.answer ? form.answer.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1') : form.answer,
+      }
       if (editingId) {
-        const q = await updateQuestion(editingId, form)
+        const q = await updateQuestion(editingId, cleanForm)
         setMsg({ ok: true, text: `Updated "${q.title}"` })
       } else {
-        const q = await createQuestion(form)
+        const q = await createQuestion(cleanForm)
         setMsg({ ok: true, text: `Published "${q.title}" (id: ${q.id})` })
       }
       setForm(EMPTY); setEditingId(null); loadList()
@@ -269,7 +273,11 @@ export default function AdminPage() {
       if (!Array.isArray(parsed)) throw new Error('JSON must be an array')
     } catch (err) { setBusy(false); return setMsg({ ok: false, text: 'Invalid JSON: ' + err.message }) }
     try {
-      const res = await createQuestionsBulk(parsed)
+      const cleaned = parsed.map(item => ({
+        ...item,
+        answer: item.answer ? item.answer.replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1') : item.answer,
+      }))
+      const res = await createQuestionsBulk(cleaned)
       setMsg({ ok: true, text: `Created ${res.created}, updated ${res.updated} question(s)` })
       setBulk('')
     } catch (err) { setMsg({ ok: false, text: err.message }) } finally { setBusy(false) }
