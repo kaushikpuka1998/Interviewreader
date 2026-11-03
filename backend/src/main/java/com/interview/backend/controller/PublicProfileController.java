@@ -69,6 +69,7 @@ public class PublicProfileController {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("username", u.getUsername());
         body.put("name", u.getName() == null || u.getName().isBlank() ? "Learner" : u.getName());
+        body.put("picture", u.effectivePicture());
         body.put("memberSince", u.getCreatedAt());
         body.put("totalQuestions", questions.count());
         List<Question> visitedQuestions = questions.findAllById(visited);

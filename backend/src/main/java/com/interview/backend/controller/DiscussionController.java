@@ -314,7 +314,7 @@ public class DiscussionController {
         if (c.isAnonymous()) m.put("author", Map.of("name", "Anonymous", "anonymous", true));
         else users.findById(c.getUserId()).ifPresent(u -> m.put("author", Map.of(
                 "name", u.getName() == null || u.getName().isBlank() ? (u.getUsername() == null ? "Member" : u.getUsername()) : u.getName(),
-                "username", u.getUsername() == null ? "" : u.getUsername(), "anonymous", false)));
+                "username", u.getUsername() == null ? "" : u.getUsername(), "picture", u.effectivePicture() == null ? "" : u.effectivePicture(), "anonymous", false)));
         m.put("mine", me != null && me.equals(c.getUserId()));
         return m;
     }
@@ -345,7 +345,7 @@ public class DiscussionController {
         } else {
             users.findById(d.getUserId()).ifPresent(u -> m.put("author", Map.of(
                     "name", u.getName() == null || u.getName().isBlank() ? (u.getUsername() == null ? "Member" : u.getUsername()) : u.getName(),
-                    "username", u.getUsername() == null ? "" : u.getUsername(),
+                    "username", u.getUsername() == null ? "" : u.getUsername(), "picture", u.effectivePicture() == null ? "" : u.effectivePicture(),
                     "anonymous", false)));
         }
         m.put("myVote", me == null ? 0 : votes.findByUserIdAndDiscussionId(me, d.getId()).map(DiscussionVote::getValue).orElse(0));

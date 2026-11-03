@@ -40,6 +40,7 @@ public class ProfileController {
     private final com.interview.backend.service.UsernameService usernames;
     private final com.interview.backend.repository.UserNoteRepository userNotes;
     private final com.interview.backend.service.BillingService billing;
+    private final com.interview.backend.service.ImageService images;
 
     private User currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -108,6 +109,8 @@ public class ProfileController {
         body.put("username", u.getUsername() == null ? "" : u.getUsername());
         body.put("email", u.getEmail());
         body.put("name", u.getName() == null ? "" : u.getName());
+        body.put("picture", u.effectivePicture());
+        body.put("hasUploadedPicture", u.getAvatarUrl() != null && !u.getAvatarUrl().isBlank());
         body.put("memberSince", u.getCreatedAt());
         body.put("premium", billing.isPremium(u));
         body.put("premiumUntil", u.getPremiumUntil() == null ? "" : u.getPremiumUntil().toString());
@@ -132,6 +135,39 @@ public class ProfileController {
         body.put("byTech", byTech);
         body.put("byDifficulty", byDifficulty);
         return body;
+    }
+
+    /** Upload a profile picture (multipart field "file"). It replaces any earlier upload and wins over the Google picture. */
+    @PostMapping(value = "/avatar", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadAvatar(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        if (file == null || file.isEmpty()) return ResponseEntity.badRequest().body(Map.of("error", "No file provided"));
+        User u = currentUser();
+        try {
+            String url = images.uploadAvatar(file);
+            String old = u.getAvatarUrl();
+            u.setAvatarUrl(url);
+            userRepository.save(u);
+            images.deleteByUrl(old);
+            return ResponseEntity.ok(Map.of("picture", u.effectivePicture(), "hasUploadedPicture", true));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Upload failed. Try a different picture."));
+        }
+    }
+
+    /** Remove the uploaded picture; the Google picture (if the member has one) shows again, else the initial. */
+    @DeleteMapping("/avatar")
+    public ResponseEntity<?> removeAvatar() {
+        User u = currentUser();
+        String old = u.getAvatarUrl();
+        u.setAvatarUrl(null);
+        userRepository.save(u);
+        images.deleteByUrl(old);
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("picture", u.effectivePicture());
+        out.put("hasUploadedPicture", false);
+        return ResponseEntity.ok(out);
     }
 
     public record LocationRequest(String country, String city) {}

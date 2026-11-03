@@ -37,7 +37,7 @@ public class GoogleAuthService {
     @Value("${app.google.tokeninfo-url:https://oauth2.googleapis.com/tokeninfo}")
     private String tokeninfoUrl;
 
-    public record GoogleUser(String email, String name) {}
+    public record GoogleUser(String email, String name, String picture) {}
 
     public boolean enabled() {
         return !clientId.isBlank();
@@ -63,7 +63,9 @@ public class GoogleAuthService {
                     && !email.isBlank();
             if (!ok) return Optional.empty();
             String name = t.path("name").asText("");
-            return Optional.of(new GoogleUser(email.trim().toLowerCase(), name.isBlank() ? null : name));
+            String picture = t.path("picture").asText("");
+            return Optional.of(new GoogleUser(email.trim().toLowerCase(), name.isBlank() ? null : name,
+                    picture.startsWith("https://") && picture.length() <= 512 ? picture : null));
         } catch (Exception e) {
             log.warn("Google token check failed: {}", e.toString());
             return Optional.empty();

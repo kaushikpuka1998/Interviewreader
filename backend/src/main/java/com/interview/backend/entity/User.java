@@ -53,6 +53,19 @@ public class User {
     @Column(unique = true, length = 30)
     private String username;
 
+    /** The member's uploaded profile picture (a URL served by this app). Wins over the Google one. */
+    @Column(length = 512)
+    private String avatarUrl;
+
+    /** The picture on the member's Google account, refreshed on each Google sign-in. */
+    @Column(length = 512)
+    private String googlePicture;
+
+    /** What to show: the uploaded picture if there is one, else the Google picture, else null (initials are drawn instead). */
+    public String effectivePicture() {
+        return avatarUrl != null && !avatarUrl.isBlank() ? avatarUrl : (googlePicture != null && !googlePicture.isBlank() ? googlePicture : null);
+    }
+
     /** Campaign the member signed up from (first UTM they arrived with), for conversion tracking. */
     @Column(name = "utm_source", length = 100)
     private String utmSource;

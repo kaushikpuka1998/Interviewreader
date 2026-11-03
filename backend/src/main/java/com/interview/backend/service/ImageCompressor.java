@@ -76,6 +76,24 @@ public final class ImageCompressor {
         }
     }
 
+    /**
+     * A profile picture: the centre square of the image, scaled to {@code side} px (never enlarged beyond the source), saved as a JPEG
+     * that is small enough to load instantly (a few tens of KB). Transparent areas are painted white.
+     */
+    public static byte[] avatar(byte[] in, int side) throws IOException {
+        BufferedImage img = decode(in);
+        int s = Math.min(img.getWidth(), img.getHeight());
+        BufferedImage square = img.getSubimage((img.getWidth() - s) / 2, (img.getHeight() - s) / 2, s, s);
+        int out = Math.min(side, s);
+        BufferedImage scaled = s == out ? square : resize(square, out, out);
+        BufferedImage rgb = flatten(scaled);
+        for (float q : new float[] {0.88f, 0.8f, 0.7f, 0.6f}) {
+            byte[] jpg = write(rgb, "jpeg", q);
+            if (jpg.length <= 80 * 1024) return jpg;
+        }
+        return write(rgb, "jpeg", 0.5f);
+    }
+
     private static BufferedImage decode(byte[] in) throws IOException {
         try (ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(in))) {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);

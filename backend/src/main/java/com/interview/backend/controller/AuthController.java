@@ -191,6 +191,7 @@ public class AuthController {
         if (user != null) {
             user.setLastLoginAt(Instant.now());
             if (isBlank(user.getName()) && who.name() != null) user.setName(trimTo(who.name(), 100));
+            if (who.picture() != null) user.setGooglePicture(who.picture());   // follows the Google account; an uploaded picture still wins
             userRepository.save(user);
             geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
             return ResponseEntity.ok(authResponse(user, sessions.startSession(user, http, response)));
@@ -202,9 +203,16 @@ public class AuthController {
                     "consentRequired", true));
         }
         // No password is ever typed; a random one keeps the column filled. "Forgot password" can set a real one.
-        return register(new RegisterRequest(who.email(), UUID.randomUUID().toString(), trimTo(who.name(), 100), null, null,
+        var created = register(new RegisterRequest(who.email(), UUID.randomUUID().toString(), trimTo(who.name(), 100), null, null,
                 req.utmSource(), req.utmCampaign(), null, true, null, req.guardianName(), req.guardianEmail(),
                 req.guardianConsent(), req.adult(), req.ref()), http, response);
+        if (who.picture() != null && created.getStatusCode().is2xxSuccessful()) {
+            userRepository.findByEmail(who.email()).ifPresent(u -> { u.setGooglePicture(who.picture()); userRepository.save(u); });
+            // The sign-up response was built before the picture was saved: hand the page the picture now so it shows at once.
+            if (created.getBody() instanceof AuthResponse r)
+                return ResponseEntity.status(created.getStatusCode()).body(new AuthResponse(r.email(), r.name(), r.admin(), r.premium(), r.accessExpiresAt(), who.picture()));
+        }
+        return created;
     }
 
     /** One-click unsubscribe from new-question emails. Public: the HMAC signature is the auth. */
@@ -247,7 +255,7 @@ public class AuthController {
 
     private AuthResponse authResponse(User user, Instant accessExpires) {
         return new AuthResponse(user.getEmail(), user.getName(), isAdmin(user.getEmail()), billing.isPremium(user),
-                accessExpires == null ? null : accessExpires.toEpochMilli());
+                accessExpires == null ? null : accessExpires.toEpochMilli(), user.effectivePicture());
     }
 
     @PostMapping("/logout")

@@ -10,8 +10,8 @@ const EXP_KEY = 'ir_session_exp'   // when the access cookie expires (epoch ms);
 const nativeFetch = window.fetch.bind(window)
 
 // Saves the profile and access expiry from a login, sign-up or refresh response.
-export function saveSession({ email, name, admin, premium, accessExpiresAt }) {
-  localStorage.setItem(USER_KEY, JSON.stringify({ email, name, admin: !!admin, premium: !!premium }))
+export function saveSession({ email, name, admin, premium, accessExpiresAt, picture }) {
+  localStorage.setItem(USER_KEY, JSON.stringify({ email, name, admin: !!admin, premium: !!premium, picture: picture || null }))
   if (accessExpiresAt) localStorage.setItem(EXP_KEY, String(accessExpiresAt))
 }
 

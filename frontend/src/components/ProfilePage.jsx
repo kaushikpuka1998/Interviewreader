@@ -1,6 +1,7 @@
 import ProfileGrowth from './ProfileGrowth.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Pic from './Pic.jsx'
 import { isLoggedIn, getUser, logout, fetchDashboard, fetchProfileQuestions, updateLocation } from '../lib/auth.js'
 import { fetchQuestions } from '../lib/api.js'
 import { fetchSolvedIds } from '../lib/code.js'
@@ -14,7 +15,7 @@ import PieChart, { toHex, countBy } from './PieChart.jsx'
 import Markdown from './Markdown.jsx'
 import ActivityHeatmap from './ActivityHeatmap.jsx'
 import { resumeBuilderLink } from '../lib/analytics.js'
-import { updateUsername, fetchNotes, saveNote, removeNote } from '../lib/auth.js'
+import { updateUsername, fetchNotes, saveNote, removeNote, uploadAvatar, removeAvatar } from '../lib/auth.js'
 import { cancelSubscription, cancelPracticePlan, cancelInterviewPlan, PREMIUM_PLAN_NAMES } from '../lib/billing.js'
 import { fetchInterviewQuota } from '../lib/interviews.js'
 import { fetchPracticeQuota } from '../lib/designPractice.js'
@@ -33,6 +34,28 @@ const NOTE_MAX = 5000
 const NOTE_TITLE_MAX = 120
 
 // One note: a formatted view, or an editor with a live Markdown preview beside it.
+// Profile picture: choose a file (PNG, JPEG or GIF, any size up to 5 MB; the server crops it square and shrinks it) or remove the upload.
+// A Google sign-in picture is used until a picture is uploaded. The page reloads after a change so the top bar shows it too.
+function PhotoControls({ hasUploaded, hasAny }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const input = useRef(null)
+  const run = async (fn) => {
+    setBusy(true); setError('')
+    try { await fn(); window.location.reload() } catch (e) { setError(e.message); setBusy(false) }
+  }
+  const btn = 'rounded-lg border border-blue-200 px-2.5 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/30'
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <input ref={input} type="file" accept="image/png,image/jpeg,image/gif" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; if (f) run(() => uploadAvatar(f)) }} />
+      <button type="button" disabled={busy} onClick={() => input.current?.click()} className={btn}>{busy ? 'Saving…' : hasAny ? 'Change photo' : 'Add photo'}</button>
+      {hasUploaded && <button type="button" disabled={busy} onClick={() => run(removeAvatar)} className={btn}>Remove photo</button>}
+      {error && <span className="text-xs text-red-600">{error}</span>}
+    </span>
+  )
+}
+
 function NoteEditor({ initial, onSave, onCancel }) {
   const [title, setTitle] = useState(initial?.title || '')
   const [body, setBody] = useState(initial?.body || '')
@@ -376,8 +399,8 @@ export default function ProfilePage() {
   return (
     <Shell>
       <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
-        <a href="/leaderboard" title="View leaderboard" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xl font-bold text-white hover:opacity-90">
-          {(name || email || '?').trim().charAt(0).toUpperCase()}
+        <a href="/leaderboard" title="View leaderboard" className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xl font-bold text-white hover:opacity-90">
+          <Pic src={profile.picture} fallback={(name || email || '?').trim().charAt(0).toUpperCase()} />
         </a>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-3">
@@ -386,6 +409,7 @@ export default function ProfilePage() {
             {memberSince && <span className="text-xs text-slate-400">since {new Date(memberSince).toLocaleDateString()}</span>}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <PhotoControls hasUploaded={!!profile.hasUploadedPicture} hasAny={!!profile.picture} />
             <UsernameEditor username={handle} onSaved={setHandle} />
             {handle && (
               <>

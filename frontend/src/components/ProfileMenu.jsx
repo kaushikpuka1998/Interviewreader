@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Pic from './Pic.jsx'
 
 // The avatar in the top bar opens this menu (instead of jumping straight to the profile): who you are, your Premium
 // status, shortcuts into your profile and practice, then admin, appearance and sign out.
@@ -35,8 +36,8 @@ export default function ProfileMenu({ user, initial, onProfile, isDark, onToggle
   return (
     <div ref={box} className="relative">
       <button type="button" onClick={() => setOpen(o => !o)} aria-haspopup="menu" aria-expanded={open} aria-label="Account menu" title="Account"
-        className={`flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white transition-shadow dark:bg-blue-500 ${open || onProfile ? 'ring-2 ring-blue-300/70' : 'hover:ring-2 hover:ring-blue-300/40'}`}>
-        {initial}
+        className={`flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-sm font-bold text-white transition-shadow dark:bg-blue-500 ${open || onProfile ? 'ring-2 ring-blue-300/70' : 'hover:ring-2 hover:ring-blue-300/40'}`}>
+        <Pic src={user?.picture} fallback={initial} />
       </button>
 
       {open && (
@@ -46,7 +47,7 @@ export default function ProfileMenu({ user, initial, onProfile, isDark, onToggle
           <div className="flex items-center gap-3">
             <a href="/profile" role="menuitem" onClick={() => setOpen(false)} title="View your profile"
               className="group -m-1.5 flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-slate-100 dark:hover:bg-white/5">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white transition-shadow group-hover:ring-2 group-hover:ring-blue-300/60">{initial}</span>
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white transition-shadow group-hover:ring-2 group-hover:ring-blue-300/60"><Pic src={user?.picture} fallback={initial} /></span>
               <span className="min-w-0">
                 <span className="block truncate text-lg font-bold text-slate-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-300">{name}</span>
                 {user?.premium

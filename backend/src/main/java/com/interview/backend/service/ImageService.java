@@ -84,6 +84,35 @@ public class ImageService {
         return publicBaseUrl + "/api/images/file/" + key;
     }
 
+    /**
+     * Stores a profile picture: cropped to a centred square, 256 px, JPEG. Returns its URL (same proxy as other images).
+     * Accepts PNG, JPEG and GIF (the first frame); anything else, or an unreadable file, is refused.
+     */
+    public String uploadAvatar(MultipartFile file) throws IOException {
+        String ct = file.getContentType();
+        if (ct == null || !Set.of("image/png", "image/jpeg", "image/gif").contains(ct))
+            throw new IllegalArgumentException("Use a PNG, JPEG or GIF picture.");
+        if (file.getSize() > MAX_BYTES) throw new IllegalArgumentException("Image exceeds 5 MB limit");
+        byte[] jpg = ImageCompressor.avatar(file.getBytes(), 256);
+        String key = "avatars/" + UUID.randomUUID() + ".jpg";
+        s3.putObject(PutObjectRequest.builder().bucket(bucket).key(key).contentType("image/jpeg").build(), RequestBody.fromBytes(jpg));
+        return publicBaseUrl + "/api/images/file/" + key;
+    }
+
+    /** Deletes a stored picture given the URL {@link #uploadAvatar} returned. Best effort: a failure only leaves an unused file behind. */
+    public void deleteByUrl(String url) {
+        try {
+            String marker = "/api/images/file/";
+            int i = url == null ? -1 : url.indexOf(marker);
+            if (i < 0) return;
+            String key = url.substring(i + marker.length());
+            if (!key.startsWith("avatars/")) return;   // only ever removes profile pictures
+            s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+        } catch (Exception e) {
+            log.warn("Could not delete old picture: {}", e.getMessage());
+        }
+    }
+
     public record StoredImage(byte[] bytes, String contentType) {}
 
     // Fetches an object for the streaming proxy endpoint. Throws NoSuchKeyException if missing.

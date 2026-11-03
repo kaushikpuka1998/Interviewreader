@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Pic from './Pic.jsx'
 import { CATEGORIES, ago, voteDiscussion } from '../lib/discuss.js'
 import { isLoggedIn } from '../lib/auth.js'
 
@@ -27,8 +28,8 @@ export function VoteRail({ d, onChange, onNeedAuth, horizontal = false }) {
 export function Avatar({ author, size = 'h-9 w-9' }) {
   const anon = author?.anonymous
   return (
-    <span className={`flex ${size} shrink-0 items-center justify-center rounded-full text-sm font-bold ${anon ? 'bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300' : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'}`} aria-hidden="true">
-      {anon ? '🕶️' : (author?.name || '?').slice(0, 1).toUpperCase()}
+    <span className={`flex ${size} shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold ${anon ? 'bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300' : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'}`} aria-hidden="true">
+      {anon ? '🕶️' : <Pic src={author?.picture} fallback={(author?.name || '?').slice(0, 1).toUpperCase()} />}
     </span>
   )
 }

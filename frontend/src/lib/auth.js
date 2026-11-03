@@ -25,8 +25,8 @@ export async function syncSession() {
     if (res.status === 401 && await refreshSession()) res = await fetch(`${API_BASE}/auth/session`)
     if (res.status === 401) { localStorage.removeItem(USER_KEY); localStorage.removeItem('ir_session_exp'); window.location.reload() }
     else if (res.ok) {
-      const { email, name, admin, premium } = await res.json()   // keeps the stored access expiry
-      setSession({ email, name, admin, premium })
+      const { email, name, admin, premium, picture } = await res.json()   // keeps the stored access expiry
+      setSession({ email, name, admin, premium, picture })
     }
   } catch { /* offline: keep the cached profile */ }
 }
@@ -170,6 +170,29 @@ export function mergeProgress({ visited, read }) {
 }
 
 // --- user profile ---
+
+// Profile picture: upload one (PNG/JPEG/GIF, cropped square by the server) or remove it (Google's shows again, if any).
+// Both return { picture, hasUploadedPicture } and update the stored profile so the top bar shows the new picture.
+function keepPicture(picture) {
+  const u = getUser()
+  if (u) localStorage.setItem(USER_KEY, JSON.stringify({ ...u, picture: picture || null }))
+}
+export async function uploadAvatar(file) {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch(`${API_BASE}/profile/avatar`, { method: 'POST', credentials: 'include', body: form })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Could not upload the picture.')
+  keepPicture(data.picture)
+  return data
+}
+export async function removeAvatar() {
+  const res = await fetch(`${API_BASE}/profile/avatar`, { method: 'DELETE', credentials: 'include' })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Could not remove the picture.')
+  keepPicture(data.picture)
+  return data
+}
 
 export async function fetchProfile() {
   const res = await fetch(`${API_BASE}/profile/me`, { credentials: 'include' })
