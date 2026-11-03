@@ -6,7 +6,7 @@ import TreeDiagram, { parseTreeInput } from './TreeDiagram.jsx'
 const CONFETTI = Array.from({ length: 18 }, (_, i) => ({
   dx: ((i * 37) % 200) - 100,
   delay: (i * 45) % 300,
-  color: ['#34d399', '#60a5fa', '#fbbf24', '#f472b6', '#a78bfa'][i % 5],
+  color: ['#34d399', '#60a5fa', '#fbbf24', '#34d399', '#a78bfa'][i % 5],
 }))
 
 export default function TestResults({ data }) {

@@ -1,3 +1,4 @@
+import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { useReadTracking } from '../lib/analytics.js'
 import Markdown from './Markdown.jsx'
@@ -275,7 +276,13 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
                         )}
                         <SuggestEdit question={question} />
                         <MarkDuplicate question={question} />
+                        <ShareLinkedIn questionId={question.id} />
                       </div>
+                    </div>
+                )}
+                {!isLoggedIn() && (
+                    <div className="mt-3 flex justify-end">
+                      <ShareLinkedIn questionId={question.id} />
                     </div>
                 )}
 

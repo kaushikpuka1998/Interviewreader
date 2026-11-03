@@ -68,7 +68,7 @@ export default function HomePage() {
 
           <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl dark:text-slate-100">
             Crack your{' '}
-            <span key={heroName} className="hero-word inline-block bg-gradient-to-r from-blue-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
+            <span key={heroName} className="hero-word inline-block bg-gradient-to-r from-blue-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent dark:from-blue-400 dark:via-fuchsia-400 dark:to-pink-400">
               {heroName}
             </span>
             {' '}interview.

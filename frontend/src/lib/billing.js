@@ -41,7 +41,7 @@ function checkout(sub, { name, description, verifyPath }) {
       name,
       description,
       prefill: { email: sub.email, name: sub.name },
-      theme: { color: '#db2777' },
+      theme: { color: '#047857' },
       handler: resp => call(verifyPath, 'POST', resp).then(resolve, reject),
       modal: { ondismiss: () => reject(new Error('Payment cancelled.')) },
     })

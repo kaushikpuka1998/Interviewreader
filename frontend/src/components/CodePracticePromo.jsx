@@ -20,7 +20,7 @@ export default function CodePracticePromo({ onClose }) {
         @keyframes ir-drift { 0%,100% { transform: translate(0,0) scale(1) } 50% { transform: translate(var(--mx), var(--my)) scale(1.08) } }
         @keyframes ir-card-in { from { opacity: 0; transform: translateY(16px) scale(0.97) } to { opacity: 1; transform: none } }
         @keyframes ir-sheen { from { transform: translateX(-120%) skewX(-20deg) } to { transform: translateX(220%) skewX(-20deg) } }
-        @keyframes ir-glow { 0%,100% { box-shadow: 0 10px 30px -10px rgba(236,72,153,0.5) } 50% { box-shadow: 0 10px 40px -4px rgba(249,115,22,0.8) } }
+        @keyframes ir-glow { 0%,100% { box-shadow: 0 10px 30px -10px rgba(16,185,129,0.5) } 50% { box-shadow: 0 10px 40px -4px rgba(249,115,22,0.8) } }
         @media (prefers-reduced-motion: reduce) { .ir-fx, .ir-card, .ir-cta { animation: none !important } }
       `}</style>
 
