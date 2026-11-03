@@ -209,3 +209,10 @@ export async function fetchSignups(since, limit = 20) {
   if (!res.ok) throw new Error('Failed to load signups')
   return res.json()
 }
+
+// Admin: who is using the daily challenge, who only reads vs only solves, code practice usage, and top referrers.
+export async function fetchEngagementBreakdown(days = 30) {
+  const res = await fetch(`${API_BASE}/analytics/engagement?days=${days}`)
+  if (!res.ok) throw new Error('Failed to load engagement breakdown')
+  return res.json()
+}

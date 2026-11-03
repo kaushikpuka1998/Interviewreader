@@ -75,8 +75,9 @@ public class ShareController {
         Question q = questions.findById(id).orElse(null);
         if (q == null) return page("Interview Reader", "Interview questions with real answers.", site + "/", site + "/", site + "/og-card.png");
         String url = site + "/" + slug(q.getTitle()) + "?id=" + q.getId();
+        String shareUrl = site + "/share/q/" + q.getId();
         return page(q.getTitle(), topic(q) + " interview question with a detailed answer, code examples and diagrams on Interview Reader.",
-                url, url + "&" + UTM, site + "/share/q/" + q.getId() + "/card.png");
+                shareUrl, url + "&" + UTM, shareUrl + "/card.png");
     }
 
     @GetMapping(value = "/share/q/{id}/card.png", produces = MediaType.IMAGE_PNG_VALUE)
@@ -94,9 +95,10 @@ public class ShareController {
         String url = site + "/roadmaps" + (c == null ? "" : "?company=" + c.path("id").asText());
         if (c == null) return page("Company Interview Roadmaps", "Round-by-round interview roadmaps for top tech companies.", url, url, site + "/og-card.png");
         String name = c.path("name").asText();
+        String shareUrl = site + "/share/roadmap/" + c.path("id").asText();
         return page(name + " Interview Roadmap: DSA, System Design & Behavioral",
                 name + " interview roadmap: " + c.path("rounds").size() + " rounds explained. Focus: " + c.path("tagline").asText() + ".",
-                url, url + "&" + UTM, site + "/share/roadmap/" + c.path("id").asText() + "/card.png");
+                shareUrl, url + "&" + UTM, shareUrl + "/card.png");
     }
 
     @GetMapping(value = "/share/roadmap/{company}/card.png", produces = MediaType.IMAGE_PNG_VALUE)
@@ -119,9 +121,12 @@ public class ShareController {
         String name = displayName(u);
         // The stats in the image URL make LinkedIn fetch a fresh certificate whenever the numbers change.
         String version = Integer.toHexString(stats.hashCode());
+        // og:url is the share URL itself (self-referential): LinkedIn's canonicalization used to re-fetch /u/<name>, which is the
+        // SPA and returns the generic site OG, so the preview failed. Keep the browser redirect going to the public profile.
+        String shareUrl = site + "/share/u/" + u.getUsername();
         return page(name + "'s interview prep progress",
                 name + " has read " + stats.get(0).value() + " questions and solved " + stats.get(1).value() + " coding problems on Interview Reader.",
-                url, url + "?" + UTM, site + "/share/u/" + u.getUsername() + "/card.png?v=" + version);
+                shareUrl, url + "?" + UTM, shareUrl + "/card.png?v=" + version);
     }
 
     @GetMapping(value = "/share/u/{username}/card.png", produces = MediaType.IMAGE_PNG_VALUE)

@@ -282,6 +282,67 @@ public class AnalyticsController {
         FROM v JOIN f USING (session_id) LEFT JOIN e USING (session_id)
         """;
 
+    /**
+     * Engagement across the main loops in one call: the daily challenge, code practice, referrals, and a "who does what"
+     * split that tells read-only members from solvers. All counts are over the window and native SQL so it stays cheap.
+     */
+    @GetMapping("/engagement")
+    public Map<String, Object> engagementBreakdown(@RequestParam(defaultValue = "30") int days) {
+        int window = Math.min(Math.max(days, 1), 365);
+        java.sql.Timestamp since = java.sql.Timestamp.from(Instant.now().minus(window, ChronoUnit.DAYS));
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("windowDays", window);
+
+        // Daily challenge: how many members reached it, read today's question, solved today's problem, or both.
+        Map<String, Object> daily = new LinkedHashMap<>();
+        daily.put("pageVisitors", jdbc.queryForObject("SELECT COUNT(DISTINCT session_id) FROM page_views WHERE path = '/question-of-the-day' AND created_at > ?", Long.class, since));
+        daily.put("pageMembers", jdbc.queryForObject("SELECT COUNT(DISTINCT user_id) FROM page_views WHERE path = '/question-of-the-day' AND user_id IS NOT NULL AND created_at > ?", Long.class, since));
+        daily.put("readEvents", jdbc.queryForObject("SELECT COUNT(DISTINCT user_id) FROM point_events WHERE kind = 'read' AND created_at > ?", Long.class, since));
+        daily.put("solveEvents", jdbc.queryForObject("SELECT COUNT(DISTINCT user_id) FROM point_events WHERE kind = 'solve' AND created_at > ?", Long.class, since));
+        daily.put("checkins", jdbc.queryForObject("SELECT COUNT(DISTINCT user_id) FROM point_events WHERE kind = 'login' AND created_at > ?", Long.class, since));
+        daily.put("bothSameDay", jdbc.queryForObject(
+                "SELECT COUNT(*) FROM (SELECT user_id, DATE(created_at AT TIME ZONE 'Asia/Kolkata') d FROM point_events WHERE kind IN ('read','solve') AND created_at > ? " +
+                "GROUP BY user_id, d HAVING COUNT(DISTINCT kind) = 2) t", Long.class, since));
+        daily.put("promoOpens", jdbc.queryForObject("SELECT COUNT(DISTINCT session_id) FROM user_events WHERE label IN ('daily_promo_open','qotd_card_read','qotd_card_solve','qotd_card_banner','qotd_page_solve') AND created_at > ?", Long.class, since));
+        out.put("daily", daily);
+
+        // Code practice: who runs code, how many submit, how many have an accepted solve.
+        Map<String, Object> practice = new LinkedHashMap<>();
+        practice.put("submitters", jdbc.queryForObject("SELECT COUNT(DISTINCT user_email) FROM code_submissions WHERE created_at > ?", Long.class, since));
+        practice.put("submissions", jdbc.queryForObject("SELECT COUNT(*) FROM code_submissions WHERE created_at > ?", Long.class, since));
+        practice.put("solvers", jdbc.queryForObject("SELECT COUNT(DISTINCT user_email) FROM code_submissions WHERE status = 'Accepted' AND created_at > ?", Long.class, since));
+        practice.put("solvedProblems", jdbc.queryForObject("SELECT COUNT(DISTINCT problem_id) FROM code_submissions WHERE status = 'Accepted' AND created_at > ?", Long.class, since));
+        practice.put("byLanguage", jdbc.queryForList("SELECT language, COUNT(*) submissions, COUNT(*) FILTER (WHERE status='Accepted') accepted FROM code_submissions WHERE created_at > ? GROUP BY 1 ORDER BY 2 DESC LIMIT 10", since));
+        practice.put("topSolvers", jdbc.queryForList(
+                "SELECT lower(s.user_email) email, u.name, COUNT(DISTINCT s.problem_id) solved, COUNT(*) submissions " +
+                "FROM code_submissions s LEFT JOIN app_users u ON lower(u.email) = lower(s.user_email) " +
+                "WHERE s.status = 'Accepted' AND s.created_at > ? GROUP BY 1,2 ORDER BY solved DESC LIMIT 20", since));
+        out.put("practice", practice);
+
+        // Who does what: read-only vs solve-only vs both, using point events in the window.
+        Map<String, Object> mix = jdbc.queryForMap(
+                "WITH per AS (SELECT user_id, BOOL_OR(kind='read') r, BOOL_OR(kind='solve') s FROM point_events WHERE kind IN ('read','solve') AND created_at > ? GROUP BY user_id) " +
+                "SELECT COUNT(*) FILTER (WHERE r AND NOT s) read_only, COUNT(*) FILTER (WHERE s AND NOT r) solve_only, COUNT(*) FILTER (WHERE r AND s) both, COUNT(*) active FROM per",
+                since);
+        out.put("split", mix);
+
+        // Referrals: who referred, and how many of their referrals actually signed in or did anything.
+        Map<String, Object> refer = new LinkedHashMap<>();
+        refer.put("referrers", jdbc.queryForObject("SELECT COUNT(DISTINCT referred_by) FROM app_users WHERE referred_by IS NOT NULL AND created_at > ?", Long.class, since));
+        refer.put("referredSignups", jdbc.queryForObject("SELECT COUNT(*) FROM app_users WHERE referred_by IS NOT NULL AND created_at > ?", Long.class, since));
+        refer.put("activeReferred", jdbc.queryForObject(
+                "SELECT COUNT(DISTINCT u.id) FROM app_users u JOIN point_events p ON p.user_id = u.id " +
+                "WHERE u.referred_by IS NOT NULL AND u.created_at > ? AND p.created_at > ?", Long.class, since, since));
+        refer.put("topReferrers", jdbc.queryForList(
+                "SELECT r.id, r.email, r.name, COUNT(u.id) referrals, " +
+                "COUNT(u.id) FILTER (WHERE EXISTS (SELECT 1 FROM point_events p WHERE p.user_id = u.id AND p.created_at > ?)) active " +
+                "FROM app_users r JOIN app_users u ON u.referred_by = r.id " +
+                "WHERE u.created_at > ? GROUP BY 1,2,3 ORDER BY referrals DESC LIMIT 20", since, since));
+        out.put("referrals", refer);
+
+        return out;
+    }
+
     @GetMapping("/funnel")
     public Map<String, Object> funnel(@RequestParam(defaultValue = "30") int days) {
         int window = Math.min(Math.max(days, 1), 365);
