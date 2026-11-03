@@ -158,9 +158,9 @@ app:
     # Covers everything published since the previous digest.
     time: ${DIGEST_TIME:19:00}
     zone: ${DIGEST_ZONE:Asia/Kolkata}
-  migration:
-    json-path: ${MIGRATION_JSON_PATH:../frontend/public/questions.json}
-    batch-size: 100
+#  migration:
+#    json-path: ${MIGRATION_JSON_PATH:../frontend/public/questions.json}
+#    batch-size: 100
   judge0:
     url: ${JUDGE0_URL}
     token: ${JUDGE0_TOKEN}

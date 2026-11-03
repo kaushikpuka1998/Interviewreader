@@ -639,7 +639,9 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
     setPhase('thinking')
     try {
       const { stages } = await probeDesignAnswer(question.id, myAnswer(list))
-      const next = respond({ style, persona, stages, system: systemName(question.title), reply: answer || text, challenges: question.challenges || [], bank: question.bank, followUps: question.followUps || [], state: plan.current, acks: persona.acks })
+      // Time left decides how long the interviewer keeps going: the whole 45 or 60 minutes, with a wrap-up at the end.
+      const timeLeftSec = startedAt ? minutes * 60 - Math.floor((Date.now() - startedAt) / 1000) : Infinity
+      const next = respond({ style, persona, stages, system: systemName(question.title), reply: answer || text, challenges: question.challenges || [], bank: question.bank, followUps: question.followUps || [], state: plan.current, acks: persona.acks, timeLeftSec })
       if (next.end) return finish(list, `${next.text ? `${next.text} ` : ''}${persona.end}`)
       if (next.stageKey) lastStage.current = next.stageKey
       ask(next.text, next.beat)

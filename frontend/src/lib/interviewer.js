@@ -167,6 +167,31 @@ const MIX = {
   moderate: { tech: 2, techEvery: 3, challenges: 3, scenarios: 1 },
   hard: { tech: 4, techEvery: 2, challenges: 4, scenarios: 2 },
 }
+// Once the normal mix is used up but the round still has time, a real interviewer keeps going: no caps.
+const MIX_EXTENDED = { tech: 99, techEvery: 1, challenges: 99, scenarios: 99 }
+
+// Time left in the round when the interviewer starts wrapping up.
+export const WRAP_UP_SECONDS = 300
+
+// When the planned questions run out with time to spare: dig deeper into the stages, weakest first.
+const DEEPER = [
+  "Let's go deeper on {stage}. What would you change if the load grew ten times?",
+  'Take the weakest part of your {stage} so far and improve it. What exactly do you change?',
+  'What are the failure cases in your {stage}, and how would you detect each one?',
+  'If you had to cut the cost of your {stage} in half, what would you do?',
+  'Walk me through your {stage} again, this time with concrete numbers and named components.',
+  'What would a senior reviewer push back on in your {stage}, and how would you answer them?',
+]
+function deeperProbe(stages, system, state) {
+  const order = [...stages].sort((a, b) => a.score - b.score)
+  for (let round = 0; round < DEEPER.length; round++) {
+    for (const st of order) {
+      const q = pickFresh(DEEPER, state.used, `deeper-${st.key}`)
+      if (q) return { kind: 'deeper', stageKey: st.key, text: fill(q, { system, stage: st.label.toLowerCase() }) }
+    }
+  }
+  return null
+}
 
 /** Fresh per interview. */
 export const newPlanState = () => ({ used: new Set(), asked: {}, techAsked: 0, techDone: new Set(), challengesAsked: 0, scenariosAsked: 0, turns: 0 })
@@ -175,10 +200,10 @@ export const newPlanState = () => ({ used: new Set(), asked: {}, techAsked: 0, t
  * The interviewer's next move after a reply: { kind, text, stageKey? } or null when the interview should end.
  * stages: the probe result [{ key, label, score, missed }]; persona: { threshold, perStage, maxFollowUps }.
  */
-export function planNext({ style, persona, stages, system, lastReply, challenges = [], deep = [], state }) {
-  if (state.turns >= persona.maxFollowUps) return null
+export function planNext({ style, persona, stages, system, lastReply, challenges = [], deep = [], state, extended = false }) {
+  if (!extended && state.turns >= persona.maxFollowUps) return null
   state.turns++
-  const mix = MIX[style] || MIX.moderate
+  const mix = extended ? MIX_EXTENDED : MIX[style] || MIX.moderate
   const vars = { system }
 
   // 1. React to a technology the candidate just named (Moderate/Hard), every few turns.
@@ -328,7 +353,7 @@ export const newInterviewState = () => ({ ...newPlanState(), pending: null, push
  * "I don't know", too-short replies, contradictions, pushback, then the next planned question. `beat` is a
  * natural pause (ms) before speaking, longer after a longer answer.
  */
-export function respond({ style, persona, stages, system, reply, challenges = [], bank = null, followUps = [], state, acks }) {
+export function respond({ style, persona, stages, system, reply, challenges = [], bank = null, followUps = [], state, acks, timeLeftSec = Infinity }) {
   const vars = { system }
   const beat = 350 + Math.min(1400, words(reply) * 7) + Math.floor(Math.random() * 300)
   const say = (text, extra = {}) => { state.lastKind = extra.kind || state.lastKind; state.lastQuestion = text; return { beat, ...extra, text: text.trim() } }
@@ -348,8 +373,16 @@ export function respond({ style, persona, stages, system, reply, challenges = []
       return say(`${prefix}${pick(['Why the change?', 'Hold on, why switch?', 'Interesting, so you\'d change it?'])} What makes ${choice} the better fit for ${system}, and what do you lose?`, { kind: 'pushback-followup' })
     }
     const r = fill(pick(OUTCOME_REACTION[j.outcome][style] || OUTCOME_REACTION[j.outcome].moderate), { term: j.terms[0] ? prettyTech(j.terms[0]) : 'that' })
-    const next = planWithBank({ style, persona, stages, system, reply, challenges, bank, followUps, state })
+    const next = planTimed({ style, persona, stages, system, reply, challenges, bank, followUps, state, timeLeftSec })
     return next ? say(`${prefix}${r} ${next.text}`, next) : say(r, { end: true })
+  }
+
+  // Wrap-up: with about five minutes left, ask for a summary; after that answer, the interview ends.
+  if (state.wrapAsked || timeLeftSec <= 60) return say(state.wrapAsked ? pick(['Thanks, that\'s a good summary.', 'Okay, thank you.', 'Good, thanks for walking me through it.']) : '', { end: true })
+  if (timeLeftSec <= WRAP_UP_SECONDS) {
+    state.wrapAsked = true
+    const mins = Math.max(1, Math.round(timeLeftSec / 60))
+    return say(`${prefix}${pick(['Okay.', 'Good.', 'Alright.'])} We have about ${mins} minute${mins > 1 ? 's' : ''} left. To wrap up, summarise your design in a minute or two, and tell me the one trade-off you'd defend most.`, { kind: 'wrap' })
   }
 
   // 2. "I don't know": a hint on Friendly/Moderate, "take a guess" on Hard, then move on.
@@ -361,7 +394,7 @@ export function respond({ style, persona, stages, system, reply, challenges = []
       if (style === 'hard') return say(`${pick(['Take a guess.', "That's fine, reason it out loud."])} How would you approach it from first principles?`, { kind: 'nudge' })
       return say(weak ? `No problem. A hint: think about ${weak.missed.toLowerCase()}. How might that work in ${system}?` : 'No problem. Start simple: what is the most basic version that works?', { kind: 'nudge' })
     }
-    const next = planWithBank({ style, persona, stages, system, reply, challenges, bank, followUps, state })
+    const next = planTimed({ style, persona, stages, system, reply, challenges, bank, followUps, state, timeLeftSec })
     return next ? say(`${pick(['Okay, let\'s move on.', 'Alright, let\'s leave that.'])} ${next.text}`, next) : say('Okay.', { end: true })
   }
 
@@ -416,21 +449,32 @@ export function respond({ style, persona, stages, system, reply, challenges = []
   }
 
   // 6. The next planned question, with a natural lead-in.
-  const next = planWithBank({ style, persona, stages, system, reply, challenges, bank, followUps, state })
+  const next = planTimed({ style, persona, stages, system, reply, challenges, bank, followUps, state, timeLeftSec })
   if (!next) return say('', { end: true })
   const reflection = Math.random() < 0.5 ? reflect(reply) : null
   const lead = reflection || (state.lastKind && state.lastKind !== next.kind && Math.random() < 0.5 ? pick(TRANSITIONS[style] || TRANSITIONS.moderate) : reaction(style, reply, acks))
   return say(`${prefix}${lead} ${next.text}`, next)
 }
 
+/**
+ * The round lasts as long as the candidate chose (45 or 60 minutes): the normal question mix first, then, while there's
+ * still time before the wrap-up, the same sources without caps, then deeper probing of the weakest stages.
+ */
+function planTimed(args) {
+  const next = planWithBank(args)
+  if (next || args.timeLeftSec <= WRAP_UP_SECONDS) return next
+  const persona = { ...args.persona, maxFollowUps: Infinity, threshold: Math.min(0.95, args.persona.threshold + 0.25), perStage: args.persona.perStage + 1 }
+  return planWithBank({ ...args, persona, extended: true }) || deeperProbe(args.stages, args.system, args.state)
+}
+
 /** planNext, preferring this design's own hand-written questions, and calling back to earlier answers now and then. */
-function planWithBank({ style, persona, stages, system, reply, challenges, bank, followUps = [], state }) {
+function planWithBank({ style, persona, stages, system, reply, challenges, bank, followUps = [], state, extended = false }) {
   // The design's own stage question goes first for a thin stage it hasn't asked about yet.
   if (bank?.ask) {
     for (const weak of stages) {
       if (weak.score >= persona.threshold || (state.asked[weak.key] || 0) > 0) continue
       const q = pickFresh(bank.ask[weak.key] || [], state.used, `bank-${weak.key}`)
-      if (q && state.turns < persona.maxFollowUps) {
+      if (q && (extended || state.turns < persona.maxFollowUps)) {
         state.turns++
         state.asked[weak.key] = 1
         return { kind: 'stage', stageKey: weak.key, text: fill(q, { system }) }
@@ -439,7 +483,7 @@ function planWithBank({ style, persona, stages, system, reply, challenges, bank,
     }
   }
   // Deep dives: the current model answer's own follow-up questions first (they track edits to the answer), then the bank's.
-  const next = planNext({ style, persona, stages, system, lastReply: reply, challenges, deep: [...followUps, ...(bank?.deep || [])], state })
+  const next = planNext({ style, persona, stages, system, lastReply: reply, challenges, deep: [...followUps, ...(bank?.deep || [])], state, extended })
   if (!next) return null
   // Memory: tie a challenge or scenario back to a technology they named earlier.
   const earlier = state.seenTech.find(t => !GENERIC_TECH.test(t.tech) && !techsIn(reply).some(x => x.i === t.i))

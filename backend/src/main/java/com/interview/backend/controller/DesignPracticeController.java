@@ -27,7 +27,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DesignPracticeController {
 
-    private static final int MAX_ANSWER_CHARS = 20_000;
+    // A 60-minute spoken interview transcribes to about 9,000 words (~55,000 characters); this leaves room for two hours.
+    private static final int MAX_ANSWER_CHARS = 120_000;
 
     private final QuestionRepository questions;
     private final DesignAttemptRepository attempts;
@@ -121,7 +122,7 @@ public class DesignPracticeController {
         if (q == null || !RubricService.isDesignQuestion(q)) return ResponseEntity.notFound().build();
         String answer = in == null || in.answer() == null ? "" : in.answer().strip();
         if (answer.length() < 20) return ResponseEntity.badRequest().body(Map.of("error", "Write or speak your answer first."));
-        if (answer.length() > MAX_ANSWER_CHARS) return ResponseEntity.badRequest().body(Map.of("error", "The answer is too long (20,000 characters max)."));
+        if (answer.length() > MAX_ANSWER_CHARS) return ResponseEntity.badRequest().body(Map.of("error", "The answer is too long (120,000 characters max)."));
         String source;
         try { source = practice.chargeNextAttempt(u); }
         catch (PracticeService.OutOfAttempts e) {
