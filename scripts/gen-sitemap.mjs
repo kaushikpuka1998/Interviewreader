@@ -36,6 +36,8 @@ const xmlEscape = (s) =>
 const STATIC_PAGES = [
   ['/problems', 'daily', '0.9'],
   ['/roadmaps', 'weekly', '0.9'],
+  ['/question-of-the-day', 'daily', '0.8'],
+  ['/premium', 'monthly', '0.7'],
   ['/practice', 'weekly', '0.7'],
   ['/interview', 'weekly', '0.7'],
   ['/terms', 'yearly', '0.2'],

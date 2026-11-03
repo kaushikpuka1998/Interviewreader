@@ -360,3 +360,21 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 .run-sweep { animation: run-sweep 1.1s ease-in-out infinite; }
 .spin-ring { animation: spin-ring 0.8s linear infinite; }
+
+/* Daily challenge solved: a flame that flickers over a warm glow, instead of the plain green "Accepted" card. */
+@keyframes daily-flame {
+  0%, 100% { transform: translateY(0) scale(1) rotate(-4deg); filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.6)); }
+  50% { transform: translateY(-6px) scale(1.18) rotate(4deg); filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.95)); }
+}
+@keyframes daily-glow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.daily-flame { display: inline-block; animation: daily-flame 1.1s ease-in-out infinite; }
+.daily-win {
+  background: linear-gradient(110deg, #fff7ed, #fef3c7, #ffedd5, #fff7ed);
+  background-size: 200% 100%;
+  animation: result-pop 0.5s ease-out, daily-glow 4s linear infinite;
+}
+.dark .daily-win { background-image: linear-gradient(110deg, #1c1917, #3b2410, #2a1a0b, #1c1917); }
+@media (prefers-reduced-motion: reduce) { .daily-flame, .daily-win { animation: none; } }

@@ -60,7 +60,7 @@ function IconButton({ label, icon, onClick, disabled = false }) {
 const MAX_CASES = 6
 const sameOutput = (a, b) => String(a ?? '').split('\n').map(l => l.trimEnd()).join('\n').trim() === String(b ?? '').split('\n').map(l => l.trimEnd()).join('\n').trim()
 
-export default function CodeRunner({ problemId, statement = '', starters = null, history = [], onSubmitted, openRequest, actionsRef, onBusyChange, afterAccepted = null }) {
+export default function CodeRunner({ problemId, statement = '', starters = null, history = [], onSubmitted, openRequest, actionsRef, onBusyChange, afterAccepted = null, daily = false }) {
   // Coding problems offer only the languages they have a starter for. Own-code practice offers all of them.
   // A coding problem opens in the first of its own options, so LANGUAGES order sets the default: Java leads
   // the array deliberately. Problems without a Java starter (tree and linked list ones) fall through to C++.
@@ -465,6 +465,15 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
             <button type="button" onClick={() => setNextOpen(false)} aria-label="Close" autoFocus
               className="absolute -right-2 -top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-500 shadow-md hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white">✕</button>
             {/* Success first, then what to solve next. */}
+            {daily ? (
+              <div className="daily-win mb-3 flex items-center gap-4 rounded-2xl border border-amber-300/60 p-5 shadow-2xl">
+                <span className="daily-flame text-5xl" aria-hidden="true">🔥</span>
+                <span>
+                  <span className="block text-xl font-extrabold text-amber-700 dark:text-amber-300">Daily challenge complete!</span>
+                  <span className="block text-sm text-slate-700 dark:text-slate-200">You cracked today's problem ({testResult.passed}/{testResult.total} tests). A new pair lands tomorrow.</span>
+                </span>
+              </div>
+            ) : (
             <div className="result-pop mb-3 flex items-center gap-4 rounded-2xl border border-emerald-200 bg-white p-5 shadow-2xl dark:border-emerald-500/30 dark:bg-slate-900">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30">
                 <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -478,6 +487,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
                 </span>
               </span>
             </div>
+            )}
             {afterAccepted}
             <div className="mt-2 text-center">
               <button type="button" onClick={() => setNextOpen(false)} className="text-xs font-medium text-white/80 hover:text-white hover:underline">Review my solution</button>

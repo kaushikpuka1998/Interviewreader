@@ -143,4 +143,12 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     @org.springframework.data.jpa.repository.Modifying
     @Query(value = "UPDATE questions SET interview_bank = :bank WHERE id = :id", nativeQuery = true)
     int updateInterviewBank(@org.springframework.data.repository.query.Param("id") String id, @org.springframework.data.repository.query.Param("bank") String bank);
+
+    /** id and title of every question in the given topics, in id order (the daily question picks from these). */
+    @Query("select q.id, q.title from Question q where q.tech in :techs order by q.id")
+    List<Object[]> idTitles(@Param("techs") java.util.Collection<String> techs);
+
+    /** id, title and topic of every question, in id order (the daily question rotates through topics). */
+    @Query("select q.id, q.title, q.tech from Question q order by q.id")
+    List<Object[]> idTitlesTechs();
 }

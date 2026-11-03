@@ -76,6 +76,13 @@ public class User {
 
     /** Premium (paid roadmaps) is active while this is in the future. Set by Razorpay payment / webhook. */
     private Instant premiumUntil;
+    /** Referral: this member's share code, who referred them, and when they used their one 3-day trial. */
+    @Column(length = 12, unique = true)
+    private String referralCode;
+    private Long referredBy;
+    private Instant trialUsedAt;
+    /** The day (India time) the "your streak ends tonight" email was last sent. */
+    private java.time.LocalDate streakNudgedOn;
     /** The member's current Razorpay subscription (sub_...), if any. */
     @Column(length = 40)
     private String razorpaySubscriptionId;

@@ -12,6 +12,10 @@ import java.util.List;
 
 public interface PointEventRepository extends JpaRepository<PointEvent, Long> {
 
+    List<PointEvent> findTop100ByUserIdOrderByIdDesc(Long userId);
+
+    List<PointEvent> findTop60ByUserIdAndKindOrderByIdDesc(Long userId, String kind);
+
     boolean existsByUserIdAndKindAndRef(Long userId, String kind, String ref);
 
     @Query("SELECT COALESCE(SUM(p.points), 0) FROM PointEvent p WHERE p.userId = :userId AND p.createdAt > :since")

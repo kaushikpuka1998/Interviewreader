@@ -20,3 +20,6 @@ export async function checkInToday() {
   localStorage.setItem(key, day)
   return { data, fresh: data.awarded > 0 }
 }
+
+// The streak page: recent point events (with what they were for) and the days checked in.
+export const fetchPointHistory = () => call('/history')

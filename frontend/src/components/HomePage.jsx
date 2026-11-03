@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import TopBar from './TopBar.jsx'
 import Footer from './Footer.jsx'
+import QotdCard from './QotdCard.jsx'
 import { fetchStats } from '../lib/api.js'
 import { fetchCompanies } from '../lib/codingProblems.js'
 import { techBadge, techLabel } from '../lib/badges.js'
@@ -16,6 +17,7 @@ const SHEETS = [
 ]
 
 const LINKS = [
+  { href: '/question-of-the-day', title: 'Daily challenge', text: 'A question to read and a coding problem to solve, new every day. Do both to build your streak.' },
   { href: '/questions', title: 'Interview questions', text: 'Read answers with code examples and diagrams, and track what you have covered.' },
   { href: '/problems', title: 'Coding problems', text: 'Solve problems with test cases and run them online.', flag: 'code_practice' },
   { href: '/practice', title: 'Practice editor', text: 'A free online editor for Java, Python, C++, Go and more.', flag: 'code_practice' },
@@ -88,6 +90,7 @@ export default function HomePage() {
             </a>
           </div>
           <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">No credit card. Free topics open without an account.</p>
+          <QotdCard className="mt-8" />
 
           {/* Proof strip: only shows numbers we actually have. */}
           {stats?.total > 0 && (

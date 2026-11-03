@@ -82,6 +82,13 @@ public class SecurityConfig {
                         // queue (and deleting the question) is admin-only. Must precede /questions/**.
                         .requestMatchers(HttpMethod.POST, "/questions/*/duplicate-report").authenticated()
                         .requestMatchers("/duplicate-reports/**").hasRole("ADMIN")
+                        // Answer feedback and comments: anyone may vote (a visitor's vote is keyed by session), only
+                        // members may comment, delete their own or report. Must precede the admin-only /questions/** rules.
+                        .requestMatchers(HttpMethod.POST, "/questions/*/helpful").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/questions/*/comments").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/questions/*/comments/*").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/comments/*/report").authenticated()
+                        .requestMatchers("/revision/**", "/referral/**").authenticated()
                         // Publishing questions is admin-only
                         .requestMatchers(HttpMethod.POST, "/questions/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/questions/**").hasRole("ADMIN")

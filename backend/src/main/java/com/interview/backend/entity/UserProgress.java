@@ -37,4 +37,9 @@ public class UserProgress {
     // ponytail: DB default so ddl-auto=update can add the column to a table that already has rows
     @Column(nullable = false, columnDefinition = "boolean not null default false")
     private boolean important = false;
+
+    /** When the question was first marked read, and the spaced-revision state (stage 0..4, next review at). */
+    private java.time.Instant readAt;
+    private java.time.Instant revisedAt;
+    private Integer revisionStage;
 }

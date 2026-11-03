@@ -90,4 +90,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> searchMembers(@org.springframework.data.repository.query.Param("q") String q, Pageable pageable);
 
     List<User> findByPremiumUntilAfterOrderByPremiumUntilDesc(Instant now);
+
+    Optional<User> findByReferralCode(String code);
+
+    long countByReferredBy(Long referrerId);
+
+    /** Members whose streak is alive (last check-in yesterday) and who haven't been emailed today. */
+    @Query("SELECT u FROM User u WHERE u.streakLastDate = :yesterday AND u.streakCount >= 1 " +
+           "AND (u.emailOptOut IS NULL OR u.emailOptOut = false) AND (u.streakNudgedOn IS NULL OR u.streakNudgedOn <> :today)")
+    List<User> findStreakNudgeCandidates(@org.springframework.data.repository.query.Param("yesterday") java.time.LocalDate yesterday,
+                                         @org.springframework.data.repository.query.Param("today") java.time.LocalDate today);
+
+    /** 1 only for the first caller today, so one reminder per member per day. */
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.streakNudgedOn = :today WHERE u.id = :id AND (u.streakNudgedOn IS NULL OR u.streakNudgedOn <> :today)")
+    int claimStreakNudge(@org.springframework.data.repository.query.Param("id") Long id,
+                         @org.springframework.data.repository.query.Param("today") java.time.LocalDate today);
 }

@@ -299,6 +299,22 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    /** "Your N-day streak ends tonight": one tap to keep it, with today's question to read. */
+    public void sendStreakNudgeEmail(String toEmail, String name, int streak, String questionTitle, String questionUrl, String problemTitle) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("🔥 Your " + streak + "-day streak ends tonight");
+        message.setText("Hi" + (name == null || name.isBlank() ? "" : " " + name) + ",\n\n" +
+                "You're on a " + streak + "-day streak. Open Interview Reader once today to keep it, and earn your daily 25 points.\n\n" +
+                "Today's challenge:\n  Read: " + questionTitle + "\n" + (problemTitle == null ? "" : "  Solve: " + problemTitle + "\n") + "  " + questionUrl + "\n\n" +
+                "Revise what you've read: " + frontendUrl + "/profile\n\n" +
+                "Keep going!\nInterview Reader Team\n\n" +
+                "Don't want these emails? Unsubscribe: " + backendUrl + "/api/auth/unsubscribe?email=" +
+                URLEncoder.encode(toEmail, StandardCharsets.UTF_8) + "&sig=" + unsubscribeSig(toEmail));
+        mailSender.send(message);
+    }
+
     /** HMAC of the email so the unsubscribe link can't be forged for someone else. */
     String unsubscribeSig(String email) {
         try {

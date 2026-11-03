@@ -1,5 +1,5 @@
 import { clearQuestionCache } from './offlineStore.js'
-import { getUtm } from './analytics.js'
+import { getUtm, getRef } from './analytics.js'
 import { saveSession, refreshSession } from './apiFetch.js'
 // Auth + per-user progress against the backend.
 // The session lives only in an HttpOnly, Secure cookie set by the API, so page scripts can never read it.
@@ -92,7 +92,7 @@ export async function register({ email, password, name, country, city, username,
   const { utmSource, utmCampaign } = getUtm()
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, name, country, city, utmSource, utmCampaign, username, termsAccepted, dateOfBirth, guardianName, guardianEmail, guardianConsent, adult }),
+    body: JSON.stringify({ email, password, name, country, city, utmSource, utmCampaign, username, termsAccepted, dateOfBirth, guardianName, guardianEmail, guardianConsent, adult, ref: getRef() }),
     credentials: 'include'
   })
   if (!res.ok) throw new Error(await parseError(res) || 'Registration failed')
@@ -126,7 +126,7 @@ export async function googleSignIn({ credential, termsAccepted, adult, guardianN
   const { utmSource, utmCampaign } = getUtm()
   const res = await fetch(`${API_BASE}/auth/google`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ credential, termsAccepted, adult, guardianName, guardianEmail, guardianConsent, utmSource, utmCampaign }),
+    body: JSON.stringify({ credential, termsAccepted, adult, guardianName, guardianEmail, guardianConsent, utmSource, utmCampaign, ref: getRef() }),
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw Object.assign(new Error(data.error || 'Google sign-in failed'), { consentRequired: !!data.consentRequired })

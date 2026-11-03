@@ -133,6 +133,31 @@ public class ShareController {
         return png(cards.certificate(displayName(u), stats(u), issued, host + "/u/" + u.getUsername()));
     }
 
+    /**
+     * A small streak badge for a README or resume: ![streak](https://interviewreader.cloud/share/u/<name>/streak.svg).
+     * Shows the live streak, so it stays current wherever it is embedded.
+     */
+    @GetMapping(value = "/share/u/{username}/streak.svg", produces = "image/svg+xml")
+    public ResponseEntity<String> streakBadge(@PathVariable String username) {
+        User u = usernames.resolve(username.toLowerCase()).orElse(null);
+        if (u == null) return ResponseEntity.notFound().build();
+        Map<String, Object> p = points.summary(u);
+        int streak = ((Number) p.get("streak")).intValue(), best = ((Number) p.get("best")).intValue();
+        String main = streak + (streak == 1 ? "-day streak" : "-day streak");
+        String sub = best > streak ? "best " + best + " days" : "interviewreader.cloud";
+        String svg = """
+                <svg xmlns="http://www.w3.org/2000/svg" width="232" height="64" viewBox="0 0 232 64" role="img" aria-label="%1$s on Interview Reader">
+                <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1512"/><stop offset="1" stop-color="#06352a"/></linearGradient>
+                <linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f97316"/></linearGradient></defs>
+                <rect width="232" height="64" rx="14" fill="url(#g)"/><rect x="0.5" y="0.5" width="231" height="63" rx="13.5" fill="none" stroke="#34d399" stroke-opacity=".5"/>
+                <path d="M32 12c2 7-4 10-4 15 0 3 2 5 5 5 3 0 5-2 5-5 4 3 6 7 6 11a12 12 0 0 1-24 0c0-9 12-13 12-26z" fill="url(#f)" transform="translate(-4 4) scale(1.05)"/>
+                <text x="62" y="31" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff">%1$s</text>
+                <text x="62" y="49" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6ee7b7">%2$s</text>
+                </svg>
+                """.formatted(main, sub);
+        return ResponseEntity.ok().header("Cache-Control", "public, max-age=3600").body(svg);
+    }
+
     private List<Stat> stats(User u) {
         long read = progress.findByUserId(u.getId()).stream().filter(UserProgress::isRead).count();
         long solved = submissions.findByUserEmailAndStatus(u.getEmail(), "Accepted").stream()

@@ -34,6 +34,7 @@ public class ProgressService {
     @Transactional
     public void markRead(Long userId, String questionId) {
         UserProgress p = row(userId, questionId);
+        if (!p.isRead() || p.getReadAt() == null) p.setReadAt(java.time.Instant.now());
         p.setRead(true);
         p.setVisited(true); // reading implies visiting
         repo.save(p);
@@ -76,7 +77,7 @@ public class ProgressService {
                 p.setUserId(userId);
                 p.setQuestionId(id);
             }
-            if (r.contains(id)) { p.setRead(true); p.setVisited(true); }   // reading implies visiting
+            if (r.contains(id)) { if (p.getReadAt() == null) p.setReadAt(java.time.Instant.now()); p.setRead(true); p.setVisited(true); }   // reading implies visiting
             else if (v.contains(id)) p.setVisited(true);
             toSave.add(p);
         }

@@ -50,6 +50,7 @@ export default function PremiumPlans({ onClose, onBought }) {
       <div onClick={e => e.stopPropagation()} className="relative mx-auto my-8 max-w-5xl rounded-3xl bg-white p-6 shadow-2xl sm:p-8 dark:bg-slate-900">
         <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-4 rounded-lg p-1.5 text-xl leading-none text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800">×</button>
         <h2 id="premium-plans-title" className="text-2xl font-bold text-slate-900 dark:text-white">Choose your Premium pass</h2>
+        <p className="mt-1 text-sm"><a href="/premium" className="font-medium text-blue-600 hover:underline dark:text-blue-400">Compare Free vs Premium, or try it free for 3 days →</a></p>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">One-time payment, no auto-renewal. Buying again adds time on top of what you have left.</p>
         <div className="mt-10 grid items-center gap-6 md:grid-cols-3">
           {plans.map(p => {

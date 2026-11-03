@@ -1,3 +1,4 @@
+import ProfileGrowth from './ProfileGrowth.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect } from 'react'
 import { isLoggedIn, getUser, logout, fetchDashboard, fetchProfileQuestions, updateLocation } from '../lib/auth.js'
@@ -434,6 +435,8 @@ export default function ProfilePage() {
         ))}
       </div>
 
+      <ProfileGrowth username={handle} />
+
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <StreakCard />
         <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
@@ -533,7 +536,7 @@ function StreakCard() {
     <div className="rounded-xl border border-orange-200/70 bg-gradient-to-br from-orange-50 to-white p-3 dark:border-orange-500/20 dark:from-orange-500/10 dark:to-slate-950">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Streak & points</h3>
-        <a href="/leaderboard" className="text-[11px] font-semibold text-orange-600 hover:underline dark:text-orange-400">Leaderboard →</a>
+        <span className="flex gap-3 text-[11px] font-semibold"><a href="/streak" className="text-orange-600 hover:underline dark:text-orange-400">History →</a><a href="/leaderboard" className="text-orange-600 hover:underline dark:text-orange-400">Leaderboard →</a></span>
       </div>
       {!d ? <p className="text-sm text-slate-400">Loading…</p> : (
         <>

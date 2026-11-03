@@ -7,6 +7,7 @@ import ProfilePage from './components/ProfilePage.jsx'
 import PublicProfilePage from './components/PublicProfilePage.jsx'
 import ProblemsPage from './components/ProblemsPage.jsx'
 import LeaderboardPage from './components/LeaderboardPage.jsx'
+import StreakPage from './components/StreakPage.jsx'
 import ResumePage from './components/ResumePage.jsx'
 import ResumeEditor from './components/ResumeEditor.jsx'
 import HomePage from './components/HomePage.jsx'
@@ -16,6 +17,8 @@ import InterviewPage from './components/InterviewPage.jsx'
 import LiveInterview from './components/LiveInterview.jsx'
 import TermsPage from './components/TermsPage.jsx'
 import FeedbackPage from './components/FeedbackPage.jsx'
+import QuestionOfTheDayPage from './components/QuestionOfTheDayPage.jsx'
+import PremiumPage from './components/PremiumPage.jsx'
 import FeedbackButton from './components/FeedbackButton.jsx'
 import ResetPasswordPage from './components/ResetPasswordPage.jsx'
 import { trackView } from './lib/analytics.js'
@@ -59,8 +62,8 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
-  '/interview', '/problems', '/sheets/', '/terms', '/feedback']
+const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
+  '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -100,7 +103,12 @@ function Routes() {
 
   if (path === '/feedback') return <FeedbackPage />
 
+  if (path === '/question-of-the-day') return <QuestionOfTheDayPage />
+
+  if (path === '/premium') return <PremiumPage />
+
   if (path === '/leaderboard') return <LeaderboardPage />
+  if (path === '/streak') return <StreakPage />
 
   // Practice coding: questions with a code box that runs on the server.
   if (path === '/practice') return <Gate flag="code_practice" what="Practice coding"><PracticePage /></Gate>

@@ -42,6 +42,7 @@ public class AuthController {
     private final ProgressService progressService;
     private final EmailService emailService;
     private final SessionService sessions;
+    private final com.interview.backend.service.ReferralService referrals;
     private final com.interview.backend.service.GoogleAuthService google;
     private final GeoService geo;
     private final com.interview.backend.service.UsernameService usernames;
@@ -146,6 +147,7 @@ public class AuthController {
         user.setUtmCampaign(trimTo(req.utmCampaign(), 100));
         user = userRepository.save(user);
         usernames.taken(username);
+        referrals.apply(user, req.ref());   // "invite a friend": both get a week of Premium
         geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
 
         Instant accessExpires = sessions.startSession(user, http, response);
@@ -202,7 +204,7 @@ public class AuthController {
         // No password is ever typed; a random one keeps the column filled. "Forgot password" can set a real one.
         return register(new RegisterRequest(who.email(), UUID.randomUUID().toString(), trimTo(who.name(), 100), null, null,
                 req.utmSource(), req.utmCampaign(), null, true, null, req.guardianName(), req.guardianEmail(),
-                req.guardianConsent(), req.adult()), http, response);
+                req.guardianConsent(), req.adult(), req.ref()), http, response);
     }
 
     /** One-click unsubscribe from new-question emails. Public: the HMAC signature is the auth. */

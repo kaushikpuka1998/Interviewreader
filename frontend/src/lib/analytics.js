@@ -24,6 +24,14 @@ export function resumeBuilderLink(placement) {
   return `/resume?utm_source=${INTERNAL_SOURCE}&utm_medium=resume_builder&utm_content=${encodeURIComponent(placement)}`
 }
 
+// A friend's invite link (?ref=code) is kept until the visitor signs up, so both of them get the reward.
+const REF_KEY = 'ir_ref'
+try {
+  const r = new URLSearchParams(location.search).get('ref')
+  if (r && /^[a-z0-9]{4,12}$/i.test(r)) localStorage.setItem(REF_KEY, r.toLowerCase())
+} catch { /* storage blocked: no reward, nothing else breaks */ }
+export const getRef = () => { try { return localStorage.getItem(REF_KEY) || undefined } catch { return undefined } }
+
 export function getUtm() {
   try { return JSON.parse(localStorage.getItem(UTM_KEY) || '{}') } catch { return {} }
 }

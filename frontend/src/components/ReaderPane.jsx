@@ -1,3 +1,4 @@
+import AnswerExtras from './AnswerExtras.jsx'
 import ListenButton from './ListenButton.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -297,6 +298,7 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
               {/* ONLY this answer content area scrolls (scrollRef is attached here) */}
               <div ref={scrollRef} className="answer-content flex-1 overflow-y-auto pr-2" style={{ overflowAnchor: 'none' }}>
                 <Markdown text={question.answer} />
+                <AnswerExtras question={question} />
               </div>
 
               {/* Bottom Navigation stays pinned at the bottom of the card — desktop only, mobile has its own top nav */}

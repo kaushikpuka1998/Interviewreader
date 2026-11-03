@@ -12,8 +12,9 @@ import StreakBadge from './StreakBadge.jsx'
 // [label, href, feature flag that must be on, flag that turns on the "New" badge (true = always, 'hot' = 🔥 Hot)]
 const NAV = [
   ['Questions', '/questions'],
-  ['Problems (System Design)', '/interview/practice', null, true],
-  ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
+  ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
+  ['Problems (System Design)', '/interview/practice', null, true, false, false, 'System Design'],
+  ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice', false, true, 'Coding'],
   ['Practice', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
   ['Roadmaps', '/roadmaps', null, null, true],
   ['Interview', '/interview', 'mock_interview', 'hot'],
@@ -22,14 +23,15 @@ const NAV = [
 ]
 
 // Small pill next to a nav label (Premium / Hot / New): one height and baseline for all of them.
-const NavBadge = ({ className, children }) => (
-  <span className={`inline-flex h-[18px] items-center gap-0.5 rounded-full px-2 text-[10px] font-bold uppercase leading-none tracking-wide shadow-sm ${className}`}>{children}</span>
+const NavBadge = ({ className, children, compact }) => (
+  <span className={`${compact ? 'hidden 2xl:inline-flex' : 'inline-flex'} h-[18px] items-center gap-0.5 rounded-full px-2 text-[10px] font-bold uppercase leading-none tracking-wide shadow-sm ${className}`}>{children}</span>
 )
 
-function NavLink({ label, href, flag, badge, premium, path, features, mobile = false }) {
+// Between 1280 and 1536px the bar is crowded, so it shows the short label and no badges; the full bar starts at 2xl.
+function NavLink({ label, short, href, flag, badge, premium, path, features, mobile = false }) {
   if (flag && features[flag] === false) return null
   const active = href === '/questions'
-    ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps', '/feedback'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+    ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/premium'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
     : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
     : path === href || (href !== '/' && path.startsWith(href + '/'))
   const handleClick = (e) => {
@@ -44,17 +46,17 @@ function NavLink({ label, href, flag, badge, premium, path, features, mobile = f
       href={href}
       onClick={handleClick}
       aria-current={active ? 'page' : undefined}
-      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : 'inline-flex px-2.5 py-1.5 xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : 'inline-flex px-1.5 py-1.5 min-[1420px]:px-2 2xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
-      {label}
-      {premium && <NavBadge className="bg-gradient-to-r from-amber-500 to-pink-600 text-white">Premium</NavBadge>}
+      {short && !mobile ? <><span className="2xl:hidden">{short}</span><span className="hidden 2xl:inline">{label}</span></> : label}
+      {premium && <NavBadge compact={!mobile} className="bg-gradient-to-r from-amber-500 to-pink-600 text-white">Premium</NavBadge>}
       {badge === 'hot' && (
-        <NavBadge className="bg-gradient-to-r from-orange-500 to-rose-600 text-white">
+        <NavBadge compact={!mobile} className="bg-gradient-to-r from-orange-500 to-rose-600 text-white">
           <svg viewBox="0 0 24 24" className="-ml-0.5 h-3 w-3" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.5 0 2.2-1.2 2.2-2.6 2 1.7 3 4 3 6.1A6 6 0 0 1 6 15.5C6 10 12 8 12 2z" /></svg>
           Hot
         </NavBadge>
       )}
-      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <NavBadge className="bg-amber-400 text-amber-950">New</NavBadge>}
+      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <NavBadge compact={!mobile} className="bg-amber-400 text-amber-950">New</NavBadge>}
     </a>
   )
 }
@@ -88,10 +90,10 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
-  const links = mobile => NAV.map(([label, href, flag, badge, premium, authRequired]) => {
+  const links = mobile => NAV.map(([label, href, flag, badge, premium, authRequired, short]) => {
     if (authRequired && !signedIn) return null
     return (
-      <NavLink key={href} label={label} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
+      <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
     )
   })
   return (
@@ -101,7 +103,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
         <button
           type="button" onClick={() => setMenuOpen(o => !o)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="mobile-nav"
-          className="-ml-1 shrink-0 rounded-lg p-2 text-slate-700 hover:bg-slate-100 lg:hidden dark:text-slate-200 dark:hover:bg-slate-800"
+          className="-ml-1 shrink-0 rounded-lg p-2 text-slate-700 hover:bg-slate-100 xl:hidden dark:text-slate-200 dark:hover:bg-slate-800"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" viewBox="0 0 24 24" aria-hidden="true">
             {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
@@ -109,9 +111,9 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
         </button>
         <a href="/" className="flex shrink-0 items-center gap-2 font-semibold text-slate-900 dark:text-slate-100" aria-label="Interview Reader home">
           <img src="/logo.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
-          <span className="hidden whitespace-nowrap sm:inline">Interview Reader</span>
+          <span className="hidden whitespace-nowrap min-[1420px]:inline max-xl:sm:inline">Interview Reader</span>
         </a>
-        <nav className="hidden min-w-0 items-center gap-0.5 overflow-x-auto text-sm [scrollbar-width:none] lg:flex xl:gap-1" aria-label="Main">
+        <nav className="hidden min-w-0 items-center gap-0.5 overflow-x-auto text-sm [scrollbar-width:none] xl:flex 2xl:gap-1" aria-label="Main">
           {links(false)}
         </nav>
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
@@ -146,7 +148,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
         </div>
       </div>
       {menuOpen && (
-        <nav id="mobile-nav" aria-label="Main" className="border-t border-slate-200 bg-white px-3 pb-3 pt-2 shadow-lg lg:hidden dark:border-slate-800 dark:bg-slate-950">
+        <nav id="mobile-nav" aria-label="Main" className="border-t border-slate-200 bg-white px-3 pb-3 pt-2 shadow-lg xl:hidden dark:border-slate-800 dark:bg-slate-950">
           <div className="flex flex-col gap-0.5">{links(true)}</div>
         </nav>
       )}

@@ -5,6 +5,7 @@ import TopBar from './TopBar.jsx'
 import { fetchCodingProblems, fetchCodingProblem, markPracticeSeen } from '../lib/codingProblems.js'
 import { fetchSubmissions, fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
 import { getUser, isLoggedIn } from '../lib/auth.js'
+import { fetchQotd } from '../lib/engage.js'
 import { difficultyBadge } from '../lib/badges.js'
 import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
@@ -24,6 +25,8 @@ export default function PracticePage() {
   const CHUNK = 50
   const [shownCount, setShownCount] = useState(CHUNK)
   const [selected, setSelected] = useState(null)   // CUSTOM, or a problem id
+  const [dailyId, setDailyId] = useState(null)      // today's coding problem of the day
+  useEffect(() => { fetchQotd().then(d => setDailyId(d.problem?.id ?? null)).catch(() => {}) }, [])
   const [detail, setDetail] = useState(null)
   const [error, setError] = useState('')
   // The statement panel has three tabs: the problem, question analysis, and submissions.
@@ -565,7 +568,8 @@ export default function PracticePage() {
                   </div>
                   <div className="min-w-0 flex-1 min-h-0 overflow-hidden">
                     <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
-                      afterAccepted={<SolveNext items={solveNext} onPick={id => setSelected(id)} onRandom={goToRandom} />} />
+                      daily={dailyId != null && dailyId === selected}
+                      afterAccepted={<SolveNext daily={dailyId != null && dailyId === selected} items={solveNext} onPick={id => setSelected(id)} onRandom={goToRandom} />} />
                   </div>
                 </>
               )}
@@ -601,7 +605,7 @@ function SubmissionList({ items, signedIn, onOpen }) {
 }
 
 // Shown under the test results once a submission is accepted: up to three related problems to keep the streak going.
-function SolveNext({ items, onPick, onRandom }) {
+function SolveNext({ items, onPick, onRandom, daily }) {
   const why = x => [
     x.inFocus ? `More ${x.focus}` : 'Related topic',
     x.companies.length ? `Also asked at ${x.companies.slice(0, 2).join(', ')}` : null,
@@ -609,7 +613,7 @@ function SolveNext({ items, onPick, onRandom }) {
   return (
     <div className="result-pop rounded-2xl border border-emerald-200 bg-white bg-gradient-to-br from-emerald-50 to-white p-5 shadow-2xl dark:border-emerald-500/30 dark:bg-slate-900 dark:from-slate-900 dark:to-slate-900">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">🎉 Solved! Climb the {items[0]?.focus || 'next'} ladder</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">{daily ? '⚡ Still going? Keep the momentum' : `🎉 Solved! Climb the ${items[0]?.focus || 'next'} ladder`}</h3>
         <button type="button" onClick={onRandom} className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Surprise me →</button>
       </div>
       {items.length === 0 ? (

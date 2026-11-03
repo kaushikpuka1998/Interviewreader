@@ -64,6 +64,8 @@ export default function StreakBadge() {
             </div>
           </div>
 
+          <a href="/streak" className="mt-4 block text-sm font-semibold text-orange-600 hover:underline dark:text-orange-400">See my streak calendar and points history →</a>
+
           {data.nextMilestone && (
             <div className="mt-5">
               <div className="flex items-baseline justify-between gap-3 text-sm text-slate-600 dark:text-slate-300">
