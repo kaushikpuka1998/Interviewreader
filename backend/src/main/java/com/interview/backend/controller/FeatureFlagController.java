@@ -22,6 +22,7 @@ public class FeatureFlagController {
             "resume_builder", true,
             "code_practice", true,
             "code_practice_promo", true,
+            "daily_promo", true,
             // The mock interview feature, and a "New" badge on its top-bar link.
             "mock_interview", true,
             "new_badge_interview", false,

@@ -17,12 +17,19 @@ const SHEETS = [
 ]
 
 const LINKS = [
-  { href: '/question-of-the-day', title: 'Daily challenge', text: 'A question to read and a coding problem to solve, new every day. Do both to build your streak.' },
-  { href: '/questions', title: 'Interview questions', text: 'Read answers with code examples and diagrams, and track what you have covered.' },
-  { href: '/problems', title: 'Coding problems', text: 'Solve problems with test cases and run them online.', flag: 'code_practice' },
-  { href: '/practice', title: 'Practice editor', text: 'A free online editor for Java, Python, C++, Go and more.', flag: 'code_practice' },
-  { href: '/resume', title: 'Resume builder', text: 'Pick a LaTeX template and export a PDF.', flag: 'resume_builder' },
+  { href: '/question-of-the-day', icon: '🔥', tone: 'orange', featured: true, tag: 'New', title: 'Daily challenge', text: 'A question to read and a coding problem to solve, new every day. Do both to build your streak.' },
+  { href: '/questions', icon: '📖', tone: 'blue', title: 'Interview questions', text: 'Read answers with code examples and diagrams, and track what you have covered.' },
+  { href: '/problems', icon: '🧩', tone: 'emerald', title: 'Coding problems', text: 'Solve problems with test cases and run them online.', flag: 'code_practice' },
+  { href: '/practice', icon: '💻', tone: 'violet', title: 'Practice editor', text: 'A free online editor for Java, Python, C++, Go and more.', flag: 'code_practice' },
+  { href: '/resume', icon: '📄', tone: 'rose', title: 'Resume builder', text: 'Pick a LaTeX template and export a PDF.', flag: 'resume_builder' },
 ]
+const TONES = {
+  orange: 'bg-orange-500/15 text-orange-600 dark:text-orange-300',
+  blue: 'bg-blue-500/15 text-blue-600 dark:text-blue-300',
+  emerald: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
+  violet: 'bg-violet-500/15 text-violet-600 dark:text-violet-300',
+  rose: 'bg-rose-500/15 text-rose-600 dark:text-rose-300',
+}
 
 // Hero headline cycles through these, each with its logo (Google's favicon service, as on the roadmaps page).
 const HERO_COMPANIES = [
@@ -164,11 +171,21 @@ export default function HomePage() {
           </section>
         )}
 
-        <section className="mt-12 grid gap-3 sm:grid-cols-2" aria-label="More ways to prepare">
+        <section className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-2" aria-label="More ways to prepare">
           {LINKS.filter(l => !l.flag || features[l.flag] !== false).map(l => (
-            <a key={l.href} href={l.href} className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md dark:bg-slate-950">
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100">{l.title} →</h3>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{l.text}</p>
+            <a key={l.href} href={l.href}
+              className={`group flex items-start gap-4 rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${l.featured
+                ? 'border-orange-400/40 bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-transparent hover:border-orange-400/70 sm:col-span-2 sm:items-center sm:p-6'
+                : 'border-slate-200 bg-white hover:border-blue-400/60 dark:border-slate-800 dark:bg-slate-950'}`}>
+              <span className={`flex shrink-0 items-center justify-center rounded-xl ${TONES[l.tone]} ${l.featured ? 'h-14 w-14 text-3xl' : 'h-11 w-11 text-2xl'}`} aria-hidden="true">{l.icon}</span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <h3 className={`font-semibold text-slate-900 dark:text-slate-100 ${l.featured ? 'text-lg' : ''}`}>{l.title}</h3>
+                  {l.tag && <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{l.tag}</span>}
+                </span>
+                <span className="mt-1 block text-sm text-slate-600 dark:text-slate-400">{l.text}</span>
+              </span>
+              <span className="mt-1 shrink-0 text-lg text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-500" aria-hidden="true">→</span>
             </a>
           ))}
         </section>

@@ -8,6 +8,7 @@ import PublicProfilePage from './components/PublicProfilePage.jsx'
 import ProblemsPage from './components/ProblemsPage.jsx'
 import LeaderboardPage from './components/LeaderboardPage.jsx'
 import StreakPage from './components/StreakPage.jsx'
+import { DailyPromoGate } from './components/DailyPromo.jsx'
 import ResumePage from './components/ResumePage.jsx'
 import ResumeEditor from './components/ResumeEditor.jsx'
 import HomePage from './components/HomePage.jsx'
@@ -135,7 +136,7 @@ const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/problems', '/resum
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
-  const page = <><Routes /><FeedbackButton /></>
+  const page = <><Routes /><FeedbackButton /><DailyPromoGate /></>
   return NEEDS_FOOTER.some(p => path === p || path.startsWith(p === '/u/' ? p : p + '/')) ? (
     <div className="flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col [&>div]:flex-1 [&>div]:!min-h-0">{page}</div>

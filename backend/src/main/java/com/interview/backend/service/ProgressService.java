@@ -14,6 +14,9 @@ import java.util.List;
 public class ProgressService {
 
     private final UserProgressRepository repo;
+    // Optional so the test context that doesn't load PointsService still works.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private PointsService points;
 
     private UserProgress row(Long userId, String questionId) {
         return repo.findByUserIdAndQuestionId(userId, questionId).orElseGet(() -> {
@@ -38,6 +41,7 @@ public class ProgressService {
         p.setRead(true);
         p.setVisited(true); // reading implies visiting
         repo.save(p);
+        if (points != null) points.touchStreak(userId);
     }
 
     @Transactional

@@ -161,6 +161,7 @@ public class EmailService {
         String plain = body.replace(INTERVIEW_PROMO, interviewPromoPlain())
                 .replace(ROADMAP_PROMO, roadmapPromoPlain())
                 .replace(FEEDBACK_PROMO, feedbackPromoPlain())
+                .replace(DAILY_PROMO, dailyPromoPlain())
                 + "\n\n---\nDon't want these emails? Unsubscribe: " + unsubscribe;
         try {
             MimeMessage mime = mailSender.createMimeMessage();
@@ -183,6 +184,7 @@ public class EmailService {
             if (INTERVIEW_PROMO.equals(text)) { html.append(interviewPromoCard()); continue; }
             if (ROADMAP_PROMO.equals(text)) { html.append(roadmapPromoCard()); continue; }
             if (FEEDBACK_PROMO.equals(text)) { html.append(feedbackPromoCard()); continue; }
+            if (DAILY_PROMO.equals(text)) { html.append(dailyPromoCard()); continue; }
             if (!text.isEmpty()) html.append("<p style=\"margin:0 0 14px\">").append(linkify(text)).append("</p>");
         }
         html.append("<p style=\"margin-top:24px;font-size:12px;color:#64748b\">Don't want these emails? <a href=\"")
@@ -234,6 +236,25 @@ public class EmailService {
                 + "<tr><td style=\"padding:0;line-height:0\"><a href=\"" + url + "\"><img src=\"" + img + "roadmap-companies.png\" width=\"100%\" alt=\"Pick your target company: Google, Amazon, Meta, Microsoft, Uber, Netflix, Atlassian\" style=\"" + imgStyle + "\"></a></td></tr>"
                 + "<tr><td style=\"padding:0;line-height:0\"><img src=\"" + img + "roadmap-inside.png\" width=\"100%\" alt=\"Inside every roadmap: company-tagged DSA, system design and LLD, behavioral bank, progress tracking\" style=\"" + imgStyle + "\"></td></tr>"
                 + "<tr><td align=\"center\" style=\"padding:22px 24px 26px;background:#ffffff\"><a href=\"" + url + "\" style=\"display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(90deg,#f97316,#ec4899,#7c3aed);color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px\">See your company roadmap</a></td></tr></table>";
+    }
+
+    /** On its own line: the designed "Daily challenge" card (two pictures and a button). */
+    public static final String DAILY_PROMO = "[[daily-promo]]";
+
+    private String dailyPromoPlain() {
+        return "NEW: the daily challenge\n- Read: one interview question from a different topic every day.\n- Solve: one coding problem, run against tests in your browser.\n"
+                + "Keep your streak and earn points: " + frontendUrl + "/question-of-the-day";
+    }
+
+    // Same table-and-inline-styles layout as the other cards; pictures live in frontend/public/promo.
+    private String dailyPromoCard() {
+        String url = escapeHtml(frontendUrl + "/question-of-the-day");
+        String img = escapeHtml(emailAssetUrl.replaceAll("/+$", "")) + "/promo/";
+        String imgStyle = "display:block;width:100%;height:auto;border:0;font-size:18px;line-height:1.3;font-weight:bold;color:#c2410c";
+        return "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:8px 0 22px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#ffffff\">"
+                + "<tr><td style=\"padding:0;line-height:0\"><a href=\"" + url + "\"><img src=\"" + img + "daily-hero.png\" width=\"100%\" alt=\"New: the daily challenge. One question to read and one coding problem to solve, every day\" style=\"" + imgStyle + "\"></a></td></tr>"
+                + "<tr><td style=\"padding:0;line-height:0\"><img src=\"" + img + "daily-how.png\" width=\"100%\" alt=\"Read a question, solve a problem, keep your streak\" style=\"" + imgStyle + "\"></td></tr>"
+                + "<tr><td align=\"center\" style=\"padding:22px 24px 26px;background:#ffffff\"><a href=\"" + url + "\" style=\"display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(90deg,#f97316,#f59e0b);color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px\">Take today's challenge</a></td></tr></table>";
     }
 
     /** On its own line: a "rate us" card. Each star opens the site's feedback form with that rating already picked. */
@@ -299,20 +320,50 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    /** "Your N-day streak ends tonight": one tap to keep it, with today's question to read. */
+    /** "Your N-day streak ends tonight": one tap to keep it, with today's challenge picture. */
     public void sendStreakNudgeEmail(String toEmail, String name, int streak, String questionTitle, String questionUrl, String problemTitle) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("🔥 Your " + streak + "-day streak ends tonight");
-        message.setText("Hi" + (name == null || name.isBlank() ? "" : " " + name) + ",\n\n" +
-                "You're on a " + streak + "-day streak. Open Interview Reader once today to keep it, and earn your daily 25 points.\n\n" +
-                "Today's challenge:\n  Read: " + questionTitle + "\n" + (problemTitle == null ? "" : "  Solve: " + problemTitle + "\n") + "  " + questionUrl + "\n\n" +
-                "Revise what you've read: " + frontendUrl + "/profile\n\n" +
-                "Keep going!\nInterview Reader Team\n\n" +
-                "Don't want these emails? Unsubscribe: " + backendUrl + "/api/auth/unsubscribe?email=" +
-                URLEncoder.encode(toEmail, StandardCharsets.UTF_8) + "&sig=" + unsubscribeSig(toEmail));
-        mailSender.send(message);
+        String plain = "You're on a " + streak + "-day streak. Open Interview Reader once today to keep it, and earn your daily 25 points.\n\n"
+                + "Today's challenge:\n  Read: " + questionTitle + "\n" + (problemTitle == null ? "" : "  Solve: " + problemTitle + "\n") + "  " + questionUrl + "\n\n"
+                + "Keep going!\nInterview Reader Team";
+        String intro = "You're on a <b>" + streak + "-day streak</b>. Open Interview Reader once today to keep it, and earn your daily 25 points.</p><p style=\"margin:0 0 14px\">📖 <b>Read:</b> "
+                + escapeHtml(questionTitle) + (problemTitle == null ? "" : "<br>💻 <b>Solve:</b> " + escapeHtml(problemTitle));
+        sendHeroMail(toEmail, name, "🔥 Your " + streak + "-day streak ends tonight", plain, intro, questionUrl);
+    }
+
+    /** The midday reminder: today's question and problem are waiting, with the daily challenge picture and a button. */
+    public void sendChallengeReminderEmail(String toEmail, String name, String questionTitle, String problemTitle, String url) {
+        String plain = "Today's challenge takes a few minutes:\n  Read: " + questionTitle + "\n" + (problemTitle == null ? "" : "  Solve: " + problemTitle + "\n")
+                + "\nSubmit your solution and finish the read to keep your streak and earn points:\n" + url + "\n\nSee you there!\nInterview Reader Team";
+        String intro = "Today's challenge takes a few minutes:</p><p style=\"margin:0 0 14px\">📖 <b>Read:</b> " + escapeHtml(questionTitle)
+                + (problemTitle == null ? "" : "<br>💻 <b>Solve:</b> " + escapeHtml(problemTitle));
+        sendHeroMail(toEmail, name, "⏰ Today's challenge is waiting: " + questionTitle, plain, intro, url);
+    }
+
+    /**
+     * A friendly mail built around the daily challenge picture (the same banner as the site): greeting, a few lines, the banner as a
+     * link, a button and the unsubscribe footer. {@code introHtml} is already escaped HTML that fits inside a paragraph.
+     */
+    private void sendHeroMail(String toEmail, String name, String subject, String plainBody, String introHtml, String url) {
+        String hi = "Hi" + (name == null || name.isBlank() ? "" : " " + name) + ",";
+        String unsubscribe = backendUrl + "/api/auth/unsubscribe?email=" + URLEncoder.encode(toEmail, StandardCharsets.UTF_8) + "&sig=" + unsubscribeSig(toEmail);
+        String img = escapeHtml(emailAssetUrl.replaceAll("/+$", "")) + "/promo/daily-hero.png";
+        String html = "<div style=\"font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#1e293b;max-width:560px\">"
+                + "<p style=\"margin:0 0 14px\">" + escapeHtml(hi) + "</p>"
+                + "<p style=\"margin:0 0 14px\">" + introHtml + "</p>"
+                + "<a href=\"" + escapeHtml(url) + "\"><img src=\"" + img + "\" width=\"100%\" alt=\"Today's challenge: one question to read, one problem to solve\" style=\"display:block;width:100%;height:auto;border:0;border-radius:14px;font-weight:bold;color:#c2410c\"></a>"
+                + "<p style=\"margin:18px 0\" align=\"center\"><a href=\"" + escapeHtml(url) + "\" style=\"display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(90deg,#f97316,#f59e0b);color:#ffffff;text-decoration:none;font-weight:bold;font-size:16px\">Take today's challenge</a></p>"
+                + "<p style=\"margin-top:24px;font-size:12px;color:#64748b\">Don't want these emails? <a href=\"" + escapeHtml(unsubscribe) + "\">Unsubscribe</a></p></div>";
+        try {
+            MimeMessage mime = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(hi + "\n\n" + plainBody + "\n\n---\nDon't want these emails? Unsubscribe: " + unsubscribe, html);
+            mailSender.send(mime);
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Could not build the email", e);
+        }
     }
 
     /** HMAC of the email so the unsubscribe link can't be forged for someone else. */

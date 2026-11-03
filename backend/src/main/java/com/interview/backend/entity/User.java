@@ -83,6 +83,9 @@ public class User {
     private Instant trialUsedAt;
     /** The day (India time) the "your streak ends tonight" email was last sent. */
     private java.time.LocalDate streakNudgedOn;
+
+    /** The day (India time) the "today's challenge is waiting" reminder was last sent. */
+    private java.time.LocalDate dailyRemindedOn;
     /** The member's current Razorpay subscription (sub_...), if any. */
     @Column(length = 40)
     private String razorpaySubscriptionId;

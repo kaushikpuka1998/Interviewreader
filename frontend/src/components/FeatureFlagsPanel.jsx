@@ -9,6 +9,7 @@ const FLAGS = [
   { key: 'code_practice', badgeKey: 'new_badge_code_practice', badgeHelp: 'Show a "New" badge on the Problems (Coding) and Practice links in the top bar. Turn it on when you add a new batch.', label: 'Code practice', help: 'Turns code practice on or off. When off, the page is hidden and new runs are refused.' },
   { key: 'mock_interview', badgeKey: 'new_badge_interview', badgeHelp: 'Show a "New" badge on the Interview link in the top bar. Turn it on for the free mock interview offer.', label: 'Mock interviews', help: 'Turns mock interviews on or off: the Interview link and page, and new requests.' },
   { key: 'interviewer_open', label: 'Open interviewing to all members', help: 'Off: only admins can take mock interviews, and the interviewer option is hidden for everyone else. On: any member can choose to be the interviewer. Turn it on when enough members have offered to interview.' },
+  { key: 'daily_promo', label: 'Daily challenge login promo', help: 'Shows the daily challenge card once to each member (the question to read and the problem to solve).' },
   { key: 'code_practice_promo', label: 'Code practice login promo', help: 'Shows the code practice card to members after they log in.' },
 ]
 

@@ -7,15 +7,19 @@ import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { HelpfulVote } from './AnswerExtras.jsx'
 import { fetchQotd, fetchProblemStatement } from '../lib/engage.js'
 import { fetchQuestion } from '../lib/api.js'
-import { isLoggedIn, markReadRemote } from '../lib/auth.js'
+import { isLoggedIn, markReadRemote, fetchProgress } from '../lib/auth.js'
+import { fetchSolvedIds } from '../lib/code.js'
 import AuthModal from './AuthModal.jsx'
 import { setPageSeo } from '../lib/seo.js'
+
+const DoneTag = ({ label }) => <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">✓ {label}</span>
 
 // A new free question every day, with its answer on a public page: a reason to come back, and a page worth sharing.
 export default function QuestionOfTheDayPage() {
   const [q, setQ] = useState(null)
   const [problem, setProblem] = useState(null)
   const [error, setError] = useState('')
+  const [done, setDone] = useState({ read: false, solved: false })
   const [authOpen, setAuthOpen] = useState(false)
   const authed = isLoggedIn()
   useEffect(() => {
@@ -25,10 +29,13 @@ export default function QuestionOfTheDayPage() {
       setPageSeo({ title: `Daily interview challenge: ${item.title} | Interview Reader`, description: `Today's interview question with a detailed answer: ${item.title}`, path: '/question-of-the-day' })
     }).catch(e => setError(e.message))
   }, [authed])
+  // Refresh the done marks whenever the ids change (first load, and again after the 8s read mark is written).
+  const refreshDone = () => { if (!authed) return; fetchProgress().then(p => setDone(s => ({ ...s, read: q?.id ? p.read.includes(q.id) : false }))).catch(() => {}); if (problem?.id) fetchSolvedIds().then(ids => setDone(s => ({ ...s, solved: ids.includes(problem.id) }))).catch(() => {}) }
+  useEffect(refreshDone, [authed, q?.id, problem?.id])
   // Reading it counts: marked read once the member has stayed on the answer for a few seconds, so the home card can tick it off.
   useEffect(() => {
     if (!authed || !q?.id) return
-    const t = setTimeout(() => markReadRemote(q.id).catch(() => {}), 8000)
+    const t = setTimeout(() => markReadRemote(q.id).then(() => setDone(s => ({ ...s, read: true }))).catch(() => {}), 8000)
     return () => clearTimeout(t)
   }, [authed, q?.id])
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -37,6 +44,7 @@ export default function QuestionOfTheDayPage() {
       <TopBar />
       <main className="mx-auto flex w-full max-w-xl flex-1 items-center px-4 py-10">
         <div className="w-full rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-lg dark:border-slate-800 dark:bg-slate-950">
+          <img src="/promo/daily-hero.png" alt="" className="-mx-7 -mt-7 mb-5 block h-auto max-w-none rounded-t-2xl" style={{ width: 'calc(100% + 3.5rem)' }} />
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Sign in to take today's challenge</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Two new items every day, free with an account. Sign in to unlock them and keep your streak.</p>
           <ul className="mt-4 space-y-2 text-left text-sm">
@@ -60,15 +68,15 @@ export default function QuestionOfTheDayPage() {
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white" aria-hidden="true">💻</span>
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Coding problem of the day · {problem.difficulty}</span>
+                <span className="block text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Coding problem of the day · {problem.difficulty}{done.solved && <DoneTag label="Solved today" />}</span>
                 <span className="block truncate text-base font-semibold text-slate-900 dark:text-slate-100">{problem.title}</span>
               </span>
-              <a href={`/practice?id=${problem.id}`} data-track="qotd_page_solve" className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Open in editor →</a>
+              <a href={`/practice?id=${problem.id}`} data-track="qotd_page_solve" className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-white ${done.solved ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-emerald-600 hover:bg-emerald-700'}`}>{done.solved ? 'Solve again →' : 'Open in editor →'}</a>
             </div>
             {problem.statement && <div className="mt-3 max-h-72 overflow-y-auto rounded-xl bg-white/60 p-3 dark:bg-slate-900/50"><Markdown text={problem.statement} /></div>}
           </div>
         )}
-        <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Question to read</p>
+        <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Question to read{done.read && <DoneTag label="Read today" />}</p>
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         {!q && !error && <p className="mt-4 text-sm text-slate-500">Loading today's question…</p>}
         {q && (

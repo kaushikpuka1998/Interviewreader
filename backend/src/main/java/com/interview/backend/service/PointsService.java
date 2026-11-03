@@ -56,9 +56,18 @@ public class PointsService implements CommandLineRunner {
         }
     }
 
-    public void read(Long userId, String questionId) { award(userId, PointEvent.READ, questionId, READ); }
+    public void read(Long userId, String questionId) { award(userId, PointEvent.READ, questionId, READ); touchStreak(userId); }
 
-    public void solve(Long userId, Long problemId) { award(userId, PointEvent.SOLVE, String.valueOf(problemId), SOLVE); }
+    public void solve(Long userId, Long problemId) { award(userId, PointEvent.SOLVE, String.valueOf(problemId), SOLVE); touchStreak(userId); }
+
+    /**
+     * A read or solve proves the member is here today, so count the day for the streak and (once) award the login points. The daily
+     * check-in from StreakBadge still runs on page load; this is the back-stop for a member who did the challenge on another device,
+     * from the daily page, or before the badge mounted. Idempotent: award() dedupes the login event, and we only touch the date once.
+     */
+    public synchronized void touchStreak(Long userId) {
+        users.findById(userId).ifPresent(this::checkIn);
+    }
 
     /**
      * The day's check-in, on the first signed-in visit of a day (India time): extends the streak if yesterday was

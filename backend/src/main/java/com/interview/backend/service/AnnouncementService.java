@@ -37,6 +37,7 @@ public class AnnouncementService {
                 .replace("{{practice_link}}", frontendUrl + "/practice")
                 .replace("{{interview_link}}", frontendUrl + "/interview")
                 .replace("{{roadmap_link}}", frontendUrl + "/roadmaps")
+                .replace("{{daily_link}}", frontendUrl + "/question-of-the-day")
                 .replace("{{feedback_link}}", frontendUrl + "/feedback");
     }
 

@@ -153,6 +153,27 @@ Kaushik
 InterviewReader`,
 }
 
+const DAILY_TEMPLATE = {
+  subject: 'New on InterviewReader: a daily challenge, {{name}}',
+  body: `Hi {{name}},
+
+Every day there are now two new things waiting for you on InterviewReader:
+
+- Read: one interview question from a different topic each day, with a full answer.
+- Solve: one coding problem, with a code editor that runs your solution against tests.
+
+[[daily-promo]]
+
+Do both in a few minutes, keep your streak alive, and earn points for the leaderboard. Check your streak and points history any time on the streak page.
+
+Prefer a plain link?
+{{daily_link}}
+
+See you there!
+Kaushik
+InterviewReader`,
+}
+
 const FEEDBACK_TEMPLATE = {
   subject: 'Quick question, {{name}}: how is InterviewReader working for you?',
   body: `Hi {{name}},
@@ -169,7 +190,7 @@ Kaushik
 InterviewReader`,
 }
 
-const PLACEHOLDERS = ['{{name}}', '{{profile_link}}', '{{resume_link}}', '{{practice_link}}', '{{interview_link}}', '{{roadmap_link}}', '{{feedback_link}}', '[[interview-promo]]', '[[roadmap-promo]]', '[[feedback-promo]]']
+const PLACEHOLDERS = ['{{name}}', '{{profile_link}}', '{{resume_link}}', '{{practice_link}}', '{{interview_link}}', '{{roadmap_link}}', '{{daily_link}}', '{{feedback_link}}', '[[interview-promo]]', '[[roadmap-promo]]', '[[feedback-promo]]', '[[daily-promo]]']
 
 // Shows the email as one member would see it, with sample values filled in.
 function Preview({ subject, body }) {
@@ -180,6 +201,7 @@ function Preview({ subject, body }) {
     .replaceAll('{{practice_link}}', `${window.location.origin}/practice`)
     .replaceAll('{{interview_link}}', `${window.location.origin}/interview`)
     .replaceAll('{{roadmap_link}}', `${window.location.origin}/roadmaps`)
+    .replaceAll('{{daily_link}}', `${window.location.origin}/question-of-the-day`)
     .replaceAll('{{feedback_link}}', `${window.location.origin}/feedback`)
   // Designed cards: pictures plus a button. Show the real ones in the preview, in place of each marker.
   const imageCard = (images, cta) => (
@@ -192,6 +214,7 @@ function Preview({ subject, body }) {
   )
   const CARDS = {
     '[[interview-promo]]': imageCard(['mock-interview', 'interview-types', 'how-it-works'], 'Book your free mock interview'),
+    '[[daily-promo]]': imageCard(['daily-hero', 'daily-how'], "Take today's challenge"),
     '[[roadmap-promo]]': imageCard(['roadmap-hero', 'roadmap-companies', 'roadmap-inside'], 'See your company roadmap'),
     '[[feedback-promo]]': (
       <div className="my-3 rounded-xl border border-pink-200 bg-gradient-to-br from-orange-50 via-pink-50 to-violet-50 p-5 text-center">
@@ -262,6 +285,12 @@ function Compose({ onSent }) {
     setAudience('all')
     setShowPreview(true)
   }
+  const useDailyTemplate = () => {
+    setSubject(DAILY_TEMPLATE.subject)
+    setBody(DAILY_TEMPLATE.body)
+    setAudience('all')
+    setShowPreview(true)
+  }
   const useFeedbackTemplate = () => {
     setSubject(FEEDBACK_TEMPLATE.subject)
     setBody(FEEDBACK_TEMPLATE.body)
@@ -297,6 +326,7 @@ function Compose({ onSent }) {
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <button type="button" onClick={useTemplate} className="rounded-lg bg-indigo-600 px-3 py-1.5 font-semibold text-white">Use "complete your profile" template</button>
+        <button type="button" onClick={useDailyTemplate} className="rounded-lg bg-orange-600 px-3 py-1.5 font-semibold text-white">Use "daily challenge" launch template</button>
         <button type="button" onClick={useResumeTemplate} className="rounded-lg bg-emerald-600 px-3 py-1.5 font-semibold text-white">Use "resume builder" launch template</button>
         <button type="button" onClick={usePracticeTemplate} className="rounded-lg bg-orange-500 px-3 py-1.5 font-semibold text-white">Use "code practice" launch template</button>
         <button type="button" onClick={useInterviewTemplate} className="rounded-lg bg-pink-600 px-3 py-1.5 font-semibold text-white">Use "free mock interview" template</button>

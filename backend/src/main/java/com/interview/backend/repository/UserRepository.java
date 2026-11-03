@@ -107,4 +107,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.streakNudgedOn = :today WHERE u.id = :id AND (u.streakNudgedOn IS NULL OR u.streakNudgedOn <> :today)")
     int claimStreakNudge(@org.springframework.data.repository.query.Param("id") Long id,
                          @org.springframework.data.repository.query.Param("today") java.time.LocalDate today);
+
+    /**
+     * Who gets the midday challenge reminder: members active in the last 14 days who haven't finished today's pair (read the
+     * question AND solved the problem) and weren't reminded today. Members whose streak ends tonight (last check-in yesterday)
+     * are left out: the evening streak email already carries the challenge.
+     */
+    @Query(value = "SELECT * FROM app_users u WHERE u.streak_last_date >= :since AND u.streak_last_date <> :yesterday " +
+                   "AND (u.email_opt_out IS NULL OR u.email_opt_out = false) AND (u.daily_reminded_on IS NULL OR u.daily_reminded_on <> :today) " +
+                   "AND NOT (EXISTS (SELECT 1 FROM user_progress p WHERE p.user_id = u.id AND p.question_id = :questionId AND p.read AND p.read_at >= :dayStart) " +
+                   "AND (CAST(:problemId AS BIGINT) IS NULL OR EXISTS (SELECT 1 FROM code_submissions s WHERE lower(s.user_email) = lower(u.email) " +
+                   "AND s.problem_id = :problemId AND s.status = 'Accepted' AND s.created_at >= :dayStart)))", nativeQuery = true)
+    List<User> findChallengeReminderCandidates(@org.springframework.data.repository.query.Param("since") java.time.LocalDate since,
+                                               @org.springframework.data.repository.query.Param("yesterday") java.time.LocalDate yesterday,
+                                               @org.springframework.data.repository.query.Param("today") java.time.LocalDate today,
+                                               @org.springframework.data.repository.query.Param("questionId") String questionId,
+                                               @org.springframework.data.repository.query.Param("problemId") Long problemId,
+                                               @org.springframework.data.repository.query.Param("dayStart") java.time.Instant dayStart);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.dailyRemindedOn = :today WHERE u.id = :id AND (u.dailyRemindedOn IS NULL OR u.dailyRemindedOn <> :today)")
+    int claimChallengeReminder(@org.springframework.data.repository.query.Param("id") Long id,
+                               @org.springframework.data.repository.query.Param("today") java.time.LocalDate today);
 }
