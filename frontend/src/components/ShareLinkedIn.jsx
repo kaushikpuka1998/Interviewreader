@@ -52,8 +52,8 @@ export default function ShareLinkedIn({ question, company, progress, label = 'Sh
   }
   return (
     <button type="button" onClick={open} title="Share on LinkedIn" aria-label="Share on LinkedIn"
-      className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#0a66c2] px-2.5 text-sm font-medium text-white transition-colors hover:bg-[#004182] sm:min-h-11 sm:gap-2 sm:px-3 ${className}`}>
-      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      className={`inline-flex min-h-9 items-center gap-2 rounded-lg bg-gradient-to-b from-[#2077d4] to-[#0a66c2] px-3 text-sm font-semibold text-white shadow-md shadow-[#0a66c2]/30 ring-1 ring-inset ring-white/25 transition duration-200 hover:-translate-y-0.5 hover:from-[#0a66c2] hover:to-[#004182] hover:shadow-lg hover:shadow-[#0a66c2]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a66c2] focus-visible:ring-offset-2 active:translate-y-0 active:shadow-sm sm:min-h-11 sm:gap-2.5 sm:px-4 ${className}`}>
+      <svg className="h-[18px] w-[18px] drop-shadow-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
       </svg>
       {label && <span className="hidden sm:inline">{label}</span>}

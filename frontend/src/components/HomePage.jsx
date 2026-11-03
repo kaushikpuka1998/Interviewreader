@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import TopBar from './TopBar.jsx'
 import Footer from './Footer.jsx'
 import QotdCard from './QotdCard.jsx'
@@ -31,12 +31,58 @@ const TONES = {
   rose: 'bg-rose-500/15 text-rose-600 dark:text-rose-300',
 }
 
+// Light-mode tile colours per topic: a tinted face, a matching border and a thicker coloured top edge, so the tiles read clearly
+// against the white page. (Dark mode keeps its plain dark tiles.)
+const TILE = {
+  java: 'border-orange-200 border-t-orange-500 bg-orange-50 hover:border-orange-400 hover:border-t-orange-600 hover:bg-orange-100',
+  react: 'border-cyan-200 border-t-cyan-500 bg-cyan-50 hover:border-cyan-400 hover:border-t-cyan-600 hover:bg-cyan-100',
+  node: 'border-green-200 border-t-green-600 bg-green-50 hover:border-green-400 hover:border-t-green-600 hover:bg-green-100',
+  sql: 'border-purple-200 border-t-purple-500 bg-purple-50 hover:border-purple-400 hover:border-t-purple-600 hover:bg-purple-100',
+  hld: 'border-teal-200 border-t-teal-600 bg-teal-50 hover:border-teal-400 hover:border-t-teal-600 hover:bg-teal-100',
+  golang: 'border-sky-200 border-t-sky-500 bg-sky-50 hover:border-sky-400 hover:border-t-sky-600 hover:bg-sky-100',
+  kafka: 'border-slate-300 border-t-slate-600 bg-slate-100 hover:border-slate-400 hover:border-t-slate-600 hover:bg-slate-100',
+  microservices: 'border-rose-200 border-t-rose-500 bg-rose-50 hover:border-rose-400 hover:border-t-rose-600 hover:bg-rose-100',
+  'design-patterns': 'border-amber-200 border-t-amber-500 bg-amber-50 hover:border-amber-400 hover:border-t-amber-600 hover:bg-amber-100',
+  misc: 'border-emerald-200 border-t-emerald-600 bg-emerald-50 hover:border-emerald-400 hover:border-t-emerald-600 hover:bg-emerald-100',
+  angular: 'border-red-200 border-t-red-500 bg-red-50 hover:border-red-400 hover:border-t-red-600 hover:bg-red-100',
+  rails: 'border-pink-200 border-t-pink-500 bg-pink-50 hover:border-pink-400 hover:border-t-pink-600 hover:bg-pink-100',
+  behavioral: 'border-emerald-200 border-t-emerald-500 bg-emerald-50 hover:border-emerald-400 hover:border-t-emerald-600 hover:bg-emerald-100',
+}
+const TILE_DEFAULT = 'border-slate-200 border-t-slate-400 bg-slate-50 hover:border-slate-400 hover:border-t-slate-600 hover:bg-slate-100'
+// Tiles are laid out as a centred, wrapping row (not a rigid grid): with 13 topics a grid always strands one tile alone at the left
+// of the last row; this keeps every tile the same size and centres the short last row. The widths are 1/2, 1/3 or 1/4 minus the gap.
+const TILE_BASIS = 'basis-[calc(50%-0.375rem)] sm:basis-[calc(33.333%-0.5rem)] lg:basis-[calc(25%-0.5625rem)]'
+
 // Hero headline cycles through these, each with its logo (Google's favicon service, as on the roadmaps page).
 const HERO_COMPANIES = [
   ['Google', 'google.com'], ['Amazon', 'amazon.com'], ['Meta', 'meta.com'], ['Microsoft', 'microsoft.com'],
-  ['Uber', 'uber.com'], ['Netflix', 'netflix.com'], ['Atlassian', 'atlassian.com'],
+  ['Uber', 'uber.com'], ['Netflix', 'netflix.com'], ['Atlassian', 'atlassian.com'], ['Apple', 'apple.com'], ['Walmart', 'walmart.com'],
 ]
+// The headline word wears each company's own colours. `letters` = one colour per letter (Google), `gradient` = the logo's colours
+// as a text gradient (Microsoft); otherwise a single colour, with a lighter `dark` shade where the brand colour would be too dim
+// (or, for Uber, invisible) on the dark page.
+const BRAND = {
+  Google: { letters: ['#4285F4', '#EA4335', '#FBBC05', '#4285F4', '#34A853', '#EA4335'] },
+  Amazon: { color: '#E88A00', dark: '#FF9900' },
+  Meta: { color: '#0866FF', dark: '#4C9BFF' },
+  Microsoft: { gradient: 'linear-gradient(90deg,#F25022 0%,#7FBA00 36%,#00A4EF 68%,#FFB900 100%)' },
+  Uber: { color: '#000000', dark: '#FFFFFF' },
+  Netflix: { color: '#E50914', dark: '#FF2B38' },
+  Atlassian: { color: '#0052CC', dark: '#4C9AFF' },
+  Apple: { color: '#1D1D1F', dark: '#F5F5F7' },
+  Walmart: { color: '#0071CE', dark: '#4DA3FF' },
+}
 const logoUrl = domain => `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+
+// Inline colours for the headline word (see BRAND). Gradient words are clipped to the text; the rest set CSS variables that the
+// light/dark classes read.
+function brandStyle(name) {
+  const b = BRAND[name]
+  if (!b) return { '--brand': '#047857', '--brand-dark': '#34d399' }
+  if (b.gradient) return { backgroundImage: b.gradient, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }
+  if (b.letters) return {}
+  return { '--brand': b.color, '--brand-dark': b.dark || b.color }
+}
 
 export default function HomePage() {
   const features = useFeatures()
@@ -59,9 +105,20 @@ export default function HomePage() {
     return () => clearInterval(t)
   }, [])
   const [heroName] = HERO_COMPANIES[heroIdx]
+  // The word's box follows the word: narrow for "Meta", wide for "Microsoft", and the rest of the line glides to fit (width transition).
+  // Measured from the word itself, again after the web font loads and when the window resizes.
+  const heroWord = useRef(null)
+  const [heroW, setHeroW] = useState(null)
+  useLayoutEffect(() => {
+    const measure = () => { if (heroWord.current) setHeroW(heroWord.current.offsetWidth) }
+    measure()
+    window.addEventListener('resize', measure)
+    document.fonts?.ready.then(measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [heroName])
 
   return (
-    <div className="flex min-h-screen flex-col bg-white bg-[radial-gradient(70rem_28rem_at_50%_-8rem,#d6f1e6,transparent_70%),radial-gradient(40rem_24rem_at_100%_30rem,#e6f6ef,transparent_70%)] dark:bg-slate-900 dark:bg-none">
+    <div className="flex min-h-screen flex-col bg-white bg-[radial-gradient(70rem_28rem_at_50%_-8rem,#bfe9d6,transparent_70%),radial-gradient(40rem_24rem_at_100%_30rem,#d3efe2,transparent_70%)] dark:bg-slate-900 dark:bg-none">
       <TopBar />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         <section className="text-center">
@@ -77,11 +134,14 @@ export default function HomePage() {
 
           <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl dark:text-slate-100">
             Crack your{' '}
-            {/* The cell is as wide as the longest name (the others are invisible spacers), so the line never re-wraps as the word changes. */}
-            <span className="inline-grid align-baseline">
-              {HERO_COMPANIES.map(([n]) => <span key={n} aria-hidden="true" className="invisible col-start-1 row-start-1">{n}</span>)}
-              <span key={heroName} className="hero-word col-start-1 row-start-1 bg-gradient-to-r from-blue-600 via-fuchsia-500 to-pink-500 bg-clip-text text-center text-transparent dark:from-blue-400 dark:via-fuchsia-400 dark:to-pink-400">
-                {heroName}
+            {/* The word's padding (cancelled by the negative margin) lets the clipped gradient paint the descender of a "g" instead of cutting it off.
+                On a phone the word has its own line (always three lines, so the text below never jumps); from sm up it sits inline
+                and its box grows or shrinks to the word. */}
+            <span className="block text-center sm:inline-flex sm:w-[var(--hero-w)] sm:justify-center sm:align-baseline sm:transition-[width] sm:duration-500 sm:ease-out motion-reduce:transition-none"
+              style={heroW ? { '--hero-w': `${heroW}px` } : undefined}>
+              <span ref={heroWord} key={heroName} className="hero-word -mb-[0.2em] inline-block shrink-0 whitespace-nowrap pb-[0.2em] text-[color:var(--brand)] dark:text-[color:var(--brand-dark,var(--brand))]"
+                style={brandStyle(heroName)}>
+                {BRAND[heroName]?.letters ? [...heroName].map((ch, i) => <span key={i} style={{ color: BRAND[heroName].letters[i % BRAND[heroName].letters.length] }}>{ch}</span>) : heroName}
               </span>
             </span>
             {' '}interview.
@@ -132,15 +192,15 @@ export default function HomePage() {
         {!stats && (
           <div className="mt-12" aria-hidden="true">
             <div className="mb-4 h-7 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{Array.from({ length: 8 }, (_, i) => <div key={i} className="h-[116px] animate-pulse rounded-2xl bg-white dark:bg-slate-950" />)}</div>
+            <div className="flex flex-wrap justify-center gap-3">{Array.from({ length: 13 }, (_, i) => <div key={i} className={`h-[124px] animate-pulse rounded-2xl bg-emerald-50 dark:bg-slate-950 ${TILE_BASIS}`} />)}</div>
           </div>
         )}
         {topics.length > 0 && (
           <section className="mt-12" aria-labelledby="topics">
             <h2 id="topics" className="mb-4 flex items-center gap-2.5 text-xl font-bold text-slate-900 dark:text-slate-100"><span className="h-5 w-1 rounded-full bg-emerald-600 dark:hidden" aria-hidden="true" />Browse by topic</h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="flex flex-wrap justify-center gap-3">
               {topics.map(([tech, count]) => (
-                <a key={tech} href={`/questions?tech=${encodeURIComponent(tech)}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-900/10 dark:border-0 dark:bg-slate-950 dark:hover:shadow-md">
+                <a key={tech} href={`/questions?tech=${encodeURIComponent(tech)}`} className={`${TILE_BASIS} rounded-2xl border border-t-4 p-4 shadow-md shadow-slate-900/5 transition duration-200 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-slate-900/20 hover:ring-2 hover:ring-slate-900/5 ${TILE[tech] || TILE_DEFAULT} dark:border-0 dark:bg-slate-950 dark:shadow-sm dark:hover:translate-y-0 dark:hover:bg-slate-950 dark:hover:shadow-md dark:hover:ring-0`}>
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${techBadge(tech)}`}>{techLabel(tech)}</span>
                   <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-slate-100">{count.toLocaleString()}</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400">questions</p>
@@ -175,9 +235,10 @@ export default function HomePage() {
               <a href="/problems" className="text-sm font-medium text-emerald-700 hover:underline dark:text-blue-400">All problems →</a>
             </div>
             <div className="flex flex-wrap gap-2">
+              {/* grow: each row stretches to the full width, so the chips line up with the "All problems" link on the right */}
               {companies.slice(0, 24).map(c => (
-                <a key={c.name} href={`/problems?company=${encodeURIComponent(c.name)}`} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm transition hover:border-emerald-500/60 hover:bg-emerald-50 hover:shadow-md dark:border-0 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-950">
-                  {c.name} <span className="font-semibold text-emerald-700 dark:font-normal dark:text-slate-400">{c.count}</span>
+                <a key={c.name} href={`/problems?company=${encodeURIComponent(c.name)}`} className="inline-flex grow items-center justify-center gap-2 rounded-full border border-emerald-300 bg-gradient-to-b from-white to-emerald-50 py-1.5 pl-4 pr-1.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-700 hover:from-emerald-600 hover:to-emerald-700 hover:text-white hover:shadow-lg hover:shadow-emerald-900/25 group dark:inline dark:border-0 dark:bg-slate-950 dark:bg-none dark:px-4 dark:py-2 dark:font-medium dark:text-slate-100 dark:hover:translate-y-0 dark:hover:bg-slate-950 dark:hover:shadow-none dark:text-center">
+                  {c.name} <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-bold tabular-nums text-white transition-colors group-hover:bg-white group-hover:text-emerald-800 dark:group-hover:bg-transparent dark:group-hover:text-slate-400 dark:bg-transparent dark:p-0 dark:text-sm dark:font-normal dark:text-slate-400">{c.count}</span>
                 </a>
               ))}
             </div>
@@ -188,8 +249,8 @@ export default function HomePage() {
           {LINKS.filter(l => !l.flag || features[l.flag] !== false).map(l => (
             <a key={l.href} href={l.href}
               className={`group flex items-start gap-4 rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${l.featured
-                ? 'border-orange-300 bg-gradient-to-r from-orange-50 via-amber-50 to-white shadow-md shadow-orange-900/5 hover:border-orange-400 sm:col-span-2 sm:items-center sm:p-6 dark:border-orange-400/40 dark:from-orange-500/15 dark:via-amber-500/10 dark:to-transparent dark:shadow-sm dark:hover:border-orange-400/70'
-                : 'border-slate-200 bg-white hover:border-emerald-500/50 hover:shadow-emerald-900/10 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-400/60'}`}>
+                ? 'border-orange-300 bg-gradient-to-r from-orange-50 via-amber-50 to-white shadow-md shadow-orange-900/5 hover:border-orange-500 hover:from-orange-100 hover:via-amber-100 hover:shadow-lg hover:shadow-orange-900/15 sm:col-span-2 sm:items-center sm:p-6 dark:border-orange-400/40 dark:from-orange-500/15 dark:via-amber-500/10 dark:to-transparent dark:shadow-sm dark:hover:border-orange-400/70 dark:hover:from-orange-500/15 dark:hover:via-amber-500/10'
+                : 'border-slate-200 bg-white hover:border-emerald-600 hover:bg-emerald-50 hover:shadow-lg hover:shadow-emerald-900/15 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-400/60 dark:hover:bg-slate-950'}`}>
               <span className={`flex shrink-0 items-center justify-center rounded-xl ${TONES[l.tone]} ${l.featured ? 'h-14 w-14 text-3xl' : 'h-11 w-11 text-2xl'}`} aria-hidden="true">{l.icon}</span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">

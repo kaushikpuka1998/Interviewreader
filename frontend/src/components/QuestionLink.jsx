@@ -36,8 +36,8 @@ export default function QuestionLink({ question, isActive, onClick, selectedId, 
         border border-transparent
         ${
           isActive
-            ? 'bg-gradient-to-r from-blue-50 to-blue-50/50 dark:from-blue-900/20 dark:to-blue-900/10 text-slate-900 dark:text-slate-100 shadow-[0_0_0_1px_rgba(59,130,246,0.3)] dark:shadow-[0_0_0_1px_rgba(59,130,246,0.2)]'
-            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-100 dark:hover:border-slate-800'
+            ? 'bg-gradient-to-r from-blue-200 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/10 text-slate-900 dark:text-slate-100 shadow-[0_0_0_1px_rgba(4,120,87,0.55)] shadow-emerald-900/10 dark:shadow-[0_0_0_1px_rgba(59,130,246,0.2)]'
+            : 'text-slate-700 dark:text-slate-300 hover:bg-blue-100 hover:border-blue-300 hover:shadow-md hover:shadow-emerald-900/10 dark:hover:bg-slate-800 dark:hover:border-slate-800 dark:hover:shadow-none'
         }
         ${
           isActive

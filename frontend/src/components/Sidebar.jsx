@@ -59,7 +59,7 @@ export default function Sidebar({  questions, filtered, selectedId, query, setQu
 
   return (
     <aside
-      className={`sidebar sidebar-responsive h-full flex flex-col overflow-y-auto bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 ${isMobile ? '' : 'hidden lg:flex'}`}
+      className={`sidebar sidebar-responsive h-full flex flex-col overflow-y-auto bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 ${isMobile ? '' : 'hidden lg:flex'}`}
       style={{ width: `${sidebarWidth}px`, minWidth: '280px', maxWidth: '600px', flexShrink: 0 }}
     >
       {isMobile && <>

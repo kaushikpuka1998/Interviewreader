@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light mode only: a deeper green than the base palette (whose 50-300 steps also serve as light text on the dark theme, so they can't
+   be changed in tailwind.config.js). Page backgrounds, panels, chips and borders read as green instead of nearly white. */
+:where(html:not(.dark)) .bg-slate-50 { background-color: #edf7f2; }
+:where(html:not(.dark)) .bg-slate-100 { background-color: #dff0e7; }
+:where(html:not(.dark)) .bg-slate-200 { background-color: #cae4d7; }
+:where(html:not(.dark)) .hover\:bg-slate-50:hover { background-color: #e2f2ea; }
+:where(html:not(.dark)) .hover\:bg-slate-100:hover { background-color: #d3eadf; }
+:where(html:not(.dark)) .hover\:bg-slate-200:hover { background-color: #bfdccd; }
+:where(html:not(.dark)) .border-slate-200 { border-color: #c5dfd2; }
+:where(html:not(.dark)) .border-slate-300 { border-color: #aacdbb; }
+:where(html:not(.dark)) .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #c5dfd2; }
+
 /* Metric-matched stand-in for Inter while it loads: Arial scaled to Inter's proportions, so the swap doesn't reflow the text
    (the main cause of layout shift on first load). */
 @font-face {

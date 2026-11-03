@@ -304,6 +304,51 @@
       "logo": "https://www.google.com/s2/favicons?domain=atlassian.com&sz=128"
     },
     {
+      "id": "apple",
+      "name": "Apple",
+      "roleLabel": "Software Engineer (ICT3 / ICT4)",
+      "color": "from-slate-800 via-slate-600 to-slate-400",
+      "badgeTone": "border-slate-500/30 bg-slate-100 text-slate-800 dark:bg-slate-800/60 dark:text-slate-200",
+      "icon": "A",
+      "tagline": "Craft, Privacy & Devices at Scale: Strong Coding, Sync, Messaging & Product Passion",
+      "rounds": [
+        {
+          "name": "Recruiter Screen",
+          "duration": "30 mins",
+          "desc": "Role and team fit, what you have built, how the process works"
+        },
+        {
+          "name": "Technical Phone Screen",
+          "duration": "45-60 mins",
+          "desc": "Live coding on data structures and strings; clean, tested code"
+        },
+        {
+          "name": "Onsite Technical Loop",
+          "duration": "4-6 x 45-60 mins",
+          "desc": "Back-to-back conversations with the hiring team: coding, system or domain design, depth in the team's stack"
+        },
+        {
+          "name": "Hiring Manager / Cross-functional",
+          "duration": "45 mins",
+          "desc": "Past projects, collaboration with design and product, and why Apple"
+        }
+      ],
+      "rubric": {
+        "coding": "Correct, readable code with edge cases handled and a habit of testing it out loud; attention to detail.",
+        "design": "Reliability, privacy and security by default (encryption, minimal data), battery and performance on devices, graceful offline behaviour.",
+        "mindset": "Craftsmanship, passion for the product, collaboration across teams, and discretion."
+      },
+      "gotchas": [
+        "Loops are team-specific: expect questions in the stack your team uses (Swift, Objective-C, C++ or Java), so read the job description closely.",
+        "Privacy and security come up in design rounds: be ready to say what data you keep, where it lives and how it is protected.",
+        "Interviewers notice attention to detail: walk through edge cases and test your code before they ask.",
+        "\"Why Apple?\" is asked in some form: name a specific product you admire and what you would improve."
+      ],
+      "recommendedHoursPerDay": 3,
+      "logo": "https://www.google.com/s2/favicons?domain=apple.com&sz=128",
+      "tag": "Apple"
+    },
+    {
       "id": "guidewire",
       "name": "Guidewire",
       "roleLabel": "Software Engineer / Senior (Java)",
@@ -3520,6 +3565,216 @@
           }
         ],
         "cheatSheet": "Show humility: credit teammates and say what you would do differently."
+      },
+      {
+        "id": "star-core",
+        "title": "Core STAR Story Bank",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "Mandatory (all companies)",
+        "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
+        "concepts": [
+          "Situation 15% / Task 10% / Action 60% / Result 15%",
+          "Quantify every result",
+          "Say \"I\", not \"we\"",
+          "Have a failure and a conflict story ready"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Tell me about yourself.",
+            "path": "/tell-me-about-yourself?id=behavioral-1"
+          },
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you failed.",
+            "path": "/tell-me-about-a-time-you-failed?id=behavioral-3"
+          },
+          {
+            "title": "Describe a conflict with a teammate and how you resolved it.",
+            "path": "/describe-a-conflict-with-a-teammate-and-how-you-resolved-it?id=behavioral-4"
+          },
+          {
+            "title": "Tell me about a time you disagreed with your manager.",
+            "path": "/tell-me-about-a-time-you-disagreed-with-your-manager?id=behavioral-5"
+          },
+          {
+            "title": "Tell me about the most technically challenging problem you solved.",
+            "path": "/tell-me-about-the-most-technically-challenging-problem-you-solved?id=behavioral-7"
+          },
+          {
+            "title": "Tell me about a time you influenced without authority.",
+            "path": "/tell-me-about-a-time-you-influenced-without-authority?id=behavioral-11"
+          },
+          {
+            "title": "Tell me about a time you had to make a decision with incomplete information.",
+            "path": "/tell-me-about-a-time-you-had-to-make-a-decision-with-incomplete-information?id=behavioral-13"
+          }
+        ],
+        "cheatSheet": "Write each story down once in STAR form; then map it to each company's values."
+      }
+    ],
+    "apple": [
+      {
+        "id": "ap-sync",
+        "title": "Design iCloud: Photos & File Sync",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Apple)",
+        "summary": "Keep files and photos in step across a person's devices, securely and offline-first.",
+        "concepts": [
+          "Chunking and delta sync",
+          "Conflict resolution (version vectors)",
+          "End-to-end encryption and key management",
+          "Offline-first clients"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a photo storage service (like Google Photos, basic).",
+            "path": "/design-a-photo-storage-service-like-google-photos-basic?id=hld-770"
+          },
+          {
+            "title": "Design Dropbox.",
+            "path": "/design-dropbox?id=hld-903"
+          },
+          {
+            "title": "Design Google Drive.",
+            "path": "/design-google-drive?id=hld-902"
+          }
+        ],
+        "cheatSheet": "Sync chunks and metadata separately; resolve conflicts with version vectors; encrypt before upload."
+      },
+      {
+        "id": "ap-messaging",
+        "title": "Design iMessage-style Messaging",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Very High (Apple)",
+        "summary": "Private one-to-one and group chat that works across a person's many devices.",
+        "concepts": [
+          "End-to-end encryption and key exchange",
+          "Multi-device fan-out",
+          "Delivery and read receipts",
+          "Offline queues"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design WhatsApp.",
+            "path": "/design-whatsapp?id=hld-884"
+          },
+          {
+            "title": "Design a message broker.",
+            "path": "/design-a-message-broker?id=hld-794"
+          },
+          {
+            "title": "Design a notification service.",
+            "path": "/design-a-notification-service?id=hld-754"
+          }
+        ],
+        "cheatSheet": "Encrypt per device, store-and-forward for offline devices, acknowledge delivery separately from reads."
+      },
+      {
+        "id": "ap-push",
+        "title": "Push Notifications at Scale (APNs-style)",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "High (Apple)",
+        "summary": "Reach a billion devices through one persistent connection each, without draining the battery.",
+        "concepts": [
+          "Persistent device connections",
+          "Token-to-device routing",
+          "Store-and-forward with TTL",
+          "Coalescing and priority"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a notification service.",
+            "path": "/design-a-notification-service?id=hld-754"
+          },
+          {
+            "title": "Design a Kafka-based notification system.",
+            "path": "/design-a-kafka-based-notification-system?id=hld-861"
+          },
+          {
+            "title": "Design real-time notifications.",
+            "path": "/design-real-time-notifications?id=hld-970"
+          }
+        ],
+        "cheatSheet": "One shared connection per device, keep only the latest undelivered message per topic, honour TTL and priority."
+      },
+      {
+        "id": "ap-pay",
+        "title": "Design Apple Pay: Private Payments",
+        "track": "system-design",
+        "category": "HLD Case Study",
+        "difficulty": "Hard",
+        "weightage": "Medium (Apple)",
+        "summary": "Tap-to-pay where the merchant never sees the card number.",
+        "concepts": [
+          "Tokenisation",
+          "Idempotent payment APIs",
+          "Device-bound secrets",
+          "Fraud checks and reconciliation"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Design a payment gateway.",
+            "path": "/design-a-payment-gateway?id=hld-919"
+          },
+          {
+            "title": "Design payment idempotency.",
+            "path": "/design-payment-idempotency?id=hld-930"
+          },
+          {
+            "title": "Design an idempotent payment API.",
+            "path": "/design-an-idempotent-payment-api?id=hld-801"
+          }
+        ],
+        "cheatSheet": "Replace the card number with a device-bound token; make every payment call idempotent."
+      },
+      {
+        "id": "ap-values",
+        "title": "Apple Values: Craft, Privacy & Collaboration",
+        "track": "behavioral",
+        "category": "Behavioral",
+        "difficulty": "Medium",
+        "weightage": "High (Apple)",
+        "summary": "Pride in the details, respect for the user's privacy, and working closely with design and product.",
+        "concepts": [
+          "Attention to detail",
+          "Customer privacy",
+          "Cross-functional collaboration",
+          "Raising the quality bar"
+        ],
+        "practiceProblems": [
+          {
+            "title": "Walk me through a project you are most proud of.",
+            "path": "/walk-me-through-a-project-you-are-most-proud-of?id=behavioral-2"
+          },
+          {
+            "title": "Tell me about a time you raised the quality bar for code.",
+            "path": "/tell-me-about-a-time-you-raised-the-quality-bar-for-code?id=behavioral-44"
+          },
+          {
+            "title": "Tell me about a time you collaborated across teams to deliver.",
+            "path": "/tell-me-about-a-time-you-collaborated-across-teams-to-deliver?id=behavioral-43"
+          },
+          {
+            "title": "Tell me about a time you worked with product and operations.",
+            "path": "/tell-me-about-a-time-you-worked-with-product-and-operations?id=behavioral-49"
+          },
+          {
+            "title": "Why do you want to work here?",
+            "path": "/why-do-you-want-to-work-here?id=behavioral-19"
+          }
+        ],
+        "cheatSheet": "Pick one story where a small detail mattered, and one where you protected the user."
       },
       {
         "id": "star-core",

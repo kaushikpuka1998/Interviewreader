@@ -64,7 +64,7 @@ export default function QuestionOfTheDayPage() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Daily challenge · {today}</p>
         {problem && (
-          <div className="mt-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+          <div className="mt-3 rounded-2xl border border-emerald-300 bg-white p-4 shadow-md shadow-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-none">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white" aria-hidden="true">💻</span>
               <span className="min-w-0 flex-1">
@@ -73,7 +73,7 @@ export default function QuestionOfTheDayPage() {
               </span>
               <a href={`/practice?id=${problem.id}`} data-track="qotd_page_solve" className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-white ${done.solved ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-emerald-600 hover:bg-emerald-700'}`}>{done.solved ? 'Solve again →' : 'Open in editor →'}</a>
             </div>
-            {problem.statement && <div className="mt-3 max-h-72 overflow-y-auto rounded-xl bg-white/60 p-3 dark:bg-slate-900/50"><Markdown text={problem.statement} /></div>}
+            {problem.statement && <div className="mt-3 max-h-72 overflow-y-auto rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-0 dark:bg-slate-900/50"><Markdown text={problem.statement} /></div>}
           </div>
         )}
         <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Question to read{done.read && <DoneTag label="Read today" />}</p>

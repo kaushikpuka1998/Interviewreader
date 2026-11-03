@@ -23,7 +23,7 @@ export default function QotdCard({ className = '' }) {
   }, [])
   // While the data loads the card keeps its size, so the page below doesn't jump when it fills in; with nothing to show it disappears.
   if (!d) return failed ? null : <div className={`mx-auto max-w-2xl ${className}`} aria-hidden="true"><div className="aspect-[1200/520] w-full animate-pulse rounded-2xl bg-emerald-50 dark:bg-slate-800/50" /><div className="mt-2 h-[132px] animate-pulse rounded-2xl bg-emerald-50 dark:bg-slate-800/50" /></div>
-  const row = 'flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-emerald-50 dark:hover:bg-blue-500/10'
+  const row = 'flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-emerald-100 hover:shadow-sm dark:hover:bg-blue-500/10 dark:hover:shadow-none'
   return (
     <section aria-label="Today's challenge" className={`mx-auto max-w-2xl rounded-2xl border border-emerald-700/20 bg-white p-2 text-left shadow-lg shadow-emerald-900/10 dark:border-blue-500/30 dark:bg-transparent dark:bg-gradient-to-r dark:from-blue-500/10 dark:to-transparent dark:shadow-sm ${className}`}>
       <a href="/question-of-the-day" data-track="qotd_card_banner" tabIndex={-1} aria-hidden="true"><img src="/promo/daily-hero.jpg" alt="" width="1200" height="520" decoding="async" className="mb-1 block h-auto w-full rounded-xl" /></a>
