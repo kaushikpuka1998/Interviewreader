@@ -406,7 +406,7 @@ export default function RoadmapsPage() {
                   className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                   {copied === `/roadmaps?company=${company.id}` ? '✓ Link copied' : '🔗 Share roadmap'}
                 </button>
-                <ShareLinkedIn path={`/roadmaps?company=${company.id}`} label="Share on LinkedIn" className="!min-h-0 py-1.5 text-xs font-semibold" />
+                <ShareLinkedIn company={company} label="Share on LinkedIn" className="!min-h-0 py-1.5 text-xs font-semibold" />
                 {!company.problemsFrom && (
                   <a href={`/problems?company=${encodeURIComponent(company.tag || company.name)}`} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">

@@ -85,4 +85,7 @@ public interface PageViewRepository extends JpaRepository<PageView, Long> {
     /** Views split by whether the visitor was signed in. */
     @Query("SELECT COUNT(p) FROM PageView p WHERE p.createdAt > :since AND p.userId IS NOT NULL")
     long countSignedInViewsSince(@Param("since") Instant since);
+
+    // Admin feedback: the pages a member opened most recently.
+    List<PageView> findTop15ByUserIdOrderByCreatedAtDesc(Long userId);
 }

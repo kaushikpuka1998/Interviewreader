@@ -15,6 +15,8 @@ import SheetPage from './components/SheetPage.jsx'
 import InterviewPage from './components/InterviewPage.jsx'
 import LiveInterview from './components/LiveInterview.jsx'
 import TermsPage from './components/TermsPage.jsx'
+import FeedbackPage from './components/FeedbackPage.jsx'
+import FeedbackButton from './components/FeedbackButton.jsx'
 import ResetPasswordPage from './components/ResetPasswordPage.jsx'
 import { trackView } from './lib/analytics.js'
 import { syncSession } from './lib/auth.js'
@@ -58,7 +60,7 @@ window.fetch = function() {
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
 const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
-  '/interview', '/problems', '/sheets/', '/terms']
+  '/interview', '/problems', '/sheets/', '/terms', '/feedback']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -96,6 +98,8 @@ function Routes() {
 
   if (path === '/terms') return <TermsPage />
 
+  if (path === '/feedback') return <FeedbackPage />
+
   if (path === '/leaderboard') return <LeaderboardPage />
 
   // Practice coding: questions with a code box that runs on the server.
@@ -123,7 +127,7 @@ const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/problems', '/resum
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
-  const page = <Routes />
+  const page = <><Routes /><FeedbackButton /></>
   return NEEDS_FOOTER.some(p => path === p || path.startsWith(p === '/u/' ? p : p + '/')) ? (
     <div className="flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col [&>div]:flex-1 [&>div]:!min-h-0">{page}</div>

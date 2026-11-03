@@ -180,7 +180,7 @@ function Preview({ subject, body }) {
     .replaceAll('{{practice_link}}', `${window.location.origin}/practice`)
     .replaceAll('{{interview_link}}', `${window.location.origin}/interview`)
     .replaceAll('{{roadmap_link}}', `${window.location.origin}/roadmaps`)
-    .replaceAll('{{feedback_link}}', `${window.location.origin}/#feedback`)
+    .replaceAll('{{feedback_link}}', `${window.location.origin}/feedback`)
   // Designed cards: pictures plus a button. Show the real ones in the preview, in place of each marker.
   const imageCard = (images, cta) => (
     <div className="my-3 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700">

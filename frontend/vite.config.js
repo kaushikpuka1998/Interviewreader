@@ -13,6 +13,12 @@ export default defineConfig({
         target: 'http://localhost:8082',
         changeOrigin: true,
       },
+      // Share links (/share/q/..., /share/u/...) are served by the backend's /api/share; Caddy does the same in production.
+      '/share': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+        rewrite: p => `/api${p}`,
+      },
     },
   },
   resolve: {
@@ -35,6 +41,8 @@ export default defineConfig({
         // question has a diagram. Those chunks now fetch on demand and use normal HTTP caching.
         globPatterns: ['**/*.{css,html,svg,png,ico}', 'assets/index-*.js', 'assets/vendor-*.js'],
         navigateFallback: '/index.html',
+        // Share links are server pages (preview tags + redirect), not app routes: let them reach the server.
+        navigateFallbackDenylist: [/^\/share\//],
         runtimeCaching: [
           {
             // Question detail lookups (fetchQuestion) are simple GET-by-id calls;

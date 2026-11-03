@@ -6,7 +6,6 @@ import { fetchCompanies } from '../lib/codingProblems.js'
 import { techBadge, techLabel } from '../lib/badges.js'
 import { setDefaultSeo } from '../lib/seo.js'
 import { useFeatures } from '../lib/features.js'
-import FeedbackForm, { focusFeedback } from './FeedbackForm.jsx'
 
 // DSA sheets that open on this site, using our own coding problems.
 // Hidden until the sheet problems are in the database: set to true to show the section on the home page.
@@ -37,8 +36,8 @@ export default function HomePage() {
   useEffect(() => { fetchStats().then(setStats).catch(() => {}); fetchCompanies().then(setCompanies).catch(() => {}) }, [])
   useEffect(() => { setDefaultSeo(stats?.total) }, [stats?.total])
 
-  // Arriving from the footer link on another page (/#feedback): the section only exists after the first render.
-  useEffect(() => { if (window.location.hash === '#feedback') { setTimeout(focusFeedback, 150); setTimeout(focusFeedback, 900) } }, [])
+  // Feedback moved to its own page; old links (emails, bookmarks) to /#feedback land there.
+  useEffect(() => { if (window.location.hash === '#feedback') window.location.replace(`/feedback${window.location.search}`) }, [])
 
   const topics = Object.entries(stats?.byTech || {}).sort((a, b) => b[1] - a[1])
 
@@ -169,11 +168,6 @@ export default function HomePage() {
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{l.text}</p>
             </a>
           ))}
-        </section>
-        <section id="feedback" className="mt-12 scroll-mt-20" aria-labelledby="fb">
-          <h2 id="fb" className="mb-1 text-center text-xl font-bold text-slate-900 dark:text-slate-100">Feedback</h2>
-          <p className="mb-4 text-center text-sm text-slate-600 dark:text-slate-400">Tell us what to improve. We read every message.</p>
-          <FeedbackForm />
         </section>
       </main>
       <Footer />

@@ -1,3 +1,4 @@
+import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect } from 'react'
 import { isLoggedIn, getUser, logout, fetchDashboard, fetchProfileQuestions, updateLocation } from '../lib/auth.js'
 import { fetchQuestions } from '../lib/api.js'
@@ -546,6 +547,10 @@ function StreakCard() {
             ))}
           </ul>
           {d.nextMilestone && <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">{d.nextMilestone.daysLeft} more day{d.nextMilestone.daysLeft > 1 ? 's' : ''} to a {d.nextMilestone.days}-day streak: <span className="font-semibold text-amber-600 dark:text-amber-400">+{d.nextMilestone.bonus}</span></p>}
+          {d.username && (
+            <ShareLinkedIn progress={{ username: d.username, streak: d.best, points: d.totalPoints }} label="Share my progress certificate"
+              className="mt-3 w-full justify-center !min-h-0 py-2 text-xs font-semibold" />
+          )}
         </>
       )}
     </div>

@@ -1,21 +1,54 @@
 import { trackClick } from '../lib/analytics.js'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
+// Share links use this site's address; the web server forwards /share/* to the API (see the Caddyfile).
+const SHARE_BASE = `${window.location.origin}/share`
 
-// "Share on LinkedIn". LinkedIn builds the post's preview card from the shared page's meta tags without running
-// JavaScript, so questions are shared through the API's /share page, which carries the question's own title and
-// image and forwards readers to the question. Other pages share their own URL (tagged for analytics).
-export function linkedInShareUrl({ questionId, path }) {
-  const target = questionId
-    ? `${API_BASE}/share/q/${encodeURIComponent(questionId)}`
-    : `${window.location.origin}${path}${path.includes('?') ? '&' : '?'}utm_source=linkedin&utm_medium=share`
-  return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(target)}`
+// "Share on LinkedIn": opens LinkedIn's post composer with a ready-written post (editable before posting).
+// The post ends with a /share link on this site, whose preview LinkedIn builds from server-made meta tags and picture:
+// a question card, a company roadmap card, or the member's progress certificate.
+//   <ShareLinkedIn question={q} />                  a question
+//   <ShareLinkedIn company={{ id, name }} />        a company roadmap
+//   <ShareLinkedIn progress={{ username, read, solved, streak, points }} />   "my progress" certificate
+const hashtag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '')
+
+function post({ question, company, progress }) {
+  if (question) {
+    const topic = question.category || question.tech || 'tech'
+    return {
+      link: `${SHARE_BASE}/q/${encodeURIComponent(question.id)}`,
+      text: `💡 Interview question I'm revising today:\n\n“${question.title}”\n\n`
+        + `Found a clear answer with code and diagrams on Interview Reader. Worth a look if you're preparing too.\n\n`
+        + `#InterviewPrep ${hashtag(topic)} #SoftwareEngineering #LearningInPublic`,
+    }
+  }
+  if (company) {
+    return {
+      link: `${SHARE_BASE}/roadmap/${encodeURIComponent(company.id)}`,
+      text: `🎯 Preparing for ${company.name} interviews.\n\n`
+        + `I'm following a round-by-round roadmap on Interview Reader: the DSA topics, system design prompts and behavioral questions ${company.name} is known for.\n\n`
+        + `#InterviewPrep ${hashtag(company.name)} #CareerGrowth #SoftwareEngineering`,
+    }
+  }
+  const p = progress
+  const bits = [p.read && `${p.read} interview questions read`, p.solved && `${p.solved} coding problems solved`,
+    p.streak > 1 && `a ${p.streak}-day streak`, p.points && `${Number(p.points).toLocaleString('en-IN')} points`].filter(Boolean)
+  return {
+    link: `${SHARE_BASE}/u/${encodeURIComponent(p.username)}`,
+    text: `🏅 My interview prep progress on Interview Reader${bits.length ? `: ${bits.join(', ')}` : ''}.\n\n`
+      + `Small steps every day add up. Here's my certificate of progress 👇\n\n`
+      + `#InterviewPrep #LearningInPublic #100DaysOfCode #SoftwareEngineering`,
+  }
 }
 
-export default function ShareLinkedIn({ questionId, path, label = 'Share', className = '' }) {
+export function linkedInShareUrl(props) {
+  const { link, text } = post(props)
+  return `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${text}\n\n${link}`)}`
+}
+
+export default function ShareLinkedIn({ question, company, progress, label = 'Share', className = '' }) {
   const open = () => {
-    trackClick(`share_linkedin:${questionId ? 'question' : path.split('?')[0]}`)
-    window.open(linkedInShareUrl({ questionId, path }), 'linkedin-share', 'width=600,height=640,noopener')
+    trackClick(`share_linkedin:${question ? 'question' : company ? 'roadmap' : 'progress'}`)
+    window.open(linkedInShareUrl({ question, company, progress }), 'linkedin-share', 'width=700,height=720,noopener')
   }
   return (
     <button type="button" onClick={open} title="Share on LinkedIn" aria-label="Share on LinkedIn"

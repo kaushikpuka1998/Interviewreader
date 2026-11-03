@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
     List<Feedback> findAllByOrderByCreatedAtDesc();
+
+    long countByEmail(String email);
 }

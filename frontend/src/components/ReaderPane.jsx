@@ -276,13 +276,13 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
                         )}
                         <SuggestEdit question={question} />
                         <MarkDuplicate question={question} />
-                        <ShareLinkedIn questionId={question.id} />
+                        <ShareLinkedIn question={question} />
                       </div>
                     </div>
                 )}
                 {!isLoggedIn() && (
                     <div className="mt-3 flex justify-end">
-                      <ShareLinkedIn questionId={question.id} />
+                      <ShareLinkedIn question={question} />
                     </div>
                 )}
 

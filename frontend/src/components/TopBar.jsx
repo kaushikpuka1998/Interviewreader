@@ -29,7 +29,7 @@ const NavBadge = ({ className, children }) => (
 function NavLink({ label, href, flag, badge, premium, path, features, mobile = false }) {
   if (flag && features[flag] === false) return null
   const active = href === '/questions'
-    ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+    ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps', '/feedback'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
     : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
     : path === href || (href !== '/' && path.startsWith(href + '/'))
   const handleClick = (e) => {

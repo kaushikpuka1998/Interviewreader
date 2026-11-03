@@ -1,6 +1,6 @@
 import PremiumAdmin from './PremiumAdmin.jsx'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { getUser, isLoggedIn, logout } from '../lib/auth.js'
+import { getUser, isLoggedIn, logout, fetchSuggestionCounts, fetchDuplicateReportCounts } from '../lib/auth.js'
 import { createQuestion, createQuestionsBulk, updateQuestion, deleteQuestion, uploadImage } from '../lib/auth.js'
 import { fetchQuestions } from '../lib/api.js'
 import { fetchCodingProblemsExport } from '../lib/codingProblems.js'
@@ -247,6 +247,15 @@ export default function AdminPage() {
   }, [tech, search])
 
   useEffect(() => { if (isAdmin && tab === 'manage') loadList() }, [isAdmin, tab, loadList])
+  // Items waiting for review, shown as a badge on their tab. Re-read on every tab switch, so a count drops
+  // once you have reviewed items there.
+  const [pending, setPending] = useState({})
+  useEffect(() => {
+    if (!isAdmin) return
+    Promise.all([fetchSuggestionCounts(), fetchDuplicateReportCounts()])
+      .then(([s, d]) => setPending({ suggestions: s.pending || 0, duplicates: d.pending || 0 }))
+      .catch(() => {})
+  }, [isAdmin, tab])
 
   async function submitSingle(e) {
     e.preventDefault(); setBusy(true); setMsg(null)
@@ -334,10 +343,14 @@ export default function AdminPage() {
   return (
     <Shell tabWide={tab === "analytics"}>
       <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback', 'Feedback'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['premium', 'Premium'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
+        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback-dashboard', 'Feedback dashboard'], ['feedback', 'Feedback'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['premium', 'Premium'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
           <button key={t} onClick={() => { setTab(t); setMsg(null) }}
-            className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
+            className={`inline-flex shrink-0 items-center whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
             {label}
+            {pending[t] > 0 && (
+              <span className="ml-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-bold leading-none text-white"
+                title={`${pending[t]} waiting for review`} aria-label={`${pending[t]} waiting for review`}>{pending[t] > 99 ? '99+' : pending[t]}</span>
+            )}
           </button>
         ))}
       </div>
@@ -393,7 +406,8 @@ export default function AdminPage() {
       {tab === 'premium' && <PremiumAdmin />}
 
       {tab === 'suggestions' && <SuggestionsPanel />}
-      {tab === 'feedback' && <FeedbackPanel />}
+      {tab === 'feedback-dashboard' && <FeedbackPanel view="dashboard" />}
+      {tab === 'feedback' && <FeedbackPanel view="responses" />}
       {tab === 'interviews' && <InterviewsPanel />}
 
       {tab === 'duplicates' && <DuplicatesPanel />}

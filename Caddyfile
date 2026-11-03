@@ -56,20 +56,33 @@
 		-Server
 	}
 
+	# Share links (LinkedIn previews): /share/... is served by the backend's /api/share/..., so shared links and
+	# preview pictures show this site's address instead of the API's. It needs its own handle block: in the SPA
+	# block below, try_files would turn these paths into /index.html before they reached the proxy.
+	# API_ORIGIN can point at Railway's private network address of the backend; it defaults to the public API.
 	root * /app/dist
 
-	file_server {
-		hide .git
-		hide .env*
+	handle /share/* {
+		rewrite * /api{uri}
+		reverse_proxy {$API_ORIGIN:https://api.interviewreader.cloud} {
+			header_up Host {upstream_hostport}
+		}
 	}
 
-	encode {
-		gzip
-		zstd
-	}
+	handle {
+		file_server {
+			hide .git
+			hide .env*
+		}
 
-	# SPA routing
-	try_files {path} {path}.html {path}/index.html /index.html
+		encode {
+			gzip
+			zstd
+		}
+
+		# SPA routing
+		try_files {path} {path}.html {path}/index.html /index.html
+	}
 
 	handle_errors {
 		rewrite * /{err.status_code}.html

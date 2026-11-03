@@ -1,3 +1,4 @@
+import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { checkInToday } from '../lib/points.js'
 
@@ -106,7 +107,11 @@ export default function StreakBadge() {
             ))}
           </div>
 
-          <a href="/leaderboard" className="mt-5 block rounded-xl bg-slate-900 py-2.5 text-center text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white/10 dark:hover:bg-white/15">See the leaderboard →</a>
+          {data.username && (
+            <ShareLinkedIn progress={{ username: data.username, streak: data.best, points: data.totalPoints }} label="Share my progress on LinkedIn"
+              className="mt-5 w-full justify-center !min-h-0 py-2.5 font-semibold" />
+          )}
+          <a href="/leaderboard" className="mt-2 block rounded-xl bg-slate-900 py-2.5 text-center text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white/10 dark:hover:bg-white/15">See the leaderboard →</a>
         </div>
       )}
     </div>

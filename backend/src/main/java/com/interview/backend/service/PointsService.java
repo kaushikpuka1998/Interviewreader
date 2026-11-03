@@ -109,6 +109,7 @@ public class PointsService implements CommandLineRunner {
         out.put("weekBreakdown", breakdown);
         out.put("nextMilestone", next == null ? null : Map.of("days", next, "bonus", MILESTONES.get(next), "daysLeft", next - streak));
         out.put("rules", Map.of("login", LOGIN, "read", READ, "solve", SOLVE));
+        out.put("username", u.getUsername());   // for "share my progress" (the public certificate link)
         return out;
     }
 

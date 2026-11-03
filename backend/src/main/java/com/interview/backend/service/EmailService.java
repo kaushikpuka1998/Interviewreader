@@ -240,11 +240,11 @@ public class EmailService {
     public static final String FEEDBACK_PROMO = "[[feedback-promo]]";
 
     private String feedbackUrl(int rating) {
-        return frontendUrl + "/?rating=" + rating + "#feedback";
+        return frontendUrl + "/feedback?rating=" + rating;
     }
 
     private String feedbackPromoPlain() {
-        return "How likely are you to recommend InterviewReader? Rate us from 1 to 5 here: " + frontendUrl + "/#feedback";
+        return "How likely are you to recommend InterviewReader? Rate us from 1 to 5 here: " + frontendUrl + "/feedback";
     }
 
     private String feedbackPromoCard() {
@@ -259,7 +259,7 @@ public class EmailService {
                 + "<tr><td align=\"center\" style=\"padding:24px 20px 6px\"><div style=\"font-size:20px;font-weight:bold;color:#1e293b\">How are we doing?</div>"
                 + "<div style=\"margin-top:6px;font-size:14px;color:#475569\">Tap a star. It takes 10 seconds and shapes what we build next.</div></td></tr>"
                 + "<tr><td align=\"center\" style=\"padding:14px 12px 4px\"><table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\"><tr>" + stars + "</tr></table></td></tr>"
-                + "<tr><td align=\"center\" style=\"padding:14px 24px 24px\"><a href=\"" + escapeHtml(frontendUrl + "/#feedback") + "\" style=\"display:inline-block;padding:12px 28px;border-radius:10px;background:linear-gradient(90deg,#f97316,#ec4899,#7c3aed);color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px\">Share your feedback</a></td></tr></table>";
+                + "<tr><td align=\"center\" style=\"padding:14px 24px 24px\"><a href=\"" + escapeHtml(frontendUrl + "/feedback") + "\" style=\"display:inline-block;padding:12px 28px;border-radius:10px;background:linear-gradient(90deg,#f97316,#ec4899,#7c3aed);color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px\">Share your feedback</a></td></tr></table>";
     }
 
     private static final Pattern WEB_ADDRESS = Pattern.compile("https?://[^\\s<]+");

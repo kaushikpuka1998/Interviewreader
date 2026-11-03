@@ -40,6 +40,10 @@ public class Feedback {
     @Column(length = 300)
     private String page;
 
+    /** Answers to the option questions on the feedback page (JSON: question key -> chosen options). */
+    @Column(columnDefinition = "TEXT")
+    private String answers;
+
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 }
