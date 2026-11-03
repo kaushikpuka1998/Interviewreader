@@ -61,6 +61,10 @@ public class SecurityConfig {
                         .referrerPolicy(r -> r.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Not signed in (or the access token expired) = 401, so the page knows to refresh; signed in
+                // but not allowed (e.g. a member on an admin route) stays 403.
+                .exceptionHandling(e -> e.authenticationEntryPoint(
+                        new org.springframework.security.web.authentication.HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(auth -> auth
                         // Company reports: any signed-in user may add/remove their own.
                         // MUST precede the admin-only /questions/** rules below, since
@@ -109,7 +113,7 @@ public class SecurityConfig {
                         // Companies and the rules above stay authenticated.
                         .requestMatchers(HttpMethod.GET, "/questions/**").permitAll()
                         // Progress + profile require a logged-in user
-                        .requestMatchers("/progress/**", "/profile/**").authenticated()
+                        .requestMatchers("/progress/**", "/profile/**", "/points/**").authenticated()
                         .anyRequest().permitAll())
                 // Rate limiter runs first (before auth) to blunt brute-force on /auth/**.
                 .addFilterBefore(new RateLimitFilter(authMaxRequests, authWindowSeconds), UsernamePasswordAuthenticationFilter.class)

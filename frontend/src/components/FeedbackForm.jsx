@@ -76,7 +76,7 @@ export default function FeedbackForm() {
     try {
       const res = await fetch(`${API_BASE}/feedback`, {
         method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json', ...(localStorage.getItem('ir_token') ? { Authorization: `Bearer ${localStorage.getItem('ir_token')}` } : {}) },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rating: rating || null, message, email, imageUrls: images, page: window.location.pathname }),
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not send feedback.')

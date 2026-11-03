@@ -18,7 +18,7 @@ public class JwtUtil {
     private final long validityMs;
 
     public JwtUtil(@Value("${app.jwt.secret}") String secret,
-                   @Value("${app.jwt.expiration-ms:604800000}") long validityMs) {
+                   @Value("${app.jwt.access-ms:900000}") long validityMs) {
         // Secret must be >= 32 bytes for HS256. Pad short dev secrets so local runs don't crash.
         byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
         if (bytes.length < 32) {
@@ -28,6 +28,11 @@ public class JwtUtil {
         }
         this.key = Keys.hmacShaKeyFor(bytes);
         this.validityMs = validityMs;
+    }
+
+    /** How long an access token lives; the refresh token renews it. */
+    public java.time.Duration accessTtl() {
+        return java.time.Duration.ofMillis(validityMs);
     }
 
     public String generateToken(String email) {

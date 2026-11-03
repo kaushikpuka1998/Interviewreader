@@ -225,7 +225,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     if (!navigator.onLine) return
     const SIX_HOURS = 6 * 60 * 60 * 1000
     // Caches saved before the signed-out filter hold the full set. Wipe them once for signed-out browsers.
-    const scrub = !localStorage.getItem('ir_cache_scoped') && !localStorage.getItem('ir_token')
+    const scrub = !localStorage.getItem('ir_cache_scoped') && !localStorage.getItem('ir_user')
       ? clearQuestionCache().then(() => localStorage.setItem('ir_cache_scoped', '1'))
       : Promise.resolve()
     scrub.then(() => getLastSyncedAt()).then(async (last) => {

@@ -140,9 +140,11 @@ app:
     auth-max-requests: ${AUTH_RATE_LIMIT:10}
     auth-window-seconds: ${AUTH_RATE_WINDOW:60}
   jwt:
-    # Override in prod via APP_JWT_SECRET (>= 32 chars). Dev fallback is fine for local only.
-    secret: ${APP_JWT_SECRET:dev-only-change-me-interview-jwt-secret-key}
-    expiration-ms: ${APP_JWT_EXPIRATION_MS:604800000}
+    # Required, no default: set APP_JWT_SECRET (64+ random characters) in the environment or backend/.env.
+    secret: ${APP_JWT_SECRET}
+    # Access token lifetime (15 min); the refresh token (APP_JWT_REFRESH_DAYS) keeps people signed in.
+    access-ms: ${APP_JWT_ACCESS_MS:900000}
+    refresh-days: ${APP_JWT_REFRESH_DAYS:30}
   cors:
     # Origin patterns. Dev defaults allow any localhost / 127.0.0.1 port; set CORS_ALLOWED_ORIGINS to exact URLs in production.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*}

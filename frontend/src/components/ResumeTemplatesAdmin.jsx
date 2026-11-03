@@ -7,10 +7,6 @@ const SECTIONS = ['header', 'summary', 'skills', 'experience', 'projects', 'educ
 const input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
 const card = 'rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950'
 
-const authHeaders = () => {
-  const t = localStorage.getItem('ir_token')
-  return t ? { Authorization: `Bearer ${t}` } : {}
-}
 // Keeps only the preamble. A pasted full document loses its body: the app builds that from the member's details.
 const trimDocument = (text) => {
   const at = text.indexOf('\\begin{document}')
@@ -44,7 +40,7 @@ export default function ResumeTemplatesAdmin() {
   const [msg, setMsg] = useState(null)   // { ok, text }
   const [log, setLog] = useState('')
 
-  const load = () => fetch(`${API_BASE}/admin/resume-templates`, { headers: authHeaders() })
+  const load = () => fetch(`${API_BASE}/admin/resume-templates`)
     .then(r => r.json()).then(setList).catch(() => setMsg({ ok: false, text: 'Could not load templates.' }))
   useEffect(() => { load() }, [])
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl) }, [pdfUrl])
@@ -65,7 +61,7 @@ export default function ResumeTemplatesAdmin() {
     const body = JSON.stringify({ name: form.name, description: form.description, layout: form.layout, preamble })
     try {
       const res = await fetch(form.id ? `${API_BASE}/admin/resume-templates/${form.id}` : `${API_BASE}/admin/resume-templates`, {
-        method: form.id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body,
+        method: form.id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body,
       })
       if (!res.ok) throw new Error(await errorOf(res, 'Save failed'))
       const saved = await res.json()
@@ -82,7 +78,7 @@ export default function ResumeTemplatesAdmin() {
     if (!form.id || !window.confirm(`Delete "${form.name}"? This cannot be undone.`)) return
     setBusy(true); setMsg(null)
     try {
-      const res = await fetch(`${API_BASE}/admin/resume-templates/${form.id}`, { method: 'DELETE', headers: authHeaders() })
+      const res = await fetch(`${API_BASE}/admin/resume-templates/${form.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error(await errorOf(res, 'Could not delete'))
       setForm(BLANK); setPdfUrl(null); setMsg({ ok: true, text: 'Template deleted.' }); load()
     } catch (e) { setMsg({ ok: false, text: e.message }) }
@@ -96,7 +92,7 @@ export default function ResumeTemplatesAdmin() {
     if (preamble !== form.preamble) set('preamble', preamble)
     try {
       const res = await fetch(`${API_BASE}/admin/resume-templates/preview`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ layout: form.layout, preamble, data: sampleResumeData() }),
       })
       if (!res.ok) {

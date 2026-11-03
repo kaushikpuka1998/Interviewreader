@@ -538,8 +538,7 @@ function ExportPanel({ tech, setTech, search, setSearch, source, setSource }) {
       const res = await fetch((import.meta.env.VITE_API_BASE || 'http://localhost:8082/api') + '/auth/export-code/verify', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('ir_token')}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ code: passInput })
       })
@@ -558,10 +557,7 @@ function ExportPanel({ tech, setTech, search, setSearch, source, setSource }) {
     try {
       setPassError('Requesting code...')
       await fetch((import.meta.env.VITE_API_BASE || 'http://localhost:8082/api') + '/auth/export-code/request', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('ir_token')}`
-        }
+        method: 'POST'
       })
       setPassError('Code sent to your email!')
     } catch (err) {

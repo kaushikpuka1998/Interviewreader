@@ -41,14 +41,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        // Cookie only: no Authorization header, so a token can't be lifted from page storage and replayed.
         String token = cookieUtil.getTokenFromCookie(request);
-
-        if (token == null) {
-            final String header = request.getHeader("Authorization");
-            if (header != null && header.startsWith("Bearer ")) {
-                token = header.substring(7);
-            }
-        }
 
         if (token != null) {
             try {

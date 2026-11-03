@@ -11,8 +11,7 @@ export default function OnlineCount() {
 
   useEffect(() => {
     let alive = true
-    const token = localStorage.getItem('ir_token')
-    const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+    const headers = { 'Content-Type': 'application/json' }
     const tick = async () => {
       try {
         await fetch(`${API_BASE}/presence/ping`, {

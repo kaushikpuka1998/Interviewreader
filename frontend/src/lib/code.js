@@ -1,17 +1,12 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
-function authHeaders() {
-  const token = localStorage.getItem('ir_token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 // Sends a run to the server queue and returns its job id. Throws with the server's message if it's refused.
 async function submit(path, payload) {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
   const data = await res.json().catch(() => ({}))
@@ -27,7 +22,7 @@ async function waitFor(jobId, onStatus) {
   while (true) {
     await sleep(wait)
     wait = Math.min(Math.round(wait * 1.5), 2000)
-    const res = await fetch(`${API_BASE}/code/jobs/${jobId}`, { headers: authHeaders() })
+    const res = await fetch(`${API_BASE}/code/jobs/${jobId}`)
     if (!res.ok) throw new Error('Lost track of this run. Try again.')
     const job = await res.json()
     if (job.state === 'DONE') {
@@ -53,31 +48,31 @@ export async function runTests({ problemId, language, code, submit: saveIt = fal
 
 // The member's saved submissions for one problem, newest first.
 export async function fetchSubmissions(problemId) {
-  const res = await fetch(`${API_BASE}/code/submissions?problemId=${problemId}`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/code/submissions?problemId=${problemId}`)
   return res.ok ? res.json() : []
 }
 
 // One saved submission: its code, verdict, and per-test results.
 export async function fetchSubmission(id) {
-  const res = await fetch(`${API_BASE}/code/submissions/${id}`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/code/submissions/${id}`)
   if (!res.ok) throw new Error('Could not open this submission.')
   return res.json()
 }
 
 // The member's submission times over the last year (ISO strings), for the activity heatmap.
 export async function fetchActivity() {
-  const res = await fetch(`${API_BASE}/code/activity`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/code/activity`)
   return res.ok ? res.json() : { times: [] }
 }
 
 // Ids of every problem the member has submitted to (solved or not).
 export async function fetchAttemptedIds() {
-  const res = await fetch(`${API_BASE}/code/attempted`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/code/attempted`)
   return res.ok ? res.json() : []
 }
 
 // Ids of the problems the member has solved.
 export async function fetchSolvedIds() {
-  const res = await fetch(`${API_BASE}/code/solved`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/code/solved`)
   return res.ok ? res.json() : []
 }

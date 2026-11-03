@@ -2,8 +2,7 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 async function call(path, method = 'GET') {
-  const token = localStorage.getItem('ir_token')
-  const res = await fetch(`${API_BASE}/points${path}`, { method, credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : {} })
+  const res = await fetch(`${API_BASE}/points${path}`, { method, credentials: 'include' })
   if (!res.ok) throw new Error('Could not load points')
   return res.json()
 }

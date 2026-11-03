@@ -2,21 +2,20 @@ import { useEffect, useState } from 'react'
 import Loader from './Loader.jsx'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
-const headers = () => { const t = localStorage.getItem('ir_token'); return t ? { Authorization: `Bearer ${t}` } : {} }
 
 // Admin: every feedback message with its rating, email, page and screenshots.
 export default function FeedbackPanel() {
   const [items, setItems] = useState(null)
   const [error, setError] = useState('')
 
-  const load = () => fetch(`${API_BASE}/admin/feedback`, { headers: headers(), credentials: 'include' })
+  const load = () => fetch(`${API_BASE}/admin/feedback`)
     .then(r => r.ok ? r.json() : Promise.reject(new Error('Could not load feedback.')))
     .then(setItems).catch(e => setError(e.message))
   useEffect(() => { load() }, [])
 
   const remove = async id => {
     if (!window.confirm('Delete this feedback?')) return
-    const res = await fetch(`${API_BASE}/admin/feedback/${id}`, { method: 'DELETE', headers: headers(), credentials: 'include' })
+    const res = await fetch(`${API_BASE}/admin/feedback/${id}`, { method: 'DELETE' })
     if (res.ok) setItems(items.filter(i => i.id !== id))
   }
 

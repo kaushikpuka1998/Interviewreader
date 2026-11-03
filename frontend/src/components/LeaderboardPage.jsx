@@ -13,8 +13,7 @@ export default function LeaderboardPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const token = localStorage.getItem('ir_token')
-    fetch(`${API_BASE}/leaderboard`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    fetch(`${API_BASE}/leaderboard`)
       .then(res => { if (!res.ok) throw new Error('Could not load the leaderboard.'); return res.json() })
       .then(setData)
       .catch(e => setError(e.message))

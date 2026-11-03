@@ -11,7 +11,7 @@ const INTERNAL_SOURCE = 'app'
 
 function urlTags() {
   const p = new URLSearchParams(typeof location !== 'undefined' ? location.search : '')
-  return Object.entries(UTM_PARAMS).reduce((acc, [k, v]) => (p.get(k) ? { ...acc, [v]: p.get(k).slice(0, 100) } : acc), {})
+  return Object.entries(UTM_PARAMS).reduce((acc, [k, v]) => (p.get(k) ? { ...acc, [v]: p.get(k).slice(0, 100) } : acc))
 }
 
 const initialTags = urlTags()
@@ -73,21 +73,10 @@ export function trackView({ path, questionId } = {}) {
       ...(urlTags().utmSource === INTERNAL_SOURCE ? urlTags() : getUtm()),
     })
 
-    const token = localStorage.getItem('ir_token')
-
-    // sendBeacon can't set an Authorization header, so signed-in views go through
-    // fetch (with keepalive) to be attributed to the account; anonymous views use
-    // the beacon, which survives page unload.
-    if (!token && navigator.sendBeacon) {
-      navigator.sendBeacon(`${API_BASE}/analytics/track`, new Blob([body], { type: 'application/json' }))
-      return
-    }
+    // keepalive lets the view survive page unload; the session cookie attributes it to the account.
     fetch(`${API_BASE}/analytics/track`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { 'Content-Type': 'application/json' },
       body,
       keepalive: true,
     }).catch(() => {})
@@ -105,10 +94,9 @@ export function flushEvents() {
   clearTimeout(flushTimer); flushTimer = null
   if (!queue.length) return
   const body = JSON.stringify(queue.splice(0, 50))
-  const token = localStorage.getItem('ir_token')
   fetch(`${API_BASE}/analytics/events`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    headers: { 'Content-Type': 'application/json' },
     body,
     keepalive: true,
   }).catch(() => {})
@@ -186,27 +174,22 @@ export function useReadTracking(questionId, scrollRef) {
 
 // --- admin reads ---
 
-function authHeaders() {
-  const t = localStorage.getItem('ir_token')
-  return t ? { Authorization: `Bearer ${t}` } : {}
-}
-
 export async function fetchAnalytics(days = 30) {
-  const res = await fetch(`${API_BASE}/analytics/summary?days=${days}`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/analytics/summary?days=${days}`)
   if (!res.ok) throw new Error(res.status === 403 ? 'Admin access required' : 'Failed to load analytics')
   return res.json()
 }
 
 // Admin: visitor-to-member funnel, with likely bots left out, split by source and device.
 export async function fetchFunnel(days = 30) {
-  const res = await fetch(`${API_BASE}/analytics/funnel?days=${days}`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/analytics/funnel?days=${days}`)
   if (!res.ok) throw new Error('Failed to load the funnel')
   return res.json()
 }
 
 // Admin: who is online right now. Members by name and email, visitors as a count.
 export async function fetchOnline() {
-  const res = await fetch(`${API_BASE}/analytics/online`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/analytics/online`)
   if (!res.ok) throw new Error('Failed to load who is online')
   return res.json()
 }
@@ -214,7 +197,7 @@ export async function fetchOnline() {
 export async function fetchSignups(since, limit = 20) {
   const q = new URLSearchParams({ limit: String(limit) })
   if (since) q.set('since', since)
-  const res = await fetch(`${API_BASE}/analytics/signups?${q}`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/analytics/signups?${q}`)
   if (!res.ok) throw new Error('Failed to load signups')
   return res.json()
 }

@@ -35,8 +35,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // Only limit state-changing auth calls; let preflight and everything else pass.
         // Match on the request URI so it works regardless of context-path handling.
         String uri = request.getRequestURI(); // e.g. /api/auth/login
+        // Session refresh is exempt: it needs a 256-bit secret (nothing to brute-force) and runs every few
+        // minutes per open tab, which would exhaust the limit for people sharing an IP.
         boolean limited = "POST".equalsIgnoreCase(request.getMethod())
-                && uri != null && uri.contains("/auth/");
+                && uri != null && uri.contains("/auth/") && !uri.endsWith("/auth/refresh");
         if (!limited) {
             chain.doFilter(request, response);
             return;

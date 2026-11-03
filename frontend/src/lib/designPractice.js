@@ -2,10 +2,9 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 async function call(path, method = 'GET', body) {
-  const token = localStorage.getItem('ir_token')
   const res = await fetch(`${API_BASE}/practice/design${path}`, {
     method,
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: body && JSON.stringify(body),
   })
@@ -29,10 +28,9 @@ export const fetchPracticeQuota = () => call('/quota')
 
 // Admin: review and edit rubrics, and score a sample answer against one.
 async function admin(path, method = 'GET', body) {
-  const token = localStorage.getItem('ir_token')
   const res = await fetch(`${API_BASE}/admin/design-rubrics${path}`, {
     method,
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: body && JSON.stringify(body),
   })

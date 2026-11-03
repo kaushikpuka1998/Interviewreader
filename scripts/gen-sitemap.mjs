@@ -54,7 +54,7 @@ async function fetchAll() {
   const out = []
   try {
     for (let page = 0; ; page++) {
-      const data = await fetchJson(`/questions?page=${page}&size=${PAGE_SIZE}`, AUTH_TOKEN ? { Authorization: `Bearer ${AUTH_TOKEN}` } : {})
+      const data = await fetchJson(`/questions?page=${page}&size=${PAGE_SIZE}`, AUTH_TOKEN ? { Cookie: `token=${AUTH_TOKEN}` } : {})
       out.push(...(data.content || []))
       if (!data.totalPages || page + 1 >= data.totalPages) break
     }

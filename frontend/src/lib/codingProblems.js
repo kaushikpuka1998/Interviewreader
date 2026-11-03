@@ -1,10 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
-function authHeaders() {
-  const token = localStorage.getItem('ir_token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
 async function parseError(res) {
   try { return (await res.json()).error } catch { return null }
 }
@@ -46,14 +41,14 @@ export async function fetchCodingProblem(id) {
 
 // Admin: one full problem, including test cases, fetched when it is opened for editing.
 export async function fetchAdminCodingProblem(id) {
-  const res = await fetch(`${API_BASE}/admin/coding-problems/${id}`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/admin/coding-problems/${id}`)
   if (!res.ok) throw new Error('Could not load this problem.')
   return res.json()
 }
 
 // Admin: id, title, difficulty of every problem (no statements or test cases).
 export async function fetchAdminCodingProblems() {
-  const res = await fetch(`${API_BASE}/admin/coding-problems`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/admin/coding-problems`)
   if (!res.ok) throw new Error('Could not load the problems.')
   return res.json()
 }
@@ -61,7 +56,7 @@ export async function fetchAdminCodingProblems() {
 // Admin: every problem in the bulk import shape, for downloading. Unlike fetchAdminCodingProblems
 // this drops ids and returns testCases/templates as real JSON, so the file imports back as-is.
 export async function fetchCodingProblemsExport() {
-  const res = await fetch(`${API_BASE}/admin/coding-problems/export`, { headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/admin/coding-problems/export`)
   if (!res.ok) throw new Error(await parseError(res) || 'Could not export the problems.')
   return res.json()
 }
@@ -70,7 +65,7 @@ export async function fetchCodingProblemsExport() {
 export async function saveCodingProblem(id, input) {
   const res = await fetch(`${API_BASE}/admin/coding-problems${id ? `/${id}` : ''}`, {
     method: id ? 'PUT' : 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   })
   if (!res.ok) throw new Error(await parseError(res) || 'Could not save the problem.')
@@ -81,7 +76,7 @@ export async function saveCodingProblem(id, input) {
 export async function saveCodingProblemAnalysis(id, analysis) {
   const res = await fetch(`${API_BASE}/admin/coding-problems/${id}/analysis`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ analysis }),
   })
   if (!res.ok) throw new Error(await parseError(res) || 'Could not save the analysis.')
@@ -92,7 +87,7 @@ export async function saveCodingProblemAnalysis(id, analysis) {
 export async function importCodingProblems(items) {
   const res = await fetch(`${API_BASE}/admin/coding-problems/bulk`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(items),
   })
   if (!res.ok) throw new Error(await parseError(res) || 'Could not import the problems.')
@@ -100,6 +95,6 @@ export async function importCodingProblems(items) {
 }
 
 export async function deleteCodingProblem(id) {
-  const res = await fetch(`${API_BASE}/admin/coding-problems/${id}`, { method: 'DELETE', headers: authHeaders() })
+  const res = await fetch(`${API_BASE}/admin/coding-problems/${id}`, { method: 'DELETE' })
   if (!res.ok && res.status !== 204) throw new Error('Could not delete the problem.')
 }

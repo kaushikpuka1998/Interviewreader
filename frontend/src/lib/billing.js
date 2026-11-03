@@ -3,8 +3,7 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 function headers() {
-  const token = localStorage.getItem('ir_token')
-  return { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+  return { 'Content-Type': 'application/json' }
 }
 
 async function call(path, method = 'GET', body) {

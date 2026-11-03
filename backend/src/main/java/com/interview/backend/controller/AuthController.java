@@ -5,8 +5,7 @@ import com.interview.backend.entity.User;
 import com.interview.backend.repository.UserRepository;
 import com.interview.backend.service.EmailService;
 import com.interview.backend.service.ProgressService;
-import com.interview.backend.util.JwtUtil;
-import com.interview.backend.util.CookieUtil;
+import com.interview.backend.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -40,10 +39,9 @@ public class AuthController {
     private final com.interview.backend.service.BillingService billing;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
     private final ProgressService progressService;
     private final EmailService emailService;
-    private final CookieUtil cookieUtil;
+    private final SessionService sessions;
     private final GeoService geo;
     private final com.interview.backend.service.UsernameService usernames;
 
@@ -149,9 +147,8 @@ public class AuthController {
         usernames.taken(username);
         geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
 
-        String token = jwtUtil.generateToken(email);
-        cookieUtil.setTokenCookie(response, token);
-        return ResponseEntity.ok(new AuthResponse(token, email, user.getName(), isAdmin(email), billing.isPremium(user)));
+        Instant accessExpires = sessions.startSession(user, http, response);
+        return ResponseEntity.ok(authResponse(user, accessExpires));
     }
 
     @PostMapping("/login")
@@ -166,9 +163,8 @@ public class AuthController {
         user.setLastLoginAt(Instant.now());
         userRepository.save(user);
         geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
-        String token = jwtUtil.generateToken(email);
-        cookieUtil.setTokenCookie(response, token);
-        return ResponseEntity.ok(new AuthResponse(token, email, user.getName(), isAdmin(email), billing.isPremium(user)));
+        Instant accessExpires = sessions.startSession(user, http, response);
+        return ResponseEntity.ok(authResponse(user, accessExpires));
     }
 
     /** One-click unsubscribe from new-question emails. Public: the HMAC signature is the auth. */
@@ -193,9 +189,30 @@ public class AuthController {
         return s.length() > max ? s.substring(0, max) : s;
     }
 
+    /** The signed-in member behind the session cookie, so the page can tell a live session from an expired one. */
+    @GetMapping("/session")
+    public ResponseEntity<?> session(java.security.Principal principal) {
+        User user = principal == null ? null : userRepository.findByEmail(principal.getName()).orElse(null);
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Not signed in"));
+        return ResponseEntity.ok(authResponse(user, null));
+    }
+
+    /** Swaps the refresh cookie for a new access + refresh cookie pair (the old refresh token is retired). */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest http, HttpServletResponse response) {
+        return sessions.refresh(http, response)
+                .<ResponseEntity<?>>map(s -> ResponseEntity.ok(authResponse(s.user(), s.accessExpiresAt())))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Session expired, please sign in again")));
+    }
+
+    private AuthResponse authResponse(User user, Instant accessExpires) {
+        return new AuthResponse(user.getEmail(), user.getName(), isAdmin(user.getEmail()), billing.isPremium(user),
+                accessExpires == null ? null : accessExpires.toEpochMilli());
+    }
+
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        cookieUtil.clearTokenCookie(response);
+    public ResponseEntity<?> logout(HttpServletRequest http, HttpServletResponse response) {
+        sessions.endSession(http, response);
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
@@ -288,6 +305,7 @@ public class AuthController {
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
         userRepository.save(user);
+        sessions.endAllSessions(user.getId());   // a reset password signs out every device
 
         return ResponseEntity.ok(Map.of("message", "Password reset successful"));
     }

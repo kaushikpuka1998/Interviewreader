@@ -4,7 +4,7 @@ import { getAllCachedQuestions } from './offlineStore.js'
 // Cached questions are the whole synced set, so signed-out callers only get the free topics
 // (saved from /questions/stats by the app). Signed-in callers get everything.
 function visibleOffline(items) {
-  if (localStorage.getItem('ir_token')) return items
+  if (localStorage.getItem('ir_user')) return items
   const free = JSON.parse(localStorage.getItem('ir_free_techs') || '[]')
   return items.filter(q => free.includes(q.tech))
 }
@@ -28,10 +28,8 @@ export function fetchQuestionIndex() {
 }
 
 export async function fetchQuestion(id) {
-  const token = localStorage.getItem('ir_token')
   try {
     const res = await fetch(`${API_BASE}/questions/${id}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     if (res.status === 404) {
       const err = new Error('Question not found')
@@ -73,10 +71,8 @@ export async function fetchQuestions(opts) {
   if (shouldSendIds && importantIds && importantIds.length > 0) params.set('importantIds', importantIds.join(','))
   params.set('page', page)
   params.set('size', size)
-  const token = localStorage.getItem('ir_token')
   try {
     const res = await fetch(`${API_BASE}/questions?${params}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     if (res.status === 401) {
       const body = await res.json().catch(() => ({}))
@@ -125,18 +121,14 @@ async function fetchQuestionsOffline({ tech, category, difficulty, company, sear
 }
 
 export async function fetchCategories(tech) {
-  const token = localStorage.getItem('ir_token')
   const res = await fetch(`${API_BASE}/questions/categories?tech=${tech}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
   if (!res.ok) return []
   return res.json()
 }
 
 export async function fetchStats() {
-  const token = localStorage.getItem('ir_token')
   const res = await fetch(`${API_BASE}/questions/stats`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
   if (!res.ok) return { total: 0, byTech: {} }
   return res.json()

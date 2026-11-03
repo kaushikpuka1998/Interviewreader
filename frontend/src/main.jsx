@@ -1,3 +1,4 @@
+import './lib/apiFetch.js'   // must stay first: makes every API request carry the session cookie
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
@@ -16,6 +17,7 @@ import LiveInterview from './components/LiveInterview.jsx'
 import TermsPage from './components/TermsPage.jsx'
 import ResetPasswordPage from './components/ResetPasswordPage.jsx'
 import { trackView } from './lib/analytics.js'
+import { syncSession } from './lib/auth.js'
 import PracticePage from './components/PracticePage.jsx'
 import RoadmapsPage from './components/RoadmapsPage.jsx'
 import DesignPracticePage from './components/DesignPracticePage.jsx'
@@ -129,6 +131,8 @@ function Router() {
     </div>
   ) : page
 }
+
+syncSession()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

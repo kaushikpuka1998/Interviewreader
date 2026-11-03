@@ -13,10 +13,9 @@ export async function fetchFeatures() {
 }
 
 export async function setFeature(key, enabled) {
-  const token = localStorage.getItem('ir_token')
   const res = await fetch(`${API_BASE}/admin/features/${key}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ enabled }),
   })
   if (!res.ok) throw new Error('Could not update the feature flag.')

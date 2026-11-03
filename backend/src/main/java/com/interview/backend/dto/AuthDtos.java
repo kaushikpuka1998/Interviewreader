@@ -12,7 +12,9 @@ public class AuthDtos {
 
     public record LoginRequest(String email, String password) {}
 
-    public record AuthResponse(String token, String email, String name, boolean admin, boolean premium) {}
+    // The JWT is never in the body: it travels only in the HttpOnly session cookie.
+    // accessExpiresAt (epoch ms) tells the page when to refresh; null on /auth/session.
+    public record AuthResponse(String email, String name, boolean admin, boolean premium, Long accessExpiresAt) {}
 
     // Guest progress optionally merged on login/register.
     public record ProgressPayload(List<String> visited, List<String> read) {}

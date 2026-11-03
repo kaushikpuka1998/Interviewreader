@@ -1,7 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 const headers = () => {
-  const t = localStorage.getItem('ir_token')
-  return { 'Content-Type': 'application/json', ...(t ? { Authorization: `Bearer ${t}` } : {}) }
+  return { 'Content-Type': 'application/json' }
 }
 
 async function call(path, options = {}) {
@@ -50,10 +49,8 @@ export const saveDesignImageUrl = (id, imageUrl) => call(`/${id}/live/design-ima
 export const uploadDesignImage = async (id, file) => {
   const formData = new FormData()
   formData.append('file', file)
-  const token = localStorage.getItem('ir_token')
   const res = await fetch(`${API_BASE}/interviews/${id}/live/design-image`, {
     method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
     credentials: 'include',
     body: formData
   })
