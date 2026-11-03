@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Metric-matched stand-in for Inter while it loads: Arial scaled to Inter's proportions, so the swap doesn't reflow the text
+   (the main cause of layout shift on first load). */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 107.12%;
+  ascent-override: 90.2%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+}
+
+
 @layer base {
   :root {
     color-scheme: light dark;

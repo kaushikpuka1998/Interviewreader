@@ -40,9 +40,10 @@ const logoUrl = domain => `https://www.google.com/s2/favicons?domain=${domain}&s
 
 export default function HomePage() {
   const features = useFeatures()
+  // null = still loading (placeholders hold the space so nothing below jumps down when the numbers arrive); {} / [] = loaded or failed.
   const [stats, setStats] = useState(null)
-  const [companies, setCompanies] = useState([])
-  useEffect(() => { fetchStats().then(setStats).catch(() => {}); fetchCompanies().then(setCompanies).catch(() => {}) }, [])
+  const [companies, setCompanies] = useState(null)
+  useEffect(() => { fetchStats().then(setStats).catch(() => setStats({})); fetchCompanies().then(setCompanies).catch(() => setCompanies([])) }, [])
   useEffect(() => { setDefaultSeo(stats?.total) }, [stats?.total])
 
   // Feedback moved to its own page; old links (emails, bookmarks) to /#feedback land there.
@@ -60,15 +61,15 @@ export default function HomePage() {
   const [heroName] = HERO_COMPANIES[heroIdx]
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100 dark:bg-slate-900">
+    <div className="flex min-h-screen flex-col bg-white bg-[radial-gradient(70rem_28rem_at_50%_-8rem,#d6f1e6,transparent_70%),radial-gradient(40rem_24rem_at_100%_30rem,#e6f6ef,transparent_70%)] dark:bg-slate-900 dark:bg-none">
       <TopBar />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
         <section className="text-center">
           {/* Who prepares here: the logos double as a hint of what the roadmaps cover. */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 py-1 pl-1.5 pr-3 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-700/15 bg-white py-1 pl-1.5 pr-3 text-xs font-medium text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300 dark:shadow-none">
             <span className="flex -space-x-1.5">
               {HERO_COMPANIES.slice(0, 5).map(([name, domain]) => (
-                <img key={name} src={logoUrl(domain)} alt="" className="h-5 w-5 rounded-full bg-white p-0.5 ring-2 ring-white dark:ring-slate-800" />
+                <img key={name} src={logoUrl(domain)} alt="" width="20" height="20" decoding="async" className="h-5 w-5 rounded-full bg-white p-0.5 ring-2 ring-white dark:ring-slate-800" />
               ))}
             </span>
             Prep built from real FAANG &amp; top-tech interview loops
@@ -76,8 +77,12 @@ export default function HomePage() {
 
           <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl dark:text-slate-100">
             Crack your{' '}
-            <span key={heroName} className="hero-word inline-block bg-gradient-to-r from-blue-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent dark:from-blue-400 dark:via-fuchsia-400 dark:to-pink-400">
-              {heroName}
+            {/* The cell is as wide as the longest name (the others are invisible spacers), so the line never re-wraps as the word changes. */}
+            <span className="inline-grid align-baseline">
+              {HERO_COMPANIES.map(([n]) => <span key={n} aria-hidden="true" className="invisible col-start-1 row-start-1">{n}</span>)}
+              <span key={heroName} className="hero-word col-start-1 row-start-1 bg-gradient-to-r from-blue-600 via-fuchsia-500 to-pink-500 bg-clip-text text-center text-transparent dark:from-blue-400 dark:via-fuchsia-400 dark:to-pink-400">
+                {heroName}
+              </span>
             </span>
             {' '}interview.
           </h1>
@@ -92,25 +97,26 @@ export default function HomePage() {
             <a href="/questions" className="w-full rounded-xl bg-blue-600 px-7 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:-translate-y-0.5 hover:bg-blue-700 sm:w-auto">
               Start practicing free →
             </a>
-            <a href="/roadmaps" className="w-full rounded-xl border border-slate-300 bg-white px-7 py-3.5 font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-slate-400 sm:w-auto dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+            <a href="/roadmaps" className="w-full rounded-xl border border-emerald-700/25 bg-white px-7 py-3.5 font-semibold text-emerald-900 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-700/50 hover:bg-emerald-50 sm:w-auto dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:shadow-none dark:hover:bg-slate-800">
               See company roadmaps
             </a>
           </div>
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">No credit card. Free topics open without an account.</p>
+          <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">No credit card. Free topics open without an account.</p>
           <QotdCard className="mt-8" />
 
-          {/* Proof strip: only shows numbers we actually have. */}
+          {/* Proof strip: only shows numbers we actually have; a same-size placeholder holds the space while they load. */}
+          {!stats && <div className="mx-auto mt-10 h-[88px] max-w-3xl animate-pulse rounded-2xl bg-emerald-50 dark:bg-slate-800/50" aria-hidden="true" />}
           {stats?.total > 0 && (
-            <dl className="mx-auto mt-10 grid max-w-3xl grid-cols-3 divide-x divide-slate-200 rounded-2xl bg-white/70 py-4 shadow-sm dark:divide-slate-700 dark:bg-slate-800/50">
+            <dl className="mx-auto mt-10 grid max-w-3xl grid-cols-3 divide-x divide-emerald-900/10 rounded-2xl border border-emerald-900/10 bg-white py-4 shadow-md shadow-emerald-900/5 dark:divide-slate-700 dark:border-0 dark:bg-slate-800/50 dark:shadow-sm">
               {[
                 [`${stats.total.toLocaleString()}+`, 'interview questions'],
                 [topics.length, 'topics covered'],
-                [companies.length ? `${companies.length}+` : HERO_COMPANIES.length, companies.length ? 'companies tagged' : 'company roadmaps'],
+                [companies?.length ? `${companies.length}+` : HERO_COMPANIES.length, companies?.length ? 'companies tagged' : 'company roadmaps'],
               ].map(([value, label]) => (
                 <div key={label} className="px-2">
                   <dt className="sr-only">{label}</dt>
                   <dd className="text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">{value}</dd>
-                  <dd className="text-xs text-slate-500 dark:text-slate-400">{label}</dd>
+                  <dd className="text-xs text-slate-600 dark:text-slate-400">{label}</dd>
                 </div>
               ))}
             </dl>
@@ -123,15 +129,21 @@ export default function HomePage() {
           </a>
         )}
 
+        {!stats && (
+          <div className="mt-12" aria-hidden="true">
+            <div className="mb-4 h-7 w-44 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{Array.from({ length: 8 }, (_, i) => <div key={i} className="h-[116px] animate-pulse rounded-2xl bg-white dark:bg-slate-950" />)}</div>
+          </div>
+        )}
         {topics.length > 0 && (
           <section className="mt-12" aria-labelledby="topics">
-            <h2 id="topics" className="mb-4 text-xl font-bold text-slate-900 dark:text-slate-100">Browse by topic</h2>
+            <h2 id="topics" className="mb-4 flex items-center gap-2.5 text-xl font-bold text-slate-900 dark:text-slate-100"><span className="h-5 w-1 rounded-full bg-emerald-600 dark:hidden" aria-hidden="true" />Browse by topic</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {topics.map(([tech, count]) => (
-                <a key={tech} href={`/questions?tech=${encodeURIComponent(tech)}`} className="rounded-2xl bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950">
+                <a key={tech} href={`/questions?tech=${encodeURIComponent(tech)}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-900/10 dark:border-0 dark:bg-slate-950 dark:hover:shadow-md">
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${techBadge(tech)}`}>{techLabel(tech)}</span>
                   <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-slate-100">{count.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">questions</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">questions</p>
                 </a>
               ))}
             </div>
@@ -155,16 +167,17 @@ export default function HomePage() {
         </section>
         )}
 
-        {companies.length > 0 && features.code_practice !== false && (
+        {!companies && features.code_practice !== false && <div className="mt-12 min-h-[190px]" aria-hidden="true"><div className="mb-4 h-7 w-64 animate-pulse rounded bg-slate-200 dark:bg-slate-800" /><div className="h-[130px] animate-pulse rounded-2xl bg-emerald-50 dark:bg-slate-950/60" /></div>}
+        {companies?.length > 0 && features.code_practice !== false && (
           <section className="mt-12" aria-labelledby="companies">
             <div className="mb-4 flex items-baseline justify-between">
-              <h2 id="companies" className="text-xl font-bold text-slate-900 dark:text-slate-100">Coding problems by company</h2>
-              <a href="/problems" className="text-sm text-blue-600 hover:underline dark:text-blue-400">All problems →</a>
+              <h2 id="companies" className="flex items-center gap-2.5 text-xl font-bold text-slate-900 dark:text-slate-100"><span className="h-5 w-1 rounded-full bg-emerald-600 dark:hidden" aria-hidden="true" />Coding problems by company</h2>
+              <a href="/problems" className="text-sm font-medium text-emerald-700 hover:underline dark:text-blue-400">All problems →</a>
             </div>
             <div className="flex flex-wrap gap-2">
               {companies.slice(0, 24).map(c => (
-                <a key={c.name} href={`/problems?company=${encodeURIComponent(c.name)}`} className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm transition hover:shadow-md dark:bg-slate-950 dark:text-slate-100">
-                  {c.name} <span className="text-slate-400">{c.count}</span>
+                <a key={c.name} href={`/problems?company=${encodeURIComponent(c.name)}`} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm transition hover:border-emerald-500/60 hover:bg-emerald-50 hover:shadow-md dark:border-0 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-950">
+                  {c.name} <span className="font-semibold text-emerald-700 dark:font-normal dark:text-slate-400">{c.count}</span>
                 </a>
               ))}
             </div>
@@ -175,8 +188,8 @@ export default function HomePage() {
           {LINKS.filter(l => !l.flag || features[l.flag] !== false).map(l => (
             <a key={l.href} href={l.href}
               className={`group flex items-start gap-4 rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${l.featured
-                ? 'border-orange-400/40 bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-transparent hover:border-orange-400/70 sm:col-span-2 sm:items-center sm:p-6'
-                : 'border-slate-200 bg-white hover:border-blue-400/60 dark:border-slate-800 dark:bg-slate-950'}`}>
+                ? 'border-orange-300 bg-gradient-to-r from-orange-50 via-amber-50 to-white shadow-md shadow-orange-900/5 hover:border-orange-400 sm:col-span-2 sm:items-center sm:p-6 dark:border-orange-400/40 dark:from-orange-500/15 dark:via-amber-500/10 dark:to-transparent dark:shadow-sm dark:hover:border-orange-400/70'
+                : 'border-slate-200 bg-white hover:border-emerald-500/50 hover:shadow-emerald-900/10 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-400/60'}`}>
               <span className={`flex shrink-0 items-center justify-center rounded-xl ${TONES[l.tone]} ${l.featured ? 'h-14 w-14 text-3xl' : 'h-11 w-11 text-2xl'}`} aria-hidden="true">{l.icon}</span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">

@@ -40,7 +40,7 @@ export default function DailyPromo({ onClose }) {
       `}</style>
       <div className="ir-card relative w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-slate-900/95 p-7 text-center text-white shadow-2xl shadow-black/60" style={{ animation: 'ir-card-in 0.5s ease-out both' }}>
         <div className="pointer-events-none absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/15 to-transparent" style={{ animation: 'ir-sheen 1.6s ease-out 0.4s 1 both' }} aria-hidden="true" />
-        <img src="/promo/daily-hero.png" alt="" className="-mx-7 -mt-7 mb-5 block h-auto max-w-none" style={{ width: 'calc(100% + 3.5rem)' }} />
+        <img src="/promo/daily-hero.jpg" alt="" width="1200" height="520" className="-mx-7 -mt-7 mb-5 block h-auto max-w-none" style={{ width: 'calc(100% + 3.5rem)' }} />
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-300">New · Daily challenge</p>
         <h2 className="mt-2 bg-gradient-to-r from-white via-orange-100 to-amber-200 bg-clip-text text-2xl font-extrabold text-transparent">Two new things, every day</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-300">One question to read and one problem to solve. Do both, keep your streak and climb the leaderboard.</p>

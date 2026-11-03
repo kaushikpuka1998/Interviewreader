@@ -44,7 +44,7 @@ export default function QuestionOfTheDayPage() {
       <TopBar />
       <main className="mx-auto flex w-full max-w-xl flex-1 items-center px-4 py-10">
         <div className="w-full rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-lg dark:border-slate-800 dark:bg-slate-950">
-          <img src="/promo/daily-hero.png" alt="" className="-mx-7 -mt-7 mb-5 block h-auto max-w-none rounded-t-2xl" style={{ width: 'calc(100% + 3.5rem)' }} />
+          <img src="/promo/daily-hero.jpg" alt="" className="-mx-7 -mt-7 mb-5 block h-auto max-w-none rounded-t-2xl" style={{ width: 'calc(100% + 3.5rem)' }} />
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Sign in to take today's challenge</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Two new items every day, free with an account. Sign in to unlock them and keep your streak.</p>
           <ul className="mt-4 space-y-2 text-left text-sm">

@@ -1,35 +1,38 @@
 import './lib/apiFetch.js'   // must stay first: makes every API request carry the session cookie
-import React, { useState, useEffect } from 'react'
+import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import AdminPage from './components/AdminPage.jsx'
-import ProfilePage from './components/ProfilePage.jsx'
-import PublicProfilePage from './components/PublicProfilePage.jsx'
-import ProblemsPage from './components/ProblemsPage.jsx'
-import LeaderboardPage from './components/LeaderboardPage.jsx'
-import StreakPage from './components/StreakPage.jsx'
-import DiscussPage from './components/DiscussPage.jsx'
-import DiscussDetailPage from './components/DiscussDetailPage.jsx'
+const App = lazy(() => import('./App.jsx'))
+const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
+const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
+const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
+const ProblemsPage = lazy(() => import('./components/ProblemsPage.jsx'))
+const LeaderboardPage = lazy(() => import('./components/LeaderboardPage.jsx'))
+const StreakPage = lazy(() => import('./components/StreakPage.jsx'))
+const DiscussPage = lazy(() => import('./components/DiscussPage.jsx'))
+const DiscussDetailPage = lazy(() => import('./components/DiscussDetailPage.jsx'))
 import { DailyPromoGate } from './components/DailyPromo.jsx'
-import ResumePage from './components/ResumePage.jsx'
-import ResumeEditor from './components/ResumeEditor.jsx'
+const ResumePage = lazy(() => import('./components/ResumePage.jsx'))
+const ResumeEditor = lazy(() => import('./components/ResumeEditor.jsx'))
 import HomePage from './components/HomePage.jsx'
 import Footer from './components/Footer.jsx'
-import SheetPage from './components/SheetPage.jsx'
-import InterviewPage from './components/InterviewPage.jsx'
-import LiveInterview from './components/LiveInterview.jsx'
-import TermsPage from './components/TermsPage.jsx'
-import FeedbackPage from './components/FeedbackPage.jsx'
-import QuestionOfTheDayPage from './components/QuestionOfTheDayPage.jsx'
-import PremiumPage from './components/PremiumPage.jsx'
+const SheetPage = lazy(() => import('./components/SheetPage.jsx'))
+const InterviewPage = lazy(() => import('./components/InterviewPage.jsx'))
+const LiveInterview = lazy(() => import('./components/LiveInterview.jsx'))
+const TermsPage = lazy(() => import('./components/TermsPage.jsx'))
+const FeedbackPage = lazy(() => import('./components/FeedbackPage.jsx'))
+const QuestionOfTheDayPage = lazy(() => import('./components/QuestionOfTheDayPage.jsx'))
+const PremiumPage = lazy(() => import('./components/PremiumPage.jsx'))
 import FeedbackButton from './components/FeedbackButton.jsx'
-import ResetPasswordPage from './components/ResetPasswordPage.jsx'
+const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage.jsx'))
 import { trackView } from './lib/analytics.js'
 import { syncSession } from './lib/auth.js'
-import PracticePage from './components/PracticePage.jsx'
-import RoadmapsPage from './components/RoadmapsPage.jsx'
-import DesignPracticePage from './components/DesignPracticePage.jsx'
+const PracticePage = lazy(() => import('./components/PracticePage.jsx'))
+const RoadmapsPage = lazy(() => import('./components/RoadmapsPage.jsx'))
+const DesignPracticePage = lazy(() => import('./components/DesignPracticePage.jsx'))
 import { useFeature } from './lib/features.js'
+
+// Every page except the home page is its own chunk (React.lazy), so a first visit to / doesn't download the reader, admin,
+// code editor, resume builder and the rest. Home, the footer and the small shared pieces stay in the main bundle.
 
 // Shown in place of a page whose feature is switched off in the admin Feature flags tab.
 function Paused({ what }) {
@@ -140,7 +143,7 @@ const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/problems', '/resum
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
-  const page = <><Routes /><FeedbackButton /><DailyPromoGate /></>
+  const page = <><Suspense fallback={<div className="min-h-screen bg-slate-100 dark:bg-slate-900" />}><Routes /></Suspense><FeedbackButton /><DailyPromoGate /></>
   return NEEDS_FOOTER.some(p => path === p || path.startsWith(p === '/u/' ? p : p + '/')) ? (
     <div className="flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col [&>div]:flex-1 [&>div]:!min-h-0">{page}</div>
