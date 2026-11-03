@@ -47,6 +47,10 @@
 }
 
 @layer components {
+  /* The part of an answer being read aloud (Listen). */
+  .tts-focus {
+    @apply rounded-md bg-blue-500/10 outline outline-2 outline-offset-4 outline-blue-500/50 transition-colors duration-300;
+  }
   .app-shell {
     @apply flex min-h-screen;
   }

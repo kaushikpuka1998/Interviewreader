@@ -1,3 +1,4 @@
+import ListenButton from './ListenButton.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { useReadTracking } from '../lib/analytics.js'
@@ -276,12 +277,14 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
                         )}
                         <SuggestEdit question={question} />
                         <MarkDuplicate question={question} />
+                        <ListenButton question={question} />
                         <ShareLinkedIn question={question} />
                       </div>
                     </div>
                 )}
                 {!isLoggedIn() && (
-                    <div className="mt-3 flex justify-end">
+                    <div className="mt-3 flex justify-end gap-2">
+                      <ListenButton question={question} />
                       <ShareLinkedIn question={question} />
                     </div>
                 )}
