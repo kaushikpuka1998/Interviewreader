@@ -109,6 +109,7 @@ public class ProfileController {
         body.put("username", u.getUsername() == null ? "" : u.getUsername());
         body.put("email", u.getEmail());
         body.put("name", u.getName() == null ? "" : u.getName());
+        body.put("details", com.interview.backend.service.PublicDetails.view(u.getHeadline(), u.getCollege(), u.getGithubUser(), u.getLinkedinHandle(), u.getWebsiteUrl(), u.getBio(), u.getSkills()));
         body.put("picture", u.effectivePicture());
         body.put("hasUploadedPicture", u.getAvatarUrl() != null && !u.getAvatarUrl().isBlank());
         body.put("memberSince", u.getCreatedAt());
@@ -168,6 +169,28 @@ public class ProfileController {
         out.put("picture", u.effectivePicture());
         out.put("hasUploadedPicture", false);
         return ResponseEntity.ok(out);
+    }
+
+    public record PublicDetailsRequest(String headline, String college, String github, String linkedin, String website, String bio, List<String> skills) {}
+
+    /**
+     * The optional details shown on the member's public profile. Replaces all of them at once (a blank field clears it), so the form can
+     * simply send what it shows. Handles for GitHub and LinkedIn are reduced to the bare name; see PublicDetails for the rules.
+     */
+    @PutMapping("/public-details")
+    public ResponseEntity<?> savePublicDetails(@RequestBody PublicDetailsRequest req) {
+        User u = currentUser();
+        try {
+            var c = com.interview.backend.service.PublicDetails.clean(req.headline(), req.college(), req.github(), req.linkedin(), req.website(), req.bio(), req.skills());
+            u.setHeadline(c.headline()); u.setCollege(c.college()); u.setGithubUser(c.github()); u.setLinkedinHandle(c.linkedin());
+            u.setWebsiteUrl(c.website()); u.setBio(c.bio()); u.setSkills(c.skills().isEmpty() ? null : String.join(",", c.skills()));
+            userRepository.save(u);
+            Map<String, Object> out = new LinkedHashMap<>();
+            out.put("details", com.interview.backend.service.PublicDetails.view(u.getHeadline(), u.getCollege(), u.getGithubUser(), u.getLinkedinHandle(), u.getWebsiteUrl(), u.getBio(), u.getSkills()));
+            return ResponseEntity.ok(out);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     public record LocationRequest(String country, String city) {}

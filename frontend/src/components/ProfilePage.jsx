@@ -2,6 +2,7 @@ import ProfileGrowth from './ProfileGrowth.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect, useRef } from 'react'
 import Pic from './Pic.jsx'
+import PublicDetailsDialog from './PublicDetailsDialog.jsx'
 import { isLoggedIn, getUser, logout, fetchDashboard, fetchProfileQuestions, updateLocation } from '../lib/auth.js'
 import { fetchQuestions } from '../lib/api.js'
 import { fetchSolvedIds } from '../lib/code.js'
@@ -34,6 +35,20 @@ const NOTE_MAX = 5000
 const NOTE_TITLE_MAX = 120
 
 // One note: a formatted view, or an editor with a live Markdown preview beside it.
+// Opens the form for the optional details shown on the public profile; reloads after saving so the page and its preview are current.
+function PublicDetailsButton({ details, username }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}
+        className="rounded-lg border border-blue-200 px-2.5 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/30">
+        {details ? 'Edit public details' : 'Add public details'}
+      </button>
+      {open && <PublicDetailsDialog details={details} username={username} onClose={() => setOpen(false)} onSaved={() => window.location.reload()} />}
+    </>
+  )
+}
+
 // Profile picture: choose a file (PNG, JPEG or GIF, any size up to 5 MB; the server crops it square and shrinks it) or remove the upload.
 // A Google sign-in picture is used until a picture is uploaded. The page reloads after a change so the top bar shows it too.
 function PhotoControls({ hasUploaded, hasAny }) {
@@ -410,6 +425,7 @@ export default function ProfilePage() {
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
             <PhotoControls hasUploaded={!!profile.hasUploadedPicture} hasAny={!!profile.picture} />
+            <PublicDetailsButton details={profile.details} username={handle} />
             <UsernameEditor username={handle} onSaved={setHandle} />
             {handle && (
               <>

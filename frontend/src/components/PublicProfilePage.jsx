@@ -1,5 +1,6 @@
 import NotFound from './NotFound.jsx'
 import Pic from './Pic.jsx'
+import PublicProfileCard from './PublicProfileCard.jsx'
 import Loader from './Loader.jsx'
 import { useState, useEffect } from 'react'
 import TopBar from './TopBar.jsx'
@@ -70,7 +71,8 @@ export default function PublicProfilePage({ username }) {
 
         {profile && (
           <>
-            <div className="flex items-center justify-between gap-4">
+            {profile.details && <PublicProfileCard profile={profile} />}
+            {!profile.details && <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xl font-bold text-white">
                   <Pic src={profile.picture} fallback={profile.name.trim().charAt(0).toUpperCase()} />
@@ -83,7 +85,7 @@ export default function PublicProfilePage({ username }) {
                 </div>
               </div>
               <a href="/" className="text-sm text-blue-600 hover:underline dark:text-blue-400">← Interview Reader</a>
-            </div>
+            </div>}
 
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               {[

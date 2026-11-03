@@ -70,6 +70,7 @@ public class PublicProfileController {
         body.put("username", u.getUsername());
         body.put("name", u.getName() == null || u.getName().isBlank() ? "Learner" : u.getName());
         body.put("picture", u.effectivePicture());
+        body.put("details", com.interview.backend.service.PublicDetails.view(u.getHeadline(), u.getCollege(), u.getGithubUser(), u.getLinkedinHandle(), u.getWebsiteUrl(), u.getBio(), u.getSkills()));
         body.put("memberSince", u.getCreatedAt());
         body.put("totalQuestions", questions.count());
         List<Question> visitedQuestions = questions.findAllById(visited);

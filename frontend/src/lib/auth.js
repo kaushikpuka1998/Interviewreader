@@ -393,3 +393,14 @@ export async function fetchDashboard() {
   if (!res.ok) throw new Error(await parseError(res) || 'Failed to load your profile')
   return res.json()
 }
+
+// The optional details on the public profile (headline, college, bio, GitHub / LinkedIn handles, website, skills).
+// Sends all of them at once; a blank field clears it. Returns { details } as visitors will see it.
+export async function savePublicDetails(details) {
+  const res = await fetch(`${API_BASE}/profile/public-details`, {
+    method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Could not save your details.')
+  return data
+}

@@ -8,6 +8,7 @@ const SECTIONS = [
       'Your activity: questions you read, mark as read, flag or mark important, and your personal notes.',
       'Resume content you write in the resume builder, including the PDFs and LaTeX you generate.',
       'Code you run or submit in the practice editor, and mock-interview bookings (the slot, interview type and any notes you add).',
+      'Public profile details you choose to add: a headline, college, short description, skills, and your GitHub username, LinkedIn profile name or website address. All of these are optional.',
       'Feedback you send us: your rating, message, optional email and any screenshots you attach.',
       'If you buy Premium: the pass you bought, its Razorpay order or subscription ID and the date your Premium access ends. Card, UPI and bank details are entered on Razorpay\'s checkout and never reach or get stored on our servers.',
       'Usage data: pages viewed, clicks, device type, referring site, and campaign tags (UTM), linked to your account while you are signed in.',
@@ -17,7 +18,8 @@ const SECTIONS = [
     title: 'Why we use it',
     items: [
       'To run the service: save your progress, keep your resumes, and show your profile.',
-      'To show the leaderboard: your username and XP appear there. Your profile is public only if you share your username link.',
+      'To show the leaderboard: your username and XP appear there.',
+      'To show your public profile: your name, profile picture, progress and any optional details you added appear on your public profile page for anyone who has your username link.',
       'To process payments and manage Premium: unlock paid features, show when your access ends and handle cancellations.',
       'To send emails you have opted into: new-question digests, announcements, product updates (for example new roadmaps or features) and occasional requests for feedback. Every email has an unsubscribe link.',
       'To improve the product: usage is analysed in aggregate to understand which features are used.',
@@ -27,6 +29,7 @@ const SECTIONS = [
     title: 'Who sees it',
     items: [
       'You, and the site administrators for support and moderation.',
+      'Anyone with the link to your public profile (/u/your-username): they see your name, picture, progress and the optional details you added, such as your college and GitHub or LinkedIn links. You can edit or clear these details at any time from your profile page.',
       'Service providers that host the app, send email, and store data, only as needed to run the service.',
       'Razorpay, our payment processor, for Premium payments. Razorpay handles your payment details under its own privacy policy.',
       'Company logos on the site are loaded from Google\'s favicon service, which, like any website you load content from, receives your IP address and browser details.',
@@ -46,6 +49,15 @@ const SECTIONS = [
       'We use cookies and browser storage that are needed to keep you signed in, remember your theme, and save your reading progress and code drafts on your device.',
       'We also record page views and clicks for analytics (see "What we collect"). We do not use advertising or third-party tracking cookies.',
       'You can clear cookies and site data in your browser settings at any time; you may need to sign in again.',
+    ],
+  },
+  {
+    title: 'Your public profile',
+    items: [
+      'Adding details to your public profile is optional. Whatever you add is shown to anyone who opens your profile link, so do not include private information such as a phone number, home address or identity numbers.',
+      'The details are written by you. We do not check them, and you are responsible for their accuracy. Only add a college, employer or link that is yours, and do not pretend to be someone else.',
+      'Your GitHub, LinkedIn and website links open other websites, which have their own terms and privacy policies. We only store the username, profile name or address you type.',
+      'We may remove or hide profile content that is false, misleading, offensive, or breaks these terms. Clearing a field removes it from your public page straight away.',
     ],
   },
   {
@@ -145,7 +157,7 @@ const SECTIONS = [
 export default function TermsContent() {
   return (
     <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
-      <p className="text-xs text-slate-500 dark:text-slate-400">Last updated: 2 November 2026</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400">Last updated: 4 November 2026</p>
       <p>By creating an account you agree to these terms and to how we handle your data as described below.</p>
       {SECTIONS.map(sec => (
         <section key={sec.title}>

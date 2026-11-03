@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import TopBar from './TopBar.jsx'
 import Footer from './Footer.jsx'
 import QotdCard from './QotdCard.jsx'
@@ -84,6 +84,47 @@ function brandStyle(name) {
   return { '--brand': b.color, '--brand-dark': b.dark || b.color }
 }
 
+// The headline, with the company name that rotates every 2.2 s. It owns its own state, so a tick re-renders only this heading and
+// not the whole home page (topic tiles, company chips, link cards), which is what the page used to redo every 2.2 s.
+function HeroHeadline() {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    // A background tab doesn't need to animate, so it skips the tick.
+    const t = setInterval(() => { if (!document.hidden) setIdx(i => (i + 1) % HERO_COMPANIES.length) }, 2200)
+    return () => clearInterval(t)
+  }, [])
+  const heroName = HERO_COMPANIES[idx][0]
+  // The word's box follows the word: narrow for "Meta", wide for "Microsoft", and the rest of the line glides to fit (width transition).
+  // Measured from the word itself on each change, and again after the web font loads and when the window resizes.
+  // The width goes straight onto the element (not through state), so a change costs one render of this heading instead of two.
+  const word = useRef(null)
+  const box = useRef(null)
+  const measure = useCallback(() => { if (word.current && box.current) box.current.style.setProperty('--hero-w', `${word.current.offsetWidth}px`) }, [])
+  useLayoutEffect(measure, [heroName, measure])
+  useEffect(() => {
+    window.addEventListener('resize', measure)
+    document.fonts?.ready.then(measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [measure])
+  const brand = BRAND[heroName]
+  return (
+    <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl dark:text-slate-100">
+      Crack your{' '}
+      {/* The word's padding (cancelled by the negative margin) lets the clipped gradient paint the descender of a "g" instead of cutting it off.
+          On a phone the word has its own line (always three lines, so the text below never jumps); from sm up it sits inline
+          and its box grows or shrinks to the word. */}
+      <span ref={box} className="block text-center sm:inline-flex sm:w-[var(--hero-w)] sm:justify-center sm:align-baseline sm:transition-[width] sm:duration-500 sm:ease-out motion-reduce:transition-none">
+        <span ref={word} key={heroName} className="hero-word -mb-[0.2em] inline-block shrink-0 whitespace-nowrap pb-[0.2em] text-[color:var(--brand)] dark:text-[color:var(--brand-dark,var(--brand))]"
+          style={brandStyle(heroName)}>
+          {brand?.letters ? [...heroName].map((ch, i) => <span key={i} style={{ color: brand.letters[i % brand.letters.length] }}>{ch}</span>) : heroName}
+        </span>
+      </span>
+      {' '}interview.
+    </h1>
+  )
+}
+
 export default function HomePage() {
   const features = useFeatures()
   // null = still loading (placeholders hold the space so nothing below jumps down when the numbers arrive); {} / [] = loaded or failed.
@@ -96,26 +137,6 @@ export default function HomePage() {
   useEffect(() => { if (window.location.hash === '#feedback') window.location.replace(`/feedback${window.location.search}`) }, [])
 
   const topics = Object.entries(stats?.byTech || {}).sort((a, b) => b[1] - a[1])
-
-  // Rotate the company in the headline every 2.2s (the word itself animates via .hero-word).
-  const [heroIdx, setHeroIdx] = useState(0)
-  useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
-    const t = setInterval(() => setHeroIdx(i => (i + 1) % HERO_COMPANIES.length), 2200)
-    return () => clearInterval(t)
-  }, [])
-  const [heroName] = HERO_COMPANIES[heroIdx]
-  // The word's box follows the word: narrow for "Meta", wide for "Microsoft", and the rest of the line glides to fit (width transition).
-  // Measured from the word itself, again after the web font loads and when the window resizes.
-  const heroWord = useRef(null)
-  const [heroW, setHeroW] = useState(null)
-  useLayoutEffect(() => {
-    const measure = () => { if (heroWord.current) setHeroW(heroWord.current.offsetWidth) }
-    measure()
-    window.addEventListener('resize', measure)
-    document.fonts?.ready.then(measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [heroName])
 
   return (
     <div className="flex min-h-screen flex-col bg-white bg-[radial-gradient(70rem_28rem_at_50%_-8rem,#bfe9d6,transparent_70%),radial-gradient(40rem_24rem_at_100%_30rem,#d3efe2,transparent_70%)] dark:bg-slate-900 dark:bg-none">
@@ -132,20 +153,7 @@ export default function HomePage() {
             Prep built from real FAANG &amp; top-tech interview loops
           </div>
 
-          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-6xl dark:text-slate-100">
-            Crack your{' '}
-            {/* The word's padding (cancelled by the negative margin) lets the clipped gradient paint the descender of a "g" instead of cutting it off.
-                On a phone the word has its own line (always three lines, so the text below never jumps); from sm up it sits inline
-                and its box grows or shrinks to the word. */}
-            <span className="block text-center sm:inline-flex sm:w-[var(--hero-w)] sm:justify-center sm:align-baseline sm:transition-[width] sm:duration-500 sm:ease-out motion-reduce:transition-none"
-              style={heroW ? { '--hero-w': `${heroW}px` } : undefined}>
-              <span ref={heroWord} key={heroName} className="hero-word -mb-[0.2em] inline-block shrink-0 whitespace-nowrap pb-[0.2em] text-[color:var(--brand)] dark:text-[color:var(--brand-dark,var(--brand))]"
-                style={brandStyle(heroName)}>
-                {BRAND[heroName]?.letters ? [...heroName].map((ch, i) => <span key={i} style={{ color: BRAND[heroName].letters[i % BRAND[heroName].letters.length] }}>{ch}</span>) : heroName}
-              </span>
-            </span>
-            {' '}interview.
-          </h1>
+          <HeroHeadline />
 
           <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-400">
             One real answer at a time:{' '}

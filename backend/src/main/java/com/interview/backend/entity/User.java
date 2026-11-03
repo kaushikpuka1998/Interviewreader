@@ -53,6 +53,22 @@ public class User {
     @Column(unique = true, length = 30)
     private String username;
 
+    // ---- Optional details the member chooses to show on their public profile (/u/<username>). All nullable; see PublicDetails. ----
+    @Column(length = 120)
+    private String headline;        // e.g. "Software Engineer at Acme"
+    @Column(length = 120)
+    private String college;
+    @Column(length = 39)
+    private String githubUser;      // the handle only; the page builds the link
+    @Column(length = 100)
+    private String linkedinHandle;  // the /in/<handle> part only
+    @Column(length = 200)
+    private String websiteUrl;      // http(s) only
+    @Column(length = 280)
+    private String bio;
+    @Column(length = 220)
+    private String skills;          // comma-separated tags, at most 8
+
     /** The member's uploaded profile picture (a URL served by this app). Wins over the Google one. */
     @Column(length = 512)
     private String avatarUrl;
