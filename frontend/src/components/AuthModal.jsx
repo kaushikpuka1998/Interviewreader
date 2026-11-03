@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { login, register } from '../lib/auth.js'
+import { useEffect, useRef, useState } from 'react'
+import { login, register, googleSignIn, fetchGoogleClientId } from '../lib/auth.js'
 import { trackClick, flushEvents } from '../lib/analytics.js'
 import TermsContent from './TermsContent.jsx'
 
@@ -11,6 +11,51 @@ const pageKind = () => {
   if (p === '/') return 'home'
   const top = p.split('/')[1]
   return ['problems', 'practice', 'roadmaps', 'resume', 'interview', 'profile', 'leaderboard', 'u'].includes(top) ? top : 'question'
+}
+
+// Google's own "Sign in with Google" button (Google Identity Services). The script loads once, on first use.
+let gisScript = null
+let onGoogleCredential = () => {}
+function loadGis(clientId) {
+  gisScript ||= new Promise((resolve, reject) => {
+    const s = document.createElement('script')
+    s.src = 'https://accounts.google.com/gsi/client'
+    s.async = true
+    s.onload = () => {
+      window.google.accounts.id.initialize({ client_id: clientId, callback: r => onGoogleCredential(r.credential) })
+      resolve(window.google)
+    }
+    s.onerror = () => { gisScript = null; reject(new Error('Could not load Google sign-in')) }
+    document.head.appendChild(s)
+  })
+  return gisScript
+}
+
+function GoogleButton({ text, onCredential }) {
+  const box = useRef(null)
+  const [hidden, setHidden] = useState(true)   // stays hidden when Google sign-in is off or can't load
+  onGoogleCredential = onCredential
+  useEffect(() => {
+    let live = true
+    fetchGoogleClientId().then(id => id && loadGis(id)).then(google => {
+      if (!live || !google || !box.current) return
+      setHidden(false)
+      google.accounts.id.renderButton(box.current, {
+        theme: document.documentElement.classList.contains('dark') ? 'filled_black' : 'outline',
+        size: 'large', shape: 'pill', text, logo_alignment: 'left',
+        width: Math.min(400, box.current.offsetWidth || 320),
+      })
+    }).catch(() => {})
+    return () => { live = false }
+  }, [text])
+  return (
+    <div className={hidden ? 'hidden' : ''}>
+      <div ref={box} className="flex min-h-[44px] w-full justify-center" />
+      <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
+        <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />or with email<span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+      </div>
+    </div>
+  )
 }
 
 // Login / signup modal. Calls onSuccess(user) after a successful auth.
@@ -30,12 +75,44 @@ export default function AuthModal({ onClose, onSuccess }) {
   const [guardianEmail, setGuardianEmail] = useState('')
   const [guardianConsent, setGuardianConsent] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
+  // A Google sign-in for a new email, waiting for the Terms / age consent before the account is created.
+  const [pendingGoogle, setPendingGoogle] = useState(null)
 
   const isSignup = mode === 'signup'
   const isForgot = mode === 'forgot'
+  const consent = () => ({ termsAccepted: agreed, ...(minor ? { guardianName, guardianEmail, guardianConsent } : { adult: agreed }) })
+
+  const finish = (user, how) => {
+    localStorage.setItem(HAD_ACCOUNT_KEY, '1')
+    trackClick(`auth_success:${how}`)
+    flushEvents()   // onSuccess often reloads the page
+    onSuccess(user)
+  }
+
+  // Signs in with Google straight away; a new email first needs the consent boxes (unless already ticked here).
+  async function withGoogle(credential) {
+    setError(''); setSuccess('')
+    trackClick(`auth_submit:google_${mode}`)
+    setBusy(true)
+    try {
+      finish(await googleSignIn({ credential, ...(isSignup ? consent() : {}) }), 'google')
+    } catch (err) {
+      if (err.consentRequired) {
+        setPendingGoogle(credential)
+        setMode('signup')
+        setError('')
+        setSuccess('Almost done: confirm the box below to create your account with Google.')
+      } else {
+        setError(err.message)
+        trackClick(`auth_error:google:${err.message}`)
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
 
   useEffect(() => { trackClick(`auth_open:${mode}@${pageKind()}`) }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const switchMode = m => { setMode(m); setError(''); setSuccess(''); trackClick(`auth_mode:${m}`) }
+  const switchMode = m => { setMode(m); setPendingGoogle(null); setError(''); setSuccess(''); trackClick(`auth_mode:${m}`) }
 
   async function submit(e) {
     e.preventDefault()
@@ -61,14 +138,13 @@ export default function AuthModal({ onClose, onSuccess }) {
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to send reset link')
         setSuccess(data.message)
+      } else if (pendingGoogle) {
+        finish(await googleSignIn({ credential: pendingGoogle, ...consent() }), 'google')
       } else {
         const user = isSignup
           ? await register({ email, password, name, termsAccepted: agreed, ...(minor ? { guardianName, guardianEmail, guardianConsent } : { adult: true }) })
           : await login({ email, password })
-        localStorage.setItem(HAD_ACCOUNT_KEY, '1')
-        trackClick(`auth_success:${mode}`)
-        flushEvents()   // onSuccess often reloads the page
-        onSuccess(user)
+        finish(user, mode)
       }
     } catch (err) {
       setError(err.message || 'Something went wrong')
@@ -98,23 +174,27 @@ export default function AuthModal({ onClose, onSuccess }) {
           </button>
         </div>
 
+        {!isForgot && !pendingGoogle && <GoogleButton text={isSignup ? 'signup_with' : 'signin_with'} onCredential={withGoogle} />}
+
         <form onSubmit={submit} className="space-y-4">
           {isSignup && (
             <p className="-mt-1 text-sm text-slate-500 dark:text-slate-400">Free forever. Save progress, unlock every topic and earn streak points.</p>
           )}
-          {isSignup && (
+          {isSignup && !pendingGoogle && (
             <input
               type="text" placeholder="Name (optional)" value={name} autoComplete="name"
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           )}
-          <input
-            type="email" required placeholder="Email" value={email} autoComplete="email"
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {!isForgot && (
+          {!pendingGoogle && (
+            <input
+              type="email" required placeholder="Email" value={email} autoComplete="email"
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          )}
+          {!isForgot && !pendingGoogle && (
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'} required placeholder="Password (min 6 chars)" value={password}
@@ -200,7 +280,7 @@ export default function AuthModal({ onClose, onSuccess }) {
             type="submit" disabled={busy || (isSignup && (!agreed || (minor && !guardianConsent)))}
             className="w-full py-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold shadow-lg hover:opacity-95 disabled:opacity-60 transition"
           >
-            {busy ? 'Please wait…' : isForgot ? 'Send reset link' : isSignup ? 'Create free account' : 'Log in'}
+            {busy ? 'Please wait…' : isForgot ? 'Send reset link' : pendingGoogle ? 'Create account with Google' : isSignup ? 'Create free account' : 'Log in'}
           </button>
         </form>
 

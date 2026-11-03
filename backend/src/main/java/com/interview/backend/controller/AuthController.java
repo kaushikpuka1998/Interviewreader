@@ -42,6 +42,7 @@ public class AuthController {
     private final ProgressService progressService;
     private final EmailService emailService;
     private final SessionService sessions;
+    private final com.interview.backend.service.GoogleAuthService google;
     private final GeoService geo;
     private final com.interview.backend.service.UsernameService usernames;
 
@@ -165,6 +166,43 @@ public class AuthController {
         geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
         Instant accessExpires = sessions.startSession(user, http, response);
         return ResponseEntity.ok(authResponse(user, accessExpires));
+    }
+
+    /** Which sign-in options the page should show. The Google client id is public by design. */
+    @GetMapping("/providers")
+    public Map<String, Object> providers() {
+        return Map.of("googleClientId", google.enabled() ? google.clientId() : "");
+    }
+
+    /**
+     * Sign in with Google. A known email signs straight in (Google has verified the address, so this also
+     * works for accounts that were created with a password). A new email becomes an account through the
+     * normal sign-up rules, so it needs the same Terms and age (or guardian) consent.
+     */
+    @PostMapping("/google")
+    public ResponseEntity<?> google(@RequestBody GoogleRequest req, HttpServletRequest http, HttpServletResponse response) {
+        var who = google.verify(req.credential()).orElse(null);
+        if (who == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Google sign-in failed. Please try again."));
+        }
+        User user = userRepository.findByEmail(who.email()).orElse(null);
+        if (user != null) {
+            user.setLastLoginAt(Instant.now());
+            if (isBlank(user.getName()) && who.name() != null) user.setName(trimTo(who.name(), 100));
+            userRepository.save(user);
+            geo.resolveFromIp(user.getId(), RateLimitFilter.clientIp(http));
+            return ResponseEntity.ok(authResponse(user, sessions.startSession(user, http, response)));
+        }
+        boolean consented = Boolean.TRUE.equals(req.termsAccepted())
+                && (Boolean.TRUE.equals(req.adult()) || Boolean.TRUE.equals(req.guardianConsent()));
+        if (!consented) {
+            return ResponseEntity.badRequest().body(Map.of("error", "To create your account, confirm you are 18 or older and accept the Terms.",
+                    "consentRequired", true));
+        }
+        // No password is ever typed; a random one keeps the column filled. "Forgot password" can set a real one.
+        return register(new RegisterRequest(who.email(), UUID.randomUUID().toString(), trimTo(who.name(), 100), null, null,
+                req.utmSource(), req.utmCampaign(), null, true, null, req.guardianName(), req.guardianEmail(),
+                req.guardianConsent(), req.adult()), http, response);
     }
 
     /** One-click unsubscribe from new-question emails. Public: the HMAC signature is the auth. */

@@ -113,6 +113,27 @@ export async function login({ email, password }) {
   return data
 }
 
+// The Google OAuth client id ('' when Google sign-in is off). Fetched once per page load.
+let providers = null
+export function fetchGoogleClientId() {
+  providers ||= fetch(`${API_BASE}/auth/providers`).then(r => (r.ok ? r.json() : {})).catch(() => ({}))
+  return providers.then(p => p.googleClientId || '')
+}
+
+// Signs in (or, with consent, signs up) with the ID token from "Sign in with Google".
+// A new account without consent fails with err.consentRequired = true.
+export async function googleSignIn({ credential, termsAccepted, adult, guardianName, guardianEmail, guardianConsent }) {
+  const { utmSource, utmCampaign } = getUtm()
+  const res = await fetch(`${API_BASE}/auth/google`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential, termsAccepted, adult, guardianName, guardianEmail, guardianConsent, utmSource, utmCampaign }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw Object.assign(new Error(data.error || 'Google sign-in failed'), { consentRequired: !!data.consentRequired })
+  setSession(data)
+  return data
+}
+
 // --- per-user progress ---
 
 export async function fetchProgress() {
