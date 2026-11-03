@@ -25,10 +25,13 @@ public class ImageService {
     private final S3Client s3;
     private final String bucket;
     private final String publicBaseUrl;
+    private final int maxStoredBytes;
 
     public ImageService(S3Client s3,
                         @Value("${app.s3.bucket}") String bucket,
-                        @Value("${app.public-base-url}") String publicBaseUrl) {
+                        @Value("${app.public-base-url}") String publicBaseUrl,
+                        @Value("${app.image.max-stored-kb:200}") int maxStoredKb) {
+        this.maxStoredBytes = maxStoredKb * 1024;
         this.s3 = s3;
         this.bucket = bucket;
         // The backend's own public origin (no trailing slash). Images are served back
@@ -62,24 +65,20 @@ public class ImageService {
             throw new IllegalArgumentException("Image exceeds 5 MB limit");
         }
 
-        String ext = switch (contentType) {
-            case "image/png" -> ".png";
-            case "image/jpeg" -> ".jpg";
-            case "image/gif" -> ".gif";
-            case "image/webp" -> ".webp";
-            case "image/svg+xml" -> ".svg";
-            default -> "";
-        };
-        String key = "images/" + UUID.randomUUID() + ext;
+        // Whatever size arrives (up to the 5 MB upload limit), what is stored is at most ~200 KB (app.image.max-stored-kb).
+        byte[] original = file.getBytes();
+        ImageCompressor.Result img = ImageCompressor.compress(original, contentType, maxStoredBytes);
+        log.info("Image {} KB -> {} KB ({})", original.length / 1024, img.bytes().length / 1024, img.contentType());
+        String key = "images/" + UUID.randomUUID() + img.ext();
 
         // No public-read ACL: many buckets (Railway, AWS with "bucket owner enforced")
         // reject ACLs, so we keep the object private and stream it via the backend.
         s3.putObject(PutObjectRequest.builder()
                         .bucket(bucket)
                         .key(key)
-                        .contentType(contentType)
+                        .contentType(img.contentType())
                         .build(),
-                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+                RequestBody.fromBytes(img.bytes()));
 
         // e.g. https://api.example.com/api/images/file/images/<uuid>.jpg
         return publicBaseUrl + "/api/images/file/" + key;
