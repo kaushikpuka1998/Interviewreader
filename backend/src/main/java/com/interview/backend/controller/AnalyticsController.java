@@ -40,7 +40,7 @@ public class AnalyticsController {
     // ---------- public: record an event ----------
 
     public record TrackRequest(String path, String questionId, String referrer,
-                               String sessionId, String device,
+                               String sessionId, String device, String theme,
                                String utmSource, String utmMedium, String utmCampaign, String utmContent) {}
 
     /**
@@ -58,6 +58,7 @@ public class AnalyticsController {
             pv.setReferrerHost(referrerHost(req.referrer(), http));
             pv.setSessionId(trim(req.sessionId(), 64));
             pv.setDevice(trim(req.device(), 20));
+            pv.setTheme(trim(req.theme(), 10));
             pv.setUserId(currentUserId());   // resolved from the JWT, never client-supplied
             pv.setUtmSource(trim(req.utmSource(), 100));
             pv.setUtmMedium(trim(req.utmMedium(), 100));
@@ -318,6 +319,13 @@ public class AnalyticsController {
                 "FROM code_submissions s LEFT JOIN app_users u ON lower(u.email) = lower(s.user_email) " +
                 "WHERE s.status = 'Accepted' AND s.created_at > ? GROUP BY 1,2 ORDER BY solved DESC LIMIT 20", since));
         out.put("practice", practice);
+
+        // Dark vs light: each visitor session and each member counted once, by the theme of their latest tracked view.
+        out.put("theme", jdbc.queryForMap(
+                "WITH last AS (SELECT DISTINCT ON (session_id) session_id, user_id, theme FROM page_views WHERE theme IS NOT NULL AND created_at > ? ORDER BY session_id, created_at DESC) " +
+                "SELECT COUNT(*) FILTER (WHERE theme = 'dark') dark_sessions, COUNT(*) FILTER (WHERE theme = 'light') light_sessions, " +
+                "COUNT(DISTINCT user_id) FILTER (WHERE theme = 'dark' AND user_id IS NOT NULL) dark_members, " +
+                "COUNT(DISTINCT user_id) FILTER (WHERE theme = 'light' AND user_id IS NOT NULL) light_members FROM last", since));
 
         // Who does what: read-only vs solve-only vs both, using point events in the window.
         Map<String, Object> mix = jdbc.queryForMap(

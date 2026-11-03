@@ -1,5 +1,5 @@
 import { isLoggedIn, getUser, logout } from '../lib/auth.js'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFeatures } from '../lib/features.js'
 import Notifications from './Notifications.jsx'
 import AuthModal from './AuthModal.jsx'
@@ -10,16 +10,26 @@ import StreakBadge from './StreakBadge.jsx'
 // Shared top bar (LeetCode style): brand and page links on the left, theme toggle, notifications, avatar and log out on the right.
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
 // [label, href, feature flag that must be on, flag that turns on the "New" badge (true = always, 'hot' = 🔥 Hot)]
-const NAV = [
-  ['Questions', '/questions'],
-  ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
-  ['Problems (System Design)', '/interview/practice', null, true, false, false, 'System Design'],
-  ['Problems (Coding)', '/problems', 'code_practice', 'new_badge_code_practice', false, true, 'Coding'],
-  ['Practice', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
-  ['Roadmaps', '/roadmaps', null, null, true],
-  ['Interview', '/interview', 'mock_interview', 'hot'],
-  ['Leaderboard', '/leaderboard'],
-  ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
+const ITEMS = {
+  questions: ['Questions', '/questions'],
+  daily: ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
+  design: ['System design problems', '/interview/practice', null, true],
+  coding: ['Coding problems', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
+  editor: ['Practice editor', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
+  roadmaps: ['Roadmaps', '/roadmaps', null, null, true],
+  interview: ['Interview', '/interview', 'mock_interview', 'hot'],
+  community: ['Discussions', '/discuss', null, true],
+  leaderboard: ['Leaderboard', '/leaderboard'],
+  resume: ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
+}
+// The desktop bar: single links, plus two menus so everything fits and stays visible. A string is a link from ITEMS;
+// an object is a menu (label, optional short label, the links inside, and the "New" pill shown on the menu itself).
+const BAR = [
+  'questions', 'daily',
+  { menu: 'Practice', items: ['coding', 'editor', 'design'], badge: true },
+  'roadmaps', 'interview',
+  { menu: 'Community', items: ['community', 'leaderboard'], badge: true },
+  'resume',
 ]
 
 // Small pill next to a nav label (Premium / Hot / New): one height and baseline for all of them.
@@ -28,12 +38,14 @@ const NavBadge = ({ className, children, compact }) => (
 )
 
 // Between 1280 and 1536px the bar is crowded, so it shows the short label and no badges; the full bar starts at 2xl.
+const isActive = (href, path) => href === '/questions'
+  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+  : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
+  : path === href || (href !== '/' && path.startsWith(href + '/'))
+
 function NavLink({ label, short, href, flag, badge, premium, path, features, mobile = false }) {
   if (flag && features[flag] === false) return null
-  const active = href === '/questions'
-    ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/premium'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
-    : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
-    : path === href || (href !== '/' && path.startsWith(href + '/'))
+  const active = isActive(href, path)
   const handleClick = (e) => {
     if (href === '/practice' && typeof window !== 'undefined' && window.location.pathname === '/practice' && window.location.search) {
       e.preventDefault()
@@ -58,6 +70,38 @@ function NavLink({ label, short, href, flag, badge, premium, path, features, mob
       )}
       {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <NavBadge compact={!mobile} className="bg-amber-400 text-amber-950">New</NavBadge>}
     </a>
+  )
+}
+
+// A dropdown in the bar (Practice, Community): opens on hover or click (a click never closes it, so hover-then-click doesn't flicker),
+// closes when the pointer leaves, on outside click, or on Escape.
+function NavMenu({ menu, rows, badge, path }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!open) return
+    const off = e => { if (!ref.current?.contains(e.target)) setOpen(false) }
+    const key = e => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', off); window.addEventListener('keydown', key)
+    return () => { document.removeEventListener('mousedown', off); window.removeEventListener('keydown', key) }
+  }, [open])
+  const active = rows.some(r => isActive(r.href, path))
+  return (
+    <div ref={ref} className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button type="button" onClick={() => setOpen(true)} aria-expanded={open} aria-haspopup="menu"
+        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-1.5 py-1.5 transition-colors min-[1420px]:px-2 2xl:px-3 ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}>
+        {menu}
+        {badge && <NavBadge compact className="bg-amber-400 text-amber-950">New</NavBadge>}
+        <svg className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5.5 7.5L10 12l4.5-4.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      {open && (
+        <div role="menu" className="absolute left-0 top-full z-40 pt-1.5">
+          <div className="w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900" onClick={() => setOpen(false)}>
+            {rows.map(r => r.node)}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -90,12 +134,20 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
-  const links = mobile => NAV.map(([label, href, flag, badge, premium, authRequired, short]) => {
+  const link = (key, mobile) => {
+    const [label, href, flag, badge, premium, authRequired, short] = ITEMS[key]
     if (authRequired && !signedIn) return null
-    return (
-      <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
-    )
-  })
+    return <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
+  }
+  // Phone menu: every link in one list. Desktop bar: single links and the two menus.
+  const links = mobile => (mobile
+    ? Object.keys(ITEMS).map(k => link(k, true))
+    : BAR.map(entry => {
+        if (typeof entry === 'string') return link(entry, false)
+        const rows = entry.items.filter(k => { const [, , flag, , , authRequired] = ITEMS[k]; return !(flag && features[flag] === false) && !(authRequired && !signedIn) })
+          .map(k => ({ href: ITEMS[k][1], node: link(k, true) }))
+        return rows.length ? <NavMenu key={entry.menu} menu={entry.menu} rows={rows} badge={entry.badge} path={path} /> : null
+      }))
   return (
     <>
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
@@ -113,7 +165,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
           <img src="/logo.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
           <span className="hidden whitespace-nowrap min-[1420px]:inline max-xl:sm:inline">Interview Reader</span>
         </a>
-        <nav className="hidden min-w-0 items-center gap-0.5 overflow-x-auto text-sm [scrollbar-width:none] xl:flex 2xl:gap-1" aria-label="Main">
+        <nav className="hidden min-w-0 items-center gap-0.5 text-sm xl:flex 2xl:gap-1" aria-label="Main">
           {links(false)}
         </nav>
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">

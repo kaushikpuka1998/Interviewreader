@@ -8,6 +8,8 @@ import PublicProfilePage from './components/PublicProfilePage.jsx'
 import ProblemsPage from './components/ProblemsPage.jsx'
 import LeaderboardPage from './components/LeaderboardPage.jsx'
 import StreakPage from './components/StreakPage.jsx'
+import DiscussPage from './components/DiscussPage.jsx'
+import DiscussDetailPage from './components/DiscussDetailPage.jsx'
 import { DailyPromoGate } from './components/DailyPromo.jsx'
 import ResumePage from './components/ResumePage.jsx'
 import ResumeEditor from './components/ResumeEditor.jsx'
@@ -64,7 +66,7 @@ window.fetch = function() {
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
 const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
-  '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium']
+  '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/discuss']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -110,6 +112,8 @@ function Routes() {
 
   if (path === '/leaderboard') return <LeaderboardPage />
   if (path === '/streak') return <StreakPage />
+  if (path === '/discuss') return <DiscussPage />
+  if (path.startsWith('/discuss/')) return <DiscussDetailPage id={path.split('/')[2]} />
 
   // Practice coding: questions with a code box that runs on the server.
   if (path === '/practice') return <Gate flag="code_practice" what="Practice coding"><PracticePage /></Gate>

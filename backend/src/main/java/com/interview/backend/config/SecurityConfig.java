@@ -89,6 +89,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/questions/*/comments/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/comments/*/report").authenticated()
                         .requestMatchers("/revision/**", "/referral/**").authenticated()
+                        // Discussions: reading is public (/public/discussions/**, open by anyRequest); posting, voting and deleting need an account.
+                        .requestMatchers("/discussions", "/discussions/**").authenticated()
                         // Publishing questions is admin-only
                         .requestMatchers(HttpMethod.POST, "/questions/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/questions/**").hasRole("ADMIN")

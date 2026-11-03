@@ -77,6 +77,7 @@ export function trackView({ path, questionId } = {}) {
       referrer: initialReferrer,
       sessionId: sessionId(),
       device: device(),
+      theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
       // Internal tags describe this view only; campaign tags come from storage.
       ...(urlTags().utmSource === INTERNAL_SOURCE ? urlTags() : getUtm()),
     })

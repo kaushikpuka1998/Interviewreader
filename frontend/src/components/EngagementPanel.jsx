@@ -67,6 +67,33 @@ export default function EngagementPanel() {
           <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">A read is a qualifying read of a question. A solve is a first accepted submission for a problem.</p>
         </Card>
 
+        <Card title="🌗 Dark vs light mode">
+          {(() => {
+            const t = d.theme || {}
+            const ds = Number(t.dark_sessions || 0), ls = Number(t.light_sessions || 0), dm = Number(t.dark_members || 0), lm = Number(t.light_members || 0)
+            const pct = (a, b) => (a + b ? Math.round((a / (a + b)) * 100) : 0)
+            const bar = (a, b) => (
+              <div className="mt-1 flex h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                <div className="bg-slate-800 dark:bg-slate-200" style={{ width: `${pct(a, b)}%` }} />
+                <div className="bg-amber-400" style={{ width: `${100 - pct(a, b)}%` }} />
+              </div>
+            )
+            return (
+              <>
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Visitors (sessions)</div>
+                <Row label={`🌙 Dark · ${pct(ds, ls)}%`} value={ds} />
+                <Row label={`☀️ Light · ${pct(ls, ds)}%`} value={ls} />
+                {bar(ds, ls)}
+                <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Signed-in members</div>
+                <Row label={`🌙 Dark · ${pct(dm, lm)}%`} value={dm} />
+                <Row label={`☀️ Light · ${pct(lm, dm)}%`} value={lm} />
+                {bar(dm, lm)}
+                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Each visitor or member is counted once, by the theme on their latest tracked view. Views before this was added have no theme.</p>
+              </>
+            )
+          })()}
+        </Card>
+
         <Card title="🎁 Referrals">
           <Row label="Members who referred someone" value={d.referrals.referrers} />
           <Row label="Signups from referrals" value={d.referrals.referredSignups} />

@@ -54,6 +54,10 @@ public class PageView {
     @Column(name = "device", length = 20)
     private String device;   // mobile | tablet | desktop
 
+    /** The visitor's active colour theme at this view: dark | light. Null for views recorded before this was tracked. */
+    @Column(name = "theme", length = 10)
+    private String theme;
+
     /** UTM tags from the landing URL (last-touch), e.g. utm_source=college_x. Null for untagged visits. */
     @Column(name = "utm_source", length = 100)
     private String utmSource;
