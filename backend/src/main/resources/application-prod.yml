@@ -64,6 +64,11 @@ app:
   # Sign in with Google: the OAuth client id from Google Cloud Console. Blank hides the Google button.
   google:
     client-id: ${GOOGLE_CLIENT_ID:}
+  access:
+    # Free preview per topic for non-Premium readers (a count or a percentage); override with ACCESS_TEASERS.
+    teasers: ${ACCESS_TEASERS:}
+    # Coding problems are free; only these companies work as a filter without Premium.
+    free-problem-companies: ${FREE_PROBLEM_COMPANIES:}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS}
   migration:

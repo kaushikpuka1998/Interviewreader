@@ -7,6 +7,7 @@ import { slugify } from './lib/slug.js'
 import Footer from './components/Footer.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import ReaderPane from './components/ReaderPane.jsx'
+import PremiumPlans from './components/PremiumPlans.jsx'
 import { MobileMenuButton, MobileSidebar } from './components/MobileSidebar.jsx'
 import AuthModal from './components/AuthModal.jsx'
 import ResumePromo from './components/ResumePromo.jsx'
@@ -36,6 +37,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   const [difficulty, setDifficulty] = useState('all')
   const [status, setStatus] = useState('all')
   const [company, setCompany] = useState('all')
+  const [plansOpen, setPlansOpen] = useState(false)   // the "Choose your Premium pass" modal, opened from locked answers and filters
   const [companies, setCompanies] = useState([])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(() => {
@@ -527,6 +529,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   }, [sidebarWidth])
 
   // Shared props for both the desktop and mobile sidebar instances.
+  const openPlans = () => (user ? setPlansOpen(true) : setAuthOpen(true))
   const sidebarProps = {
     questions: questionsData,
     filtered,
@@ -559,6 +562,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     onAdminClick: () => { window.location.href = '/admin' },
     freeTechs,
     onLockedTech: () => setAuthOpen(true),
+    onPremium: openPlans,
     stats,
     totalCount,
   }
@@ -626,11 +630,13 @@ function App({ path = '/', onPathChange = () => {} }) {
         onMarkRead={handleMarkRead}
         onToggleFlag={handleToggleFlag}
         onToggleImportant={handleToggleImportant}
+        onPremium={openPlans}
       />
       )}
       </div>
       <Footer />
 
+      {plansOpen && <PremiumPlans onClose={() => setPlansOpen(false)} onBought={() => window.location.reload()} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={handleAuthSuccess} />}
       {promoOpen && <ResumePromo onClose={() => { setPromoOpen(false); if (practiceAllowed) setPracticePromoOpen(true) }} />}
       {practicePromoOpen && <CodePracticePromo onClose={() => setPracticePromoOpen(false)} />}

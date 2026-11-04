@@ -13,4 +13,5 @@ public interface CodeSubmissionRepository extends JpaRepository<CodeSubmission, 
     List<CodeSubmission> findByUserEmailAndCreatedAtAfter(String userEmail, Instant after);
     List<CodeSubmission> findByUserEmailAndStatus(String userEmail, String status);
     List<CodeSubmission> findByUserEmail(String userEmail);
+    boolean existsByUserEmail(String userEmail);
 }

@@ -404,3 +404,11 @@ export async function savePublicDetails(details) {
   if (!res.ok) throw new Error(data.error || 'Could not save your details.')
   return data
 }
+
+// The one-time floating invitation to add college / GitHub / LinkedIn. `show` = show it now; `done` = it never needs to be asked again.
+export async function fetchProfilePrompt() {
+  const res = await fetch(`${API_BASE}/profile/prompt`, { credentials: 'include' })
+  if (!res.ok) return { show: false, done: false }
+  return res.json()
+}
+export const markProfilePromptSeen = () => fetch(`${API_BASE}/profile/prompt-seen`, { method: 'POST', credentials: 'include' }).catch(() => {})

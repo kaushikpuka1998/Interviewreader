@@ -148,6 +148,10 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     @Query("select q.id, q.title from Question q where q.tech in :techs order by q.id")
     List<Object[]> idTitles(@Param("techs") java.util.Collection<String> techs);
 
+    /** Every question id of one topic in reading order (used to pick the free preview of a topic). */
+    @Query("select q.id from Question q where q.tech = :tech order by q.sortKey asc, q.id asc")
+    List<String> idsByTech(@Param("tech") String tech);
+
     /** id, title and topic of every question, in id order (the daily question rotates through topics). */
     @Query("select q.id, q.title, q.tech from Question q order by q.id")
     List<Object[]> idTitlesTechs();

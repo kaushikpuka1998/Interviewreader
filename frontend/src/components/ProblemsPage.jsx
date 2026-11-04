@@ -3,9 +3,10 @@ import Loader from './Loader.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import TopBar from './TopBar.jsx'
 import AuthModal from './AuthModal.jsx'
-import { fetchCodingProblems } from '../lib/codingProblems.js'
+import PremiumPlans from './PremiumPlans.jsx'
+import { fetchCodingProblems, fetchCompanies } from '../lib/codingProblems.js'
 import { fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
-import { isLoggedIn } from '../lib/auth.js'
+import { isLoggedIn, getUser } from '../lib/auth.js'
 import { difficultyBadge } from '../lib/badges.js'
 import OnlineCount from './OnlineCount.jsx'
 import { COMPANY_GROUPS, OTHER, groupOf } from '../lib/companyGroups.js'
@@ -20,6 +21,14 @@ export default function ProblemsPage() {
   const [solved, setSolved] = useState(() => new Set())
   const [attempted, setAttempted] = useState(() => new Set())
   const [error, setError] = useState('')
+  // Coding problems are free, but only a few companies work as a filter without Premium; the server says which ones.
+  const [freeCompanies, setFreeCompanies] = useState(null)   // null until known: nothing is locked then
+  const [plansOpen, setPlansOpen] = useState(false)
+  const me = getUser()
+  const isPremium = !!(me && (me.premium || me.admin))
+  useEffect(() => { fetchCompanies().then(l => setFreeCompanies(new Set(l.filter(c => c.free).map(c => c.name)))).catch(() => {}) }, [])
+  const isLocked = c => !isPremium && freeCompanies != null && freeCompanies.size > 0 && !freeCompanies.has(c)
+  const pickCompany = c => { if (c && isLocked(c)) { if (me) setPlansOpen(true); else setAuthOpen(true); return } setCompany(c) }
   const [query, setQuery] = useState('')
   const [difficulty, setDifficulty] = useState('All')
   const [status, setStatus] = useState('all')
@@ -92,8 +101,17 @@ export default function ProblemsPage() {
         if (list.length) sections.push({ label: group ? sg.label : `${g.label} · ${sg.label}`, list })
       }
     }
+    // The free companies come first in their own section (when Premium is not active), so non-members see what they can open at the top.
+    if (!isPremium && freeCompanies && freeCompanies.size) {
+      const free = []
+      for (const sec of sections) {
+        sec.list = sec.list.filter(([c, n]) => { if (freeCompanies.has(c)) { free.push([c, n]); return false } return true })
+      }
+      free.sort((x, y) => y[1] - x[1])
+      return [...(free.length ? [{ label: 'Free companies', list: free }] : []), ...sections.filter(sec => sec.list.length)]
+    }
     return sections
-  }, [companyCounts, group, subgroup])
+  }, [companyCounts, group, subgroup, freeCompanies, isPremium])
 
   const rows = useMemo(() => {
     if (!problems) return []
@@ -190,6 +208,7 @@ export default function ProblemsPage() {
           </div>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
+        {plansOpen && <PremiumPlans onClose={() => setPlansOpen(false)} onBought={() => window.location.reload()} />}
       </div>
     )
   }
@@ -269,13 +288,13 @@ export default function ProblemsPage() {
             {signedIn && segment(STATUSES, status, setStatus, 'Status')}
             {companyCounts.length > 0 && (
               <select
-                value={company} onChange={e => setCompany(e.target.value)} aria-label="Company"
+                value={company} onChange={e => pickCompany(e.target.value)} aria-label="Company"
                 className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="">{subgroup ? `All ${activeGroup?.subgroups.find(s => s.id === subgroup)?.label || ''} companies` : activeGroup ? `All ${activeGroup.label} companies` : 'All companies'}</option>
                 {companyOptions.map(sec => (
                   <optgroup key={sec.label} label={sec.label}>
-                    {sec.list.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
+                    {sec.list.map(([c, n]) => <option key={c} value={c}>{isLocked(c) ? '🔒 ' : ''}{c} ({n})</option>)}
                   </optgroup>
                 ))}
               </select>

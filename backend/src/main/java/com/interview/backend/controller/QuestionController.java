@@ -55,7 +55,7 @@ public class QuestionController {
     public ResponseEntity<?> getQuestion(@PathVariable String id) {
         return questionService.getById(id)
                 .<ResponseEntity<?>>map(q -> access.canRead(q.getTech())
-                        ? ResponseEntity.ok(q)
+                        ? ResponseEntity.ok(access.mask(q, access.isPremiumCaller()))   // a Premium-only answer comes back locked, with no answer text
                         : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                                 "error", "signup_required",
                                 "message", "Create a free account to read " + q.getTech() + " questions",
@@ -93,13 +93,22 @@ public class QuestionController {
                     "tech", tech));
         }
 
+        boolean premium = access.isPremiumCaller();
+        if (company != null && !company.isBlank() && !access.companyFilterAllowed(premium)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "error", "premium_required", "feature", "company",
+                    "message", "Company-wise questions are a Premium feature"));
+        }
+
         // The filter accepts either the display name or the slug; normalise to the slug.
         String companySlug = (company == null || company.isBlank())
                 ? null : com.interview.backend.entity.Company.toSlug(company);
 
         Page<Question> result = questionService.searchQuestions(
                 restrict, access.allowedTechs(), tech, category, difficulty, companySlug, search, status, visitedIds, readIds, flaggedIds, importantIds, pageable);
-        return ResponseEntity.ok(result);
+        // Later questions of a preview topic go out as locked copies (title and list row, no answer); Premium members get everything.
+        return ResponseEntity.ok(new org.springframework.data.domain.PageImpl<>(
+                result.getContent().stream().map(q -> access.mask(q, premium)).toList(), result.getPageable(), result.getTotalElements()));
     }
 
     @GetMapping("/categories")
@@ -118,6 +127,8 @@ public class QuestionController {
         return ResponseEntity.ok(Map.of(
                 // Topics readable without an account — the UI locks the rest.
                 "freeTechs", access.freeTechs(),
+                // Topics with a free preview, and how much of each is free (e.g. hld: "5", java: "50%"); the rest is Premium.
+                "previews", access.previewSummary(),
                 "authenticated", access.isAuthenticated(),
                 "total", questionService.getTotalCount(),
                 "byTech", questionService.getAllTechCounts()

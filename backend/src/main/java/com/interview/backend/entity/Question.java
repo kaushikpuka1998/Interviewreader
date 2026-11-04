@@ -79,4 +79,15 @@ public class Question implements Serializable {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    /** Not stored. True on the copy sent to a member who isn't allowed to read this answer (see AccessService): the answer is blank. */
+    @jakarta.persistence.Transient
+    @Builder.Default
+    private boolean locked = false;
+
+    /** A copy with the answer removed and {@code locked} set: enough for a list row or a "Premium" page, nothing of the content. */
+    public Question lockedCopy() {
+        return Question.builder().id(id).number(number).displayNumber(displayNumber).sortKey(sortKey).title(title).question(question)
+                .answer("").difficulty(difficulty).category(category).tech(tech).createdAt(createdAt).updatedAt(updatedAt).locked(true).build();
+    }
 }

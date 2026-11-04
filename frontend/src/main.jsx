@@ -11,6 +11,7 @@ const StreakPage = lazy(() => import('./components/StreakPage.jsx'))
 const DiscussPage = lazy(() => import('./components/DiscussPage.jsx'))
 const DiscussDetailPage = lazy(() => import('./components/DiscussDetailPage.jsx'))
 import { DailyPromoGate } from './components/DailyPromo.jsx'
+import ProfilePromptGate from './components/ProfilePromptGate.jsx'
 const ResumePage = lazy(() => import('./components/ResumePage.jsx'))
 const ResumeEditor = lazy(() => import('./components/ResumeEditor.jsx'))
 import HomePage from './components/HomePage.jsx'
@@ -144,7 +145,7 @@ const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/problems', '/resum
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
-  const page = <><Suspense fallback={<div className="min-h-screen bg-slate-100 dark:bg-slate-900" />}><Routes /></Suspense><FeedbackButton /><DailyPromoGate /></>
+  const page = <><Suspense fallback={<div className="min-h-screen bg-slate-100 dark:bg-slate-900" />}><Routes /></Suspense><FeedbackButton /><DailyPromoGate /><ProfilePromptGate /></>
   return NEEDS_FOOTER.some(p => path === p || path.startsWith(p === '/u/' ? p : p + '/')) ? (
     <div className="flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col [&>div]:flex-1 [&>div]:!min-h-0">{page}</div>

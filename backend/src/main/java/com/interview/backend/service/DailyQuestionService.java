@@ -22,6 +22,7 @@ public class DailyQuestionService {
 
     private final QuestionRepository questions;
     private final CodingProblemRepository problems;
+    private final AccessService access;
 
     private volatile LocalDate cachedDay;
     private volatile Map<String, Object> cached;
@@ -31,7 +32,7 @@ public class DailyQuestionService {
         if (day.equals(cachedDay) && cached != null) return cached;
         // A different topic each day (the date picks the topic, then a question in it); only members open it, so any topic will do.
         var byTech = new java.util.TreeMap<String, List<Object[]>>();
-        for (Object[] r : questions.idTitlesTechs()) byTech.computeIfAbsent((String) r[2], k -> new java.util.ArrayList<>()).add(r);
+        for (Object[] r : questions.idTitlesTechs()) if (access.isOpenToAll((String) r[0], (String) r[2])) byTech.computeIfAbsent((String) r[2], k -> new java.util.ArrayList<>()).add(r);
         if (byTech.isEmpty()) return Map.of();
         var techs = new java.util.ArrayList<>(byTech.values());
         long n = day.toEpochDay();

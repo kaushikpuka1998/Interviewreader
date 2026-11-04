@@ -73,6 +73,9 @@ public class User {
     @Column(length = 220)
     private String skills;          // comma-separated tags, at most 8
 
+    /** When the one-time "add your college, GitHub and LinkedIn" invitation was shown (and answered or dismissed); null = not yet. */
+    private Instant profilePromptSeenAt;
+
     /** The member's uploaded profile picture (a URL served by this app). Wins over the Google one. */
     @Column(length = 512)
     private String avatarUrl;

@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserProgressRepository extends JpaRepository<UserProgress, Long> {
+
+    /** True once the member has opened (or read) at least one question. */
+    boolean existsByUserId(Long userId);
     List<UserProgress> findByUserId(Long userId);
     Optional<UserProgress> findByUserIdAndQuestionId(Long userId, String questionId);
 

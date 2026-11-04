@@ -81,7 +81,7 @@ function JumpToQuestion({ current, total, onJump }) {
 /**
  * Reader pane component
  */
-export default function ReaderPane({ question, questions, onNavigate, visited, read, flagged, flagging, important, marking, onMarkRead, onToggleFlag, onToggleImportant, loading = false, urlNotFound = false }) {
+export default function ReaderPane({ question, questions, onNavigate, visited, read, flagged, flagging, important, marking, onMarkRead, onToggleFlag, onToggleImportant, loading = false, urlNotFound = false, onPremium }) {
   const scrollRef = useRef(null)   // attached to the scrollable answer container
   useReadTracking(question?.id, scrollRef)
 
@@ -297,8 +297,17 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
 
               {/* ONLY this answer content area scrolls (scrollRef is attached here) */}
               <div ref={scrollRef} className="answer-content flex-1 overflow-y-auto pr-2" style={{ overflowAnchor: 'none' }}>
+                {question.locked ? (
+                  <div className="mt-8 max-w-xl mx-auto text-center rounded-2xl border border-amber-300/70 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-8">
+                    <div className="text-3xl" aria-hidden="true">🔒</div>
+                    <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">This answer is part of Premium</h3>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">The first few questions of every topic are free to read. Go Premium to unlock the rest, plus company-wise filters and full roadmaps.</p>
+                    <button onClick={onPremium} className="mt-4 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold shadow-sm transition-colors">Unlock with Premium</button>
+                  </div>
+                ) : (<>
                 <Markdown text={question.answer} />
                 <AnswerExtras question={question} />
+                </>)}
               </div>
 
               {/* Bottom Navigation stays pinned at the bottom of the card — desktop only, mobile has its own top nav */}

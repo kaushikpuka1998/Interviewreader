@@ -80,6 +80,11 @@ app:
   # Topics readable without an account; everything else requires sign-up.
   # These stay crawlable so search engines still index a sample of the content.
   free-techs: ${FREE_TECHS:microservices,design-patterns}
+  access:
+    # Free preview per topic for non-Premium readers: a count or a percentage of the topic's questions (in order).
+    teasers: ${ACCESS_TEASERS:hld:5,design-patterns:5,java:30%,node:30%,golang:30%,kafka:30%,node:30%,angular:30%}
+    # Coding problems are free; only these companies work as a filter without Premium.
+    free-problem-companies: ${FREE_PROBLEM_COMPANIES:Rippling,Rubrik,Openai,Twilio,Upstart}
   s3:
     # LocalStack for local dev; override with real AWS/Railway values in prod.
 #    endpoint: ${AWS_S3_ENDPOINT:http://localhost:4566}

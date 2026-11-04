@@ -74,6 +74,7 @@ export default function QuestionLink({ question, isActive, onClick, selectedId, 
 
       {/* Visited/Read indicators - fixed right side */}
       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {question.locked && <span className="p-1 text-amber-600 dark:text-amber-400" title="Premium" aria-label="Premium">🔒</span>}
           {read.has(question.id) && (
             <span className="p-1 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded" title="Read" aria-label="Read">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">

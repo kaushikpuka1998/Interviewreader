@@ -96,11 +96,13 @@ public class CodingProblemController {
     }
 
     private final CodingProblemRepository problems;
+    private final com.interview.backend.service.AccessService access;
 
     private static final ObjectMapper json = new ObjectMapper();
 
-    public CodingProblemController(CodingProblemRepository problems) {
+    public CodingProblemController(CodingProblemRepository problems, com.interview.backend.service.AccessService access) {
         this.problems = problems;
+        this.access = access;
     }
 
     /** Public list: id, title and difficulty only. */
@@ -133,7 +135,7 @@ public class CodingProblemController {
         }
         return counts.entrySet().stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
-                .map(e -> Map.<String, Object>of("name", e.getKey(), "count", e.getValue()))
+                .map(e -> Map.<String, Object>of("name", e.getKey(), "count", e.getValue(), "free", access.isFreeProblemCompany(e.getKey())))
                 .toList();
     }
 

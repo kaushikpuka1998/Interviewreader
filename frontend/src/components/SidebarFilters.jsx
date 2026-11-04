@@ -185,7 +185,7 @@ export function CategorySelect({ value, onChange, options, disabled }) {
  * Company filter — questions readers reported as asked at that company.
  * Options come from the companies already reported, most-reported first.
  */
-export function CompanySelect({ value, onChange, options }) {
+export function CompanySelect({ value, onChange, options, locked = false, onLocked }) {
   if (options.length === 0) return null
 
   return (
@@ -196,11 +196,11 @@ export function CompanySelect({ value, onChange, options }) {
       <select
         className="select w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 shadow-sm shadow-emerald-900/5 hover:border-blue-500 dark:shadow-none dark:hover:border-slate-700 transition-colors rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer appearance-none"
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => { if (locked && e.target.value !== 'all') { onLocked?.(); return } onChange(e.target.value) }}
         aria-label="Filter by company"
       >
         <option value="all">All companies</option>
-        {options.map(c => <option key={c} value={c}>{c}</option>)}
+        {options.map(c => <option key={c} value={c}>{locked ? `🔒 ${c}` : c}</option>)}
       </select>
       <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 20 20" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 8l4 4 4-4" />

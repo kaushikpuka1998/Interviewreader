@@ -41,6 +41,7 @@ public class ProfileController {
     private final com.interview.backend.repository.UserNoteRepository userNotes;
     private final com.interview.backend.service.BillingService billing;
     private final com.interview.backend.service.ImageService images;
+    private final com.interview.backend.repository.CodeSubmissionRepository submissions;
 
     private User currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -181,7 +182,17 @@ public class ProfileController {
     public ResponseEntity<?> savePublicDetails(@RequestBody PublicDetailsRequest req) {
         User u = currentUser();
         try {
-            var c = com.interview.backend.service.PublicDetails.clean(req.headline(), req.college(), req.github(), req.linkedin(), req.website(), req.bio(), req.skills());
+            // A field left out of the request (null) is kept as it is; an empty string clears it. The full form always sends every field,
+            // while the small invitation form sends only college, GitHub and LinkedIn.
+            List<String> keptSkills = u.getSkills() == null || u.getSkills().isBlank() ? List.of() : List.of(u.getSkills().split(","));
+            var c = com.interview.backend.service.PublicDetails.clean(
+                    req.headline() == null ? u.getHeadline() : req.headline(),
+                    req.college() == null ? u.getCollege() : req.college(),
+                    req.github() == null ? u.getGithubUser() : req.github(),
+                    req.linkedin() == null ? u.getLinkedinHandle() : req.linkedin(),
+                    req.website() == null ? u.getWebsiteUrl() : req.website(),
+                    req.bio() == null ? u.getBio() : req.bio(),
+                    req.skills() == null ? keptSkills : req.skills());
             u.setHeadline(c.headline()); u.setCollege(c.college()); u.setGithubUser(c.github()); u.setLinkedinHandle(c.linkedin());
             u.setWebsiteUrl(c.website()); u.setBio(c.bio()); u.setSkills(c.skills().isEmpty() ? null : String.join(",", c.skills()));
             userRepository.save(u);
@@ -191,6 +202,31 @@ public class ProfileController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    /**
+     * Should the one-time floating invitation ("add your college, GitHub and LinkedIn") be shown? Only to a member who has actually used the
+     * site (opened a question or run code), has none of the three filled in, and hasn't already been shown it. It is shown once, ever.
+     */
+    @GetMapping("/prompt")
+    public Map<String, Object> prompt() {
+        User u = currentUser();
+        // "done" = never needed again (already shown, or the member filled something in), so the page can stop asking.
+        boolean done = u.getProfilePromptSeenAt() != null || !isBlank(u.getGithubUser()) || !isBlank(u.getLinkedinHandle()) || !isBlank(u.getCollege());
+        boolean show = !done && (progressRepository.existsByUserId(u.getId()) || submissions.existsByUserEmail(u.getEmail()));
+        return Map.of("show", show, "done", done);
+    }
+
+    /** The invitation was shown and answered or dismissed: never show it again. */
+    @PostMapping("/prompt-seen")
+    public Map<String, Object> promptSeen() {
+        User u = currentUser();
+        if (u.getProfilePromptSeenAt() == null) { u.setProfilePromptSeenAt(java.time.Instant.now()); userRepository.save(u); }
+        return Map.of("ok", true);
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
     }
 
     public record LocationRequest(String country, String city) {}
