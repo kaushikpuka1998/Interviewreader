@@ -57,9 +57,10 @@ export default function PublicProfilePage({ username }) {
 
   // One screen on desktop: header, four headline cards, breakdown bars, and two lists that scroll inside their own boxes.
   return (
-    <>
+    // The top bar can be taller than usual (the offer banner sits above it), so the page fills what is left under it instead of assuming a fixed height.
+    <div className="lg:!flex-none lg:flex lg:h-[calc(100vh-1.9rem)] lg:flex-col lg:overflow-hidden">
       <TopBar />
-    <div className="min-h-[calc(100vh-5.4rem)] bg-slate-100 p-5 dark:bg-slate-900 lg:h-[calc(100vh-5.4rem)] lg:overflow-hidden">
+    <div className="min-h-[calc(100vh-5.4rem)] bg-slate-100 p-5 dark:bg-slate-900 lg:min-h-0 lg:flex-1 lg:overflow-hidden">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 lg:h-full">
         {error === 'This profile does not exist.' ? (
           <div className="rounded-2xl bg-white dark:bg-slate-950">
@@ -177,6 +178,6 @@ export default function PublicProfilePage({ username }) {
         )}
       </div>
     </div>
-    </>
+    </div>
   )
 }

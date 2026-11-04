@@ -14,7 +14,7 @@ export function BannerStrip({ banner, onClose }) {
   // A button to the pricing screen carries the banner's coupon, so the code is already in the box when the plans open.
   const href = banner.couponCode && /^\/pricing\/?$/.test(banner.ctaUrl || '') ? `/pricing?coupon=${encodeURIComponent(banner.couponCode)}` : banner.ctaUrl
   return (
-    <div role="region" aria-label="Offer" className={`relative border-b border-white/10 px-10 py-2.5 text-center text-sm ${tone.bar}`}>
+    <div role="region" aria-label="Offer" className={`relative !flex-none border-b border-white/10 px-10 py-2.5 text-center text-sm ${tone.bar}`}>
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
         <span className="font-medium">{banner.message}</span>
         {banner.couponCode && (

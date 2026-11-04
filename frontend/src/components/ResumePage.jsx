@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Loader from './Loader.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import TopBar from './TopBar.jsx'
+import AuthModal from './AuthModal.jsx'
 import { isLoggedIn } from '../lib/auth.js'
 import { fetchTemplates, fetchResumes, createResume, deleteResume } from '../lib/resume.js'
 import { sampleResumeData, blankResumeData } from '../lib/resumeSample.js'
@@ -26,7 +27,7 @@ export default function ResumePage() {
   }, [])
 
   if (!isLoggedIn()) {
-    return <Shell><p className="text-slate-500">Log in to build and keep your resumes.</p></Shell>
+    return <Shell><SignInCard /></Shell>
   }
 
   const create = async (e) => {
@@ -96,6 +97,34 @@ export default function ResumePage() {
         </ul>
       )}
     </Shell>
+  )
+}
+
+// Signed-out view: what the builder gives you, and one button to log in or sign up (the page reloads signed in).
+function SignInCard() {
+  const [open, setOpen] = useState(false)
+  const perks = [
+    ['📄', 'ATS-friendly templates', 'Clean LaTeX layouts that recruiters\' software reads correctly.'],
+    ['⬇️', 'One-click PDF', 'Download a finished PDF, or the LaTeX source to edit anywhere.'],
+    ['💾', 'Saved to your account', 'Keep several versions, one per role or company, and edit them any time.'],
+  ]
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-10 dark:border-slate-800 dark:bg-slate-950">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-2xl dark:bg-emerald-900/30" aria-hidden="true">📝</div>
+      <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-slate-100">Log in to build and keep your resumes</h2>
+      <p className="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">It is free. Create an account in a few seconds and your resumes are saved for you.</p>
+      <ul className="mx-auto mt-6 grid gap-3 text-left sm:grid-cols-3">
+        {perks.map(([icon, title, text]) => (
+          <li key={title} className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+            <div className="text-xl" aria-hidden="true">{icon}</div>
+            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</p>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{text}</p>
+          </li>
+        ))}
+      </ul>
+      <button onClick={() => setOpen(true)} className="mt-6 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700">Log in / Sign up</button>
+      {open && <AuthModal onClose={() => setOpen(false)} onSuccess={() => window.location.reload()} />}
+    </div>
   )
 }
 
