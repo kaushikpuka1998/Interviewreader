@@ -51,6 +51,7 @@ function List({ tracks }) {
       <div className="grid gap-3 sm:grid-cols-2">
         {tracks.map(t => (
           <a key={t.id} href={`/tracks/${t.id}`} className={`${card} block transition hover:border-emerald-400 hover:shadow-md`}>
+            <img  src="https://img.icons8.com/3d-fluency/1200/java-coffee-cup-logo.jpg" alt="Java Icon" className="w-10 h-10 flex-shrink-0 mt-1"  />
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t.title}</h2>
             <p className="mt-0.5 text-sm text-emerald-700 dark:text-emerald-400">{t.tagline}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">{t.stack.map(s => <span key={s} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>)}</div>
