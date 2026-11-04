@@ -80,6 +80,14 @@
 			zstd
 		}
 
+		# Built files have a hash in their name, so they never change: browsers keep them for a year and a repeat visit makes no
+		# request for them (the biggest win on slow connections). The page shell and service worker are re-checked every time so a
+		# new release is picked up.
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@shell path / /index.html /sw.js /registerSW.js /workbox-*.js /manifest.webmanifest
+		header @shell Cache-Control "no-cache"
+
 		# SPA routing
 		try_files {path} {path}.html {path}/index.html /index.html
 	}

@@ -37,6 +37,9 @@ export function useFullQuestion(question, nextId) {
   // Warm up the next question once this one is in.
   useEffect(() => {
     if (!nextId || needs || answers.has(nextId)) return
+    // Warming the next answer spends data; skip it on data-saver and slow connections.
+    const conn = navigator.connection
+    if (conn && (conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || ''))) return
     const t = setTimeout(() => { load(nextId).catch(() => {}) }, 800)
     return () => clearTimeout(t)
   }, [nextId, needs])

@@ -273,12 +273,13 @@ public class BillingService {
         return u.getPremiumUntil() != null && u.getPremiumUntil().isAfter(Instant.now());
     }
 
-    // Premium is asked on almost every request (question lists, details, banner), so a member's answer is kept for a few seconds
-    // instead of reading their row each time. It lives in the shared Redis cache, so every backend instance sees the same answer and a
-    // payment, grant or revoke (forgetPremium) shows everywhere at once. If Redis is down it falls back to this instance's memory.
-    private record PremiumHit(boolean premium, long at) {}
+    // Premium is asked on almost every request (question lists, details, banner). What is kept per member is the DATE their Premium ends
+    // (0 = none), not a yes/no, so the answer stays correct as time passes and can be kept for an hour. A payment, grant, revoke or renewal
+    // clears it (forgetPremium). It lives in the shared Redis cache so every backend instance agrees; if Redis is down it falls back to this
+    // instance's memory for a short time. Admins and the "everything free" switch never need the cache.
+    private record PremiumHit(long untilMs, long at) {}
     private final java.util.concurrent.ConcurrentHashMap<String, PremiumHit> premiumLocal = new java.util.concurrent.ConcurrentHashMap<>();
-    private static final long PREMIUM_CACHE_MS = 15_000;
+    private static final long PREMIUM_LOCAL_MS = 15_000;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private org.springframework.cache.CacheManager cacheManager;
 
@@ -286,36 +287,36 @@ public class BillingService {
         try { return cacheManager == null ? null : cacheManager.getCache("premium"); } catch (RuntimeException e) { return null; }
     }
 
-    /** Drop a member's remembered Premium answer, so a payment, grant or revoke shows on their very next request. */
+    /** Drop a member's remembered Premium end date, so a payment, grant or revoke shows on their very next request. */
     public void forgetPremium(String email) {
         if (email == null) return;
         premiumLocal.remove(email);
         var c = premiumCache();
-        if (c != null) { try { c.evict(email); } catch (RuntimeException ignored) { /* Redis down: the 15 s expiry covers it */ } }
+        if (c != null) { try { c.evict(email); } catch (RuntimeException ignored) { /* Redis down: the expiry covers it */ } }
     }
 
     public boolean isPremium(String email) {
         if (email == null) return false;
         if (isEverythingFree()) return users.findByEmail(email).isPresent();
+        if (adminEmails.contains(email.toLowerCase())) return true;
+        long now = System.currentTimeMillis();
         var c = premiumCache();
         boolean redisUp = c != null;
         if (redisUp) {
-            try { Boolean v = c.get(email, Boolean.class); if (v != null) return v; }
+            try { Long v = c.get(email, Long.class); if (v != null) return v > now; }
             catch (RuntimeException e) { redisUp = false; }
         }
-        long now = System.currentTimeMillis();
-        // This instance's memory is only a fallback while Redis is unreachable; otherwise Redis is the single source, so no instance serves a stale answer.
         if (!redisUp) {
             PremiumHit hit = premiumLocal.get(email);
-            if (hit != null && now - hit.at() < PREMIUM_CACHE_MS) return hit.premium();
+            if (hit != null && now - hit.at() < PREMIUM_LOCAL_MS) return hit.untilMs() > now;
         }
-        boolean p = users.findByEmail(email).map(this::isPremium).orElse(false);
-        if (redisUp) { try { c.put(email, p); } catch (RuntimeException ignored) { /* next call reads the row again */ } }
+        long until = users.findByEmail(email).map(u -> u.getPremiumUntil() == null ? 0L : u.getPremiumUntil().toEpochMilli()).orElse(0L);
+        if (redisUp) { try { c.put(email, until); } catch (RuntimeException ignored) { /* next call reads the row again */ } }
         else {
             if (premiumLocal.size() > 20_000) premiumLocal.clear();
-            premiumLocal.put(email, new PremiumHit(p, now));
+            premiumLocal.put(email, new PremiumHit(until, now));
         }
-        return p;
+        return until > now;
     }
 
     public Map<String, Object> status(User u) {

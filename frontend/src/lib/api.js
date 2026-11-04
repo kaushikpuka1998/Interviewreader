@@ -28,9 +28,19 @@ export function fetchQuestionIndex() {
   return questionIndex
 }
 
+// A GET that tries once more after a short pause when the network drops it (common on 3G and moving between towers).
+// HTTP errors are returned as they are; only a failed connection is retried.
+async function getWithRetry(url, opts) {
+  try { return await fetch(url, opts) } catch (err) {
+    if (!navigator.onLine) throw err   // really offline: the caller falls back to the offline cache straight away
+    await new Promise(r => setTimeout(r, 1200))
+    return fetch(url, opts)
+  }
+}
+
 export async function fetchQuestion(id) {
   try {
-    const res = await fetch(`${API_BASE}/questions/${id}`, {
+    const res = await getWithRetry(`${API_BASE}/questions/${id}`, {
     })
     if (res.status === 404) {
       const err = new Error('Question not found')
@@ -74,7 +84,7 @@ export async function fetchQuestions(opts) {
   params.set('size', size)
   if (full) params.set('full', 'true')   // with answers: the offline sync and the admin editor; list rows leave them out
   try {
-    const res = await fetch(`${API_BASE}/questions?${params}`, {
+    const res = await getWithRetry(`${API_BASE}/questions?${params}`, {
     })
     if (res.status === 401) {
       const body = await res.json().catch(() => ({}))

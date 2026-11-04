@@ -2,6 +2,11 @@ server:
   port: ${PORT:8082}
   servlet:
     context-path: /api
+  # Gzip JSON/text responses over 1 KB: question lists and details shrink by roughly 5-8x, which matters most on slow mobile networks.
+  compression:
+    enabled: true
+    mime-types: application/json,text/plain,text/html,text/css,application/javascript,image/svg+xml
+    min-response-size: 1024
   # Serve static resources (CSS, JS, images) from classpath:/static/
   # This makes /assets/* serve from static/assets/, etc.
   error:
