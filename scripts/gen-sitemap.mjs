@@ -154,14 +154,24 @@ ${urls.join('\n')}
 `
 }
 
+// AI and search assistants are welcome: each is listed by name so the intent is explicit. A bot with its own group ignores the "*" group,
+// so the Disallow lines are repeated. To keep your content out of model TRAINING while staying visible in AI search and answers,
+// remove GPTBot, CCBot, Google-Extended, Applebot-Extended, Meta-ExternalAgent, Bytespider and anthropic-ai from this list (they feed training);
+// OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User and DuckAssistBot are the search/answer ones.
+const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'anthropic-ai', 'PerplexityBot',
+  'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'CCBot', 'Meta-ExternalAgent', 'Amazonbot', 'DuckAssistBot', 'cohere-ai', 'MistralAI-User']
+const DISALLOW = ['/admin', '/profile', '/u/']
 const robotsTxt = () => `# ${SITE_URL}
 User-agent: *
 Allow: /
 
 # Application routes with no standalone content
-Disallow: /admin
-Disallow: /profile
-Disallow: /u/
+${DISALLOW.map(d => `Disallow: ${d}`).join('\n')}
+
+# AI and search assistants: welcome. They are served a plain-HTML version of each page (no JavaScript needed).
+${AI_BOTS.map(b => `User-agent: ${b}`).join('\n')}
+Allow: /
+${DISALLOW.map(d => `Disallow: ${d}`).join('\n')}
 
 Sitemap: ${SITE_URL}/sitemap.xml
 `

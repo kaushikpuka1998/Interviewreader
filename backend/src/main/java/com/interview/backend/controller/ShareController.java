@@ -91,7 +91,7 @@ public class ShareController {
 
     // Public pages of the app and the title/description a link preview should show. Caddy sends social preview bots (LinkedIn, WhatsApp,
     // Slack, ...) here for these paths because they do not run the app's JavaScript, which is what sets each page's tags for people.
-    private static final Map<String, String[]> SITE_PAGES = Map.ofEntries(
+    static final Map<String, String[]> SITE_PAGES = Map.ofEntries(
             Map.entry("/resume", new String[]{"Free ATS-Friendly Resume Builder: LaTeX Templates to PDF", "Build a clean, ATS-friendly resume for software engineering jobs from free LaTeX templates. Edit online and download a PDF in one click."}),
             Map.entry("/leaderboard", new String[]{"Leaderboard: Top Interview Prep Learners", "See who is leading the weekly Interview Reader leagues. Earn points by signing in daily, reading questions and solving problems."}),
             Map.entry("/pricing", new String[]{"Interview Reader Premium Pricing", "Choose a Premium pass: full company roadmaps, company-wise questions and every answer unlocked."}),

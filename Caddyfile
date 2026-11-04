@@ -62,6 +62,33 @@
 	# API_ORIGIN can point at Railway's private network address of the backend; it defaults to the public API.
 	root * /app/dist
 
+	# Link-preview bots do not run the app's JavaScript, so a shared /resume, /pricing, ... link would show the home page's title and image.
+	# For those bots, the main public pages are answered by the backend with each page's own preview tags. People get the normal app.
+	@previewbot {
+		header_regexp ua User-Agent (?i)(linkedinbot|facebookexternalhit|facebot|twitterbot|slackbot|whatsapp|telegrambot|discordbot|embedly|pinterest|redditbot|skypeuripreview)
+		path /resume /leaderboard /pricing /premium /problems /roadmaps /interview /discuss /practice /question-of-the-day /sheets/striver-a2z
+	}
+	handle @previewbot {
+		rewrite * /api/share/page{path}
+		reverse_proxy {$API_ORIGIN:https://api.interviewreader.cloud} {
+			header_up Host {upstream_hostport}
+		}
+	}
+
+	# AI and search assistants (GPTBot, ClaudeBot, PerplexityBot, ...) mostly do not run JavaScript either, so they would see an empty page.
+	# They get a plain-HTML version of any page that is not a file or an API/share path; what they see is only what a signed-out visitor could read.
+	@aibot {
+		header_regexp ua User-Agent (?i)(gptbot|oai-searchbot|chatgpt-user|claudebot|claude-user|claude-searchbot|claude-web|anthropic-ai|perplexitybot|perplexity-user|ccbot|amazonbot|applebot|meta-externalagent|duckassistbot|cohere-ai|mistralai-user|youbot)
+		not path /api/* /share/* /assets/* /sitemap.xml /robots.txt /llms.txt /og-card.png
+		not path_regexp \.[A-Za-z0-9]{2,5}$
+	}
+	handle @aibot {
+		rewrite * /api/share/bot{uri}
+		reverse_proxy {$API_ORIGIN:https://api.interviewreader.cloud} {
+			header_up Host {upstream_hostport}
+		}
+	}
+
 	handle /share/* {
 		rewrite * /api{uri}
 		reverse_proxy {$API_ORIGIN:https://api.interviewreader.cloud} {

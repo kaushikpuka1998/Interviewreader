@@ -1,15 +1,70 @@
 # Interview Reader
 
-> Free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka, Microservices, Design Patterns, Angular and Rails, plus 1,500+ coding problems you can run online in 11 languages.
+> Free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka, Microservices, Design Patterns, Angular and Rails, plus 2,500+ coding problems you can run online in 11 languages, company interview roadmaps and DSA problem sheets.
 
-Every question has its own page at a readable URL, for example `https://interviewreader.cloud/what-is-the-bulkhead-pattern`. Some topics are members-only; the free sample is open to everyone.
+Every question has its own page at a readable URL, for example `https://interviewreader.cloud/what-is-the-bulkhead-pattern`. Some topics are members-only; a free sample of each topic is open to everyone. Pages are served to AI and search assistants as plain HTML (no JavaScript needed), showing the same content a signed-out visitor can read. Answers marked as members-only are not shown to crawlers.
 
 ## Main pages
 
-- [Coding problems](https://interviewreader.cloud/problems): 1,500+ problems with test cases, filterable by topic and difficulty.
-- [Practice coding online](https://interviewreader.cloud/practice): online editor that runs Java, Python, C++, Go, JavaScript and more.
 - [Home](https://interviewreader.cloud/): browse interview questions by technology.
+- [Coding problems](https://interviewreader.cloud/problems): 2,500+ problems with test cases, filterable by company, topic and difficulty.
+- [Practice coding online](https://interviewreader.cloud/practice): online editor that runs Java, Python, C++, Go, JavaScript and more.
+- [Company roadmaps](https://interviewreader.cloud/roadmaps): round-by-round interview roadmaps for top tech companies.
+- [Question of the day](https://interviewreader.cloud/question-of-the-day): a new interview question every day, with an answer.
+- [Mock interviews and solo system design practice](https://interviewreader.cloud/interview): practise a live mock interview, or a scored solo design round.
+- [Interview experiences and discussions](https://interviewreader.cloud/discuss): real interview experiences and compensation reports.
+- [Free resume builder](https://interviewreader.cloud/resume): ATS-friendly LaTeX resume templates, download as PDF.
+- [Leaderboard](https://interviewreader.cloud/leaderboard): weekly learning leagues.
+- [Pricing](https://interviewreader.cloud/pricing) and [Free vs Premium](https://interviewreader.cloud/premium): what is free and what Premium adds.
+
+## Topics (questions with answers)
+
+- Java, React, Node.js, Go (Golang), SQL, Kafka, Microservices, Design Patterns (low-level design), System Design (high-level design), Angular, Ruby on Rails, Behavioral.
+- Readable without an account: Microservices, and the first few Design Patterns questions. A free account unlocks a sample of every other topic (for example the first few System Design questions and roughly the first third of Java, Node.js, Go, Kafka, React and Rails); the rest is for Premium members.
+
+## Problem sheets
+
+- [Striver A2Z DSA sheet](https://interviewreader.cloud/sheets/striver-a2z): the A2Z DSA course problems, runnable online.
+
+## Company interview roadmaps
+
+- [Google interview roadmap](https://interviewreader.cloud/roadmaps?company=google): Deep Algorithmic Rigor, Novel Graph Problems & Massive Distributed Scale
+- [Amazon interview roadmap](https://interviewreader.cloud/roadmaps?company=amazon): Production Code, Clean OOP/LLD & 16 Leadership Principles (LP)
+- [Meta interview roadmap](https://interviewreader.cloud/roadmaps?company=meta): High Speed Problem Solving & High-Throughput Real-Time Feeds
+- [Microsoft interview roadmap](https://interviewreader.cloud/roadmaps?company=microsoft): Solid CS Fundamentals, Clean Code Quality & Cloud Native Architecture
+- [Uber interview roadmap](https://interviewreader.cloud/roadmaps?company=uber): Geospatial Indexing, Real-Time Dispatch & High Concurrency
+- [Netflix interview roadmap](https://interviewreader.cloud/roadmaps?company=netflix): Senior Independence, Chaos Engineering & Resilient Video Infrastructure
+- [Atlassian interview roadmap](https://interviewreader.cloud/roadmaps?company=atlassian): Code Craftsmanship, Clean LLD / OOP & Collaborative Systems
+- [Apple interview roadmap](https://interviewreader.cloud/roadmaps?company=apple): Craft, Privacy & Devices at Scale: Strong Coding, Sync, Messaging & Product Passion
+- [Guidewire interview roadmap](https://interviewreader.cloud/roadmaps?company=guidewire): Java & OOP depth, Insurance Domain Modelling & Cloud-Native Services
+- [JFrog interview roadmap](https://interviewreader.cloud/roadmaps?company=jfrog): DevOps Platform Depth: Artifact Storage, Distribution & Security Scanning
+- [Navi interview roadmap](https://interviewreader.cloud/roadmaps?company=navi): Machine Coding, Fintech Design (Lending, UPI, Mutual Funds) & Strong DSA
+- [Flipkart interview roadmap](https://interviewreader.cloud/roadmaps?company=flipkart): Machine Coding, PS/DS Rounds & E-commerce Scale (Big Billion Days)
+- [Cohesity interview roadmap](https://interviewreader.cloud/roadmaps?company=cohesity): Hard DSA, Concurrency & Distributed Storage (Backup, Dedup, Snapshots)
+- [Zomato interview roadmap](https://interviewreader.cloud/roadmaps?company=zomato): Food Delivery at Scale: Real-time Tracking, ETA, Search & Clean Code
+- [PhonePe interview roadmap](https://interviewreader.cloud/roadmaps?company=phonepe): Machine Coding, Strong DSA & UPI-scale Payments Design
+- [Slice interview roadmap](https://interviewreader.cloud/roadmaps?company=slice): Fintech Systems: Cards, UPI, Credit & Lean Clean Code
+- [6sense interview roadmap](https://interviewreader.cloud/roadmaps?company=6sense): B2B SaaS & Data Pipelines: Intent Signals, Analytics & Multi-tenancy
+- [Walmart interview roadmap](https://interviewreader.cloud/roadmaps?company=walmart): Retail at Massive Scale: Inventory, Orders, Grocery & Strong DSA
+- [InMobi interview roadmap](https://interviewreader.cloud/roadmaps?company=inmobi): Adtech at Scale: Real-time Bidding, Low Latency & Data Pipelines
+- [JP Morgan interview roadmap](https://interviewreader.cloud/roadmaps?company=jpmorgan): Core Java, DSA & Financial Systems: Trading, Payments & Consistency
+- [eBay interview roadmap](https://interviewreader.cloud/roadmaps?company=ebay): Marketplace Systems: Auctions, Search, Payments & Trust
+- [Sony interview roadmap](https://interviewreader.cloud/roadmaps?company=sony): Gaming & Media Platforms: Online Services, Streaming & C++ / Java Depth
+- [Warner Bros interview roadmap](https://interviewreader.cloud/roadmaps?company=warnerbros): Streaming Platforms (Max): Video Delivery, Recommendations & Reliability
+- [Moneyview interview roadmap](https://interviewreader.cloud/roadmaps?company=moneyview): Fintech Lending: Machine Coding, Credit Workflows & Payments
+- [Tekion interview roadmap](https://interviewreader.cloud/roadmaps?company=tekion): Automotive Retail Cloud: Multi-tenant SaaS, Workflows & Strong DSA
+- [Harman interview roadmap](https://interviewreader.cloud/roadmaps?company=harman): Connected Car & Embedded: C++/Java, OOP, Concurrency & IoT Cloud
+- [Mercedes-Benz interview roadmap](https://interviewreader.cloud/roadmaps?company=mercedesbenz): Automotive Software (MBRDI): OOP, Embedded / Cloud & Connected Vehicles
+- [NetApp interview roadmap](https://interviewreader.cloud/roadmaps?company=netapp): Storage & Data Management: File Systems, Replication & Systems Fundamentals
+- [Boeing interview roadmap](https://interviewreader.cloud/roadmaps?company=boeing): Aerospace Software: OOP, Reliability, Safety & Data Systems
+- [Instamart interview roadmap](https://interviewreader.cloud/roadmaps?company=instamart): Quick Commerce: 10-minute Delivery, Dark-store Inventory & Machine Coding
+- [GitLab interview roadmap](https://interviewreader.cloud/roadmaps?company=gitlab): Ruby on Rails Depth, Merge-request Code Review & All-remote Async Culture
+- [GoDaddy interview roadmap](https://interviewreader.cloud/roadmaps?company=godaddy): Domains, Hosting & Commerce: DNS, Multi-tenant Hosting and Payments
+- [MoEngage interview roadmap](https://interviewreader.cloud/roadmaps?company=moengage): Customer Engagement at Scale: Push / Email Campaigns, Events & Segmentation
+- [Brillio interview roadmap](https://interviewreader.cloud/roadmaps?company=brillio): Digital Engineering Services: Java / Spring, Microservices, Cloud & Client Readiness
+- [HackerRank interview roadmap](https://interviewreader.cloud/roadmaps?company=hackerrank): Developer Assessments: Code Execution Sandboxes, Contests & Clean Code
+- [HackerEarth interview roadmap](https://interviewreader.cloud/roadmaps?company=hackerearth): Hackathons & Assessments: Code Judges, Submissions, Leaderboards & Python / Django
 
 ## Machine-readable index
 
-- [Sitemap](https://interviewreader.cloud/sitemap.xml): every public question and problem URL.
+- [Sitemap](https://interviewreader.cloud/sitemap.xml): every public question, coding problem, company and topic URL.
