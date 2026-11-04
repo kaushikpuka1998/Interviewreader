@@ -6,6 +6,7 @@ const App = lazy(() => import('./App.jsx'))
 const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
 const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
 const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
+const SkillGapPage = lazy(() => import('./components/SkillGapPage.jsx'))
 const LandingPage = lazy(() => import('./components/LandingPage.jsx'))
 const ProblemsPage = lazy(() => import('./components/ProblemsPage.jsx'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage.jsx'))
@@ -71,7 +72,7 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
+const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
   '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
@@ -122,6 +123,7 @@ function Routes() {
 
   if (path === '/leaderboard') return <LeaderboardPage />
   if (path === '/streak') return <StreakPage />
+  if (path === '/skills') return <SkillGapPage />
   if (path === '/discuss') return <DiscussPage />
   if (path.startsWith('/discuss/')) return <DiscussDetailPage id={path.split('/')[2]} />
 
@@ -146,7 +148,7 @@ function Routes() {
 }
 
 // Pages that do not lay out their own footer (home, terms, practice, and the reader do) get one underneath.
-const NEEDS_FOOTER = [...LANDING_PATHS, '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
+const NEEDS_FOOTER = [...LANDING_PATHS, '/skills', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
