@@ -11,7 +11,16 @@ const input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text
 
 // Resume list: open, create (from a template, blank or from the sample), delete.
 export default function ResumePage() {
-  useEffect(() => { setPageSeo({ title: 'Free Resume Builder, LaTeX to PDF | Interview Reader', description: 'Build an ATS-friendly resume from free LaTeX templates and download it as a PDF in one click.', path: '/resume', jsonLd: undefined, noindex: true }) }, [])
+  useEffect(() => {
+    // Signed out, this is a public landing page that search engines may index; the member's own list is private.
+    setPageSeo({
+      title: 'Free ATS-Friendly Resume Builder: LaTeX Templates to PDF | Interview Reader',
+      description: 'Build a clean, ATS-friendly resume for software engineering jobs from free LaTeX templates. Edit online, download a PDF in one click, and keep every version saved.',
+      path: '/resume', noindex: isLoggedIn(),
+      jsonLd: { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Interview Reader Resume Builder', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+        description: 'Free resume builder with ATS-friendly LaTeX templates and one-click PDF download.' },
+    })
+  }, [])
   const [resumes, setResumes] = useState(null)
   const [templates, setTemplates] = useState([])
   const [creating, setCreating] = useState(false)
@@ -124,6 +133,14 @@ function SignInCard() {
       </ul>
       <button onClick={() => setOpen(true)} className="mt-6 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700">Log in / Sign up</button>
       {open && <AuthModal onClose={() => setOpen(false)} onSuccess={() => window.location.reload()} />}
+      <section className="mx-auto mt-8 max-w-2xl border-t border-slate-200 pt-6 text-left dark:border-slate-800">
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Free resume builder for software engineers</h2>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Pick a clean LaTeX template, fill in your experience, projects and skills, and download a PDF that applicant tracking systems (ATS) parse correctly. Start from a sample resume or a blank one, keep a version for each role, and download the LaTeX source if you want to edit it elsewhere.</p>
+        <h3 className="mt-4 text-sm font-semibold text-slate-900 dark:text-slate-100">What makes a resume ATS-friendly?</h3>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">A single column, standard section names (Experience, Education, Skills), real text instead of images, and simple fonts. The templates here follow those rules, so recruiters\' software reads your resume the way you wrote it.</p>
+        <h3 className="mt-4 text-sm font-semibold text-slate-900 dark:text-slate-100">Is it free?</h3>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Yes. Create a free account to save your resumes and download them as PDF or LaTeX. Pair it with <a className="text-emerald-700 underline dark:text-emerald-400" href="/problems">coding problems</a> and <a className="text-emerald-700 underline dark:text-emerald-400" href="/roadmaps">company roadmaps</a> to prepare for the interview too.</p>
+      </section>
     </div>
   )
 }

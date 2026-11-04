@@ -60,7 +60,7 @@ export default function PublicProfilePage({ username }) {
     // The top bar can be taller than usual (the offer banner sits above it), so the page fills what is left under it instead of assuming a fixed height.
     <div className="lg:!flex-none lg:flex lg:h-[calc(100vh-1.9rem)] lg:flex-col lg:overflow-hidden">
       <TopBar />
-    <div className="min-h-[calc(100vh-5.4rem)] bg-slate-100 p-5 dark:bg-slate-900 lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+    <div className="min-h-[calc(100vh-5.4rem)] bg-slate-100 p-5 dark:bg-slate-900 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 lg:h-full">
         {error === 'This profile does not exist.' ? (
           <div className="rounded-2xl bg-white dark:bg-slate-950">
@@ -126,7 +126,7 @@ export default function PublicProfilePage({ username }) {
 
             <div className="flex"><ActivityHeatmap compact times={coding?.activity || []} /></div>
 
-            <div className="grid grid-cols-1 gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 lg:min-h-[16rem] lg:flex-1 lg:grid-cols-2">
               <Card title={listFilter === 'solved' ? `Solved questions (${solvedQs.length})` : `Visited questions (${visitedQs.length})`} className="max-h-80 lg:max-h-none">
                 <div className="-mt-9 mb-2 flex justify-end gap-1" role="group" aria-label="Show">
                   {[['solved', 'Solved'], ['visited', 'Visited']].map(([key, label]) => (

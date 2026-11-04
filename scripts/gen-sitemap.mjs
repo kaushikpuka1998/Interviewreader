@@ -9,7 +9,7 @@
  *   API_BASE=https://api.example.com/api SITE_URL=https://example.com \
  *     node scripts/gen-sitemap.mjs
  */
-import { writeFile, readFile, mkdir } from 'node:fs/promises'
+import { writeFile, readFile, mkdir, readdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { COMPANY_GROUPS, groupOf } from '../frontend/src/lib/companyGroups.js'
@@ -42,6 +42,8 @@ const STATIC_PAGES = [
   ['/pricing', 'monthly', '0.7'],
   ['/practice', 'weekly', '0.7'],
   ['/interview', 'weekly', '0.7'],
+  ['/resume', 'monthly', '0.6'],       // free resume builder: the signed-out page is a public landing page
+  ['/leaderboard', 'daily', '0.5'],
   ['/terms', 'yearly', '0.2'],
 ]
 
@@ -91,6 +93,10 @@ async function fetchJson(path, headers = {}) {
 
 async function landingPages() {
   const pages = []   // [path, changefreq, priority, lastmod?]
+  // Problem sheets (e.g. /sheets/striver-a2z): one public page per file in frontend/public/sheets.
+  try {
+    for (const f of await readdir(join(ROOT, 'frontend', 'public', 'sheets'))) if (f.endsWith('.json')) pages.push([`/sheets/${f.slice(0, -5)}`, 'weekly', '0.7'])
+  } catch { /* no sheets folder */ }
   try {
     const problems = await fetchJson('/coding-problems')
     for (const p of problems) pages.push([`/practice?id=${p.id}`, 'monthly', '0.7', p.createdAt])

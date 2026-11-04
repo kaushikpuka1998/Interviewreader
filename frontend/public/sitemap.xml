@@ -31,6 +31,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://interviewreader.cloud/pricing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://interviewreader.cloud/practice</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -41,9 +46,24 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://interviewreader.cloud/resume</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/leaderboard</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://interviewreader.cloud/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/sheets/striver-a2z</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/practice?id=1</loc>
@@ -16601,6 +16621,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://interviewreader.cloud/roadmaps?company=apple</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://interviewreader.cloud/roadmaps?company=guidewire</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -24194,7 +24219,7 @@
   </url>
   <url>
     <loc>https://interviewreader.cloud/what-is-primary-replica-master-slave-database-architecture</loc>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -24650,49 +24675,49 @@
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-a-dead-letter-queue-system</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-a-retry-queue</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-a-delayed-message-system</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-an-exactly-once-processing-system</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-an-idempotent-payment-api</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-an-idempotent-api-gateway</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-a-distributed-scheduler</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-a-cron-job-platform</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -25346,7 +25371,7 @@
   </url>
   <url>
     <loc>https://interviewreader.cloud/design-swiggy-zomato</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -26144,7 +26169,7 @@
   </url>
   <url>
     <loc>https://interviewreader.cloud/sip-stock-allocation-system-hld-lld</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -30308,7 +30333,7 @@
   </url>
   <url>
     <loc>https://interviewreader.cloud/difference-between-different-java-version</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -32354,7 +32379,7 @@
   </url>
   <url>
     <loc>https://interviewreader.cloud/what-is-the-difference-between-synchronous-and-asynchronous-communication-in-mic</loc>
-    <lastmod>2026-08-24</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
