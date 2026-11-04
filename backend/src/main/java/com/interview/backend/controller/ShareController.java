@@ -87,6 +87,32 @@ public class ShareController {
         return png(cards.question(q.getTitle(), topic(q), q.getDifficulty()));
     }
 
+    // ---------- site pages (preview tags for link-preview bots) ----------
+
+    // Public pages of the app and the title/description a link preview should show. Caddy sends social preview bots (LinkedIn, WhatsApp,
+    // Slack, ...) here for these paths because they do not run the app's JavaScript, which is what sets each page's tags for people.
+    private static final Map<String, String[]> SITE_PAGES = Map.ofEntries(
+            Map.entry("/resume", new String[]{"Free ATS-Friendly Resume Builder: LaTeX Templates to PDF", "Build a clean, ATS-friendly resume for software engineering jobs from free LaTeX templates. Edit online and download a PDF in one click."}),
+            Map.entry("/leaderboard", new String[]{"Leaderboard: Top Interview Prep Learners", "See who is leading the weekly Interview Reader leagues. Earn points by signing in daily, reading questions and solving problems."}),
+            Map.entry("/pricing", new String[]{"Interview Reader Premium Pricing", "Choose a Premium pass: full company roadmaps, company-wise questions and every answer unlocked."}),
+            Map.entry("/premium", new String[]{"Free vs Premium", "What you get free on Interview Reader and what Premium adds: full company roadmaps, company-tagged DSA problems and more."}),
+            Map.entry("/problems", new String[]{"Coding Interview Problems by Company and Topic", "Thousands of coding problems you can run online, filtered by company, topic and difficulty."}),
+            Map.entry("/roadmaps", new String[]{"Company Interview Roadmaps", "Round-by-round interview roadmaps for top tech companies: DSA, system design and behavioral."}),
+            Map.entry("/interview", new String[]{"Mock Interviews with Real Engineers", "Practise a live mock interview, or solo system design practice scored out of 10."}),
+            Map.entry("/discuss", new String[]{"Interview Experiences and Discussions", "Real interview experiences, compensation reports and discussions from engineers preparing for jobs."}),
+            Map.entry("/practice", new String[]{"Online Code Practice", "Write code in your browser, run it against test cases and track the problems you solve."}),
+            Map.entry("/question-of-the-day", new String[]{"Question of the Day", "A new interview question every day, with a detailed answer."}),
+            Map.entry("/sheets/striver-a2z", new String[]{"Striver A2Z DSA Sheet", "Work through the Striver A2Z DSA sheet with problems you can run online."}));
+
+    @GetMapping(value = "/share/page/{*key}", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> sitePage(@PathVariable String key) {
+        String path = key.length() > 1 ? key.replaceAll("/+$", "") : "/";
+        String[] meta = SITE_PAGES.get(path);
+        String url = site + (meta == null ? "/" : path);
+        if (meta == null) return page("Interview Reader", "Interview questions with real answers.", url, url, site + "/og-card.png");
+        return page(meta[0], meta[1], url, url, site + "/og-card.png");
+    }
+
     // ---------- company roadmaps ----------
 
     @GetMapping(value = "/share/roadmap/{company}", produces = MediaType.TEXT_HTML_VALUE)
