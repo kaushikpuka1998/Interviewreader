@@ -128,7 +128,17 @@ public class CodingProblemController {
 
     /** Public: companies with how many problems each asks, most first. Feeds the home page and the company filter. */
     @GetMapping("/coding-problems/companies")
-    public List<Map<String, Object>> companies() {
+    public ResponseEntity<List<Map<String, Object>>> companies() {
+        // Counting every problem's companies is the slowest public call and changes rarely: reuse the result for 5 minutes.
+        var hit = companiesCache;
+        if (hit == null || System.currentTimeMillis() - hit.at() > 300_000) companiesCache = hit = new CompaniesHit(buildCompanies(), System.currentTimeMillis());
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofMinutes(5)).cachePublic()).body(hit.list());
+    }
+
+    private record CompaniesHit(List<Map<String, Object>> list, long at) {}
+    private volatile CompaniesHit companiesCache;
+
+    private List<Map<String, Object>> buildCompanies() {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (var p : problems.findSummariesByOrderByIdAsc()) {
             for (String name : topicList(p.getCompanies())) counts.merge(name, 1, Integer::sum);

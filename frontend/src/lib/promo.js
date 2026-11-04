@@ -1,3 +1,4 @@
+import { shared } from './memo.js'
 // Offers: the site banner (public) and the Premium discount coupons (admin sets them up; members apply them at checkout).
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
@@ -10,7 +11,7 @@ async function call(path, method = 'GET', body) {
   return data
 }
 
-export const fetchBanner = () => call('/public/banner')
+export const fetchBanner = () => shared('banner', 60_000, () => call('/public/banner'))
 export const validateCoupon = (plan, code) => call('/billing/coupon/validate', 'POST', { plan, code })
 
 export const adminBanner = () => call('/admin/banner')

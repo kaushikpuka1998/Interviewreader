@@ -86,6 +86,12 @@ public class Question implements Serializable {
     private boolean locked = false;
 
     /** A copy with the answer removed and {@code locked} set: enough for a list row or a "Premium" page, nothing of the content. */
+    /** A copy for list rows: everything except the answer text, which the reader loads when the question is opened. */
+    public Question withoutAnswer() {
+        return Question.builder().id(id).number(number).displayNumber(displayNumber).sortKey(sortKey).title(title).question(question)
+                .answer(null).difficulty(difficulty).category(category).tech(tech).createdAt(createdAt).updatedAt(updatedAt).locked(locked).build();
+    }
+
     public Question lockedCopy() {
         return Question.builder().id(id).number(number).displayNumber(displayNumber).sortKey(sortKey).title(title).question(question)
                 .answer("").difficulty(difficulty).category(category).tech(tech).createdAt(createdAt).updatedAt(updatedAt).locked(true).build();

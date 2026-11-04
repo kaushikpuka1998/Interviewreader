@@ -1,3 +1,4 @@
+import { shared } from './memo.js'
 import { sessionId } from './analytics.js'
 
 // API helpers for the engagement features: answer feedback, comments, question of the day, revision, referral, trial.
@@ -20,7 +21,7 @@ export const addComment = (id, body) => call(`/questions/${encodeURIComponent(id
 export const deleteComment = (id, cid) => call(`/questions/${encodeURIComponent(id)}/comments/${cid}`, 'DELETE')
 export const reportComment = cid => call(`/comments/${cid}/report`, 'POST', {})
 
-export const fetchQotd = () => call('/public/qotd')
+export const fetchQotd = () => shared('qotd', 300_000, () => call('/public/qotd'))
 export const fetchRevisionDue = () => call('/revision/due')
 export const markRevised = id => call(`/revision/${encodeURIComponent(id)}/done`, 'POST', {})
 export const fetchReferral = () => call('/referral/me')

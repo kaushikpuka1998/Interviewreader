@@ -41,7 +41,11 @@ public class FeatureFlagController {
     }
 
     @GetMapping("/features")
-    public Map<String, Boolean> all() {
+    public ResponseEntity<Map<String, Boolean>> allCached() {
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofSeconds(60)).cachePublic()).body(all());
+    }
+
+    private Map<String, Boolean> all() {
         Map<String, Boolean> out = new LinkedHashMap<>(DEFAULTS);
         flags.findAll().forEach(f -> {
             if (DEFAULTS.containsKey(f.getKey())) out.put(f.getKey(), f.isEnabled());

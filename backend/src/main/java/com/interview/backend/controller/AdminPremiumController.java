@@ -28,6 +28,7 @@ public class AdminPremiumController {
     private static final Instant LIFETIME = Instant.parse("2999-12-31T00:00:00Z");   // same "never ends" as a paid lifetime pass
 
     private final UserRepository users;
+    private final com.interview.backend.service.BillingService billing;
 
     /** Members matching q (email, name or username); with no q, everyone who has Premium now. */
     @GetMapping
@@ -58,7 +59,9 @@ public class AdminPremiumController {
         if (u.getPremiumUntil() == null || u.getPremiumUntil().isBefore(until)) u.setPremiumUntil(until);
         if (!"lifetime".equals(u.getPremiumPlan()) || !active) u.setPremiumPlan(plan);
         u.setPremiumGrantedBy(admin.getName());
-        return ResponseEntity.ok(row(users.save(u)));
+        User saved = users.save(u);
+        billing.forgetPremium(saved.getEmail());
+        return ResponseEntity.ok(row(saved));
     }
 
     @DeleteMapping("/{userId}")
@@ -70,7 +73,9 @@ public class AdminPremiumController {
         u.setPremiumUntil(null);
         u.setPremiumPlan(null);
         u.setPremiumGrantedBy(null);
-        return ResponseEntity.ok(row(users.save(u)));
+        User saved = users.save(u);
+        billing.forgetPremium(saved.getEmail());
+        return ResponseEntity.ok(row(saved));
     }
 
     private static Map<String, Object> row(User u) {

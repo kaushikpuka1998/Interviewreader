@@ -273,8 +273,49 @@ public class BillingService {
         return u.getPremiumUntil() != null && u.getPremiumUntil().isAfter(Instant.now());
     }
 
+    // Premium is asked on almost every request (question lists, details, banner), so a member's answer is kept for a few seconds
+    // instead of reading their row each time. It lives in the shared Redis cache, so every backend instance sees the same answer and a
+    // payment, grant or revoke (forgetPremium) shows everywhere at once. If Redis is down it falls back to this instance's memory.
+    private record PremiumHit(boolean premium, long at) {}
+    private final java.util.concurrent.ConcurrentHashMap<String, PremiumHit> premiumLocal = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long PREMIUM_CACHE_MS = 15_000;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.cache.CacheManager cacheManager;
+
+    private org.springframework.cache.Cache premiumCache() {
+        try { return cacheManager == null ? null : cacheManager.getCache("premium"); } catch (RuntimeException e) { return null; }
+    }
+
+    /** Drop a member's remembered Premium answer, so a payment, grant or revoke shows on their very next request. */
+    public void forgetPremium(String email) {
+        if (email == null) return;
+        premiumLocal.remove(email);
+        var c = premiumCache();
+        if (c != null) { try { c.evict(email); } catch (RuntimeException ignored) { /* Redis down: the 15 s expiry covers it */ } }
+    }
+
     public boolean isPremium(String email) {
-        return email != null && users.findByEmail(email).map(this::isPremium).orElse(false);
+        if (email == null) return false;
+        if (isEverythingFree()) return users.findByEmail(email).isPresent();
+        var c = premiumCache();
+        boolean redisUp = c != null;
+        if (redisUp) {
+            try { Boolean v = c.get(email, Boolean.class); if (v != null) return v; }
+            catch (RuntimeException e) { redisUp = false; }
+        }
+        long now = System.currentTimeMillis();
+        // This instance's memory is only a fallback while Redis is unreachable; otherwise Redis is the single source, so no instance serves a stale answer.
+        if (!redisUp) {
+            PremiumHit hit = premiumLocal.get(email);
+            if (hit != null && now - hit.at() < PREMIUM_CACHE_MS) return hit.premium();
+        }
+        boolean p = users.findByEmail(email).map(this::isPremium).orElse(false);
+        if (redisUp) { try { c.put(email, p); } catch (RuntimeException ignored) { /* next call reads the row again */ } }
+        else {
+            if (premiumLocal.size() > 20_000) premiumLocal.clear();
+            premiumLocal.put(email, new PremiumHit(p, now));
+        }
+        return p;
     }
 
     public Map<String, Object> status(User u) {
@@ -343,6 +384,7 @@ public class BillingService {
         if (u.getPremiumUntil() == null || u.getPremiumUntil().isBefore(until)) u.setPremiumUntil(until);
         if (!"lifetime".equals(u.getPremiumPlan())) u.setPremiumPlan(plan);
         u.setPremiumGrantedBy(null);   // paid now, so an admin "revoke" must not take it away
+        forgetPremium(u.getEmail());
         // Moving from the old recurring subscription to a pass: stop the renewals so they aren't charged twice.
         if (u.getRazorpaySubscriptionId() != null && "active".equals(u.getSubscriptionStatus())) {
             try {
@@ -425,6 +467,7 @@ public class BillingService {
                     case "subscription.activated", "subscription.charged", "subscription.resumed" -> {
                         long end = sub.path("current_end").asLong(0);
                         if (end > 0) u.setPremiumUntil(Instant.ofEpochSecond(end).plus(GRACE));
+                        forgetPremium(u.getEmail());
                         u.setSubscriptionStatus("active");
                     }
                     case "subscription.cancelled", "subscription.halted", "subscription.completed",

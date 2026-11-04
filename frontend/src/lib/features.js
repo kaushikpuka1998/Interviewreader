@@ -5,10 +5,10 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 // Feature flags from the server. If the request fails, return no flags so features fall back to their defaults.
 // Callers that ask at the same moment (the top bar, the page, the promo gate) share one request instead of each sending their own.
 let pending = null
-export function fetchFeatures() {
+export function fetchFeatures({ fresh = false } = {}) {
   pending ||= (async () => {
     try {
-      const res = await fetch(`${API_BASE}/features`)
+      const res = await fetch(`${API_BASE}/features`, fresh ? { cache: 'no-store' } : undefined)   // the server lets browsers keep it for a minute; admins always read the live value
       return res.ok ? res.json() : {}
     } catch {
       return {}

@@ -247,7 +247,7 @@ export default function AdminPage() {
 
   const loadList = useCallback(async () => {
     try {
-      const data = await fetchQuestions({ tech, search: search || undefined, page: 0, size: 10000 })
+      const data = await fetchQuestions({ tech, search: search || undefined, page: 0, size: 10000, full: true })
       setList(data.content || [])
     } catch { setList([]) }
   }, [tech, search])
@@ -609,7 +609,7 @@ function ExportPanel({ tech, setTech, search, setSearch, source, setSource }) {
         // Already in the bulk import shape, so the file can be imported back without editing.
         setData(await fetchCodingProblemsExport())
       } else {
-        const res = await fetchQuestions({ tech: tech === 'all' ? undefined : tech, search: search || undefined, page: 0, size: 100000 })
+        const res = await fetchQuestions({ tech: tech === 'all' ? undefined : tech, search: search || undefined, page: 0, size: 100000, full: true })
         setData(res.content || [])
       }
     } catch (err) {

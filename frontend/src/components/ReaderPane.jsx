@@ -12,6 +12,7 @@ import SuggestEdit from './SuggestEdit.jsx'
 import MarkDuplicate from './MarkDuplicate.jsx'
 import { isLoggedIn } from '../lib/auth.js'
 import { techBadge, difficultyBadge, techLabel } from '../lib/badges.js'
+import { useFullQuestion } from '../lib/useFullQuestion.js'
 
 /**
  * Inline-editable question position: click the number, type a new one, press Enter to jump.
@@ -81,8 +82,11 @@ function JumpToQuestion({ current, total, onJump }) {
 /**
  * Reader pane component
  */
-export default function ReaderPane({ question, questions, onNavigate, visited, read, flagged, flagging, important, marking, onMarkRead, onToggleFlag, onToggleImportant, loading = false, urlNotFound = false, onPremium }) {
+export default function ReaderPane({ question: listQuestion, questions, onNavigate, visited, read, flagged, flagging, important, marking, onMarkRead, onToggleFlag, onToggleImportant, loading = false, urlNotFound = false, onPremium }) {
   const scrollRef = useRef(null)   // attached to the scrollable answer container
+  // List rows carry no answer text; it is fetched when the question opens (and the next one quietly in advance).
+  const listIdx = questions.findIndex(q => q.id === listQuestion?.id)
+  const { question, answerLoading } = useFullQuestion(listQuestion, questions[listIdx + 1]?.id)
   useReadTracking(question?.id, scrollRef)
 
   // The action bar hides while the answer scrolls down and returns when it scrolls up or reaches the top.
@@ -305,7 +309,11 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
                     <button onClick={onPremium} className="mt-4 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold shadow-sm transition-colors">Unlock with Premium</button>
                   </div>
                 ) : (<>
-                <Markdown text={question.answer} />
+                {answerLoading ? (
+                  <div className="space-y-3 animate-pulse" aria-label="Loading answer" role="status">
+                    {[92, 100, 85, 96, 60].map((w, i) => <div key={i} className="h-4 rounded bg-slate-200 dark:bg-slate-700" style={{ width: `${w}%` }} />)}
+                  </div>
+                ) : <Markdown text={question.answer || ''} />}
                 <AnswerExtras question={question} />
                 </>)}
               </div>
@@ -341,7 +349,7 @@ export default function ReaderPane({ question, questions, onNavigate, visited, r
               </div>
             </article>
 
-            <OnThisPage text={question.answer} scrollRef={scrollRef} />
+            <OnThisPage text={question.answer || ''} scrollRef={scrollRef} />
           </div>
         </div>
       </main>

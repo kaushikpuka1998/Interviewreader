@@ -1,3 +1,4 @@
+import { shared } from './memo.js'
 // Backend API integration for the questions service.
 import { getAllCachedQuestions } from './offlineStore.js'
 
@@ -54,7 +55,7 @@ export async function fetchQuestion(id) {
 }
 
 export async function fetchQuestions(opts) {
-  const { tech, category, difficulty, company, search, status, visitedIds, readIds, flaggedIds, importantIds, page = 0, size = PAGE } = opts
+  const { tech, category, difficulty, company, search, status, visitedIds, readIds, flaggedIds, importantIds, page = 0, size = PAGE, full = false } = opts
   // Always send IDs when status filter is active for correct pagination
   const shouldSendIds = status && status !== 'all'
 
@@ -71,6 +72,7 @@ export async function fetchQuestions(opts) {
   if (shouldSendIds && importantIds && importantIds.length > 0) params.set('importantIds', importantIds.join(','))
   params.set('page', page)
   params.set('size', size)
+  if (full) params.set('full', 'true')   // with answers: the offline sync and the admin editor; list rows leave them out
   try {
     const res = await fetch(`${API_BASE}/questions?${params}`, {
     })
@@ -127,9 +129,9 @@ export async function fetchCategories(tech) {
   return res.json()
 }
 
-export async function fetchStats() {
+export const fetchStats = () => shared('stats', 0, async () => {   // in-flight only: the answer depends on who is signed in
   const res = await fetch(`${API_BASE}/questions/stats`, {
   })
   if (!res.ok) return { total: 0, byTech: {} }
   return res.json()
-}
+})

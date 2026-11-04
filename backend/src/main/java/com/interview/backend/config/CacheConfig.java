@@ -53,6 +53,12 @@ public class CacheConfig implements CachingConfigurer {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(json));
     }
 
+    /** Premium answers are only kept for a few seconds (BillingService.isPremium), unlike the 10-minute default. */
+    @Bean
+    public org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer premiumCacheTtl(RedisCacheConfiguration base) {
+        return b -> b.withCacheConfiguration("premium", base.entryTtl(Duration.ofSeconds(15)));
+    }
+
     /** Never let a Redis hiccup break a request — log and bypass the cache. */
     @Override
     public CacheErrorHandler errorHandler() {

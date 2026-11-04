@@ -20,6 +20,7 @@ import { getUser, isLoggedIn, logout as authLogout, fetchProgress, mergeProgress
 import { trackView } from './lib/analytics.js'
 import LocationPrompt from './components/LocationPrompt.jsx'
 import { setQuestionSeo, setDefaultSeo } from './lib/seo.js'
+import { withAnswer } from './lib/useFullQuestion.js'
 
 function App({ path = '/', onPathChange = () => {} }) {
   const [questionsData, setQuestionsData] = useState([])
@@ -231,14 +232,24 @@ function App({ path = '/', onPathChange = () => {} }) {
     const scrub = !localStorage.getItem('ir_cache_scoped') && !localStorage.getItem('ir_user')
       ? clearQuestionCache().then(() => localStorage.setItem('ir_cache_scoped', '1'))
       : Promise.resolve()
-    scrub.then(() => getLastSyncedAt()).then(async (last) => {
-      if (last && Date.now() - last < SIX_HOURS) return
-      const results = await Promise.allSettled(
-        TECHS.map(t => fetchQuestions({ tech: t, page: 0, size: 100000 }))
-      )
-      const all = results.flatMap(r => r.status === 'fulfilled' ? r.value.content : [])
-      if (all.length) await saveAllQuestions(all)
-    }).catch(() => {})
+    // The whole-dataset download is the heaviest thing the app does, so it is polite: not on data-saver or slow connections, only once the
+    // page is idle, and one topic at a time (not all at once) so it never competes with what the reader is looking at.
+    const conn = navigator.connection
+    if (conn && (conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || ''))) return
+    let cancelled = false
+    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 4000))
+    idle(() => {
+      scrub.then(() => getLastSyncedAt()).then(async (last) => {
+        if (cancelled || (last && Date.now() - last < SIX_HOURS)) return
+        const all = []
+        for (const t of TECHS) {
+          if (cancelled) return
+          try { all.push(...(await fetchQuestions({ tech: t, page: 0, size: 100000, full: true })).content) } catch { /* a topic this member can't read is skipped */ }
+        }
+        if (all.length && !cancelled) await saveAllQuestions(all)
+      }).catch(() => {})
+    }, { timeout: 10000 })
+    return () => { cancelled = true }
   }, [user])
 
   // Surface an offline banner, and replay any visited/read/flag actions queued
@@ -385,9 +396,10 @@ function App({ path = '/', onPathChange = () => {} }) {
     // Per-question title/description/canonical + QAPage structured data.
     // Only claim paywalled when we actually know the free list; if the backend has
     // not reported it, fail open — marking free content as paywalled would suppress it.
-    setQuestionSeo(selected, {
-      gated: !user && freeTechs.length > 0 && !freeTechs.includes(selected.tech),
-    })
+    const gated = !user && freeTechs.length > 0 && !freeTechs.includes(selected.tech)
+    const id = selected.id
+    setQuestionSeo(selected, { gated })   // title and canonical now; the description and QAPage text need the answer, which the list leaves out
+    withAnswer(selected).then(full => { if (full.answer && lastUrlId.current === id) setQuestionSeo(full, { gated }) })
   }, [selected?.id])
 
   const toggleDarkMode = useCallback(() => {

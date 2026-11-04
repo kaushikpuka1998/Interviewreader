@@ -1,3 +1,4 @@
+import { shared } from './memo.js'
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 async function parseError(res) {
@@ -26,11 +27,11 @@ export async function fetchCodingProblems() {
 }
 
 // Public: companies with the number of problems each asks, most first.
-export async function fetchCompanies() {
+export const fetchCompanies = () => shared('companies', 300_000, async () => {
   const res = await fetch(`${API_BASE}/coding-problems/companies`)
   if (!res.ok) return []
   return res.json()
-}
+})
 
 // Public: one problem's statement (never its test cases).
 export async function fetchCodingProblem(id) {

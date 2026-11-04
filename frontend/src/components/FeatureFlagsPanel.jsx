@@ -19,7 +19,7 @@ export default function FeatureFlagsPanel() {
   const [saving, setSaving] = useState(null)
   const [error, setError] = useState('')
 
-  useEffect(() => { fetchFeatures().then(setFlags) }, [])
+  useEffect(() => { fetchFeatures({ fresh: true }).then(setFlags) }, [])
 
   const toggle = async (key) => {
     setSaving(key); setError('')
@@ -36,6 +36,7 @@ export default function FeatureFlagsPanel() {
 
   return (
     <div className="space-y-3">
+      <p className="text-xs text-slate-500 dark:text-slate-400">Changes reach members within about a minute (browsers keep the flags that long). You see the live value here.</p>
       {FLAGS.map(f => {
         const on = flags[f.key] !== false
         const badgeOn = f.badgeKey ? flags[f.badgeKey] === true : false

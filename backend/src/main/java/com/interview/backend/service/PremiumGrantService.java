@@ -20,6 +20,7 @@ public class PremiumGrantService {
     private static final Instant LIFETIME_FLOOR = Instant.parse("2900-01-01T00:00:00Z");
 
     private final UserRepository users;
+    private final BillingService billing;
 
     public void grantDays(User u, int days, String source) {
         Instant now = Instant.now();
@@ -32,5 +33,6 @@ public class PremiumGrantService {
             u.setPremiumGrantedBy(source);
         }
         users.save(u);
+        billing.forgetPremium(u.getEmail());
     }
 }

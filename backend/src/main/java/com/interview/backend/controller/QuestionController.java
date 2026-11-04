@@ -78,7 +78,9 @@ public class QuestionController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(defaultValue = "sortKey") String sort,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "asc") String direction,
+            // List rows leave the answer out (it is loaded when a question is opened). The offline sync and the admin editor ask for it with full=true.
+            @RequestParam(defaultValue = "false") boolean full) {
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
@@ -108,7 +110,7 @@ public class QuestionController {
                 restrict, access.allowedTechs(), tech, category, difficulty, companySlug, search, status, visitedIds, readIds, flaggedIds, importantIds, pageable);
         // Later questions of a preview topic go out as locked copies (title and list row, no answer); Premium members get everything.
         return ResponseEntity.ok(new org.springframework.data.domain.PageImpl<>(
-                result.getContent().stream().map(q -> access.mask(q, premium)).toList(), result.getPageable(), result.getTotalElements()));
+                result.getContent().stream().map(q -> access.mask(q, premium)).map(q -> full || q.isLocked() ? q : q.withoutAnswer()).toList(), result.getPageable(), result.getTotalElements()));
     }
 
     @GetMapping("/categories")
