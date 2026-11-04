@@ -10,7 +10,7 @@ import { useFeature } from '../lib/features.js'
 /**
  * Sidebar component
  */
-export default function Sidebar({  questions, filtered, selectedId, query, setQuery, tech, setTech, category, setCategory, difficulty, setDifficulty, status, setStatus, onSelect, onToggleDark, isDark, isMobile = false, sidebarWidth = 360, questionListRef, hasMore, onLoadMore, loading, visited, read, categories, company, setCompany, companies = [], user, onLoginClick, onLogout, onAdminClick, freeTechs = [], onLockedTech, onPremium, stats, totalCount }) {
+export default function Sidebar({  questions, filtered, selectedId, query, setQuery, tech, setTech, category, setCategory, difficulty, setDifficulty, status, setStatus, onSelect, onToggleDark, isDark, isMobile = false, sidebarWidth = 360, questionListRef, hasMore, onLoadMore, loading, visited, read, categories, company, setCompany, companies = [], user, onLoginClick, onLogout, onAdminClick, freeTechs = [], onLockedTech, onPremium, onCompanyLocked, stats, totalCount }) {
   const [filtersOpen, setFiltersOpen] = useState(false) // collapsed by default; opens when the member taps Filters
   const resumeOn = useFeature('resume_builder')
   const sentinelRef = useRef(null)
@@ -198,7 +198,7 @@ export default function Sidebar({  questions, filtered, selectedId, query, setQu
                 questions={questions}
                 tech={tech}
               />
-              {user && <CompanySelect value={company} onChange={setCompany} options={companies} locked={!(user.premium || user.admin)} onLocked={onPremium} />}
+              {user && <CompanySelect value={company} onChange={setCompany} options={companies} locked={!(user.premium || user.admin)} onLocked={onCompanyLocked} />}
               {user && <StatusSelect value={status} onChange={setStatus} />}
               <QuestionCount count={filtered.length} total={totalCount !== undefined ? totalCount : questions.length} />
             </div>
@@ -238,7 +238,7 @@ export default function Sidebar({  questions, filtered, selectedId, query, setQu
                   questions={questions}
                   tech={tech}
                 />
-                {user && <CompanySelect value={company} onChange={setCompany} options={companies} locked={!(user.premium || user.admin)} onLocked={onPremium} />}
+                {user && <CompanySelect value={company} onChange={setCompany} options={companies} locked={!(user.premium || user.admin)} onLocked={onCompanyLocked} />}
                 {user && <StatusSelect value={status} onChange={setStatus} />}
               </div>
             </div>

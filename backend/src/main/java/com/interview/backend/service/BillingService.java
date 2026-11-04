@@ -72,6 +72,21 @@ public class BillingService {
     // Coupons are optional extras on a Premium order, so this is injected after construction rather than widening the long constructor.
     @org.springframework.beans.factory.annotation.Autowired
     private CouponService coupons;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.interview.backend.repository.FeatureFlagRepository flags;
+
+    // The "premium_free" feature flag (Admin → Feature flags): read on every Premium check, so cached for a few seconds.
+    private volatile boolean allFree;
+    private volatile long allFreeAt;
+
+    public boolean isEverythingFree() {
+        long now = System.currentTimeMillis();
+        if (now - allFreeAt > 10_000) {
+            allFree = flags != null && flags.findById("premium_free").map(com.interview.backend.entity.FeatureFlag::isEnabled).orElse(false);
+            allFreeAt = now;
+        }
+        return allFree;
+    }
 
     public BillingService(UserRepository users,
                           @Value("${app.admin.emails:}") String adminEmailsCsv,
@@ -253,6 +268,7 @@ public class BillingService {
 
     public boolean isPremium(User u) {
         if (u == null) return false;
+        if (isEverythingFree()) return true;   // the admin switched every Premium feature on for all signed-in members
         if (u.getEmail() != null && adminEmails.contains(u.getEmail().toLowerCase())) return true;
         return u.getPremiumUntil() != null && u.getPremiumUntil().isAfter(Instant.now());
     }

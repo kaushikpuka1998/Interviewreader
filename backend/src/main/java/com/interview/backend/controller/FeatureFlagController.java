@@ -17,20 +17,22 @@ import java.util.Map;
 public class FeatureFlagController {
 
     // Known flags and their defaults when no row has been saved yet.
-    private static final Map<String, Boolean> DEFAULTS = Map.of(
-            "resume_promo", true,
-            "resume_builder", true,
-            "code_practice", true,
-            "code_practice_promo", true,
-            "daily_promo", true,
+    private static final Map<String, Boolean> DEFAULTS = Map.ofEntries(
+            Map.entry("resume_promo", true),
+            Map.entry("resume_builder", true),
+            Map.entry("code_practice", true),
+            Map.entry("code_practice_promo", true),
+            Map.entry("daily_promo", true),
             // The mock interview feature, and a "New" badge on its top-bar link.
-            "mock_interview", true,
-            "new_badge_interview", false,
+            Map.entry("mock_interview", true),
+            Map.entry("new_badge_interview", false),
             // When on, any member can interview candidates; when off only admins can (see MockInterviewController).
-            "interviewer_open", false,
+            Map.entry("interviewer_open", false),
             // A "New" badge on the matching top-bar links; off until an admin announces something.
-            "new_badge_resume_builder", false,
-            "new_badge_code_practice", false);
+            Map.entry("new_badge_resume_builder", false),
+            Map.entry("new_badge_code_practice", false),
+            // When on, every signed-in member gets all Premium features free (see BillingService.isPremium).
+            Map.entry("premium_free", false));
 
     private final FeatureFlagRepository flags;
 

@@ -3,7 +3,7 @@ import Loader from './Loader.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import TopBar from './TopBar.jsx'
 import AuthModal from './AuthModal.jsx'
-import PremiumPlans from './PremiumPlans.jsx'
+import PremiumToast from './PremiumToast.jsx'
 import { fetchCodingProblems, fetchCompanies } from '../lib/codingProblems.js'
 import { fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
 import { isLoggedIn, getUser } from '../lib/auth.js'
@@ -23,12 +23,12 @@ export default function ProblemsPage() {
   const [error, setError] = useState('')
   // Coding problems are free, but only a few companies work as a filter without Premium; the server says which ones.
   const [freeCompanies, setFreeCompanies] = useState(null)   // null until known: nothing is locked then
-  const [plansOpen, setPlansOpen] = useState(false)
+  const [toast, setToast] = useState('')
   const me = getUser()
   const isPremium = !!(me && (me.premium || me.admin))
   useEffect(() => { fetchCompanies().then(l => setFreeCompanies(new Set(l.filter(c => c.free).map(c => c.name)))).catch(() => {}) }, [])
   const isLocked = c => !isPremium && freeCompanies != null && freeCompanies.size > 0 && !freeCompanies.has(c)
-  const pickCompany = c => { if (c && isLocked(c)) { if (me) setPlansOpen(true); else setAuthOpen(true); return } setCompany(c) }
+  const pickCompany = c => { if (c && isLocked(c)) { setToast(`${c} is a Premium company filter. Go Premium to filter problems by any company; ${[...freeCompanies].join(', ')} stay free.`); return } setCompany(c) }
   const [query, setQuery] = useState('')
   const [difficulty, setDifficulty] = useState('All')
   const [status, setStatus] = useState('all')
@@ -208,7 +208,7 @@ export default function ProblemsPage() {
           </div>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
-        {plansOpen && <PremiumPlans onClose={() => setPlansOpen(false)} onBought={() => window.location.reload()} />}
+        {toast && <PremiumToast message={toast} onClose={() => setToast('')} />}
       </div>
     )
   }
@@ -327,6 +327,7 @@ export default function ProblemsPage() {
         {rows.length > shownCount && <div ref={sentinel} className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">Loading more…</div>}
       </div>
     </div>
+    {toast && <PremiumToast message={toast} onClose={() => setToast('')} />}
     </>
   )
 }

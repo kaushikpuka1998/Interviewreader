@@ -7,6 +7,7 @@ import { slugify } from './lib/slug.js'
 import Footer from './components/Footer.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import ReaderPane from './components/ReaderPane.jsx'
+import PremiumToast from './components/PremiumToast.jsx'
 import PremiumPlans from './components/PremiumPlans.jsx'
 import { MobileMenuButton, MobileSidebar } from './components/MobileSidebar.jsx'
 import AuthModal from './components/AuthModal.jsx'
@@ -529,6 +530,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   }, [sidebarWidth])
 
   // Shared props for both the desktop and mobile sidebar instances.
+  const [premiumNote, setPremiumNote] = useState('')
   const openPlans = () => (user ? setPlansOpen(true) : setAuthOpen(true))
   const sidebarProps = {
     questions: questionsData,
@@ -563,6 +565,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     freeTechs,
     onLockedTech: () => setAuthOpen(true),
     onPremium: openPlans,
+    onCompanyLocked: () => setPremiumNote('Company-wise questions are a Premium feature. Go Premium to filter every topic by the company that asked it.'),
     stats,
     totalCount,
   }
@@ -636,6 +639,7 @@ function App({ path = '/', onPathChange = () => {} }) {
       </div>
       <Footer />
 
+      {premiumNote && <PremiumToast message={premiumNote} onClose={() => setPremiumNote('')} />}
       {plansOpen && <PremiumPlans onClose={() => setPlansOpen(false)} onBought={() => window.location.reload()} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={handleAuthSuccess} />}
       {promoOpen && <ResumePromo onClose={() => { setPromoOpen(false); if (practiceAllowed) setPracticePromoOpen(true) }} />}
