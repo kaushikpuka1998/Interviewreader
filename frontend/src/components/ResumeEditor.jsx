@@ -19,6 +19,18 @@ const PRINT_CSS = `
   .break-inside-avoid { break-inside: avoid; }
   .break-after-avoid { break-after: avoid; }
 }
+body.resume-fullview-active .resume-shell > div > div:first-child,
+body.resume-fullview-active .resume-shell > div > div:nth-child(2):not(.resume-grid),
+body.resume-fullview-active .resume-form-col,
+body.resume-fullview-active .resume-shell > div > style:first-of-type + div {
+  display: none !important;
+}
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
 `
 
 const input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
@@ -413,8 +425,8 @@ export default function ResumeEditor({ id }) {
       {/* Live PDF: compiled from the form (Editable) or from the LaTeX source (LaTeX) */}
       <div className={`resume-preview-wrap min-w-0 w-full max-w-full rounded-xl bg-slate-300 p-2 sm:p-4 dark:bg-slate-800 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-auto ${mobile === 'edit' ? 'hidden lg:block' : ''}`}>
         {mode === 'latex'
-          ? <LivePdf title={title} pdfKey={`latex:${latexDraft ?? ''}`} run={(signal) => previewLatexRequest(latexDraft ?? '', signal)} />
-          : <LivePdf title={title} pdfKey={`form:${JSON.stringify(payload)}`} run={(signal) => previewPdfRequest({ templateId: Number(templateId), data }, signal)} />}
+          ? <LivePdf title={title} pdfKey={`latex:${latexDraft ?? ''}`} run={(signal) => previewLatexRequest(latexDraft ?? '', signal)} resumeTitle={title} setResumeTitle={setTitle} templateId={templateId} setTemplateId={setTemplateId} templates={templates} dirty={dirty} setDirty={setDirty} resume={resume} busy={busy} save={save} download={download} fitOne={fitOne} setFitOne={setFitOne} mode={mode} switchMode={switchMode} />
+          : <LivePdf title={title} pdfKey={`form:${JSON.stringify(payload)}`} run={(signal) => previewPdfRequest({ templateId: Number(templateId), data }, signal)} resumeTitle={title} setResumeTitle={setTitle} templateId={templateId} setTemplateId={setTemplateId} templates={templates} dirty={dirty} setDirty={setDirty} resume={resume} busy={busy} save={save} download={download} fitOne={fitOne} setFitOne={setFitOne} mode={mode} switchMode={switchMode} />}
       </div>
       </div>
 
@@ -458,7 +470,7 @@ function Entries({ title, items, onAdd, onRemove, onMove, render }) {
 }
 
 // Live PDF: compiles on the server 1.2s after the last change. `run(signal)` makes the request.
-function LivePdf({ title, pdfKey, run }) {
+function LivePdf({ title, pdfKey, run, resumeTitle, setResumeTitle, templateId, setTemplateId, templates, dirty, setDirty, resume, busy, save, download, fitOne, setFitOne, mode, switchMode }) {
   const [url, setUrl] = useState(null)
   const [pdf, setPdf] = useState(null)     // the compiled PDF blob, for download
   const [status, setStatus] = useState('Compiling…')
@@ -466,7 +478,19 @@ function LivePdf({ title, pdfKey, run }) {
   const [log, setLog] = useState('')
   const [retry, setRetry] = useState(0)     // bumped to re-run after the server was busy
   const [liked, setLiked] = useState(null)  // answer to "do you like it?"
-  const [expanded, setExpanded] = useState(true)   // PDF fills the screen; open by default
+  const [expanded, setExpanded] = useState(false)   // PDF fills the screen; closed by default
+
+  // Disable body scroll when in full-view mode
+  useEffect(() => {
+    if (expanded) {
+      document.body.style.overflow = 'hidden'
+      document.body.classList.add('resume-fullview-active')
+      return () => {
+        document.body.style.overflow = ''
+        document.body.classList.remove('resume-fullview-active')
+      }
+    }
+  }, [expanded])
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -493,7 +517,7 @@ function LivePdf({ title, pdfKey, run }) {
   useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
 
   // Downloads the PDF on screen, exactly as compiled.
-  const download = () => {
+  const downloadPdf = () => {
     if (!pdf) return
     const a = document.createElement('a')
     a.href = URL.createObjectURL(pdf)
@@ -503,18 +527,46 @@ function LivePdf({ title, pdfKey, run }) {
   }
 
   return (
-    <div className={expanded ? 'fixed inset-0 z-50 flex flex-col bg-slate-100 p-4 dark:bg-slate-900' : 'rounded-2xl bg-white p-3 shadow-xl ring-2 ring-blue-500/40 dark:bg-slate-900'}>
-      <div className="no-print mb-2 flex flex-wrap items-center justify-between gap-2">
+    <div className={expanded ? 'fixed inset-0 z-50 flex min-h-0 flex-col bg-slate-100 dark:bg-slate-900' : 'rounded-2xl bg-white p-3 shadow-xl ring-2 ring-blue-500/40 dark:bg-slate-900'}>
+      {/* Top navigation bar - only in expanded mode */}
+      {expanded && (
+        <div className="no-print sticky top-0 z-20 flex flex-shrink-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-100/95 px-6 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+          <input className={`${input} max-w-xs font-semibold`} value={resumeTitle} onChange={e => { setResumeTitle(e.target.value); setDirty(true) }} maxLength={120} aria-label="Resume name" />
+          <select className={`${input} max-w-[14rem]`} value={templateId} onChange={e => { setTemplateId(e.target.value); setDirty(true) }} aria-label="Template">
+            {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+          <span className={`text-xs ${dirty ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`}>{dirty ? 'Unsaved changes' : resume ? `Saved ${new Date(resume.updatedAt).toLocaleTimeString()}` : ''}</span>
+          <div className="ml-auto flex flex-wrap gap-2">
+            <button onClick={() => setFitOne(v => !v)} aria-pressed={fitOne}
+              className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${fitOne ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'}`}>
+              {fitOne ? 'Fit to 1 page ✓' : 'Fit to 1 page'}
+            </button>
+            <div className="inline-flex rounded-lg bg-slate-200 p-0.5 dark:bg-slate-800" role="group" aria-label="Editing mode">
+              {[['editable', 'Editable'], ['latex', 'LaTeX']].map(([k, label]) => (
+                <button key={k} onClick={() => switchMode(k)} aria-pressed={mode === k}
+                  className={`rounded-md px-3 py-1 text-xs font-semibold ${mode === k ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>{label}</button>
+              ))}
+            </div>
+            <button onClick={download} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Download .tex</button>
+            <button onClick={save} disabled={busy || !dirty} className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50">{busy ? 'Saving…' : 'Save'}</button>
+          </div>
+        </div>
+      )}
+
+      {/* PDF header bar */}
+      <div className={`no-print sticky ${expanded ? 'top-[57px]' : 'top-0'} z-10 mb-2 flex flex-shrink-0 flex-wrap items-center justify-between gap-2 bg-slate-100 dark:bg-slate-900 px-3 ${expanded ? 'py-3' : 'pt-3 pb-2'}`}>
         <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-          {status === 'ready' ? 'Live PDF · compiled from your details' : status}
+          {status === 'ready' ? 'Live PDF · compiled from your details' : status === 'Compiling…' ? (
+            <span>Compiling<span className="inline-block animate-pulse">.</span><span className="inline-block animate-pulse animation-delay-200">.</span><span className="inline-block animate-pulse animation-delay-400">.</span></span>
+          ) : status}
         </p>
         <div className="flex items-center gap-2">
           <button onClick={() => setExpanded(e => !e)} data-track="resume_pdf_expand" className="rounded-lg border border-slate-400 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-slate-500 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">{expanded ? 'Close full view' : 'Full view'}</button>
-          <button onClick={download} disabled={!pdf} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Download PDF</button>
+          <button onClick={downloadPdf} disabled={!pdf} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Download PDF</button>
         </div>
       </div>
       {status !== 'ready' && status !== 'Compiling…' && (
-        <div className="no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+        <div className="no-print mx-3 mb-3 flex-shrink-0 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">The preview isn't compiling right now.</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button onClick={() => setRetry(r => r + 1)} data-track="resume_preview_retry" className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">Retry compile</button>
@@ -525,9 +577,18 @@ function LivePdf({ title, pdfKey, run }) {
           {liked !== null && <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">{liked ? 'Thanks, glad it helps!' : 'Thanks for telling us. Tell us what felt off and we will look into it.'}</p>}
         </div>
       )}
-      {error && <p className="mb-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
-      {log && <pre className="mb-2 max-h-40 overflow-auto rounded-lg bg-white selection:bg-blue-500/30 selection:text-slate-900 p-2 text-[11px] text-red-800">{log}</pre>}
-      {url && <iframe title="Live PDF preview" src={url} className={`block w-full max-w-full rounded-lg bg-white ${expanded ? 'min-h-0 flex-1' : 'h-[85vh]'}`} />}
+      {error && <p className="mx-3 mb-2 flex-shrink-0 text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {log && <pre className="mx-3 mb-2 max-h-40 flex-shrink-0 overflow-auto rounded-lg bg-white selection:bg-blue-500/30 selection:text-slate-900 p-2 text-[11px] text-red-800">{log}</pre>}
+      {status === 'Compiling…' && !url && (
+        <div className={`flex flex-col items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 ${expanded ? 'flex-1 min-h-0' : 'h-[85vh]'}`}>
+          <div className="relative h-16 w-16">
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600 dark:border-slate-700 dark:border-t-blue-400"></div>
+          </div>
+          <p className="mt-4 text-sm font-medium text-slate-600 dark:text-slate-300">Compiling your resume...</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">This usually takes a few seconds</p>
+        </div>
+      )}
+      {url && <iframe title="Live PDF preview" src={url} className={`block w-full max-w-full rounded-lg bg-white ${expanded ? 'flex-1 min-h-0' : 'h-[85vh]'}`} />}
     </div>
   )
 }
