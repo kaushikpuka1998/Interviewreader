@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Loader from './Loader.jsx'
-import { fetchEmailRecipients, fetchEmailLog, fetchDigestStatus, sendAnnouncement } from '../lib/emailAdmin.js'
+import { fetchEmailRecipients, fetchEmailLog, fetchDigestStatus, sendAnnouncement, fetchChallengeReminder, retryChallengeReminder } from '../lib/emailAdmin.js'
 
 const STATUS_STYLE = {
   'Got digest': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -16,6 +16,60 @@ const TODAY_LABEL = {
   NOT_STARTED: 'Not sent yet today',
   RUNNING: 'Sending now',
   DONE: 'Already sent today',
+}
+
+// Today's "Today's challenge is waiting" mail: how many went out, how many failed, and a button to resend to the ones who did not get it.
+function ChallengeReminder({ onChange }) {
+  const [s, setS] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState('')
+  const refresh = useCallback(() => fetchChallengeReminder().then(setS).catch(e => setMsg(e.message)), [])
+  useEffect(() => { refresh() }, [refresh])
+  // While a resend runs in the background, keep the numbers fresh.
+  useEffect(() => {
+    if (!s?.running) return
+    const t = setInterval(() => { refresh(); onChange?.() }, 4000)
+    return () => clearInterval(t)
+  }, [s?.running, refresh, onChange])
+  const resend = async () => {
+    setBusy(true); setMsg('')
+    try {
+      const r = await retryChallengeReminder()
+      setS(r)
+      setMsg(`Resending now: ${r.retried} failed member${r.retried === 1 ? '' : 's'} retried, plus ${r.waiting} not yet mailed.`)
+    } catch (e) { setMsg(e.message) } finally { setBusy(false) }
+  }
+  if (!s) return msg ? <p className="text-sm text-red-500">{msg}</p> : null
+  const stat = (label, value, tone = '') => (
+    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/60 p-3">
+      <p className="text-[11px] uppercase tracking-wide text-slate-400">{label}</p>
+      <p className={`mt-0.5 text-xl font-bold tabular-nums ${tone || 'text-slate-900 dark:text-slate-100'}`}>{value}</p>
+    </div>
+  )
+  const todo = s.failedToday + s.waiting
+  return (
+    <div className={card}>
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Daily challenge reminder</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {s.enabled ? `Sent every day at ${String(s.hour).padStart(2, '0')}:00 India time` : 'Switched off'}{s.running ? ' · sending now…' : ''}
+        </p>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {stat('Sent today', s.sentToday, 'text-emerald-600 dark:text-emerald-400')}
+        {stat('Failed today', s.failedToday, s.failedToday ? 'text-red-600 dark:text-red-400' : '')}
+        {stat('Not mailed yet', s.waiting)}
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button onClick={resend} disabled={busy || s.running || todo === 0}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+          {busy || s.running ? 'Sending…' : `Resend to ${todo} member${todo === 1 ? '' : 's'} who did not get it`}
+        </button>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Skips anyone who unsubscribed, already got it today, or already finished today's challenge.</p>
+      </div>
+      {msg && <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">{msg}</p>}
+    </div>
+  )
 }
 
 // What the next digest will send, before it goes out.
@@ -452,6 +506,7 @@ export default function EmailCenter() {
         <button onClick={load} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">Refresh</button>
       </div>
       <DigestStatus status={digest} />
+      <ChallengeReminder onChange={load} />
       <Compose onSent={load} />
       <Recipients rows={recipients} />
       <SendLog rows={log} />

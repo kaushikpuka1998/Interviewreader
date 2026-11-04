@@ -1,0 +1,158 @@
+[
+  {
+    "path": "/java-interview-questions",
+    "title": "Java Interview Questions and Answers (Core Java, Collections, Concurrency)",
+    "description": "Hundreds of Java interview questions with detailed answers and code: OOP, collections, concurrency, JVM and garbage collection, streams, Spring and more. Free sample, practice and revise.",
+    "h1": "Java Interview Questions and Answers",
+    "intro": [
+      "Java interviews test three things: how well you know the language (OOP, collections, generics, exceptions, streams), how you reason about concurrency and memory (threads, locks, the Java memory model, garbage collection), and how you apply it to real services (Spring, databases, performance). The questions below cover all three, each with a worked answer and code.",
+      "Start with the fundamentals, then move to concurrency and JVM internals, which is where mid-level and senior interviews spend most of their time. Mark what you have read, revise what you missed, and use the coding problems to practise the same ideas under a timer."
+    ],
+    "tech": "java", "limit": 60,
+    "links": [
+      {"label": "Spring Boot interview questions", "url": "/spring-boot-interview-questions"},
+      {"label": "Low-level design (LLD) interview questions", "url": "/lld-interview-questions"},
+      {"label": "SDE-2 interview preparation guide", "url": "/sde-2-preparation"},
+      {"label": "Practice coding problems online", "url": "/problems"}
+    ],
+    "faq": [
+      {"q": "What are the most asked Java interview topics?", "a": "Object-oriented design, the collections framework (HashMap internals especially), multithreading and the java.util.concurrent package, exceptions, the JVM memory model and garbage collection, Java 8 streams and lambdas, and Spring for backend roles."},
+      {"q": "How should I prepare for a Java interview in a week?", "a": "Spend the first days on collections, OOP and exceptions, then concurrency and JVM internals, and finish with a few coding problems and one design question. Reading each answer and then explaining it aloud works better than rereading."},
+      {"q": "Do I need to know Spring for a Java interview?", "a": "For most backend roles, yes: dependency injection, how a request flows through a Spring Boot application, transactions and configuration. See the Spring Boot questions linked on this page."},
+      {"q": "Are these Java questions free?", "a": "A sample is free to read without paying. Create a free account to unlock more, and Premium unlocks every answer."}
+    ]
+  },
+  {
+    "path": "/spring-boot-interview-questions",
+    "title": "Spring Boot Interview Questions and Answers",
+    "description": "Spring Boot interview questions with clear answers: auto-configuration, dependency injection, REST controllers, transactions, JPA, security, testing and production issues.",
+    "h1": "Spring Boot Interview Questions and Answers",
+    "intro": [
+      "Spring Boot interviews go beyond annotations. Interviewers want to know how auto-configuration decides which beans to create, how dependency injection and bean scopes behave, what a transaction boundary really covers, and how you would debug a slow or failing endpoint in production.",
+      "The questions below are the Spring-related ones from our Java collection. Read the answer, then try to explain the mechanism in your own words: that is the difference between knowing the annotation and understanding the framework."
+    ],
+    "tech": "java", "term": "spring", "limit": 60,
+    "links": [
+      {"label": "All Java interview questions", "url": "/java-interview-questions"},
+      {"label": "Microservices interview questions", "url": "/"},
+      {"label": "System design preparation (SDE-2)", "url": "/sde-2-preparation"}
+    ],
+    "faq": [
+      {"q": "What is Spring Boot auto-configuration?", "a": "It creates beans automatically based on what is on the classpath and on your properties, using conditional configuration, so a starter dependency is usually enough to get a working component."},
+      {"q": "What do interviewers ask about Spring transactions?", "a": "Where the transaction boundary is, why a self-invocation inside the same class skips the proxy, propagation and isolation levels, and how rollback works for checked and unchecked exceptions."},
+      {"q": "How do I prepare for Spring Boot questions quickly?", "a": "Build or review one small REST service end to end (controller, service, repository, a transaction, a test), then read the questions here and explain each mechanism aloud."}
+    ]
+  },
+  {
+    "path": "/lld-interview-questions",
+    "title": "LLD Interview Questions: Low-Level Design and Design Patterns",
+    "description": "Low-level design (LLD) interview questions with answers: design patterns, SOLID principles, class design and object-oriented modelling, with code examples.",
+    "h1": "LLD (Low-Level Design) Interview Questions",
+    "intro": [
+      "Low-level design rounds ask you to turn a small problem (a parking lot, an elevator, a rate limiter) into clean classes and interfaces. Interviewers look for sensible responsibilities, the right design pattern used for the right reason, extensibility without rewrites, and code that is easy to test.",
+      "These questions cover the design patterns (creational, structural, behavioural) and the principles behind them, with code. Learn when a pattern helps and when it is over-engineering; that judgement is what gets scored."
+    ],
+    "tech": "design-patterns", "limit": 80,
+    "links": [
+      {"label": "System design (HLD) preparation", "url": "/sde-2-preparation"},
+      {"label": "Java interview questions", "url": "/java-interview-questions"},
+      {"label": "Mock interviews", "url": "/interview"}
+    ],
+    "faq": [
+      {"q": "What is the difference between LLD and HLD?", "a": "High-level design is about the whole system: services, databases, queues, scale. Low-level design is about the code inside one component: classes, interfaces, patterns and their relationships."},
+      {"q": "Which design patterns are asked most often?", "a": "Singleton, Factory, Builder, Strategy, Observer, Decorator and State come up most, along with the SOLID principles."},
+      {"q": "How do I practise LLD?", "a": "Pick a classic problem, list the requirements, sketch the classes and interfaces, then code the core flow. Compare with the answers here and notice what you would change."}
+    ]
+  },
+  {
+    "path": "/sde-2-preparation",
+    "title": "SDE-2 Interview Preparation: DSA, System Design, LLD and Behavioral",
+    "description": "A practical SDE-2 interview preparation plan: what to study for DSA, system design (HLD), low-level design, language depth and behavioral rounds, with questions and roadmaps.",
+    "h1": "SDE-2 Interview Preparation Guide",
+    "intro": [
+      "An SDE-2 (mid-level) interview usually has four parts: data structures and algorithms, a system design round, a low-level design or machine-coding round, and a behavioral round about ownership and decisions. The bar rises on design and on how you communicate trade-offs, not only on solving the problem.",
+      "A workable plan: two to three weeks of DSA patterns (sliding window, two pointers, trees, graphs, dynamic programming), a week each on HLD and LLD with a few full designs spoken aloud, and the last days on behavioral stories and company-specific preparation."
+    ],
+    "tech": "hld", "limit": 40,
+    "links": [
+      {"label": "DSA: sliding window problems", "url": "/dsa/sliding-window"},
+      {"label": "Low-level design questions", "url": "/lld-interview-questions"},
+      {"label": "Java interview questions", "url": "/java-interview-questions"},
+      {"label": "Amazon SDE-2 interview guide", "url": "/companies/amazon/sde-2"},
+      {"label": "Company interview roadmaps", "url": "/roadmaps"},
+      {"label": "Solo system design practice, scored out of 10", "url": "/interview/practice"},
+      {"label": "Mock interviews", "url": "/interview"}
+    ],
+    "faq": [
+      {"q": "How is an SDE-2 interview different from SDE-1?", "a": "More weight on system design and design trade-offs, on owning a feature end to end, and on communication. Coding problems are still there, usually at a medium to hard level."},
+      {"q": "How long should I prepare for SDE-2?", "a": "Most people need six to eight weeks alongside a job. Spend the first weeks on DSA patterns and the rest on design and company-specific rounds."},
+      {"q": "What system design topics matter most?", "a": "Scaling reads and writes, caching, sharding and replication, queues and event-driven design, consistency trade-offs, and designing common systems such as a URL shortener, a chat app, a feed and a rate limiter."}
+    ]
+  },
+  {
+    "path": "/companies/amazon/sde-2",
+    "title": "Amazon SDE-2 Interview: Rounds, Questions and Preparation",
+    "description": "How the Amazon SDE-2 interview works: coding, system design, low-level design and leadership principles, with Amazon-tagged coding problems and a preparation plan.",
+    "h1": "Amazon SDE-2 Interview Preparation",
+    "intro": [
+      "Amazon's SDE-2 loop typically combines coding rounds, a system design round, and behavioral questions built around the Leadership Principles (ownership, customer obsession, dive deep, deliver results). Expect to be asked for specific stories with measurable outcomes.",
+      "Prepare on three tracks: Amazon-tagged coding problems for the DSA rounds, a handful of full system designs you can talk through for 45 minutes, and eight to ten behavioral stories mapped to the principles. The problems listed below are the ones reported for Amazon."
+    ],
+    "problemCompany": "Amazon", "problemLimit": 60,
+    "links": [
+      {"label": "Amazon interview roadmap, round by round", "url": "/roadmaps?company=amazon"},
+      {"label": "All Amazon coding problems", "url": "/problems?company=Amazon"},
+      {"label": "SDE-2 preparation guide", "url": "/sde-2-preparation"},
+      {"label": "Low-level design questions", "url": "/lld-interview-questions"},
+      {"label": "Mock interviews", "url": "/interview"}
+    ],
+    "faq": [
+      {"q": "What are the rounds in the Amazon SDE-2 interview?", "a": "Usually an online assessment, then a loop of coding, system design and behavioral rounds, including a bar-raiser. The exact format changes by team, so check your recruiter's schedule."},
+      {"q": "How important are the Leadership Principles?", "a": "Very. Every round can include behavioral questions, and strong technical answers do not make up for missing stories. Prepare specific examples with numbers."},
+      {"q": "What DSA topics does Amazon ask?", "a": "Arrays and strings, hash maps, trees and graphs, sliding window and two pointers, heaps, and dynamic programming at a medium level are the most common."}
+    ]
+  },
+  {
+    "path": "/kafka-interview-questions",
+    "title": "Kafka Interview Questions and Answers (Beginner to Advanced)",
+    "description": "Kafka interview questions with answers: partitions, consumer groups, offsets, delivery guarantees, exactly-once, replication, retention and production troubleshooting.",
+    "h1": "Kafka Interview Questions and Answers",
+    "intro": [
+      "Kafka interviews start with the model (topics, partitions, offsets, consumer groups) and quickly move to guarantees and failure: what happens when a consumer is slower than the producer, how ordering works across partitions, what exactly-once really means, and how replication and leader election keep data safe.",
+      "The questions below run from basics to production scenarios such as lag, rebalances, retries and backpressure. Learn the trade-offs, not only the definitions: they are what senior interviewers ask about."
+    ],
+    "tech": "kafka", "limit": 60,
+    "links": [
+      {"label": "System design (HLD) preparation", "url": "/sde-2-preparation"},
+      {"label": "Microservices interview questions", "url": "/"},
+      {"label": "Java interview questions", "url": "/java-interview-questions"}
+    ],
+    "faq": [
+      {"q": "What is a consumer group in Kafka?", "a": "A set of consumers that share a topic's partitions, so each partition is read by exactly one consumer in the group. It is how Kafka scales consumption while keeping per-partition ordering."},
+      {"q": "Does Kafka guarantee ordering?", "a": "Only within a partition. If you need ordering for related events, give them the same key so they go to the same partition."},
+      {"q": "What does exactly-once mean in Kafka?", "a": "With idempotent producers and transactions, a message is written once and a consume-process-produce chain can commit atomically. It does not make external side effects exactly-once by itself."}
+    ]
+  },
+  {
+    "path": "/dsa/sliding-window",
+    "title": "Sliding Window LeetCode Problems: Patterns and Practice",
+    "description": "Sliding window problems for coding interviews: fixed and variable window patterns, when to use them, and a list of problems you can run online.",
+    "h1": "Sliding Window Problems for Coding Interviews",
+    "intro": [
+      "Sliding window turns many O(n squared) subarray and substring problems into O(n). Keep two pointers that mark a window, grow it on the right, and shrink it from the left while a condition is broken. There are two common shapes: a fixed-size window (maximum sum of k elements) and a variable-size window (longest substring without repeating characters).",
+      "To recognise it, look for words like longest, shortest, subarray, substring, contiguous, at most k. Write down what the window must satisfy and what you update when it moves, then code the loop. The problems below are tagged with this pattern and run online."
+    ],
+    "problemTopic": "Sliding Window", "problemLimit": 80,
+    "links": [
+      {"label": "Two pointers problems", "url": "/problems?topic=Two%20Pointers"},
+      {"label": "All coding problems", "url": "/problems"},
+      {"label": "Striver A2Z DSA sheet", "url": "/sheets/striver-a2z"},
+      {"label": "SDE-2 preparation guide", "url": "/sde-2-preparation"}
+    ],
+    "faq": [
+      {"q": "When should I use a sliding window?", "a": "When you need the best contiguous subarray or substring under a condition, and extending or shrinking the range changes the answer in a predictable way."},
+      {"q": "What is the difference between fixed and variable windows?", "a": "A fixed window has a set size and slides one step at a time. A variable window grows until a condition breaks, then shrinks from the left until it holds again."},
+      {"q": "What is the time complexity?", "a": "Usually O(n), because each pointer moves forward at most n times, plus any cost of the structure you keep for the window, such as a hash map."}
+    ]
+  }
+]

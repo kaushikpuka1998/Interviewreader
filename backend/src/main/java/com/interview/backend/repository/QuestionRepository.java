@@ -152,6 +152,11 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     @Query("select q.id from Question q where q.tech = :tech order by q.sortKey asc, q.id asc")
     List<String> idsByTech(@Param("tech") String tech);
 
+    /** A topic's questions for the keyword landing pages: id, title, question text, difficulty. `term` is lower-case; empty matches all. */
+    @Query("select q.id, q.title, q.question, q.difficulty from Question q where q.tech = :tech "
+            + "and (:term = '' or lower(q.title) like concat('%', :term, '%') or lower(q.question) like concat('%', :term, '%')) order by q.sortKey")
+    List<Object[]> topicQuestions(@Param("tech") String tech, @Param("term") String term, org.springframework.data.domain.Pageable page);
+
     /** id, title and topic of every question, in id order (the daily question rotates through topics). */
     @Query("select q.id, q.title, q.tech from Question q order by q.id")
     List<Object[]> idTitlesTechs();

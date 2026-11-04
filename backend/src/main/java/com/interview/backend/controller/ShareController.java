@@ -51,10 +51,12 @@ public class ShareController {
     private final PointsService points;
     private final ShareCardService cards;
     private final String site;
+    private final com.interview.backend.service.LandingService landing;
     private final JsonNode roadmaps;
 
     public ShareController(QuestionRepository questions, UserProgressRepository progress, CodeSubmissionRepository submissions,
                            UsernameService usernames, PointsService points, ShareCardService cards, ObjectMapper mapper,
+                           com.interview.backend.service.LandingService landing,
                            @Value("${app.frontend.url:https://interviewreader.cloud}") String site) throws Exception {
         this.questions = questions;
         this.progress = progress;
@@ -62,6 +64,7 @@ public class ShareController {
         this.usernames = usernames;
         this.points = points;
         this.cards = cards;
+        this.landing = landing;
         this.site = site.replaceAll("/+$", "");
         try (InputStream in = new ClassPathResource("roadmaps.json").getInputStream()) {
             this.roadmaps = mapper.readTree(in);
@@ -108,6 +111,7 @@ public class ShareController {
     public ResponseEntity<String> sitePage(@PathVariable String key) {
         String path = key.length() > 1 ? key.replaceAll("/+$", "") : "/";
         String[] meta = SITE_PAGES.get(path);
+        if (meta == null && landing.has(path)) meta = new String[]{landing.config(path).path("title").asText(), landing.config(path).path("description").asText()};
         String url = site + (meta == null ? "/" : path);
         if (meta == null) return page("Interview Reader", "Interview questions with real answers.", url, url, site + "/og-card.png");
         return page(meta[0], meta[1], url, url, site + "/og-card.png");

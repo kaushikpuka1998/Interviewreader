@@ -17,6 +17,16 @@ Every question has its own page at a readable URL, for example `https://intervie
 - [Leaderboard](https://interviewreader.cloud/leaderboard): weekly learning leagues.
 - [Pricing](https://interviewreader.cloud/pricing) and [Free vs Premium](https://interviewreader.cloud/premium): what is free and what Premium adds.
 
+## Guides by topic
+
+- [Java interview questions](https://interviewreader.cloud/java-interview-questions): core Java, collections, concurrency, JVM and Spring.
+- [Spring Boot interview questions](https://interviewreader.cloud/spring-boot-interview-questions): auto-configuration, transactions, JPA, security.
+- [LLD interview questions](https://interviewreader.cloud/lld-interview-questions): low-level design and design patterns.
+- [Kafka interview questions](https://interviewreader.cloud/kafka-interview-questions): partitions, consumer groups, delivery guarantees.
+- [SDE-2 interview preparation](https://interviewreader.cloud/sde-2-preparation): DSA, system design, LLD and behavioral plan.
+- [Amazon SDE-2 interview](https://interviewreader.cloud/companies/amazon/sde-2): rounds, Amazon-tagged problems and preparation.
+- [Sliding window problems](https://interviewreader.cloud/dsa/sliding-window): the pattern and problems to practise.
+
 ## Topics (questions with answers)
 
 - Java, React, Node.js, Go (Golang), SQL, Kafka, Microservices, Design Patterns (low-level design), System Design (high-level design), Angular, Ruby on Rails, Behavioral.

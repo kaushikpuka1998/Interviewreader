@@ -85,6 +85,10 @@ app:
   # Topics readable without an account; everything else requires sign-up.
   # These stay crawlable so search engines still index a sample of the content.
   free-techs: ${FREE_TECHS:microservices,design-patterns}
+  # Daily "Today's challenge is waiting" mail: the hour it goes out (0-23, India time) and an on/off switch.
+  challenge-reminder:
+    hour: ${CHALLENGE_REMINDER_HOUR:9}
+    enabled: ${CHALLENGE_REMINDER_ENABLED:true}
   access:
     # Free preview per topic for non-Premium readers: a count or a percentage of the topic's questions (in order).
     teasers: ${ACCESS_TEASERS:hld:5,design-patterns:5,java:30%,node:30%,golang:30%,kafka:30%,react:30%,rails:30%}

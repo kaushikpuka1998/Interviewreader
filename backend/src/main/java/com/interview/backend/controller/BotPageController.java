@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.interview.backend.entity.Question;
 import com.interview.backend.repository.QuestionRepository;
 import com.interview.backend.service.AccessService;
+import com.interview.backend.service.LandingService;
 import com.interview.backend.service.ShareSlug;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -32,14 +33,16 @@ public class BotPageController {
 
     private final QuestionRepository questions;
     private final AccessService access;
+    private final LandingService landing;
     private final ObjectMapper mapper;
     private final String site;
     private volatile Index index;
 
-    public BotPageController(QuestionRepository questions, AccessService access, ObjectMapper mapper,
+    public BotPageController(QuestionRepository questions, AccessService access, LandingService landing, ObjectMapper mapper,
                              @Value("${app.frontend.url:https://interviewreader.cloud}") String site) {
         this.questions = questions;
         this.access = access;
+        this.landing = landing;
         this.mapper = mapper;
         this.site = site.replaceAll("/+$", "");
     }
@@ -60,6 +63,7 @@ public class BotPageController {
     public ResponseEntity<String> page(@PathVariable String path, @RequestParam(required = false) String id) {
         String p = path.length() > 1 ? path.replaceAll("/+$", "") : "/";
         if ("/".equals(p)) return ok(home());
+        if (landing.has(p)) return ok(landingPage(p));
         String[] meta = ShareController.SITE_PAGES.get(p);
         if (meta != null) return ok(sitePage(p, meta));
         String qid = id != null && !id.isBlank() ? id : index().slugToId().get(p.substring(1));
@@ -82,6 +86,37 @@ public class BotPageController {
         ShareController.SITE_PAGES.forEach((path, m) -> b.append("<li><a href=\"").append(esc(site + path)).append("\">").append(esc(m[0])).append("</a>: ").append(esc(m[1])).append("</li>"));
         b.append("</ul><p>Every question has its own page; see <a href=\"").append(esc(site)).append("/sitemap.xml\">the sitemap</a>.</p>");
         return shell("Interview Reader: interview questions with answers", "/", b.toString(), "Free interview questions with detailed answers for Java, React, Node.js, Go, SQL, system design, Kafka and microservices, plus coding problems you can run online.");
+    }
+
+    @SuppressWarnings("unchecked")
+    private String landingPage(String path) {
+        Map<String, Object> pg = landing.build(path);
+        StringBuilder b = new StringBuilder("<article><h1>").append(esc(String.valueOf(pg.get("h1")))).append("</h1>");
+        for (var t : (Iterable<com.fasterxml.jackson.databind.JsonNode>) pg.get("intro")) b.append("<p>").append(esc(t.asText())).append("</p>");
+        var qs = (java.util.List<Map<String, Object>>) pg.get("questions");
+        if (!qs.isEmpty()) {
+            b.append("<h2>Questions</h2><ul>");
+            for (var q : qs) b.append("<li><a href=\"").append(esc(site + "/" + q.get("slug") + "?id=" + q.get("id"))).append("\">").append(esc(String.valueOf(q.get("title")))).append("</a></li>");
+            b.append("</ul>");
+        }
+        var ps = (java.util.List<Map<String, Object>>) pg.get("problems");
+        if (!ps.isEmpty()) {
+            b.append("<h2>Coding problems</h2><ul>");
+            for (var q : ps) b.append("<li><a href=\"").append(esc(site + "/practice?id=" + q.get("id"))).append("\">").append(esc(String.valueOf(q.get("title")))).append("</a> (").append(esc(String.valueOf(q.get("difficulty")))).append(")</li>");
+            b.append("</ul>");
+        }
+        b.append("<h2>Related</h2><ul>");
+        for (var l : (Iterable<com.fasterxml.jackson.databind.JsonNode>) pg.get("links")) b.append("<li><a href=\"").append(esc(site + l.path("url").asText())).append("\">").append(esc(l.path("label").asText())).append("</a></li>");
+        b.append("</ul><h2>Frequently asked questions</h2>");
+        java.util.List<Map<String, Object>> faqLd = new java.util.ArrayList<>();
+        for (var f : (Iterable<com.fasterxml.jackson.databind.JsonNode>) pg.get("faq")) {
+            b.append("<h3>").append(esc(f.path("q").asText())).append("</h3><p>").append(esc(f.path("a").asText())).append("</p>");
+            faqLd.add(Map.of("@type", "Question", "name", f.path("q").asText(), "acceptedAnswer", Map.of("@type", "Answer", "text", f.path("a").asText())));
+        }
+        b.append("</article>");
+        String ld = "";
+        try { ld = "<script type=\"application/ld+json\">" + mapper.writeValueAsString(Map.of("@context", "https://schema.org", "@type", "FAQPage", "mainEntity", faqLd)).replace("</", "<\\/") + "</script>"; } catch (Exception ignored) { /* no structured data */ }
+        return shell(String.valueOf(pg.get("title")), path, b.toString(), String.valueOf(pg.get("description")), ld);
     }
 
     private String sitePage(String path, String[] meta) {

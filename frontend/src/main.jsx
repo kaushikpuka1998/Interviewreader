@@ -1,10 +1,12 @@
 import './lib/apiFetch.js'   // must stay first: makes every API request carry the session cookie
+import { LANDING_PATHS } from './lib/landingPaths.js'
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 const App = lazy(() => import('./App.jsx'))
 const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
 const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
 const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
+const LandingPage = lazy(() => import('./components/LandingPage.jsx'))
 const ProblemsPage = lazy(() => import('./components/ProblemsPage.jsx'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage.jsx'))
 const StreakPage = lazy(() => import('./components/StreakPage.jsx'))
@@ -112,6 +114,9 @@ function Routes() {
 
   if (path === '/question-of-the-day') return <QuestionOfTheDayPage />
 
+  // Keyword landing pages for search (Java, Spring Boot, LLD, Kafka, SDE-2, Amazon SDE-2, sliding window).
+  if (LANDING_PATHS.has(path)) return <LandingPage path={path} />
+
   if (path === '/premium') return <PremiumPage />
   if (path === '/pricing') return <PremiumPage autoOpen />
 
@@ -141,7 +146,7 @@ function Routes() {
 }
 
 // Pages that do not lay out their own footer (home, terms, practice, and the reader do) get one underneath.
-const NEEDS_FOOTER = ['/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
+const NEEDS_FOOTER = [...LANDING_PATHS, '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'

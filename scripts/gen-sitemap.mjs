@@ -42,6 +42,13 @@ const STATIC_PAGES = [
   ['/pricing', 'monthly', '0.7'],
   ['/practice', 'weekly', '0.7'],
   ['/interview', 'weekly', '0.7'],
+  ['/java-interview-questions', 'weekly', '0.9'],
+  ['/spring-boot-interview-questions', 'weekly', '0.9'],
+  ['/lld-interview-questions', 'weekly', '0.9'],
+  ['/sde-2-preparation', 'weekly', '0.9'],
+  ['/companies/amazon/sde-2', 'weekly', '0.9'],
+  ['/kafka-interview-questions', 'weekly', '0.9'],
+  ['/dsa/sliding-window', 'weekly', '0.9'],
   ['/resume', 'monthly', '0.6'],       // free resume builder: the signed-out page is a public landing page
   ['/leaderboard', 'daily', '0.5'],
   ['/terms', 'yearly', '0.2'],

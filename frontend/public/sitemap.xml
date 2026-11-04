@@ -46,6 +46,41 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://interviewreader.cloud/java-interview-questions</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/spring-boot-interview-questions</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/lld-interview-questions</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/sde-2-preparation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/companies/amazon/sde-2</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/kafka-interview-questions</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://interviewreader.cloud/dsa/sliding-window</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://interviewreader.cloud/resume</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

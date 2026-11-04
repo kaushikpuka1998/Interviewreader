@@ -30,6 +30,7 @@ public class AdminEmailController {
     private final DigestRunRepository digestRuns;
     private final QuestionRepository questions;
     private final UserRepository users;
+    private final com.interview.backend.service.ChallengeReminderNotifier challengeReminder;
 
     @Value("${app.digest.time:19:00}")
     private LocalTime sendAt;
@@ -69,6 +70,19 @@ public class AdminEmailController {
             m.put("finishedAt", r.getFinishedAt());
             return m;
         }).toList());
+        return out;
+    }
+
+    /** Today's daily challenge reminder: how many were sent, how many failed, how many are still waiting. */
+    @GetMapping("/challenge-reminder")
+    public Map<String, Object> challengeReminder() { return challengeReminder.status(); }
+
+    /** Resend today's challenge reminder to members it failed for, and to anyone eligible who was missed. Runs in the background. */
+    @PostMapping("/challenge-reminder/retry")
+    public Map<String, Object> retryChallengeReminder() {
+        int freed = challengeReminder.retryToday();
+        Map<String, Object> out = new LinkedHashMap<>(challengeReminder.status());
+        out.put("retried", freed);
         return out;
     }
 

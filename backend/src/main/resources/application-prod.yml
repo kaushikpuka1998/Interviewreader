@@ -85,3 +85,6 @@ app:
   judge0:
     url: ${JUDGE0_URL}
     token: ${JUDGE0_TOKEN}
+  challenge-reminder:
+    hour: ${CHALLENGE_REMINDER_HOUR:}
+    enabled: ${CHALLENGE_REMINDER_ENABLED:}

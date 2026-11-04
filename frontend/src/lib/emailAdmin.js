@@ -14,6 +14,12 @@ export const fetchEmailRecipients = () =>
 export const fetchDigestStatus = () =>
   fetch(`${API_BASE}/admin/emails/digest`).then(r => json(r, 'Failed to load digest status'))
 
+export const fetchChallengeReminder = () =>
+  fetch(`${API_BASE}/admin/emails/challenge-reminder`).then(r => json(r, 'Failed to load the challenge reminder status'))
+
+export const retryChallengeReminder = () =>
+  fetch(`${API_BASE}/admin/emails/challenge-reminder/retry`, { method: 'POST' }).then(r => json(r, 'Failed to start the resend'))
+
 export const fetchEmailLog = () =>
   fetch(`${API_BASE}/admin/emails/log`).then(r => json(r, 'Failed to load the send log'))
 

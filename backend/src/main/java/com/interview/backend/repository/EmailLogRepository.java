@@ -20,4 +20,12 @@ public interface EmailLogRepository extends JpaRepository<EmailLog, Long> {
                    "(SELECT l.status FROM email_logs l WHERE l.user_id = u.id ORDER BY l.created_at DESC LIMIT 1) AS last_status " +
                    "FROM app_users u ORDER BY u.created_at DESC", nativeQuery = true)
     List<Object[]> recipientStatus();
+
+    /** Members whose mail with this subject failed since `since` and who have no successful one since then. */
+    @Query(value = "SELECT COUNT(DISTINCT f.user_id) FROM email_logs f WHERE f.type = 'NUDGE' AND f.subject = :subject AND f.status = 'FAILED' AND f.created_at >= :since " +
+                   "AND f.user_id NOT IN (SELECT s.user_id FROM email_logs s WHERE s.type = 'NUDGE' AND s.subject = :subject AND s.status = 'SENT' AND s.created_at >= :since AND s.user_id IS NOT NULL)", nativeQuery = true)
+    long countFailedChallengeReminders(@org.springframework.data.repository.query.Param("subject") String subject, @org.springframework.data.repository.query.Param("since") java.time.Instant since);
+
+    @Query(value = "SELECT COUNT(DISTINCT s.user_id) FROM email_logs s WHERE s.type = 'NUDGE' AND s.subject = :subject AND s.status = 'SENT' AND s.created_at >= :since", nativeQuery = true)
+    long countSentChallengeReminders(@org.springframework.data.repository.query.Param("subject") String subject, @org.springframework.data.repository.query.Param("since") java.time.Instant since);
 }
