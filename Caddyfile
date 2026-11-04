@@ -66,7 +66,7 @@
 	# For those bots, the main public pages are answered by the backend with each page's own preview tags. People get the normal app.
 	@previewbot {
 		header_regexp ua User-Agent (?i)(linkedinbot|facebookexternalhit|facebot|twitterbot|slackbot|whatsapp|telegrambot|discordbot|embedly|pinterest|redditbot|skypeuripreview)
-		path /java-interview-questions /spring-boot-interview-questions /lld-interview-questions /sde-2-preparation /companies/amazon/sde-2 /kafka-interview-questions /dsa/sliding-window /resume /leaderboard /pricing /premium /problems /roadmaps /interview /discuss /practice /question-of-the-day /sheets/striver-a2z
+		path /tracks /tracks/* /java-interview-questions /spring-boot-interview-questions /lld-interview-questions /sde-2-preparation /companies/amazon/sde-2 /kafka-interview-questions /dsa/sliding-window /resume /leaderboard /pricing /premium /problems /roadmaps /interview /discuss /practice /question-of-the-day /sheets/striver-a2z
 	}
 	handle @previewbot {
 		rewrite * /api/share/page{path}

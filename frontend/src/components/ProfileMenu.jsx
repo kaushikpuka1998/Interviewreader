@@ -83,6 +83,9 @@ export default function ProfileMenu({ user, initial, onProfile, isDark, onToggle
             <a href="/leaderboard" role="menuitem" onClick={() => setOpen(false)} className={row}>
               <Icon d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3" /> Leaderboard
             </a>
+            <a href="/tracks" role="menuitem" onClick={() => setOpen(false)} className={row}>
+              <Icon d="M3 6h18M3 12h12M3 18h6" /> Role tracks
+            </a>
             <a href="/skills" role="menuitem" onClick={() => setOpen(false)} className={row}>
               <Icon d="M4 20V10M10 20V4M16 20v-8M22 20H2" /> Skill gap analysis
             </a>

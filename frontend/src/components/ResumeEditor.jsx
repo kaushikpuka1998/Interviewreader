@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useLayoutEffect, useRef } from 'react'
+import AtsScore from './AtsScore.jsx'
 import Loader from './Loader.jsx'
 import { fieldsToLatex, readFields, writeFields, fromLatexValue, applyFields } from '../lib/latexSync.js'
 import { fetchResume, fetchTemplates, saveResume, downloadLatex, fetchLatexText, saveLatexText, resetLatexText, previewPdfRequest, previewLatexRequest } from '../lib/resume.js'
@@ -278,6 +279,8 @@ export default function ResumeEditor({ id }) {
       </div>
       ) : (
       <div className={`resume-form-col space-y-5 ${mobile === 'preview' ? 'hidden lg:block' : ''}`}>
+        <AtsScore data={data} />
+
         {/* Header */}
         <section className={card}>
           <h3 className="mb-4 font-semibold text-slate-900 dark:text-slate-100">Header</h3>

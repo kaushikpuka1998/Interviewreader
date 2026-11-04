@@ -1,0 +1,80 @@
+[
+  {
+    "id": "java-backend",
+    "title": "Java Backend Engineer",
+    "tagline": "Java + Spring Boot + Kafka + System Design",
+    "description": "The path for backend roles in Java: the language and its concurrency model, Spring Boot, databases, microservices, Kafka, then the system design scenarios interviewers ask at SDE-2 level.",
+    "stack": ["Java", "Spring Boot", "SQL", "Microservices", "Kafka", "System Design"],
+    "steps": [
+      {"title": "Core Java", "tech": "java", "why": "Collections, concurrency, the JVM and exceptions: the base every Java interview starts with."},
+      {"title": "Spring Boot", "tech": "java", "term": "spring", "why": "Auto-configuration, dependency injection, transactions and REST."},
+      {"title": "SQL and databases", "tech": "sql", "why": "Joins, indexing, transactions and query tuning."},
+      {"title": "Microservices", "tech": "microservices", "why": "Service boundaries, resilience, sagas and data consistency."},
+      {"title": "Kafka and messaging", "tech": "kafka", "why": "Partitions, consumer groups, delivery guarantees and failure handling."},
+      {"title": "System design scenarios", "tech": "hld", "why": "Design a feed, a rate limiter, a payment system: scale, caching and trade-offs."},
+      {"title": "Low-level design", "tech": "design-patterns", "why": "Design patterns and class design for the machine-coding round."},
+      {"title": "Behavioral", "tech": "behavioral", "why": "Ownership and decision stories for the final rounds."}
+    ]
+  },
+  {
+    "id": "frontend",
+    "title": "Frontend Engineer",
+    "tagline": "React + JavaScript + Design patterns + System Design",
+    "description": "The path for frontend roles: React in depth, the alternative frameworks you may meet, Node.js for the build and BFF side, and design rounds.",
+    "stack": ["React", "Angular", "Node.js", "System Design"],
+    "steps": [
+      {"title": "React", "tech": "react", "why": "Hooks, rendering, state, performance and testing."},
+      {"title": "Angular", "tech": "angular", "why": "If your target teams use Angular: components, RxJS and change detection."},
+      {"title": "Node.js", "tech": "node", "why": "The runtime behind tooling, SSR and backend-for-frontend services."},
+      {"title": "Low-level design", "tech": "design-patterns", "why": "Patterns and component design."},
+      {"title": "System design scenarios", "tech": "hld", "why": "Large-scale design rounds, including front-end heavy products."},
+      {"title": "Behavioral", "tech": "behavioral", "why": "Collaboration and ownership stories."}
+    ]
+  },
+  {
+    "id": "full-stack",
+    "title": "Full Stack Engineer",
+    "tagline": "React + Node.js + SQL + System Design",
+    "description": "For full stack roles: one front-end framework, a server runtime, databases and the design round that ties them together.",
+    "stack": ["React", "Node.js", "SQL", "System Design"],
+    "steps": [
+      {"title": "React", "tech": "react", "why": "The front-end half of most full stack loops."},
+      {"title": "Node.js", "tech": "node", "why": "Servers, async I/O, streams and APIs."},
+      {"title": "SQL and databases", "tech": "sql", "why": "Schema design, indexing and transactions."},
+      {"title": "Microservices", "tech": "microservices", "why": "Splitting a system and keeping it consistent."},
+      {"title": "System design scenarios", "tech": "hld", "why": "End-to-end design: clients, APIs, storage and scale."},
+      {"title": "Low-level design", "tech": "design-patterns", "why": "Patterns and class design."},
+      {"title": "Behavioral", "tech": "behavioral", "why": "Ownership and trade-off stories."}
+    ]
+  },
+  {
+    "id": "go-backend",
+    "title": "Go Backend Engineer",
+    "tagline": "Go + Microservices + Kafka + System Design",
+    "description": "For Go services: the language and its concurrency, databases, microservices, messaging and system design.",
+    "stack": ["Go", "SQL", "Microservices", "Kafka", "System Design"],
+    "steps": [
+      {"title": "Go", "tech": "golang", "why": "Goroutines, channels, interfaces and the standard library."},
+      {"title": "SQL and databases", "tech": "sql", "why": "Indexing, transactions and query tuning."},
+      {"title": "Microservices", "tech": "microservices", "why": "Resilience, sagas and service boundaries."},
+      {"title": "Kafka and messaging", "tech": "kafka", "why": "Event-driven design and delivery guarantees."},
+      {"title": "System design scenarios", "tech": "hld", "why": "Design rounds at scale."},
+      {"title": "Low-level design", "tech": "design-patterns", "why": "Patterns for the machine-coding round."},
+      {"title": "Behavioral", "tech": "behavioral", "why": "Ownership stories."}
+    ]
+  },
+  {
+    "id": "rails-backend",
+    "title": "Ruby on Rails Engineer",
+    "tagline": "Rails + SQL + System Design",
+    "description": "For Rails roles: the framework, databases, design rounds and behavioral questions.",
+    "stack": ["Ruby on Rails", "SQL", "System Design"],
+    "steps": [
+      {"title": "Ruby on Rails", "tech": "rails", "why": "ActiveRecord, the request cycle, background jobs and caching."},
+      {"title": "SQL and databases", "tech": "sql", "why": "Indexes, N+1 queries and transactions."},
+      {"title": "System design scenarios", "tech": "hld", "why": "Scaling a Rails app and designing around it."},
+      {"title": "Low-level design", "tech": "design-patterns", "why": "Patterns and object design."},
+      {"title": "Behavioral", "tech": "behavioral", "why": "Ownership stories."}
+    ]
+  }
+]

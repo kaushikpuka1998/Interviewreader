@@ -15,6 +15,8 @@ const ITEMS = {
   questions: ['Questions', '/questions'],
   daily: ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
   design: ['System design problems', '/interview/practice', null, true],
+  tracks: ['Role tracks', '/tracks', null, true],
+  skills: ['Skill gap analysis', '/skills'],
   coding: ['Coding problems', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
   editor: ['Practice editor', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
   roadmaps: ['Roadmaps', '/roadmaps', null, null, true],
@@ -27,7 +29,7 @@ const ITEMS = {
 // an object is a menu (label, optional short label, the links inside, and the "New" pill shown on the menu itself).
 const BAR = [
   'questions', 'daily',
-  { menu: 'Practice', items: ['coding', 'editor', 'design'], badge: true },
+  { menu: 'Practice', items: ['tracks', 'coding', 'editor', 'design', 'skills'], badge: true },
   'roadmaps', 'interview',
   { menu: 'Community', items: ['community', 'leaderboard'], badge: true },
   'resume',
@@ -40,7 +42,7 @@ const NavBadge = ({ className, children, compact }) => (
 
 // Between 1280 and 1536px the bar is crowded, so it shows the short label and no badges; the full bar starts at 2xl.
 const isActive = (href, path) => href === '/questions'
-  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/tracks', '/skills', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
   : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
   : path === href || (href !== '/' && path.startsWith(href + '/'))
 

@@ -49,6 +49,7 @@ const STATIC_PAGES = [
   ['/companies/amazon/sde-2', 'weekly', '0.9'],
   ['/kafka-interview-questions', 'weekly', '0.9'],
   ['/dsa/sliding-window', 'weekly', '0.9'],
+  ['/tracks', 'weekly', '0.8'],
   ['/resume', 'monthly', '0.6'],       // free resume builder: the signed-out page is a public landing page
   ['/leaderboard', 'daily', '0.5'],
   ['/terms', 'yearly', '0.2'],
@@ -100,6 +101,8 @@ async function fetchJson(path, headers = {}) {
 
 async function landingPages() {
   const pages = []   // [path, changefreq, priority, lastmod?]
+  // Role tracks: /tracks/<id> for each track the backend serves.
+  try { for (const t of await fetchJson('/public/tracks')) pages.push([`/tracks/${t.id}`, 'weekly', '0.8']) } catch { /* old backend without tracks */ }
   // Problem sheets (e.g. /sheets/striver-a2z): one public page per file in frontend/public/sheets.
   try {
     for (const f of await readdir(join(ROOT, 'frontend', 'public', 'sheets'))) if (f.endsWith('.json')) pages.push([`/sheets/${f.slice(0, -5)}`, 'weekly', '0.7'])

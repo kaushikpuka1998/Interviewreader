@@ -1,5 +1,6 @@
 import AnswerExtras from './AnswerExtras.jsx'
 import ListenButton from './ListenButton.jsx'
+import AnswerPractice from './AnswerPractice.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { useReadTracking } from '../lib/analytics.js'
@@ -282,6 +283,7 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
                         )}
                         <SuggestEdit question={question} />
                         <MarkDuplicate question={question} />
+                        <AnswerPractice question={question} />
                         <ListenButton question={question} />
                         <ShareLinkedIn question={question} />
                       </div>

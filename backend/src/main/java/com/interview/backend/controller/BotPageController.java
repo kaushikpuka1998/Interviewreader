@@ -5,6 +5,7 @@ import com.interview.backend.entity.Question;
 import com.interview.backend.repository.QuestionRepository;
 import com.interview.backend.service.AccessService;
 import com.interview.backend.service.LandingService;
+import com.interview.backend.service.TrackService;
 import com.interview.backend.service.ShareSlug;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -34,15 +35,17 @@ public class BotPageController {
     private final QuestionRepository questions;
     private final AccessService access;
     private final LandingService landing;
+    private final TrackService tracks;
     private final ObjectMapper mapper;
     private final String site;
     private volatile Index index;
 
-    public BotPageController(QuestionRepository questions, AccessService access, LandingService landing, ObjectMapper mapper,
+    public BotPageController(QuestionRepository questions, AccessService access, LandingService landing, TrackService tracks, ObjectMapper mapper,
                              @Value("${app.frontend.url:https://interviewreader.cloud}") String site) {
         this.questions = questions;
         this.access = access;
         this.landing = landing;
+        this.tracks = tracks;
         this.mapper = mapper;
         this.site = site.replaceAll("/+$", "");
     }
@@ -64,6 +67,7 @@ public class BotPageController {
         String p = path.length() > 1 ? path.replaceAll("/+$", "") : "/";
         if ("/".equals(p)) return ok(home());
         if (landing.has(p)) return ok(landingPage(p));
+        if ("/tracks".equals(p) || p.startsWith("/tracks/")) { String h = trackPage(p); return h == null ? ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_HTML).body(shell("Not found", "/", "<h1>Not found</h1>", "")) : ok(h); }
         String[] meta = ShareController.SITE_PAGES.get(p);
         if (meta != null) return ok(sitePage(p, meta));
         String qid = id != null && !id.isBlank() ? id : index().slugToId().get(p.substring(1));
@@ -117,6 +121,28 @@ public class BotPageController {
         String ld = "";
         try { ld = "<script type=\"application/ld+json\">" + mapper.writeValueAsString(Map.of("@context", "https://schema.org", "@type", "FAQPage", "mainEntity", faqLd)).replace("</", "<\\/") + "</script>"; } catch (Exception ignored) { /* no structured data */ }
         return shell(String.valueOf(pg.get("title")), path, b.toString(), String.valueOf(pg.get("description")), ld);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String trackPage(String path) {
+        StringBuilder b = new StringBuilder();
+        if ("/tracks".equals(path)) {
+            b.append("<h1>Role-wise interview tracks</h1><p>Pick your role and follow one ordered path of interview questions.</p><ul>");
+            for (var t : tracks.list()) b.append("<li><a href=\"").append(esc(site + "/tracks/" + t.get("id"))).append("\">").append(esc(String.valueOf(t.get("title")))).append("</a>: ").append(esc(String.valueOf(t.get("tagline")))).append("</li>");
+            b.append("</ul>");
+            return shell("Role-wise Interview Tracks: Java Backend, Frontend, Full Stack", path, b.toString(), "Pick your role and follow one ordered path of interview questions: language, framework, databases, messaging and system design.");
+        }
+        var t = tracks.build(path.substring("/tracks/".length()), null);
+        if (t == null) return null;
+        b.append("<h1>").append(esc(String.valueOf(t.get("title")))).append(": ").append(esc(String.valueOf(t.get("tagline")))).append("</h1><p>").append(esc(String.valueOf(t.get("description")))).append("</p><ol>");
+        for (var s : (java.util.List<Map<String, Object>>) t.get("steps")) {
+            b.append("<li><b>").append(esc(String.valueOf(s.get("title")))).append("</b> (").append(s.get("total")).append(" questions): ").append(esc(String.valueOf(s.get("why"))));
+            var next = (Map<String, Object>) s.get("next");
+            if (next != null) b.append(" <a href=\"").append(esc(site + "/" + next.get("slug") + "?id=" + next.get("id"))).append("\">Start with: ").append(esc(String.valueOf(next.get("title")))).append("</a>");
+            b.append("</li>");
+        }
+        b.append("</ol>");
+        return shell(t.get("title") + " Interview Track: " + t.get("tagline"), path, b.toString(), String.valueOf(t.get("description")));
     }
 
     private String sitePage(String path, String[] meta) {

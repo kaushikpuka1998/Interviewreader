@@ -6,6 +6,7 @@ const App = lazy(() => import('./App.jsx'))
 const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
 const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
 const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
+const TracksPage = lazy(() => import('./components/TracksPage.jsx'))
 const SkillGapPage = lazy(() => import('./components/SkillGapPage.jsx'))
 const LandingPage = lazy(() => import('./components/LandingPage.jsx'))
 const ProblemsPage = lazy(() => import('./components/ProblemsPage.jsx'))
@@ -124,6 +125,8 @@ function Routes() {
   if (path === '/leaderboard') return <LeaderboardPage />
   if (path === '/streak') return <StreakPage />
   if (path === '/skills') return <SkillGapPage />
+  if (path === '/tracks') return <TracksPage />
+  if (path.startsWith('/tracks/')) return <TracksPage id={path.split('/')[2]} />
   if (path === '/discuss') return <DiscussPage />
   if (path.startsWith('/discuss/')) return <DiscussDetailPage id={path.split('/')[2]} />
 
@@ -148,7 +151,7 @@ function Routes() {
 }
 
 // Pages that do not lay out their own footer (home, terms, practice, and the reader do) get one underneath.
-const NEEDS_FOOTER = [...LANDING_PATHS, '/skills', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
+const NEEDS_FOOTER = [...LANDING_PATHS, '/skills', '/tracks', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'

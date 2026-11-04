@@ -44,7 +44,8 @@ public class LandingService {
         JsonNode p = pages.get(path);
         if (p == null) return null;
         Map<String, Object> out = new LinkedHashMap<>();
-        for (String k : List.of("path", "title", "description", "h1", "intro", "links", "faq")) out.put(k, p.get(k));
+        for (String k : List.of("path", "title", "description", "h1")) out.put(k, p.path(k).asText());   // plain strings, not JSON nodes
+        for (String k : List.of("intro", "links", "faq")) out.put(k, p.get(k));
 
         List<Map<String, Object>> qs = new ArrayList<>();
         if (p.hasNonNull("tech")) {

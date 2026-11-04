@@ -17,6 +17,11 @@ Every question has its own page at a readable URL, for example `https://intervie
 - [Leaderboard](https://interviewreader.cloud/leaderboard): weekly learning leagues.
 - [Pricing](https://interviewreader.cloud/pricing) and [Free vs Premium](https://interviewreader.cloud/premium): what is free and what Premium adds.
 
+## Role-wise tracks
+
+- [All role tracks](https://interviewreader.cloud/tracks): ordered study paths by role.
+- [Java Backend](https://interviewreader.cloud/tracks/java-backend), [Frontend](https://interviewreader.cloud/tracks/frontend), [Full Stack](https://interviewreader.cloud/tracks/full-stack), [Go Backend](https://interviewreader.cloud/tracks/go-backend), [Ruby on Rails](https://interviewreader.cloud/tracks/rails-backend).
+
 ## Guides by topic
 
 - [Java interview questions](https://interviewreader.cloud/java-interview-questions): core Java, collections, concurrency, JVM and Spring.
