@@ -54,12 +54,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Security headers: deny framing (clickjacking), no MIME sniffing, tight referrer.
+                // Security headers: CSP with blob iframe support, no MIME sniffing, tight referrer.
                 .headers(h -> h
-                        .frameOptions(f -> f.deny())
+                        .frameOptions(f -> f.sameOrigin())
                         .contentTypeOptions(c -> {})
                         .referrerPolicy(r -> r.policy(
-                                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
+                                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; " +
+                                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.googletagmanager.com; " +
+                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                                "font-src 'self' https://fonts.gstatic.com data:; " +
+                                "img-src 'self' data: blob: https:; " +
+                                "frame-src blob: 'self'; " +
+                                "connect-src 'self' https://www.google-analytics.com; " +
+                                "object-src 'none'; " +
+                                "base-uri 'self'"
+                        )))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Not signed in (or the access token expired) = 401, so the page knows to refresh; signed in
                 // but not allowed (e.g. a member on an admin route) stays 403.
