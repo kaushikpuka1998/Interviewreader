@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getRoleIconUrl } from '../constants/RoleImages.js'
 import TopBar from './TopBar.jsx'
 import Loader from './Loader.jsx'
 import NotFound from './NotFound.jsx'
@@ -51,11 +52,15 @@ function List({ tracks }) {
       <div className="grid gap-3 sm:grid-cols-2">
         {tracks.map(t => (
           <a key={t.id} href={`/tracks/${t.id}`} className={`${card} block transition hover:border-emerald-400 hover:shadow-md`}>
-            <img  src="https://img.icons8.com/3d-fluency/1200/java-coffee-cup-logo.jpg" alt="Java Icon" className="w-10 h-10 flex-shrink-0 mt-1"  />
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t.title}</h2>
-            <p className="mt-0.5 text-sm text-emerald-700 dark:text-emerald-400">{t.tagline}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">{t.stack.map(s => <span key={s} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>)}</div>
-            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{t.questions.toLocaleString()} questions →</p>
+            <div className="flex items-center justify-between gap-3 sm:gap-5 rounded-2xl">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t.title}</h2>
+                <p className="mt-0.5 text-sm text-emerald-700 dark:text-emerald-400">{t.tagline}</p>
+                <div className="mt-3 flex flex-wrap gap-1.5">{t.stack.map(s => <span key={s} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">{s}</span>)}</div>
+                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{t.questions.toLocaleString()} questions →</p>
+              </div>
+              <img src={getRoleIconUrl(t.id)} alt={`${t.title} icon`} className="w-16 h-16 shrink-0 rounded-xl" />
+            </div>
           </a>
         ))}
       </div>
@@ -68,9 +73,16 @@ function Detail({ t }) {
   return (
     <>
       <header className={card}>
-        <a href="/tracks" className="text-xs text-emerald-700 hover:underline dark:text-emerald-400">← All tracks</a>
-        <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">{t.title}</h1>
-        <p className="mt-0.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">{t.tagline}</p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <a href="/tracks" className="text-xs text-emerald-700 hover:underline dark:text-emerald-400">← All tracks</a>
+          <div className="flex min-w-0 flex-1 items-center gap-4 sm:items-center">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">{t.title}</h1>
+              <p className="mt-0.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">{t.tagline}</p>
+            </div>
+            <img src={getRoleIconUrl(t.id)} alt={`${t.title} icon`} className="w-14 h-14 shrink-0 rounded-xl" />
+          </div>
+        </div>
         <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{t.description}</p>
         {t.signedIn ? (
           <div className="mt-4">
