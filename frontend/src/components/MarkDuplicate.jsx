@@ -5,7 +5,7 @@ import { reportDuplicate, isLoggedIn } from '../lib/auth.js'
  * Lets a reader flag a question as a duplicate of another. Goes to the admin
  * queue (DuplicatesPanel) — an admin decides whether to delete it.
  */
-export default function MarkDuplicate({ question }) {
+export default function MarkDuplicate({ question, compact = false }) {
   const [open, setOpen] = useState(false)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
@@ -42,13 +42,16 @@ export default function MarkDuplicate({ question }) {
         <button
           onClick={() => setOpen(true)}
           aria-label="Mark as duplicate"
-          className="inline-flex min-h-8 sm:min-h-10 items-center gap-1.5 text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-          title="Flag this as a duplicate of another question — an admin reviews it"
+          className={compact
+            ? 'reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-500 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-amber-900/20 dark:hover:text-amber-400'
+            : 'inline-flex min-h-8 sm:min-h-10 items-center gap-1.5 text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors'}
+          data-tip={compact ? 'Mark as duplicate' : undefined}
+          title={compact ? undefined : 'Flag this as a duplicate of another question — an admin reviews it'}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
-          <span className="hidden sm:inline">Mark as duplicate</span>
+          {!compact && <span className="hidden sm:inline">Mark as duplicate</span>}
         </button>
       </div>
     )

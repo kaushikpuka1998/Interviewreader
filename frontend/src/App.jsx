@@ -51,6 +51,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     return false
   })
   const [sidebarWidth, setSidebarWidth] = useState(360)
+  const [desktopQuestionListCollapsed, setDesktopQuestionListCollapsed] = useState(false)
   const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [totalCount, setTotalCount] = useState(0)
@@ -453,6 +454,25 @@ function App({ path = '/', onPathChange = () => {} }) {
   const handleSelect = selectQuestion
   const handleNavigate = selectQuestion
 
+  // The daily question can be outside the visitor's current filters or page of
+  // results. Load it before selecting so the reader always opens that exact QOTD.
+  const handleDailySelect = useCallback(async (daily) => {
+    if (!daily?.id) return
+    if (questionsData.some(question => question.id === daily.id)) {
+      selectQuestion(daily.id)
+      return
+    }
+    try {
+      const question = await fetchQuestion(daily.id)
+      if (!question?.id) return
+      setQuestionsData(prev => prev.some(item => item.id === question.id) ? prev : [question, ...prev])
+      selectQuestion(question.id)
+    } catch (err) {
+      if (err.signupRequired) setGate({ message: err.message, tech: err.tech })
+      else console.error('Failed to load the daily question:', err)
+    }
+  }, [questionsData, selectQuestion])
+
   const handleMarkRead = useCallback((id) => {
     setRead(prev => {
       const next = new Set(prev)
@@ -565,6 +585,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     setCompany,
     companies,
     onSelect: handleSelect,
+    onDailySelect: handleDailySelect,
     onToggleDark: toggleDarkMode,
     isDark,
     visited,
@@ -594,7 +615,49 @@ function App({ path = '/', onPathChange = () => {} }) {
         <TopBar user={user} isDark={isDark} onToggleDark={toggleDarkMode} onLogin={() => setAuthOpen(true)} onLogout={handleLogout} onAdmin={() => { window.location.href = '/admin' }} />
       </div>
       <div className="flex min-h-0 flex-1">
-      <Sidebar {...sidebarProps} sidebarWidth={sidebarWidth} questionListRef={questionListRef} />
+      {/* The desktop list stays mounted while collapsed so its search, filters, and scroll position are retained. */}
+      <div className="relative hidden min-h-0 flex-shrink-0 lg:flex">
+        <div
+          id="desktop-question-list"
+          className={`desktop-question-panel ${desktopQuestionListCollapsed ? 'desktop-question-panel--collapsed' : ''}`}
+          style={{ '--question-panel-width': `${sidebarWidth}px` }}
+        >
+          <Sidebar {...sidebarProps} sidebarWidth={sidebarWidth} questionListRef={questionListRef} />
+        </div>
+
+        {/* Resizable divider — only available while the panel is visible. */}
+        <div
+          className={`desktop-question-panel-divider ${desktopQuestionListCollapsed ? 'desktop-question-panel-divider--hidden' : ''}`}
+          onMouseDown={handleDividerMouseDown}
+          role="separator"
+          aria-label="Resize question list"
+          aria-orientation="vertical"
+          tabIndex={desktopQuestionListCollapsed ? -1 : 0}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft') {
+              setSidebarWidth(prev => Math.max(prev - 20, 280))
+            } else if (e.key === 'ArrowRight') {
+              setSidebarWidth(prev => Math.min(prev + 20, 600))
+            }
+          }}
+        />
+
+        <button
+          type="button"
+          className="desktop-question-panel-toggle tip tip-below"
+          onClick={() => setDesktopQuestionListCollapsed(prev => !prev)}
+          aria-controls="desktop-question-list"
+          aria-expanded={!desktopQuestionListCollapsed}
+          aria-label={desktopQuestionListCollapsed ? 'Show question list' : 'Hide question list'}
+          data-tip={desktopQuestionListCollapsed ? 'Show question list' : 'Hide question list'}
+        >
+          <svg className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={1.9} viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3.5" y="4" width="17" height="16" rx="2" />
+            <path strokeLinecap="round" d="M9 4v16" />
+            <path strokeLinecap="round" strokeLinejoin="round" d={desktopQuestionListCollapsed ? 'm13 9 3 3-3 3' : 'm16 9-3 3 3 3'} />
+          </svg>
+        </button>
+      </div>
 
       {/* Mobile sidebar spacer - pushes content when menu open */}
       {mobileMenuOpen && <div className="lg:hidden w-80 max-w-[85vw]" aria-hidden="true" />}
@@ -602,23 +665,6 @@ function App({ path = '/', onPathChange = () => {} }) {
       <MobileSidebar isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} {...sidebarProps} />
 
       <MobileMenuButton isOpen={mobileMenuOpen} onToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
-
-      {/* Resizable divider - desktop only, single neutral color */}
-      <div
-        className="hidden lg:block w-1 cursor-col-resize bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors flex-shrink-0 select-none"
-        onMouseDown={handleDividerMouseDown}
-        role="separator"
-        aria-label="Resize sidebar"
-        aria-orientation="vertical"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowLeft') {
-            setSidebarWidth(prev => Math.max(prev - 20, 280))
-          } else if (e.key === 'ArrowRight') {
-            setSidebarWidth(prev => Math.min(prev + 20, 600))
-          }
-        }}
-      />
 
       {urlGate || gate ? (
         <SignupGate

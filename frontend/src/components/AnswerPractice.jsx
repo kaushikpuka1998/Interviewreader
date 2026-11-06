@@ -9,15 +9,17 @@ const mmss = s => `${Math.floor(Math.abs(s) / 60)}:${String(Math.abs(s) % 60).pa
 
 // "Practice this answer": answer the question from memory against a timer, then see a score out of 10, the key points you made, the ones you
 // missed ("add idempotency") and the model answer. No AI model: it checks your answer against the key points of the model answer.
-export default function AnswerPractice({ question }) {
+export default function AnswerPractice({ question, compact = false }) {
   const [open, setOpen] = useState(false)
   if (!question || question.locked) return null
-  const btn = 'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium transition-colors sm:min-h-11 sm:gap-2 sm:px-3 bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+  const btn = compact
+    ? 'reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-700 dark:text-slate-400 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-300'
+    : 'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium transition-colors sm:min-h-11 sm:gap-2 sm:px-3 bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={btn} title="Answer this from memory, timed, and get a score">
+      <button type="button" onClick={() => setOpen(true)} className={btn} title={compact ? undefined : 'Answer this from memory, timed, and get a score'} data-tip={compact ? 'Practice answer' : undefined}>
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <span className="hidden sm:inline">Practice</span>
+        {!compact && <span className="hidden sm:inline">Practice</span>}
       </button>
       {open && createPortal(<Dialog question={question} onClose={() => setOpen(false)} />, document.body)}
     </>

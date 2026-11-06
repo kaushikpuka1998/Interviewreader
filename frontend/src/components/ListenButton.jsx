@@ -9,7 +9,7 @@ const RATE_KEY = 'ir_tts_rate'
 // "Listen": reads the answer aloud with the browser's voice. Choose a short summary or the full answer; a small
 // panel shows what is being read (the current sentence highlighted) with pause, stop and speed.
 // Sentences are spoken one by one: one long utterance gets cut off in Chrome after about 15 seconds.
-export default function ListenButton({ question }) {
+export default function ListenButton({ question, compact = false }) {
   const [menu, setMenu] = useState(false)
   const [mode, setMode] = useState(null)        // null | 'summary' | 'full'
   const [lines, setLines] = useState([])
@@ -128,11 +128,13 @@ export default function ListenButton({ question }) {
   }, [open])
 
   if (!speechSupported() || !question?.answer) return null
-  const btn = 'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium transition-colors sm:min-h-11 sm:gap-2 sm:px-3'
+  const btn = compact
+    ? 'reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors'
+    : 'inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium transition-colors sm:min-h-11 sm:gap-2 sm:px-3'
   return (
     <div ref={box} className="relative">
       <button type="button" onClick={() => (mode ? stop() : setMenu(m => !m))} aria-expanded={menu}
-        aria-label={mode ? 'Stop reading' : 'Listen to this answer'} title={mode ? 'Stop reading' : 'Listen'}
+        aria-label={mode ? 'Stop reading' : 'Listen to this answer'} title={compact ? undefined : mode ? 'Stop reading' : 'Listen'} data-tip={compact ? mode ? 'Stop reading' : 'Listen to answer' : undefined}
         className={`${btn} ${mode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-blue-900/30 dark:hover:text-blue-200'}`}>
         {mode ? (
           <span className="flex h-4 items-end gap-[3px]" aria-hidden="true">
@@ -143,7 +145,7 @@ export default function ListenButton({ question }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 14v-2a9 9 0 0118 0v2M3 14a2 2 0 012-2h1v7H5a2 2 0 01-2-2v-3zm18 0a2 2 0 00-2-2h-1v7h1a2 2 0 002-2v-3z" />
           </svg>
         )}
-        <span className="hidden sm:inline">{mode ? 'Stop' : 'Listen'}</span>
+        {!compact && <span className="hidden sm:inline">{mode ? 'Stop' : 'Listen'}</span>}
       </button>
 
       {menu && !mode && pos && createPortal(

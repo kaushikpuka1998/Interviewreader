@@ -26,6 +26,7 @@ const LiveInterview = lazy(() => import('./components/LiveInterview.jsx'))
 const TermsPage = lazy(() => import('./components/TermsPage.jsx'))
 const FeedbackPage = lazy(() => import('./components/FeedbackPage.jsx'))
 const QuestionOfTheDayPage = lazy(() => import('./components/QuestionOfTheDayPage.jsx'))
+const LinkedInPostStudio = lazy(() => import('./components/LinkedInPostStudio.jsx'))
 const PremiumPage = lazy(() => import('./components/PremiumPage.jsx'))
 import FeedbackButton from './components/FeedbackButton.jsx'
 const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage.jsx'))
@@ -73,7 +74,7 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps',
+const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
   '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
@@ -115,6 +116,7 @@ function Routes() {
   if (path === '/feedback') return <FeedbackPage />
 
   if (path === '/question-of-the-day') return <QuestionOfTheDayPage />
+  if (path === '/linkedin-posts') return <LinkedInPostStudio />
 
   // Keyword landing pages for search (Java, Spring Boot, LLD, Kafka, SDE-2, Amazon SDE-2, sliding window).
   if (LANDING_PATHS.has(path)) return <LandingPage path={path} />

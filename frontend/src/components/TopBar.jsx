@@ -7,6 +7,7 @@ import PremiumPlans from './PremiumPlans.jsx'
 import ProfileMenu from './ProfileMenu.jsx'
 import StreakBadge from './StreakBadge.jsx'
 import PromoBanner from './PromoBanner.jsx'
+import SiteNoticeBanner from './SiteNoticeBanner.jsx'
 
 // Shared top bar (LeetCode style): brand and page links on the left, theme toggle, notifications, avatar and log out on the right.
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
@@ -22,6 +23,7 @@ const ITEMS = {
   roadmaps: ['Roadmaps', '/roadmaps', null, null, true],
   interview: ['Interview', '/interview', 'mock_interview', 'hot'],
   community: ['Discussions', '/discuss', null, true],
+  posts: ['LinkedIn Post Studio', '/linkedin-posts'],
   leaderboard: ['Leaderboard', '/leaderboard'],
   resume: ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
 }
@@ -31,7 +33,7 @@ const BAR = [
   'questions', 'daily',
   { menu: 'Practice', items: ['tracks', 'coding', 'editor', 'design', 'skills'], badge: true },
   'roadmaps', 'interview',
-  { menu: 'Community', items: ['community', 'leaderboard'], badge: true },
+  { menu: 'Community', items: ['community', 'leaderboard', 'posts'], badge: true },
   'resume',
 ]
 
@@ -42,11 +44,11 @@ const NavBadge = ({ className, children, compact }) => (
 
 // Between 1280 and 1536px the bar is crowded, so it shows the short label and no badges; the full bar starts at 2xl.
 const isActive = (href, path) => href === '/questions'
-  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/tracks', '/skills', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/tracks', '/skills', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/linkedin-posts', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
   : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
   : path === href || (href !== '/' && path.startsWith(href + '/'))
 
-function NavLink({ label, short, href, flag, badge, premium, path, features, mobile = false }) {
+function NavLink({ label, short, href, flag, badge, premium, path, features, mobile = false, menu = false }) {
   if (flag && features[flag] === false) return null
   const active = isActive(href, path)
   const handleClick = (e) => {
@@ -61,17 +63,17 @@ function NavLink({ label, short, href, flag, badge, premium, path, features, mob
       href={href}
       onClick={handleClick}
       aria-current={active ? 'page' : undefined}
-      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : 'inline-flex px-1.5 py-1.5 min-[1420px]:px-2 2xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : menu ? 'flex px-3 py-2 text-sm' : 'inline-flex px-1.5 py-1.5 min-[1420px]:px-2 2xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
-      {short && !mobile ? <><span className="2xl:hidden">{short}</span><span className="hidden 2xl:inline">{label}</span></> : label}
-      {premium && <NavBadge compact={!mobile} className="bg-gradient-to-r from-amber-500 to-pink-600 text-white">Premium</NavBadge>}
+      {short && !mobile && !menu ? <><span className="2xl:hidden">{short}</span><span className="hidden 2xl:inline">{label}</span></> : label}
+      {premium && <NavBadge compact={!(mobile || menu)} className="bg-gradient-to-r from-amber-500 to-pink-600 text-white">Premium</NavBadge>}
       {badge === 'hot' && (
-        <NavBadge compact={!mobile} className="bg-gradient-to-r from-orange-500 to-rose-600 text-white">
+        <NavBadge compact={!(mobile || menu)} className="bg-gradient-to-r from-orange-500 to-rose-600 text-white">
           <svg viewBox="0 0 24 24" className="-ml-0.5 h-3 w-3" fill="currentColor" aria-hidden="true"><path d="M12 2c1 3.5-1.5 5-1.5 7.5 0 1.4 1 2.5 2.3 2.5 1.5 0 2.2-1.2 2.2-2.6 2 1.7 3 4 3 6.1A6 6 0 0 1 6 15.5C6 10 12 8 12 2z" /></svg>
           Hot
         </NavBadge>
       )}
-      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <NavBadge compact={!mobile} className="bg-amber-400 text-amber-950">New</NavBadge>}
+      {badge && badge !== 'hot' && (badge === true || features[badge] === true) && <NavBadge compact={!(mobile || menu)} className="bg-amber-400 text-amber-950">New</NavBadge>}
     </a>
   )
 }
@@ -99,7 +101,7 @@ function NavMenu({ menu, rows, badge, path }) {
       </button>
       {open && (
         <div role="menu" className="absolute left-0 top-full z-40 pt-1.5">
-          <div className="w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900" onClick={() => setOpen(false)}>
+          <div className="w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900" onClick={() => setOpen(false)}>
             {rows.map(r => r.node)}
           </div>
         </div>
@@ -137,10 +139,10 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [menuOpen])
-  const link = (key, mobile) => {
+  const link = (key, mobile, menu = false) => {
     const [label, href, flag, badge, premium, authRequired, short] = ITEMS[key]
     if (authRequired && !signedIn) return null
-    return <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} />
+    return <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} menu={menu} />
   }
   // Phone menu: every link in one list. Desktop bar: single links and the two menus.
   const links = mobile => (mobile
@@ -148,11 +150,12 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
     : BAR.map(entry => {
         if (typeof entry === 'string') return link(entry, false)
         const rows = entry.items.filter(k => { const [, , flag, , , authRequired] = ITEMS[k]; return !(flag && features[flag] === false) && !(authRequired && !signedIn) })
-          .map(k => ({ href: ITEMS[k][1], node: link(k, true) }))
+          .map(k => ({ href: ITEMS[k][1], node: link(k, false, true) }))
         return rows.length ? <NavMenu key={entry.menu} menu={entry.menu} rows={rows} badge={entry.badge} path={path} /> : null
       }))
   return (
     <>
+    <SiteNoticeBanner />
     <PromoBanner />
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
       <div className="flex h-14 items-center gap-2 px-3 sm:gap-4 sm:px-4">

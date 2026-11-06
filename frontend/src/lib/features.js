@@ -27,9 +27,26 @@ export async function setFeature(key, enabled) {
   return res.json()
 }
 
+export async function fetchSiteNotice({ admin = false } = {}) {
+  const res = await fetch(`${API_BASE}${admin ? '/admin/site-notice' : '/site-notice'}`, admin ? { cache: 'no-store' } : undefined)
+  if (!res.ok) throw new Error('Could not load the site notice.')
+  return res.json()
+}
+
+export async function setSiteNotice(message) {
+  const res = await fetch(`${API_BASE}/admin/site-notice`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Could not save the site notice.')
+  return data
+}
+
 // Reads one feature flag. Returns true until the server answers, so a feature doesn't flicker off on load.
-export function useFeature(key) {
-  const [on, setOn] = useState(true)
+export function useFeature(key, defaultOn = true) {
+  const [on, setOn] = useState(defaultOn)
   useEffect(() => {
     let alive = true
     fetchFeatures().then(f => { if (alive) setOn(f[key] !== false) })

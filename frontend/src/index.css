@@ -83,6 +83,43 @@
     @apply flex flex-col;
   }
 
+  /* Desktop question list: collapse the column without unmounting it, so a
+     member returns to the same search, filters, and scroll position. */
+  .desktop-question-panel {
+    width: var(--question-panel-width);
+    min-width: 0;
+    overflow: hidden;
+    transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: width;
+  }
+
+  .desktop-question-panel > .sidebar {
+    transition: opacity 160ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .desktop-question-panel--collapsed {
+    width: 0;
+  }
+
+  .desktop-question-panel--collapsed > .sidebar {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  .desktop-question-panel-divider {
+    @apply w-1 cursor-col-resize bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 transition-[width,opacity,background-color] duration-200 flex-shrink-0 select-none;
+  }
+
+  .desktop-question-panel-divider--hidden {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .desktop-question-panel-toggle {
+    @apply absolute top-4 -right-11 z-20 flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-emerald-700 shadow-md shadow-slate-900/10 transition-[background-color,color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:bg-emerald-50 hover:text-emerald-800 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300;
+  }
+
   .question-link {
     @apply w-full text-left px-3 py-2.5 rounded-lg transition-all duration-150;
   }
@@ -174,7 +211,7 @@
 
   /* Print styles */
   @media print {
-    .sidebar, .pager, .search, .segmented, .select, .count, .brand {
+    .sidebar, .desktop-question-panel-toggle, .pager, .search, .segmented, .select, .count, .brand {
       @apply hidden;
     }
     .reader {
@@ -308,6 +345,41 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 /* Tooltip shown below the element, for controls at the top of a panel where the tooltip above would be clipped. */
 .tip-below::after { bottom: auto; top: calc(100% + 6px); }
+
+/* Reader header actions start as icons and expand into a labelled control on
+   hover/focus. Keeping the label inside the button makes the action obvious
+   without a floating tooltip covering the article. */
+.reader-action-tooltip {
+  position: relative;
+  width: 2.25rem !important;
+  overflow: hidden;
+  transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1), background-color 160ms ease, color 160ms ease;
+}
+.reader-action-tooltip::after {
+  content: attr(data-tip);
+  display: block;
+  flex: 0 0 auto;
+  max-width: 0;
+  margin-left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-8px);
+  transition: max-width 240ms cubic-bezier(0.22, 1, 0.36, 1), margin-left 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease 70ms, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reader-action-tooltip:hover::after,
+.reader-action-tooltip:focus-visible::after {
+  max-width: 7.5rem;
+  margin-left: 0.5rem;
+  opacity: 1;
+  transform: translateX(0);
+}
+.reader-action-tooltip:hover,
+.reader-action-tooltip:focus-visible { width: 10rem !important; }
 
 /* Test results: the verdict pops in or shakes, the progress bar grows, and a full pass throws confetti. */
 @keyframes result-pop {

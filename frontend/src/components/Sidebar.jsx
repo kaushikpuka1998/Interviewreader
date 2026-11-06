@@ -6,11 +6,44 @@ import Notifications from './Notifications.jsx'
 import PracticeCard from './PracticeCard.jsx'
 import { resumeBuilderLink } from '../lib/analytics.js'
 import { useFeature } from '../lib/features.js'
+import { fetchQotd } from '../lib/engage.js'
+
+function DailyQuestionLink({ onSelect, selectedId }) {
+  const [daily, setDaily] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    fetchQotd().then(data => {
+      if (active && data?.id) setDaily(data)
+    }).catch(() => {})
+    return () => { active = false }
+  }, [])
+
+  if (!daily) return null
+  const isActive = selectedId === daily.id
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(daily)}
+      aria-current={isActive ? 'page' : undefined}
+      className={`group relative w-full overflow-hidden rounded-xl border p-3 text-left transition-all duration-200 ${isActive ? 'border-amber-400 bg-amber-50 shadow-sm dark:border-amber-400/50 dark:bg-amber-400/10' : 'border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md dark:border-amber-400/20 dark:from-amber-400/10 dark:to-orange-400/5 dark:hover:border-amber-400/40'}`}
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.13em] text-amber-800 dark:text-amber-200">
+          <span aria-hidden="true">☀️</span> Question of the day
+        </span>
+        <span className="text-xs font-bold text-amber-700 transition-transform group-hover:translate-x-0.5 dark:text-amber-300" aria-hidden="true">→</span>
+      </span>
+      <span className="mt-1.5 block line-clamp-2 text-sm font-semibold leading-snug text-slate-900 dark:text-slate-50">{daily.title}</span>
+      <span className="mt-1.5 block text-xs text-slate-600 dark:text-slate-300">A new interview question every day</span>
+    </button>
+  )
+}
 
 /**
  * Sidebar component
  */
-export default function Sidebar({  questions, filtered, selectedId, query, setQuery, tech, setTech, category, setCategory, difficulty, setDifficulty, status, setStatus, onSelect, onToggleDark, isDark, isMobile = false, sidebarWidth = 360, questionListRef, hasMore, onLoadMore, loading, visited, read, categories, company, setCompany, companies = [], user, onLoginClick, onLogout, onAdminClick, freeTechs = [], onLockedTech, onPremium, onCompanyLocked, stats, totalCount }) {
+export default function Sidebar({  questions, filtered, selectedId, query, setQuery, tech, setTech, category, setCategory, difficulty, setDifficulty, status, setStatus, onSelect, onDailySelect, onToggleDark, isDark, isMobile = false, sidebarWidth = 360, questionListRef, hasMore, onLoadMore, loading, visited, read, categories, company, setCompany, companies = [], user, onLoginClick, onLogout, onAdminClick, freeTechs = [], onLockedTech, onPremium, onCompanyLocked, stats, totalCount }) {
   const [filtersOpen, setFiltersOpen] = useState(false) // collapsed by default; opens when the member taps Filters
   const resumeOn = useFeature('resume_builder')
   const sentinelRef = useRef(null)
@@ -251,6 +284,7 @@ export default function Sidebar({  questions, filtered, selectedId, query, setQu
       )}
 
       <nav ref={listRef} className="question-list flex-1 min-h-[16rem] overflow-y-auto p-2 space-y-1.5" aria-label="Question list">
+        <DailyQuestionLink onSelect={onDailySelect || onSelect} selectedId={selectedId} />
         {loading && filtered.length === 0 ? (
           <Loader compact label="Loading questions…" />
         ) : filtered.length === 0 ? (

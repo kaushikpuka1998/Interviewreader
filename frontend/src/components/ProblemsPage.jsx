@@ -10,6 +10,7 @@ import { isLoggedIn, getUser } from '../lib/auth.js'
 import { difficultyBadge } from '../lib/badges.js'
 import OnlineCount from './OnlineCount.jsx'
 import { COMPANY_GROUPS, OTHER, groupOf } from '../lib/companyGroups.js'
+import { fetchQotd } from '../lib/engage.js'
 
 const DIFFICULTIES = ['All', 'Basic', 'Intermediate', 'Advanced']
 const STATUSES = [['all', 'All'], ['solved', 'Solved'], ['todo', 'Not solved']]
@@ -20,6 +21,7 @@ export default function ProblemsPage() {
   const [problems, setProblems] = useState(null)
   const [solved, setSolved] = useState(() => new Set())
   const [attempted, setAttempted] = useState(() => new Set())
+  const [dailyProblem, setDailyProblem] = useState(null)
   const [error, setError] = useState('')
   // Coding problems are free, but only a few companies work as a filter without Premium; the server says which ones.
   const [freeCompanies, setFreeCompanies] = useState(null)   // null until known: nothing is locked then
@@ -48,6 +50,7 @@ export default function ProblemsPage() {
 
   useEffect(() => {
     fetchCodingProblems().then(setProblems).catch(e => setError(e.message))
+    fetchQotd().then(daily => setDailyProblem(daily.problem || null)).catch(() => {})
     if (signedIn) {
       fetchSolvedIds().then(ids => setSolved(new Set(ids))).catch(() => {})
       fetchAttemptedIds().then(ids => setAttempted(new Set(ids))).catch(() => {})
@@ -128,6 +131,10 @@ export default function ProblemsPage() {
       return p.title.toLowerCase().includes(q) || String(numberOf.get(p.id)) === q
     })
   }, [problems, query, difficulty, status, topic, company, group, subgroup, solved, numberOf])
+  // The daily challenge stays prominent even when it would normally sit farther
+  // down the catalogue or be hidden by a filter. Exclude it from the normal
+  // rows so visitors never see the same problem twice.
+  const listRows = useMemo(() => dailyProblem?.id ? rows.filter(problem => problem.id !== dailyProblem.id) : rows, [rows, dailyProblem?.id])
 
   // Company and company-type views are their own landing pages ("Google coding interview questions"):
   // keep them in the URL so they can be shared and indexed, each with its own title and canonical.
@@ -159,7 +166,7 @@ export default function ProblemsPage() {
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setShownCount(c => c + CHUNK) }, { rootMargin: '600px' })
     io.observe(el)
     return () => io.disconnect()
-  }, [rows.length, shownCount])
+  }, [listRows.length, shownCount])
 
   const segment = (items, active, onPick, label) => (
     <div className="inline-flex flex-wrap rounded-xl bg-slate-200/70 p-1 dark:bg-slate-800" role="group" aria-label={label}>
@@ -231,6 +238,22 @@ export default function ProblemsPage() {
             <a href="/" className="text-blue-600 hover:underline dark:text-blue-400">← Back to app</a>
           </div>
         </div>
+
+        {dailyProblem && (
+          <a href={`/practice?id=${dailyProblem.id}`} className="mb-4 block overflow-hidden rounded-2xl border border-emerald-300 bg-white shadow-md shadow-emerald-950/10 transition hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-lg dark:border-emerald-400/30 dark:bg-slate-950 dark:shadow-none">
+            <div className="flex flex-col gap-3 bg-gradient-to-r from-emerald-50 via-white to-teal-50 p-4 sm:flex-row sm:items-center sm:justify-between dark:from-emerald-500/15 dark:via-slate-950 dark:to-teal-500/10">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-lg shadow-md shadow-emerald-700/25" aria-hidden="true">⌨️</span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.13em] text-emerald-700 dark:text-emerald-300">Today’s coding challenge</span>
+                  <span className="mt-0.5 block truncate text-base font-bold text-slate-900 dark:text-white">{dailyProblem.title}</span>
+                  <span className="mt-1 block text-xs text-slate-600 dark:text-slate-300">Solve it, submit your code, and keep your daily momentum.</span>
+                </span>
+              </div>
+              <span className="inline-flex shrink-0 items-center justify-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white shadow-sm transition">Start challenge →</span>
+            </div>
+          </a>
+        )}
 
         <div className="mb-4 space-y-3 rounded-2xl bg-white p-4 dark:bg-slate-950">
           <input
@@ -304,11 +327,11 @@ export default function ProblemsPage() {
 
         {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
         {!problems && !error && <Loader label="Loading problems…" />}
-        {problems && rows.length === 0 && <p className="rounded-2xl bg-white p-6 text-center text-sm text-slate-500 dark:bg-slate-950 dark:text-slate-400">No problems match these filters.</p>}
+        {problems && listRows.length === 0 && <p className="rounded-2xl bg-white p-6 text-center text-sm text-slate-500 dark:bg-slate-950 dark:text-slate-400">No other problems match these filters.</p>}
 
-        {rows.length > 0 && (
+        {listRows.length > 0 && (
           <ul className="divide-y divide-slate-200 overflow-hidden rounded-2xl bg-white dark:divide-slate-800 dark:bg-slate-950">
-            {rows.slice(0, shownCount).map(p => (
+            {listRows.slice(0, shownCount).map(p => (
               <li key={p.id}>
                 <a href={`/practice?id=${p.id}`} className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60">
                   <span className="w-12 shrink-0 text-slate-400 dark:text-slate-500">#{numberOf.get(p.id)}</span>
@@ -324,7 +347,7 @@ export default function ProblemsPage() {
             ))}
           </ul>
         )}
-        {rows.length > shownCount && <div ref={sentinel} className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">Loading more…</div>}
+        {listRows.length > shownCount && <div ref={sentinel} className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">Loading more…</div>}
       </div>
     </div>
     {toast && <PremiumToast message={toast} onClose={() => setToast('')} />}

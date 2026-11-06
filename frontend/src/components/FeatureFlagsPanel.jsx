@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Loader from './Loader.jsx'
-import { fetchFeatures, setFeature } from '../lib/features.js'
+import { fetchFeatures, fetchSiteNotice, setFeature, setSiteNotice } from '../lib/features.js'
 
 // Each entry is a flag the server knows about (see FeatureFlagController).
 const FLAGS = [
@@ -10,6 +10,7 @@ const FLAGS = [
   { key: 'mock_interview', badgeKey: 'new_badge_interview', badgeHelp: 'Show a "New" badge on the Interview link in the top bar. Turn it on for the free mock interview offer.', label: 'Mock interviews', help: 'Turns mock interviews on or off: the Interview link and page, and new requests.' },
   { key: 'interviewer_open', label: 'Open interviewing to all members', help: 'Off: only admins can take mock interviews, and the interviewer option is hidden for everyone else. On: any member can choose to be the interviewer. Turn it on when enough members have offered to interview.' },
   { key: 'premium_free', label: 'Everything free (Premium unlocked for all)', help: 'On: every signed-in member gets all Premium features free (locked answers, company filters, roadmaps). Off: Premium is paid again. Takes effect within a few seconds of a refresh.' },
+  { key: 'site_notice', label: 'Site maintenance / service notice', help: 'Shows a banner across the website that lets visitors know maintenance is underway or a known issue may temporarily affect some features.' },
   { key: 'daily_promo', label: 'Daily challenge login promo', help: 'Shows the daily challenge card once to each member (the question to read and the problem to solve).' },
   { key: 'code_practice_promo', label: 'Code practice login promo', help: 'Shows the code practice card to members after they log in.' },
 ]
@@ -46,6 +47,7 @@ export default function FeatureFlagsPanel() {
               <p className="font-semibold text-slate-900 dark:text-slate-100">{f.label}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">{f.help}</p>
               <p className="mt-1 break-all text-[11px] font-mono text-slate-400">{f.key}</p>
+              {f.key === 'site_notice' && <SiteNoticeEditor />}
               {f.badgeKey && (
                 <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
                   <input
@@ -77,6 +79,42 @@ export default function FeatureFlagsPanel() {
         )
       })}
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+    </div>
+  )
+}
+
+function SiteNoticeEditor() {
+  const [message, setMessage] = useState('')
+  const [saved, setSaved] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => { fetchSiteNotice({ admin: true }).then(n => setMessage(n.message || '')).catch(() => {}) }, [])
+
+  const save = async () => {
+    setSaving(true); setSaved(''); setError('')
+    try {
+      await setSiteNotice(message)
+      setSaved('Saved')
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 max-w-xl">
+      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200" htmlFor="site-notice-message">Notice message</label>
+      <div className="mt-1 flex gap-2">
+        <input id="site-notice-message" value={message} onChange={e => setMessage(e.target.value)} maxLength={400}
+          placeholder="e.g. Search is temporarily unavailable while we apply a fix."
+          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
+        <button type="button" onClick={save} disabled={saving} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-white">{saving ? 'Saving…' : 'Save message'}</button>
+      </div>
+      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{message.length}/400 characters. Save this first, then turn the flag on.</p>
+      {saved && <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">{saved}</p>}
+      {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   )
 }

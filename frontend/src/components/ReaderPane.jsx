@@ -195,108 +195,74 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
               </div>
 
               {/* Header stays pinned at the top */}
-              <header className="mb-3 pb-3 sm:mb-6 sm:pb-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
-                <div className="badges flex items-center justify-between mb-2 sm:mb-4 px-0.5">
-                <span className={`badge px-3 py-1 text-xs font-medium rounded-full ${techBadge(question.tech)}`}>
-                  {techLabel(question.tech)}
-                </span>
-                  <span className="badge px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                  {question.category}
-                </span>
-                  <span className={`badge px-3 py-1 text-xs font-medium rounded-full ${difficultyBadge(question.difficulty)}`}>
-                  {question.difficulty}
-                </span>
+              <header className="mb-3 pb-3 sm:mb-4 sm:pb-3 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <div className="badges mb-2 flex items-center justify-between gap-3 px-0.5 sm:mb-3">
+                  <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className={`badge px-2.5 py-0.5 text-xs font-medium rounded-full ${techBadge(question.tech)}`}>
+                      {techLabel(question.tech)}
+                    </span>
+                    <span className="badge max-w-[11rem] truncate px-2.5 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      {question.category}
+                    </span>
+                    <span className={`badge px-2.5 py-0.5 text-xs font-medium rounded-full ${difficultyBadge(question.difficulty)}`}>
+                      {question.difficulty}
+                    </span>
+                  </div>
+
+                  {isLoggedIn() && (
+                    <div className="flex flex-shrink-0 flex-wrap items-center justify-end gap-1" aria-label="Question actions">
+                      <button
+                        type="button"
+                        onClick={() => onToggleFlag(question.id)}
+                        disabled={flagging.has(question.id)}
+                        className={`reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors disabled:cursor-wait disabled:opacity-70 ${flagged.has(question.id) ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60' : 'text-slate-500 hover:bg-amber-50 hover:text-amber-700 dark:text-slate-400 dark:hover:bg-amber-900/30 dark:hover:text-amber-200'}`}
+                        aria-label={flagged.has(question.id) ? 'Remove flag' : 'Flag question'}
+                        aria-pressed={flagged.has(question.id)}
+                        data-tip={flagged.has(question.id) ? 'Remove flag' : 'Flag question'}
+                      >
+                        <svg className="h-5 w-5" fill={flagged.has(question.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v18l7-4 7 4V3H5z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onToggleImportant(question.id)}
+                        disabled={marking.has(question.id)}
+                        className={`reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors disabled:cursor-wait disabled:opacity-70 ${important.has(question.id) ? 'bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-200 dark:hover:bg-rose-900/60' : 'text-slate-500 hover:bg-rose-50 hover:text-rose-700 dark:text-slate-400 dark:hover:bg-rose-900/30 dark:hover:text-rose-200'}`}
+                        aria-label={important.has(question.id) ? 'Unmark important' : 'Mark as important'}
+                        aria-pressed={important.has(question.id)}
+                        data-tip={important.has(question.id) ? 'Unmark important' : 'Mark as important'}
+                      >
+                        <svg className="h-5 w-5" fill={important.has(question.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.48 3.5a.56.56 0 011.04 0l2.13 5.11 5.52.44a.56.56 0 01.32.99l-4.2 3.6 1.28 5.38a.56.56 0 01-.84.61L12 16.77l-4.73 2.86a.56.56 0 01-.84-.61l1.28-5.38-4.2-3.6a.56.56 0 01.32-.99l5.52-.44 2.13-5.11z" />
+                        </svg>
+                      </button>
+                      {!read.has(question.id) ? (
+                        <button type="button" onClick={() => onMarkRead(question.id)} className="reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-emerald-50 hover:text-emerald-700 dark:text-slate-400 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-300" aria-label="Mark as read" data-tip="Mark as read">
+                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                        </button>
+                      ) : (
+                        <span className="inline-flex h-9 w-9 items-center justify-center text-emerald-600 dark:text-emerald-400" aria-label="Marked as read" title="Marked as read"><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg></span>
+                      )}
+                      <SuggestEdit question={question} compact />
+                      <MarkDuplicate question={question} compact />
+                      <AnswerPractice question={question} compact />
+                      <ListenButton question={question} compact />
+                      <ShareLinkedIn question={question} label="" className="!h-9 !min-h-9 !w-9 !px-0 shadow-sm" />
+                    </div>
+                  )}
                 </div>
                 <h1 className="question-title text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
                   Q{question.displayNumber}. {question.question}
                 </h1>
-
-                {isLoggedIn() && (
-                    <div className={`mt-3 pt-3 sm:mt-5 sm:pt-4 flex flex-wrap transition-all duration-300 ease-out ${barHidden ? 'max-lg:max-h-0 max-lg:opacity-0 max-lg:-translate-y-2 max-lg:pointer-events-none max-lg:overflow-hidden max-lg:border-transparent max-lg:!mt-0 max-lg:!pt-0' : 'max-h-96 opacity-100 translate-y-0'} items-center justify-between gap-1.5 sm:gap-2 border-t border-slate-200 dark:border-slate-800`}>
-                      <div className="flex items-center gap-2 sm:gap-3 text-sm">
-                        {read.has(question.id) && (
-                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="hidden sm:inline">Marked as read</span>
-                      </span>
-                        )}
-                        {visited.has(question.id) && !read.has(question.id) && (
-                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                        </svg>
-                        <span className="hidden sm:inline">Visited</span>
-                      </span>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2 has-[form,[role=status]]:basis-full">
-                        <button
-                            type="button"
-                            onClick={() => onToggleFlag(question.id)}
-                            disabled={flagging.has(question.id)}
-                            className={`inline-flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-lg px-2 sm:px-3 text-sm font-medium transition-colors disabled:cursor-wait disabled:opacity-70 ${flagged.has(question.id) ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60' : 'bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-amber-900/30 dark:hover:text-amber-200'}`}
-                            aria-label={flagged.has(question.id) ? 'Remove flag' : 'Flag question'}
-                            aria-pressed={flagged.has(question.id)}
-                            title={flagged.has(question.id) ? 'Remove flag' : 'Flag question'}
-                        >
-                          <svg className="w-5 h-5" fill={flagged.has(question.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v18l7-4 7 4V3H5z" />
-                          </svg>
-                          <span className="hidden sm:inline">{flagging.has(question.id) ? 'Saving…' : flagged.has(question.id) ? 'Flagged' : 'Flag'}</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => onToggleImportant(question.id)}
-                            disabled={marking.has(question.id)}
-                            className={`inline-flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-lg px-2 sm:px-3 text-sm font-medium transition-colors disabled:cursor-wait disabled:opacity-70 ${important.has(question.id) ? 'bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-200 dark:hover:bg-rose-900/60' : 'bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-rose-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-rose-900/30 dark:hover:text-rose-200'}`}
-                            aria-label={important.has(question.id) ? 'Unmark important' : 'Mark as important'}
-                            aria-pressed={important.has(question.id)}
-                            title={important.has(question.id) ? 'Unmark important' : 'Mark as important'}
-                        >
-                          <svg className="w-5 h-5" fill={important.has(question.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.48 3.5a.56.56 0 011.04 0l2.13 5.11 5.52.44a.56.56 0 01.32.99l-4.2 3.6 1.28 5.38a.56.56 0 01-.84.61L12 16.77l-4.73 2.86a.56.56 0 01-.84-.61l1.28-5.38-4.2-3.6a.56.56 0 01.32-.99l5.52-.44 2.13-5.11z" />
-                          </svg>
-                          <span className="hidden sm:inline">{marking.has(question.id) ? 'Saving…' : important.has(question.id) ? 'Important' : 'Mark important'}</span>
-                        </button>
-                        {!read.has(question.id) && (
-                            <button
-                                type="button"
-                                onClick={() => onMarkRead(question.id)}
-                                className="btn-read inline-flex min-h-9 sm:min-h-11 items-center gap-1.5 sm:gap-2 rounded-lg px-2 sm:px-3 text-sm font-medium text-slate-700 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:text-slate-200 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
-                                aria-label="Mark as read"
-                                title="Mark as read"
-                            >
-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                            </button>
-                        )}
-                        {read.has(question.id) && (
-                            <span className="p-2 text-emerald-600 dark:text-emerald-400" aria-label="Read" title="Marked as read">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                      </span>
-                        )}
-                        <SuggestEdit question={question} />
-                        <MarkDuplicate question={question} />
-                        <AnswerPractice question={question} />
-                        <ListenButton question={question} />
-                        <ShareLinkedIn question={question} />
-                      </div>
-                    </div>
-                )}
                 {!isLoggedIn() && (
-                    <div className="mt-3 flex justify-end gap-2">
+                    <div className="mt-2 flex justify-end gap-2">
                       <ListenButton question={question} />
                       <ShareLinkedIn question={question} />
                     </div>
                 )}
 
-                <div className={`transition-all duration-300 ease-out ${barHidden ? 'max-lg:max-h-0 max-lg:opacity-0 max-lg:-translate-y-2 max-lg:pointer-events-none max-lg:overflow-hidden' : 'max-h-96 opacity-100 translate-y-0'}`}>
+                <div className={`mt-2 transition-all duration-300 ease-out ${barHidden ? 'max-lg:max-h-0 max-lg:opacity-0 max-lg:-translate-y-2 max-lg:pointer-events-none max-lg:overflow-hidden' : 'max-h-96 opacity-100 translate-y-0'}`}>
                   <AskedAt questionId={question.id} />
                 </div>
               </header>

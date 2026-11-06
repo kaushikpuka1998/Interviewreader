@@ -32,7 +32,9 @@ public class FeatureFlagController {
             Map.entry("new_badge_resume_builder", false),
             Map.entry("new_badge_code_practice", false),
             // When on, every signed-in member gets all Premium features free (see BillingService.isPremium).
-            Map.entry("premium_free", false));
+            Map.entry("premium_free", false),
+            // A global visitor-facing status notice for maintenance or a known service issue.
+            Map.entry("site_notice", false));
 
     private final FeatureFlagRepository flags;
 

@@ -64,17 +64,32 @@ export default function QuestionOfTheDayPage() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Daily challenge · {today}</p>
         {problem && (
-          <div className="mt-3 rounded-2xl border border-emerald-300 bg-white p-4 shadow-md shadow-emerald-900/10 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:shadow-none">
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-xl text-white" aria-hidden="true">💻</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Coding problem of the day · {problem.difficulty}{done.solved && <DoneTag label="Solved today" />}</span>
-                <span className="block truncate text-base font-semibold text-slate-900 dark:text-slate-100">{problem.title}</span>
-              </span>
-              <a href={`/practice?id=${problem.id}`} data-track="qotd_page_solve" className={`shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-white ${done.solved ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-emerald-600 hover:bg-emerald-700'}`}>{done.solved ? 'Solve again →' : 'Open in editor →'}</a>
+          <section className="mt-3 overflow-hidden rounded-2xl border border-emerald-300 bg-white shadow-lg shadow-emerald-950/10 dark:border-emerald-400/25 dark:bg-slate-900 dark:shadow-none" aria-labelledby="daily-coding-title">
+            <div className="border-b border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-teal-50 px-4 py-4 dark:border-emerald-400/15 dark:from-emerald-500/15 dark:via-slate-900 dark:to-teal-500/10 sm:px-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-xl shadow-md shadow-emerald-700/25" aria-hidden="true">⌨️</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-emerald-700 dark:text-emerald-300">
+                    <span>Coding problem of the day</span>
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-200">{problem.difficulty}</span>
+                    {done.solved && <DoneTag label="Solved today" />}
+                  </div>
+                  <h2 id="daily-coding-title" className="mt-1 truncate text-lg font-bold text-slate-900 dark:text-white">{problem.title}</h2>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Write your solution, run it against test cases, then submit your code.</p>
+                </div>
+                <a href={`/practice?id=${problem.id}`} data-track="qotd_page_solve" className={`inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl px-4 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${done.solved ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-emerald-600 hover:bg-emerald-700'}`}>{done.solved ? 'Submit another solution →' : 'Start coding →'}</a>
+              </div>
             </div>
-            {problem.statement && <div className="mt-3 max-h-72 overflow-y-auto rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-0 dark:bg-slate-900/50"><Markdown text={problem.statement} /></div>}
-          </div>
+            {problem.statement && (
+              <details className="group px-4 py-3 sm:px-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-emerald-800 marker:hidden dark:text-emerald-200">
+                  <span>Review the challenge before you start</span>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800 transition group-open:rotate-180 dark:bg-emerald-400/15 dark:text-emerald-100" aria-hidden="true">⌄</span>
+                </summary>
+                <div className="mt-3 max-h-60 overflow-y-auto rounded-xl border border-emerald-100 bg-emerald-50/70 p-4 text-sm dark:border-emerald-400/10 dark:bg-slate-950/50"><Markdown text={problem.statement} /></div>
+              </details>
+            )}
+          </section>
         )}
         <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">Question to read{done.read && <DoneTag label="Read today" />}</p>
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}

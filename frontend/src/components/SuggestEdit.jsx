@@ -9,7 +9,7 @@ import DiffView from './DiffView.jsx'
  * queue instead of changing the live question. The reader is notified of the
  * decision through the bell in the sidebar.
  */
-export default function SuggestEdit({ question }) {
+export default function SuggestEdit({ question, compact = false }) {
   const [open, setOpen] = useState(false)
   const [answer, setAnswer] = useState('')
   const [title, setTitle] = useState('')
@@ -96,13 +96,16 @@ export default function SuggestEdit({ question }) {
         <button
           onClick={() => setOpen(true)}
           aria-label="Suggest an edit"
-          className="inline-flex min-h-8 sm:min-h-10 items-center gap-1.5 text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          title="Propose a better answer — an admin reviews it before it goes live"
+          className={compact
+            ? 'reader-action-tooltip inline-flex h-9 w-9 items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-500 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'
+            : 'inline-flex min-h-8 sm:min-h-10 items-center gap-1.5 text-xs font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors'}
+          data-tip={compact ? 'Suggest an edit' : undefined}
+          title={compact ? undefined : 'Propose a better answer — an admin reviews it before it goes live'}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
-          <span className="hidden sm:inline">Suggest an edit</span>
+          {!compact && <span className="hidden sm:inline">Suggest an edit</span>}
         </button>
       </div>
     )
