@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import TopBar from './TopBar.jsx'
 import Footer from './Footer.jsx'
 import { fetchQotd } from '../lib/engage.js'
@@ -43,10 +43,6 @@ export default function LinkedInPostStudio() {
   const [draft, setDraft] = useState('')
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
-  const [image, setImage] = useState(null)
-  const [imageError, setImageError] = useState('')
-  const [publishHint, setPublishHint] = useState(false)
-  const imageInputRef = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -60,21 +56,6 @@ export default function LinkedInPostStudio() {
 
   const generated = useMemo(() => makePost(question, angle), [question, angle])
   useEffect(() => { setDraft(generated) }, [generated])
-  useEffect(() => () => { if (image?.url) URL.revokeObjectURL(image.url) }, [image])
-
-  const chooseImage = file => {
-    setImageError('')
-    if (!file) return
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-      setImageError('Choose a PNG, JPG, or WebP image.')
-      return
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setImageError('Choose an image smaller than 10 MB.')
-      return
-    }
-    setImage({ file, url: URL.createObjectURL(file) })
-  }
 
   const copy = async () => {
     try {
@@ -85,7 +66,6 @@ export default function LinkedInPostStudio() {
   }
   const publish = async () => {
     try { await navigator.clipboard.writeText(draft) } catch { /* LinkedIn receives the text through its share URL as well. */ }
-    setPublishHint(!!image)
     const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(draft)}`
     window.open(url, 'linkedin-post', 'width=700,height=720,noopener')
   }
@@ -117,12 +97,6 @@ export default function LinkedInPostStudio() {
                   </button>)}
                 </div>
               </div>
-              <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
-                <div className="flex items-center justify-between gap-2"><p className="text-xs font-bold uppercase tracking-[0.13em] text-slate-500 dark:text-slate-400">Add an image</p>{image && <button type="button" onClick={() => setImage(null)} className="text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-300">Remove</button>}</div>
-                {image ? <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"><img src={image.url} alt="Selected post image preview" className="max-h-44 w-full object-cover" /><div className="flex items-center justify-between gap-2 px-3 py-2"><span className="min-w-0 truncate text-xs text-slate-600 dark:text-slate-300">{image.file.name}</span><a href={image.url} download={image.file.name} className="shrink-0 text-xs font-bold text-[#075aa9] hover:underline dark:text-[#9bc9f5]">Download</a></div></div> : <div onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); chooseImage(e.dataTransfer.files?.[0]) }} className="mt-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center dark:border-slate-600 dark:bg-slate-900/60"><span className="text-xl" aria-hidden="true">🖼️</span><p className="mt-1 text-xs font-semibold text-slate-700 dark:text-slate-200">Use a visual to make the post more personal</p><button type="button" onClick={() => imageInputRef.current?.click()} className="mt-2 text-xs font-bold text-[#075aa9] hover:underline dark:text-[#9bc9f5]">Choose image</button><input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={e => chooseImage(e.target.files?.[0])} className="sr-only" /></div>}
-                {imageError && <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-300">{imageError}</p>}
-                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">PNG, JPG, or WebP · up to 10 MB</p>
-              </div>
             </> : <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Today’s question could not be loaded. Try refreshing the page.</p>}
           </aside>
 
@@ -140,7 +114,6 @@ export default function LinkedInPostStudio() {
                   <button type="button" onClick={publish} disabled={!draft} className="min-h-10 rounded-lg bg-[#0a66c2] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#004182] disabled:cursor-not-allowed disabled:opacity-50">Publish on LinkedIn ↗</button>
                 </div>
               </div>
-              {publishHint && <p className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-xs leading-relaxed text-blue-800 dark:bg-blue-500/10 dark:text-blue-200">Your caption was copied and LinkedIn was opened. In LinkedIn, choose <b>Add media</b> and select the image above (or download it first) to attach it to this post.</p>}
             </div>
           </section>
         </section>
