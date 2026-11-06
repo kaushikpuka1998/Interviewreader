@@ -23,7 +23,7 @@ const ITEMS = {
   roadmaps: ['Roadmaps', '/roadmaps', null, null, true],
   interview: ['Interview', '/interview', 'mock_interview', 'hot'],
   community: ['Discussions', '/discuss', null, true],
-  posts: ['LinkedIn Post Studio', '/linkedin-posts'],
+  posts: ['LinkedIn Post Studio', '/linkedin-posts', 'linkedin_post_studio', 'new_badge_linkedin_post_studio'],
   leaderboard: ['Leaderboard', '/leaderboard'],
   resume: ['Resume', '/resume', 'resume_builder', 'new_badge_resume_builder'],
 }

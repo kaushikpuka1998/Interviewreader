@@ -22,6 +22,9 @@ public class FeatureFlagController {
             Map.entry("resume_builder", true),
             Map.entry("code_practice", true),
             Map.entry("code_practice_promo", true),
+            // A dedicated daily QOTD LinkedIn draft and publishing tracker.
+            Map.entry("linkedin_post_studio", true),
+            Map.entry("new_badge_linkedin_post_studio", false),
             Map.entry("daily_promo", true),
             // The mock interview feature, and a "New" badge on its top-bar link.
             Map.entry("mock_interview", true),

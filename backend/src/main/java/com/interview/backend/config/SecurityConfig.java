@@ -133,7 +133,7 @@ public class SecurityConfig {
                         // Companies and the rules above stay authenticated.
                         .requestMatchers(HttpMethod.GET, "/questions/**").permitAll()
                         // Progress + profile require a logged-in user
-                        .requestMatchers("/progress/**", "/profile/**", "/points/**").authenticated()
+                        .requestMatchers("/progress/**", "/profile/**", "/points/**", "/linkedin-posts/**").authenticated()
                         .anyRequest().permitAll())
                 // Rate limiter runs first (before auth) to blunt brute-force on /auth/**.
                 .addFilterBefore(new RateLimitFilter(authMaxRequests, authWindowSeconds), UsernamePasswordAuthenticationFilter.class)

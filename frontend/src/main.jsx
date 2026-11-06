@@ -116,7 +116,7 @@ function Routes() {
   if (path === '/feedback') return <FeedbackPage />
 
   if (path === '/question-of-the-day') return <QuestionOfTheDayPage />
-  if (path === '/linkedin-posts') return <LinkedInPostStudio />
+  if (path === '/linkedin-posts') return <Gate flag="linkedin_post_studio" what="LinkedIn Post Studio"><LinkedInPostStudio /></Gate>
 
   // Keyword landing pages for search (Java, Spring Boot, LLD, Kafka, SDE-2, Amazon SDE-2, sliding window).
   if (LANDING_PATHS.has(path)) return <LandingPage path={path} />

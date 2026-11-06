@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import TopBar from './TopBar.jsx'
 import Footer from './Footer.jsx'
-import { fetchQotd } from '../lib/engage.js'
+import { confirmLinkedInQotdShare, fetchLinkedInQotdProgress, fetchQotd } from '../lib/engage.js'
 import { fetchQuestion } from '../lib/api.js'
+import { isLoggedIn } from '../lib/auth.js'
 
 const SHARE_BASE = `${window.location.origin}/share`
 
@@ -43,6 +44,10 @@ export default function LinkedInPostStudio() {
   const [draft, setDraft] = useState('')
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [shareProgress, setShareProgress] = useState(null)
+  const [publishStarted, setPublishStarted] = useState(false)
+  const [shareError, setShareError] = useState('')
+  const signedIn = isLoggedIn()
 
   useEffect(() => {
     let active = true
@@ -53,6 +58,8 @@ export default function LinkedInPostStudio() {
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [])
+  const refreshShareProgress = () => fetchLinkedInQotdProgress().then(setShareProgress).catch(() => {})
+  useEffect(() => { if (signedIn) refreshShareProgress() }, [signedIn])
 
   const generated = useMemo(() => makePost(question, angle), [question, angle])
   useEffect(() => { setDraft(generated) }, [generated])
@@ -68,6 +75,17 @@ export default function LinkedInPostStudio() {
     try { await navigator.clipboard.writeText(draft) } catch { /* LinkedIn receives the text through its share URL as well. */ }
     const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(draft)}`
     window.open(url, 'linkedin-post', 'width=700,height=720,noopener')
+    setPublishStarted(true)
+  }
+  const confirmShare = async () => {
+    if (!question?.id) return
+    setShareError('')
+    try {
+      await confirmLinkedInQotdShare(question.id)
+      await refreshShareProgress()
+    } catch (error) {
+      setShareError(error.message || 'Could not record your post. Please try again.')
+    }
   }
 
   return (
@@ -107,6 +125,20 @@ export default function LinkedInPostStudio() {
             </div>
             <div className="p-4 sm:p-5">
               <textarea value={draft} onChange={e => setDraft(e.target.value)} disabled={!question} className="min-h-[350px] w-full resize-y rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#0a66c2] focus:ring-2 focus:ring-[#0a66c2]/20 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" aria-label="Edit LinkedIn post draft" />
+              <section className="mt-4 rounded-xl border border-[#0a66c2]/20 bg-[#0a66c2]/5 p-3.5 dark:border-[#5aa5ef]/20 dark:bg-[#5aa5ef]/10" aria-label="Daily LinkedIn sharing progress">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div><p className="text-sm font-bold text-slate-900 dark:text-white">Daily QOTD sharing progress</p><p className="mt-0.5 text-xs text-slate-600 dark:text-slate-300">Only confirmed posts about today’s Question of the Day count.</p></div>
+                  {signedIn && shareProgress?.todayShared && <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">✓ Shared today</span>}
+                </div>
+                {signedIn ? <>
+                  <div className="mt-3 flex gap-1.5" role="img" aria-label={`${shareProgress?.count || 0} of the last 7 days shared`}>
+                    {(shareProgress?.days || Array.from({ length: 7 })).map((day, index) => <span key={day?.date || index} title={day?.date || ''} className={`h-2 flex-1 rounded-full ${day?.shared ? 'bg-[#0a66c2]' : 'bg-slate-200 dark:bg-slate-700'}`} />)}
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-medium text-slate-600 dark:text-slate-300">{shareProgress ? `${shareProgress.count} of 7 days` : 'Loading progress…'}</span>{!shareProgress?.todayShared && <button type="button" onClick={confirmShare} disabled={!publishStarted || !question} className="rounded-lg bg-[#0a66c2] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#004182] disabled:cursor-not-allowed disabled:opacity-45">I’ve posted today’s QOTD</button>}</div>
+                  {!publishStarted && !shareProgress?.todayShared && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Publish first, then confirm to add today’s QOTD post to your progress.</p>}
+                </> : <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">Sign in to build a private record of your QOTD posts.</p>}
+                {shareError && <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-300">{shareError}</p>}
+              </section>
               <div className="mt-3 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                 <p className="text-xs text-slate-500 dark:text-slate-400">{draft.length.toLocaleString()} characters · Short, specific posts tend to be easier to read.</p>
                 <div className="flex gap-2">
