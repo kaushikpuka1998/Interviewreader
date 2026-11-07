@@ -16,6 +16,8 @@ const ROWS = [
   ['Company roadmaps', 'Topic outlines', 'Full roadmap for every company'],
   ['Company-tagged DSA problems for every pattern, with shuffle', false, true],
   ['Direct links to system design and LLD answers per company', false, true],
+  ['Scored system-design practice', '3 free questions', 'Continue with Premium'],
+  ['HLD architecture simulator (3 free runs, then unlimited)', '3 simulations', 'Unlimited simulations'],
   ['Behavioral question bank mapped to company values', false, true],
   ['Cheat sheets, progress tracking and readiness score', false, true],
   ['New roadmaps as they are added (yearly and lifetime)', false, true],
@@ -43,7 +45,7 @@ export default function PremiumPage({ autoOpen = false }) {
       <TopBar />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Free vs Premium</h1>
-        <p className="mt-2 text-slate-600 dark:text-slate-400">Everything you need to practise is free. Premium adds the company-specific preparation: full roadmaps with the problems, design links and behavioral questions for each company.</p>
+        <p className="mt-2 text-slate-600 dark:text-slate-400">Try scored system-design practice with 3 questions free. Premium unlocks continued practice, unlimited HLD simulations, and company-specific preparation.</p>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           <table className="w-full text-sm">

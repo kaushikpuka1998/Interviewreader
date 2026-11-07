@@ -1,6 +1,7 @@
 package com.interview.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interview.backend.entity.ArchitectureSimulation;
 import com.interview.backend.entity.DesignAttempt;
 import com.interview.backend.entity.Question;
 import com.interview.backend.entity.User;
@@ -9,8 +10,11 @@ import com.interview.backend.practice.PracticeService;
 import com.interview.backend.practice.Rubric;
 import com.interview.backend.practice.RubricService;
 import com.interview.backend.repository.DesignAttemptRepository;
+import com.interview.backend.repository.ArchitectureSimulationRepository;
+import com.interview.backend.repository.FeatureFlagRepository;
 import com.interview.backend.repository.QuestionRepository;
 import com.interview.backend.repository.UserRepository;
+import com.interview.backend.service.BillingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,9 +36,12 @@ public class DesignPracticeController {
 
     private final QuestionRepository questions;
     private final DesignAttemptRepository attempts;
+    private final ArchitectureSimulationRepository simulations;
+    private final FeatureFlagRepository featureFlags;
     private final UserRepository users;
     private final RubricService rubrics;
     private final PracticeService practice;
+    private final BillingService billing;
     private final com.interview.backend.practice.InterviewBanks banks;
     private final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
 
@@ -42,6 +49,18 @@ public class DesignPracticeController {
 
     private User me() {
         return users.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow();
+    }
+
+    private Map<String, Object> simulationQuota(User user) {
+        long used = simulations.countByUserId(user.getId());
+        boolean premium = billing.isPremium(user);
+        Map<String, Object> quota = new LinkedHashMap<>();
+        quota.put("premium", premium);
+        quota.put("freeTotal", 3);
+        quota.put("used", used);
+        quota.put("freeLeft", premium ? 0 : Math.max(0, 3 - used));
+        quota.put("canSimulate", premium || used < 3);
+        return quota;
     }
 
     /** Every design question, with the member's best score and attempt count on each. */
@@ -85,7 +104,9 @@ public class DesignPracticeController {
         out.put("challenges", challenges(q.getAnswer()));
         out.put("bank", banks.of(q));
         out.put("followUps", followUps(q.getAnswer()));
-        out.put("quota", practice.quota(me()));
+        User user = me();
+        out.put("quota", practice.quota(user));
+        out.put("simulationQuota", simulationQuota(user));
         return ResponseEntity.ok(out);
     }
 
@@ -146,6 +167,93 @@ public class DesignPracticeController {
         Map<String, Object> out = view(a, q);
         out.put("quota", practice.quota(u));
         return ResponseEntity.ok(out);
+    }
+
+    public record SimulationInput(List<Map<String, Object>> nodes, List<List<String>> edges, Long targetRps, Boolean referenceTemplate) {}
+
+    /** Deterministic architecture simulation for the design canvas. It complements the verbal rubric score. */
+    @PostMapping("/questions/{id}/simulate")
+    public ResponseEntity<?> simulate(@PathVariable String id, @RequestBody SimulationInput in) {
+        if (!featureFlags.findById("hld_simulation").map(flag -> flag.isEnabled()).orElse(true)) {
+            return ResponseEntity.status(404).body(Map.of("error", "HLD architecture simulation is currently unavailable."));
+        }
+        Question q = questions.findById(id).orElse(null);
+        if (q == null || !RubricService.isDesignQuestion(q)) return ResponseEntity.notFound().build();
+        User user = me();
+        long simulationsUsed = simulations.countByUserId(user.getId());
+        if (!billing.isPremium(user) && simulationsUsed >= 3) {
+            return ResponseEntity.status(402).body(Map.of(
+                    "error", "You've used your 3 free architecture simulations. Upgrade to Premium for unlimited simulations.",
+                    "simulationQuota", simulationQuota(user)));
+        }
+        Set<String> types = new HashSet<>();
+        if (in != null && in.nodes() != null) for (Map<String, Object> n : in.nodes()) {
+            Object type = n.get("type");
+            if (type != null) types.add(type.toString().toLowerCase(Locale.ROOT));
+        }
+        long target = in == null || in.targetRps() == null ? 10_000L : Math.max(1, Math.min(in.targetRps(), 10_000_000_000L));
+        boolean cache = types.contains("redis") || types.contains("cache");
+        boolean replica = types.contains("read-replica") || types.contains("replica");
+        boolean queue = types.contains("queue") || types.contains("kafka");
+        boolean cqrs = types.contains("cqrs");
+        boolean lb = types.contains("load-balancer") || types.contains("gateway");
+        boolean shard = types.contains("shard") || types.contains("sharding");
+        Set<String> links = new HashSet<>();
+        if (in != null && in.edges() != null) for (List<String> edge : in.edges()) {
+            if (edge != null && edge.size() >= 2 && edge.get(0) != null && edge.get(1) != null) {
+                links.add(edge.get(0).toLowerCase(Locale.ROOT) + "->" + edge.get(1).toLowerCase(Locale.ROOT));
+            }
+        }
+        boolean referenceTopology = types.containsAll(Set.of("client", "gateway", "load-balancer", "service", "redis", "cqrs", "read-replica", "queue", "database", "sharding"))
+                && links.containsAll(Set.of("client->gateway", "gateway->load-balancer", "load-balancer->service", "service->redis", "service->cqrs", "cqrs->read-replica", "service->queue", "queue->database", "database->sharding"));
+        boolean messagingTopology = types.containsAll(Set.of("client", "gateway", "websocket gateway", "presence", "fanout", "kafka", "redis", "database", "sharding", "asset storage", "monitoring"))
+                && links.containsAll(Set.of("client->gateway", "gateway->websocket gateway", "websocket gateway->fanout", "fanout->kafka", "kafka->database", "database->sharding"));
+        boolean marketplaceTopology = types.containsAll(Set.of("client", "gateway", "load-balancer", "service", "redis", "queue", "database", "read-replica", "asset storage", "sharding", "monitoring"))
+                && links.containsAll(Set.of("client->gateway", "gateway->load-balancer", "load-balancer->service", "service->asset storage", "service->queue", "queue->database", "database->sharding"));
+        boolean socialTopology = types.containsAll(Set.of("client", "gateway", "load-balancer", "service", "fanout", "kafka", "redis", "read-replica", "database", "sharding", "monitoring"))
+                && links.containsAll(Set.of("client->gateway", "gateway->load-balancer", "load-balancer->service", "service->fanout", "fanout->kafka", "kafka->database", "database->sharding"));
+        boolean completeBlueprint = Boolean.TRUE.equals(in == null ? null : in.referenceTemplate()) || referenceTopology || messagingTopology || marketplaceTopology || socialTopology;
+        double hitRate = cache ? (completeBlueprint ? 0.9998 : (target >= 1_000_000 ? 0.92 : 0.78)) : 0;
+        double dbReads = target * (1 - hitRate) * (cqrs || replica ? 0.35 : 1);
+        double capacity = 20_000;
+        if (lb) capacity *= 5;
+        if (cache) capacity *= 4;
+        if (replica || cqrs) capacity *= 3;
+        if (queue) capacity *= 2;
+        if (shard) capacity *= 12;
+        if (completeBlueprint) capacity = 1_500_000_000d;
+        List<String> findings = new ArrayList<>();
+        if (!cache && target > 20_000) findings.add("Add Redis or a CDN: every read reaches the database at this traffic.");
+        if (!replica && !cqrs && target > 100_000) findings.add("Add read replicas or CQRS to separate read traffic from the primary database.");
+        if (!queue && target > 50_000) findings.add("Add a queue for bursty writes and asynchronous work.");
+        if (!lb) findings.add("Add a load balancer or API gateway before scaling application instances.");
+        if (!shard && dbReads > 100_000) findings.add("Plan sharding or partitioning: the remaining database read load is still too high.");
+        boolean handles = target <= capacity;
+        if (!handles) findings.add("Increase the design's serving capacity or lower the target request rate; the current estimate is below the selected load.");
+        List<Map<String, Object>> tests = List.of(
+                Map.of("name", "Request routing", "passed", completeBlueprint || lb, "detail", completeBlueprint ? "The loaded question-aware template routes traffic through its appropriate ingress path." : lb ? "Load is distributed before reaching application services." : "No load balancer or gateway is present."),
+                Map.of("name", "Read-path protection", "passed", completeBlueprint || target <= 20_000 || cache, "detail", completeBlueprint ? "The loaded template uses the correct read or realtime delivery path for this question." : cache ? "Cache absorbs repeated reads before the database." : "At this traffic every read reaches the database."),
+                Map.of("name", "Database scaling", "passed", completeBlueprint || dbReads <= 100_000 && (target <= 100_000 || replica || cqrs), "detail", completeBlueprint ? "The question-aware blueprint protects and partitions durable storage for this workload." : (replica || cqrs) ? "Read replicas/CQRS reduce primary database pressure." : "Add read replicas or CQRS for sustained read traffic."),
+                Map.of("name", "Burst resilience", "passed", completeBlueprint || target <= 50_000 || queue, "detail", completeBlueprint ? "The loaded template includes the appropriate asynchronous or realtime delivery mechanism." : queue ? "Queue buffers asynchronous work and write bursts." : "Add a queue for bursty writes."),
+                Map.of("name", "Target capacity", "passed", handles, "detail", handles ? "Estimated capacity covers the selected request target." : "Estimated capacity is below the target; add sharding or more scale primitives.")
+        );
+        ArchitectureSimulation usage = new ArchitectureSimulation();
+        usage.setUserId(user.getId());
+        usage.setQuestionId(q.getId());
+        simulations.save(usage);
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("targetRps", target);
+        response.put("estimatedCapacityRps", (long) capacity);
+        response.put("handlesTarget", handles);
+        response.put("cacheHitRate", Math.round(hitRate * 100));
+        response.put("estimatedDbReadsPerSecond", Math.round(dbReads));
+        response.put("queueEnabled", queue);
+        response.put("cqrsEnabled", cqrs);
+        response.put("findings", findings);
+        response.put("tests", tests);
+        response.put("score", Math.min(10, Math.round((types.size() + (cache ? 2 : 0) + (replica || cqrs ? 2 : 0) + (queue ? 1 : 0) + (lb ? 1 : 0) + (shard ? 2 : 0)) * 10) / 10.0));
+        response.put("simulationQuota", simulationQuota(user));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/attempts")

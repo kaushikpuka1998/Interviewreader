@@ -86,6 +86,99 @@ function brandStyle(name) {
 
 // The headline, with the company name that rotates every 2.2 s. It owns its own state, so a tick re-renders only this heading and
 // not the whole home page (topic tiles, company chips, link cards), which is what the page used to redo every 2.2 s.
+function HldInteractivePreview({ showBadge }) {
+  const trafficLevels = [
+    { label: '1K', rps: 1_000 },
+    { label: '10K', rps: 10_000 },
+    { label: '1M', rps: 1_000_000 },
+    { label: '100M', rps: 100_000_000 },
+    { label: '1B', rps: 1_000_000_000 },
+  ]
+  const [trafficIndex, setTrafficIndex] = useState(2)
+  const [redisEnabled, setRedisEnabled] = useState(true)
+  const [queueEnabled, setQueueEnabled] = useState(false)
+  const [playing, setPlaying] = useState(true)
+  const [activeNode, setActiveNode] = useState(0)
+  const nodes = ['Client', 'Gateway', 'Service', ...(redisEnabled ? ['Redis'] : []), 'Database']
+  const targetRps = trafficLevels[trafficIndex].rps
+  const estimatedDbReads = Math.round(targetRps * (redisEnabled ? 0.08 : 1))
+  const compact = value => value >= 1_000_000_000 ? (value / 1_000_000_000).toFixed(value % 1_000_000_000 ? 1 : 0) + 'B'
+    : value >= 1_000_000 ? (value / 1_000_000).toFixed(value % 1_000_000 ? 1 : 0) + 'M'
+      : value >= 1_000 ? (value / 1_000).toFixed(value % 1_000 ? 1 : 0) + 'K' : String(value)
+
+  useEffect(() => {
+    if (!playing) return undefined
+    const timer = window.setInterval(() => setActiveNode(index => (index + 1) % nodes.length), 850)
+    return () => window.clearInterval(timer)
+  }, [playing, nodes.length])
+
+  return (
+    <section className="mx-auto mt-5 max-w-4xl overflow-hidden rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50 via-white to-teal-50 text-left shadow-sm dark:border-emerald-800 dark:from-[#10251c] dark:via-[#101a16] dark:to-[#11231d]">
+      <div className="grid items-center gap-5 p-5 sm:p-6 lg:grid-cols-[.9fr_1.1fr]">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            {showBadge && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">New · HLD</span>}
+            <span className="text-xs font-bold uppercase tracking-[.12em] text-emerald-800 dark:text-emerald-300">Interactive system design</span>
+          </div>
+          <h2 className="mt-2 text-xl font-extrabold text-slate-900 dark:text-white">Build it. Connect it. Test the scale.</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Try the controls to see how architecture choices change the request path. Open HLD practice to build and submit your own design.</p>
+          <p className="mt-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">3 free system-design questions · Premium unlocks continued practice</p>
+        </div>
+
+        <div className="rounded-xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-900 dark:bg-black/25">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Live architecture preview</span>
+            <button type="button" onClick={() => setPlaying(value => !value)} aria-pressed={playing}
+              className="rounded-lg border border-emerald-300 px-2.5 py-1 text-xs font-bold text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-200 dark:hover:bg-emerald-950">
+              {playing ? 'Ⅱ Pause flow' : '▶ Play flow'}
+            </button>
+          </div>
+
+          <div className={'hld-demo-flow mt-4' + (playing ? ' is-playing' : '')} aria-label={'Animated request flow: ' + nodes.join(' to ')}>
+            {nodes.map((node, index) => (
+              <div className="hld-demo-step" key={node}>
+                <span className={'hld-demo-node' + (activeNode === index && playing ? ' is-active' : '')}>{node}</span>
+                {index < nodes.length - 1 && <span className="hld-demo-edge" aria-hidden="true" />}
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex min-h-8 items-center justify-center gap-2 rounded-lg bg-emerald-50/80 px-2 py-1.5 text-[11px] font-semibold text-slate-600 dark:bg-emerald-950/30 dark:text-slate-300" aria-live="polite">
+            {queueEnabled
+              ? <><span>Service</span><span className="hld-demo-branch-edge" aria-hidden="true" /><span className="rounded-md border border-violet-300 bg-violet-50 px-2 py-1 text-violet-800 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-200">Queue</span><span className="hld-demo-branch-edge" aria-hidden="true" /><span>Database · async writes</span></>
+              : <span>Write path: Service → Database · queue is off</span>}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => setRedisEnabled(value => !value)} aria-pressed={redisEnabled}
+              className={'rounded-full border px-3 py-1.5 text-xs font-bold transition ' + (redisEnabled ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200')}>
+              {redisEnabled ? '✓ Redis cache on' : '+ Add Redis cache'}
+            </button>
+            <button type="button" onClick={() => setQueueEnabled(value => !value)} aria-pressed={queueEnabled}
+              className={'rounded-full border px-3 py-1.5 text-xs font-bold transition ' + (queueEnabled ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-violet-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200')}>
+              {queueEnabled ? '✓ Async queue on' : '+ Add async queue'}
+            </button>
+            <span className="ml-auto text-xs font-semibold text-slate-500 dark:text-slate-400">{queueEnabled ? 'Writes branch to a queue' : 'Writes go directly to storage'}</span>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-emerald-100 pt-3 dark:border-emerald-900">
+            <div className="flex flex-wrap items-center gap-1.5" aria-label="Choose example traffic rate">
+              <span className="mr-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">Traffic</span>
+              {trafficLevels.map((level, index) => <button key={level.label} type="button" onClick={() => setTrafficIndex(index)} aria-pressed={trafficIndex === index}
+                className={'rounded-md px-2 py-1 text-[11px] font-bold ' + (trafficIndex === index ? 'bg-emerald-700 text-white dark:bg-emerald-500 dark:text-emerald-950' : 'text-slate-600 hover:bg-emerald-50 dark:text-slate-300 dark:hover:bg-emerald-950')}>{level.label}</button>)}
+            </div>
+            <div className="text-right" aria-live="polite">
+              <span className="block text-xs font-bold text-slate-900 dark:text-white">{compact(estimatedDbReads)} estimated DB reads/sec</span>
+              <span className="block text-[10px] text-slate-500 dark:text-slate-400">{redisEnabled ? 'Illustrative 92% cache hit rate' : 'No cache: all reads reach storage'}</span>
+            </div>
+          </div>
+          <a href="/interview/practice" className="mt-4 inline-flex rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-800 dark:bg-emerald-500 dark:text-emerald-950 dark:hover:bg-emerald-400">Open HLD practice →</a>
+          <span className="ml-3 text-[10px] text-slate-500 dark:text-slate-400">Preview values are illustrative; the simulator evaluates your submitted design.</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function HeroHeadline() {
   const [idx, setIdx] = useState(0)
   useEffect(() => {
@@ -170,6 +263,7 @@ export default function HomePage() {
             </a>
           </div>
           <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">No credit card. Free topics open without an account.</p>
+          {features.hld_simulation !== false && <HldInteractivePreview showBadge={features.new_badge_hld_practice !== false} />}
           <QotdCard className="mt-8" />
 
           {/* Proof strip: only shows numbers we actually have; a same-size placeholder holds the space while they load. */}

@@ -13,6 +13,7 @@ async function call(path, method = 'GET', body) {
     const err = new Error(data.error || 'Something went wrong. Please try again.')
     err.status = res.status
     err.quota = data.quota   // 402: out of attempts, with the plans to offer
+    err.simulationQuota = data.simulationQuota
     throw err
   }
   return data
@@ -22,6 +23,7 @@ export const fetchDesignQuestions = () => call('/questions')
 export const fetchDesignQuestion = id => call(`/questions/${encodeURIComponent(id)}`)
 export const submitDesignAttempt = (id, answer, mode, durationSec, difficulty, signals) => call(`/questions/${encodeURIComponent(id)}/attempts`, 'POST', { answer, mode, durationSec, difficulty, signals })
 export const probeDesignAnswer = (id, answer) => call(`/questions/${encodeURIComponent(id)}/probe`, 'POST', { answer })
+export const simulateArchitecture = (id, nodes, edges, targetRps, referenceTemplate = false) => call(`/questions/${encodeURIComponent(id)}/simulate`, 'POST', { nodes, edges, targetRps, referenceTemplate })
 export const fetchDesignAttempts = () => call('/attempts')
 export const fetchDesignAttempt = id => call(`/attempts/${id}`)
 export const fetchPracticeQuota = () => call('/quota')
@@ -46,3 +48,4 @@ export const testRubric = (id, answer) => admin(`/${encodeURIComponent(id)}/test
 // Private content kept out of the public repo: interview banks and hand-written rubrics, imported from JSON files.
 export const importInterviewBanks = data => admin('/import/banks', 'POST', data)
 export const importRubrics = (data, overwrite) => admin(`/import/rubrics?overwrite=${overwrite ? 'true' : 'false'}`, 'POST', data)
+

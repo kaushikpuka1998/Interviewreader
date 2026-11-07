@@ -19,6 +19,7 @@ public class DesignAttempt {
     public static final String FREE = "free";
     public static final String PLAN = "plan";
     public static final String ADMIN = "admin";
+    public static final String PREMIUM = "premium";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,7 +55,7 @@ public class DesignAttempt {
     @Column(columnDefinition = "TEXT")
     private String breakdown;
 
-    /** Which allowance paid for it: free (3 per member), plan (monthly), admin (unlimited). */
+    /** Which access paid for it: free (3 per member), premium, legacy plan, or admin. */
     @Column(length = 10, nullable = false)
     private String source;
 

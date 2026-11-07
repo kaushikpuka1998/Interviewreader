@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
                                 "default-src 'self'; " +
                                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.googletagmanager.com; " +
+                                "worker-src 'self'; " +
                                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                                 "font-src 'self' https://fonts.gstatic.com data:; " +
                                 "img-src 'self' data: blob: https:; " +

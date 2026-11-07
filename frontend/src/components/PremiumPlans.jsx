@@ -9,6 +9,8 @@ const PREMIUM_FEATURES = [
   'Personalized roadmaps for every company',
   'Company-tagged DSA problems for every pattern, with shuffle',
   'Direct links to system design & LLD answers',
+  'Continue scored system-design practice after 3 free questions',
+  'Unlimited HLD architecture simulations after 3 free runs',
   'Behavioral question bank mapped to company values',
   'Cheat sheets, progress tracking & readiness score',
   '6 mock interviews a month with real interviewers',
@@ -121,7 +123,7 @@ export default function PremiumPlans({ onClose, onBought }) {
         </div>
         {error && <p className="mt-4 text-center text-sm text-rose-600 dark:text-rose-400">{error}</p>}
         <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-          System design practice is a separate plan — <a href="/interview/practice" className="font-semibold text-pink-600 hover:underline dark:text-pink-400">see practice plans</a>.
+          Premium includes continued scored system-design practice and unlimited architecture simulations.
         </p>
       </div>
     </div>

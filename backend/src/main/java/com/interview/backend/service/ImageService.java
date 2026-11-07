@@ -57,6 +57,10 @@ public class ImageService {
 
     // Uploads the image (bucket stays private) and returns a proxied URL served by this app.
     public String upload(MultipartFile file) throws IOException {
+        return uploadStored(file);
+    }
+
+    private String uploadStored(MultipartFile file) throws IOException {
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED.contains(contentType)) {
             throw new IllegalArgumentException("Unsupported image type: " + contentType);

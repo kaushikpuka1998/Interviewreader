@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { designBlueprintFor } from '../lib/designBlueprints.js'
+import { useFeature } from '../lib/features.js'
 import TopBar from './TopBar.jsx'
 import Loader from './Loader.jsx'
 import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
+import PremiumPlans from './PremiumPlans.jsx'
 import { getUser } from '../lib/auth.js'
 import { setPageSeo } from '../lib/seo.js'
-import { subscribePractice } from '../lib/billing.js'
 import { respond, newInterviewState, systemName } from '../lib/interviewer.js'
-import { fetchDesignQuestions, fetchDesignQuestion, submitDesignAttempt, fetchDesignAttempts, fetchDesignAttempt, fetchPracticeQuota, probeDesignAnswer } from '../lib/designPractice.js'
+import { fetchDesignQuestions, fetchDesignQuestion, submitDesignAttempt, fetchDesignAttempts, fetchDesignAttempt, fetchPracticeQuota, probeDesignAnswer, simulateArchitecture } from '../lib/designPractice.js'
 
 // Solo system design practice: pick a "Design …" question, answer by voice or typing under a timer, and get a
-// coverage score out of 10 with what was covered and missed. 3 free attempts per member, then monthly plans.
+// coverage score out of 10 with what was covered and missed. 3 free scored questions per member, then Premium unlocks continued practice.
 const ROUND_SECONDS = 45 * 60
 
 const card = 'rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950'
@@ -26,13 +28,15 @@ const setUrl = params => {
 
 export default function DesignPracticePage() {
   const signedIn = Boolean(getUser())
+  const simulationEnabled = useFeature('hld_simulation')
   const [authOpen, setAuthOpen] = useState(!signedIn)
   const [questions, setQuestions] = useState(null)
   const [quota, setQuota] = useState(null)
   const [history, setHistory] = useState([])
   const [current, setCurrent] = useState(null)     // question being answered
   const [result, setResult] = useState(null)       // a scored attempt
-  const [plansOpen, setPlansOpen] = useState(false)
+    const [premiumPlansOpen, setPremiumPlansOpen] = useState(false)
+  const [showSimulationIntro, setShowSimulationIntro] = useState(() => localStorage.getItem('ir_hld_simulation_intro_seen') !== '1')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function DesignPracticePage() {
     setError('')
     if (p.get('attempt')) { setCurrent(null); fetchDesignAttempt(p.get('attempt')).then(setResult).catch(e => setError(e.message)); return }
     setResult(null)
-    if (p.get('q')) fetchDesignQuestion(p.get('q')).then(q => { setCurrent(q); setQuota(q.quota) }).catch(e => setError(e.message))
+    if (p.get('q')) fetchDesignQuestion(p.get('q')).then(q => { setQuota(q.quota); if (q.quota?.canAttempt === false) { setCurrent(null); setPremiumPlansOpen(true) } else setCurrent(q) }).catch(e => setError(e.message))
     else setCurrent(null)
   }, [])
 
@@ -64,7 +68,7 @@ export default function DesignPracticePage() {
     return () => window.removeEventListener('popstate', openFromUrl)
   }, [signedIn, refresh, openFromUrl])
 
-  const start = (id, mode) => { setUrl({ q: id, ...(mode ? { mode } : {}) }); openFromUrl(); window.scrollTo(0, 0) }
+  const start = (id, mode) => { if (quota?.canAttempt === false) { setPremiumPlansOpen(true); return }; setUrl({ q: id, ...(mode ? { mode } : {}) }); openFromUrl(); window.scrollTo(0, 0) }
   const showAttempt = id => { setUrl({ attempt: id }); openFromUrl(); window.scrollTo(0, 0) }
   const backToList = () => { setUrl({}); openFromUrl(); refresh() }
 
@@ -81,31 +85,34 @@ export default function DesignPracticePage() {
     <>
       <TopBar />
       <main className="min-h-screen bg-slate-100 px-3 py-6 sm:px-4 dark:bg-slate-900">
-        <div className="mx-auto max-w-6xl space-y-5">
+        <div className="mx-auto max-w-[1720px] space-y-5">
           <header className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <a href="/interview" className="text-sm text-blue-600 hover:underline dark:text-blue-400">← Mock interviews</a>
               <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">System design practice</h1>
               <p className="text-sm text-slate-600 dark:text-slate-400">Answer a design question on your own, by voice or typing, and get a score out of 10.</p>
             </div>
-            {quota && <QuotaBar quota={quota} onMore={() => setPlansOpen(true)} />}
+            {quota && <QuotaBar quota={quota} onMore={() => setPremiumPlansOpen(true)} />}
           </header>
 
           {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
 
           {!signedIn ? (
             <div className={`${card} text-center`}>
-              <p className="text-slate-700 dark:text-slate-300">Sign in to practise. Every member gets <strong>3 free scored attempts</strong>.</p>
+              <p className="text-slate-700 dark:text-slate-300">Sign in to practise. Every member gets <strong>3 free system-design questions</strong>, then Premium unlocks more.</p>
               <button type="button" onClick={() => setAuthOpen(true)} className={`${btnPrimary} mt-4`}>Sign in or create a free account</button>
             </div>
           ) : result ? (
             <ResultView attempt={result} onRetry={() => start(result.questionId, result.mode === 'interview' ? 'interview' : undefined)} onBack={backToList} />
           ) : current ? (
-            <Session question={current} quota={quota} onScored={onScored} onOutOfAttempts={q => { setQuota(q); setPlansOpen(true) }} onBack={backToList} />
+            <Session question={current} quota={quota} onScored={onScored} onOutOfAttempts={q => { setQuota(q); setPremiumPlansOpen(true) }} onBack={backToList}
+              onSimulationQuota={simQuota => setCurrent(q => q ? { ...q, simulationQuota: simQuota } : q)}
+              onUpgradePremium={() => setPremiumPlansOpen(true)} />
           ) : !questions ? (
             <Loader label="Loading design questions…" />
           ) : (
             <>
+            {simulationEnabled && showSimulationIntro && <HldSimulationIntro onDismiss={() => { localStorage.setItem('ir_hld_simulation_intro_seen', '1'); setShowSimulationIntro(false) }} />}
             <MockInterviewPromo questions={questions} quota={quota} onStart={id => start(id, 'interview')} />
             <div className="grid gap-5 lg:grid-cols-[2fr_1fr] [&>*]:min-w-0">
               <QuestionList questions={questions} onStart={start} />
@@ -115,23 +122,21 @@ export default function DesignPracticePage() {
           )}
         </div>
       </main>
-      {plansOpen && quota && <PlanPicker quota={quota} onClose={() => setPlansOpen(false)} onBought={() => { setPlansOpen(false); refresh() }} />}
+      {premiumPlansOpen && <PremiumPlans onClose={() => setPremiumPlansOpen(false)} onBought={() => { setPremiumPlansOpen(false); window.location.reload() }} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
     </>
   )
 }
 
 function QuotaBar({ quota, onMore }) {
-  if (quota.unlimited) return <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Admin · unlimited attempts</span>
-  const resets = quota.periodEnd ? new Date(quota.periodEnd).toLocaleDateString([], { day: 'numeric', month: 'short' }) : ''
+  if (quota.unlimited) return <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Admin · unlimited HLD practice</span>
+  if (quota.premium) return <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">Premium · HLD practice unlocked</span>
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-950">
-      {quota.freeLeft > 0 && <span className="text-slate-700 dark:text-slate-300"><strong>{quota.freeLeft}</strong> of {quota.freeTotal} free attempts left</span>}
-      {quota.plan && <span className="text-slate-700 dark:text-slate-300">Plan {quota.planAttempts}: <strong>{quota.planLeft}</strong> of {quota.planAttempts} left{resets && ` · renews ${resets}`}</span>}
-      {!quota.canAttempt && <span className="font-semibold text-rose-600 dark:text-rose-400">No attempts left</span>}
-      <button type="button" onClick={onMore} className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-600 px-3 py-1 text-xs font-bold text-white">
-        {quota.plan ? 'Change plan' : 'Get more attempts'}
-      </button>
+      {quota.freeLeft > 0
+        ? <span className="text-slate-700 dark:text-slate-300"><strong>{quota.freeLeft}</strong> of {quota.freeTotal} free questions left</span>
+        : <span className="font-semibold text-rose-600 dark:text-rose-400">3 free questions used</span>}
+      {!quota.canAttempt && <button type="button" onClick={onMore} className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-600 px-3 py-1 text-xs font-bold text-white">Unlock with Premium</button>}
     </div>
   )
 }
@@ -144,7 +149,8 @@ function MockInterviewPromo({ questions, quota, onStart }) {
     const list = fresh.length ? fresh : pool.length ? pool : questions
     if (list.length) onStart(list[Math.floor(Math.random() * list.length)].id)
   }
-  const freeLeft = quota && !quota.unlimited ? quota.freeLeft : null
+  const freeLeft = quota && !quota.unlimited && !quota.premium ? quota.freeLeft : null
+  const hasPremiumAccess = Boolean(quota?.premium || quota?.unlimited)
   return (
     <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-pink-500 p-6 text-white shadow-lg">
       <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
@@ -164,10 +170,10 @@ function MockInterviewPromo({ questions, quota, onStart }) {
         <div className="flex flex-col items-start gap-2 sm:items-end">
           <button type="button" onClick={startRandom}
             className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-violet-700 shadow-md transition hover:scale-[1.02] hover:bg-violet-50">
-            {freeLeft > 0 ? `Take a free mock interview →` : 'Start a mock interview →'}
+            {freeLeft === 0 ? 'Unlock with Premium →' : 'Start a mock interview →'}
           </button>
           <span className="text-xs text-white/85">
-            {freeLeft == null ? 'Unlimited interviews' : freeLeft > 0 ? `Your first ${quota.freeTotal} interviews are free · ${freeLeft} left` : 'Monthly plans from ₹499'}
+            {!quota ? '3 free scored questions for every member' : hasPremiumAccess ? 'Premium · HLD practice unlocked' : freeLeft > 0 ? '3 free scored questions · ' + freeLeft + ' left' : '3 free questions used · Premium required'}
           </span>
           <span className="text-xs text-white/70">or pick any question below and press <em>Start interview</em></span>
         </div>
@@ -289,6 +295,244 @@ function useSpeech(onFinal) {
   return { supported: Boolean(Recognition), listening, interim, error, start, stop }
 }
 
+function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
+  const simulationEnabled = useFeature('hld_simulation')
+  const blueprint = designBlueprintFor(question)
+  const fallbackPalette = ['Gateway', 'Load-balancer', 'Redis', 'Read-replica', 'Queue', 'CQRS', 'Sharding', 'Asset storage', 'Monitoring']
+  const palette = [...new Set([...blueprint.components, ...fallbackPalette])]
+  const starterNodes = [{ type: 'Client', x: 5, y: 47 }, { type: 'Gateway', x: 21, y: 47 }, { type: 'Service', x: 52, y: 47 }, { type: 'Database', x: 76, y: 47 }]
+  const starterEdges = [['Client', 'Gateway'], ['Gateway', 'Service'], ['Service', 'Database']]
+  const layout = blueprint.positions
+  const formatRps = value => {
+    const units = [[1_000_000_000, 'Billion'], [1_000_000, 'Million'], [1_000, 'Thousand']]
+    const unit = units.find(([amount]) => value >= amount)
+    return unit ? `${(value / unit[0]).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${unit[1]}` : value.toLocaleString()
+  }
+  const [nodes, setNodes] = useState(starterNodes)
+  const [edges, setEdges] = useState(starterEdges)
+  const [linkFrom, setLinkFrom] = useState(null)
+  const [linkCursor, setLinkCursor] = useState(null)
+  const [historyVersion, setHistoryVersion] = useState(0)
+  const [showReference, setShowReference] = useState(false)
+  const requestTargets = [1_000, 10_000, 1_000_000, 100_000_000, 1_000_000_000]
+  const [targetStep, setTargetStep] = useState(blueprint.defaultStep)
+  const targetRps = requestTargets[targetStep]
+  const [result, setResult] = useState(null), [busy, setBusy] = useState(false), [tests, setTests] = useState([])
+  const [simulationQuota, setSimulationQuota] = useState(question.simulationQuota || null)
+  const [simulationError, setSimulationError] = useState('')
+  const architecture = useRef({ nodes: starterNodes, edges: starterEdges })
+  const history = useRef({ past: [], future: [] })
+  const drag = useRef(null)
+  const canvasRef = useRef(null)
+  const [canvasSize, setCanvasSize] = useState({ width: 128, height: 80 })
+  const nodeWidthPct = (160 / canvasSize.width) * 100
+  const nodeHeightPct = (80 / canvasSize.height) * 100
+  useEffect(() => { setSimulationQuota(question.simulationQuota || null) }, [question.id, question.simulationQuota])
+  const sameArchitecture = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+  const snapshot = () => ({ nodes: architecture.current.nodes.map(n => ({ ...n })), edges: architecture.current.edges.map(e => [...e]) })
+  const apply = next => { architecture.current = next; setNodes(next.nodes); setEdges(next.edges) }
+  const commit = next => {
+    const current = snapshot()
+    if (sameArchitecture(current, next)) return
+    history.current = { past: [...history.current.past.slice(-39), current], future: [] }
+    apply(next)
+    setHistoryVersion(v => v + 1)
+  }
+  const undo = () => {
+    const previous = history.current.past.at(-1)
+    if (!previous) return
+    const current = snapshot()
+    history.current = { past: history.current.past.slice(0, -1), future: [current, ...history.current.future] }
+    apply(previous)
+    setHistoryVersion(v => v + 1)
+  }
+  const redo = () => {
+    const next = history.current.future[0]
+    if (!next) return
+    const current = snapshot()
+    history.current = { past: [...history.current.past, current], future: history.current.future.slice(1) }
+    apply(next)
+    setHistoryVersion(v => v + 1)
+  }
+  useEffect(() => {
+    const onKeyDown = event => {
+      const editable = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName) || event.target.isContentEditable
+      if (editable || !(event.metaKey || event.ctrlKey)) return
+      if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? redo() : undo() }
+      if (event.key.toLowerCase() === 'y') { event.preventDefault(); redo() }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const update = () => { const rect = canvas.getBoundingClientRect(); setCanvasSize({ width: Math.max(1, rect.width), height: Math.max(1, rect.height) }) }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(canvas)
+    return () => observer.disconnect()
+  }, [])
+  const add = type => {
+    const current = architecture.current
+    if (current.nodes.some(x => x.type === type)) return
+    commit({ nodes: [...current.nodes, { type, ...(layout[type] || { x: 10 + (current.nodes.length % 4) * 19, y: 18 + (current.nodes.length % 3) * 28 }) }], edges: current.edges })
+  }
+  const arrange = () => {
+    const current = architecture.current
+    commit({ nodes: current.nodes.map((node, index) => ({ ...node, ...(layout[node.type] || { x: 10 + (index % 4) * 19, y: 18 + (Math.floor(index / 4) % 3) * 28 }) })), edges: current.edges })
+  }
+  const pointerPosition = (e, rect) => ({ x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)), y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)) })
+  const move = e => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    if (linkFrom) { setLinkCursor(pointerPosition(e, rect)); return }
+    if (!drag.current) return
+    const point = pointerPosition(e, rect)
+    apply({ nodes: architecture.current.nodes.map(n => n.type === drag.current.type ? { ...n, x: Math.max(0, Math.min(100 - nodeWidthPct, point.x)), y: Math.max(0, Math.min(100 - nodeHeightPct, point.y)) } : n), edges: architecture.current.edges })
+  }
+  const finishDrag = () => {
+    if (!drag.current) return
+    const origin = drag.current.origin
+    drag.current = null
+    const current = snapshot()
+    if (!sameArchitecture(origin, current)) {
+      history.current = { past: [...history.current.past.slice(-39), origin], future: [] }
+      setHistoryVersion(v => v + 1)
+    }
+  }
+  const finishLink = target => {
+    const current = architecture.current
+    if (linkFrom && linkFrom !== target && !current.edges.some(([from, to]) => from === linkFrom && to === target)) commit({ nodes: current.nodes, edges: [...current.edges, [linkFrom, target]] })
+    setLinkFrom(null)
+    setLinkCursor(null)
+  }
+  const disconnectComponent = type => {
+    const current = architecture.current
+    commit({ nodes: current.nodes, edges: current.edges.filter(([from, to]) => from !== type && to !== type) })
+    setLinkFrom(null)
+    setLinkCursor(null)
+  }
+  const disconnectEdge = (from, to) => {
+    const current = architecture.current
+    commit({ nodes: current.nodes, edges: current.edges.filter(([source, target]) => source !== from || target !== to) })
+  }
+  const reset = () => commit({ nodes: starterNodes, edges: starterEdges })
+  const referenceEdges = blueprint.edges
+  const isRecommendedDesign = design => {
+    const nodeTypes = design.nodes.map(node => node.type).sort().join('|')
+    const expectedTypes = blueprint.components.slice().sort().join('|')
+    const edgeList = design.edges.map(([from, to]) => `${from}->${to}`).sort().join('|')
+    const expectedEdges = referenceEdges.map(([from, to]) => `${from}->${to}`).sort().join('|')
+    return nodeTypes === expectedTypes && edgeList === expectedEdges
+  }
+  const loadReference = () => {
+    const reference = { nodes: blueprint.components.map((type, index) => ({ type, ...(layout[type] || { x: 10 + (index % 4) * 19, y: 18 + (Math.floor(index / 4) % 3) * 28 }) })), edges: referenceEdges }
+    commit(reference)
+    setShowReference(true)
+    run(reference)
+  }
+  const run = async (design = architecture.current) => {
+    if (simulationQuota && !simulationQuota.canSimulate && !simulationQuota.premium) { onUpgradePremium?.(); return }
+    setSimulationError('')
+    setBusy(true); setResult(null); setTests([{ name: 'Test 1 · Request routing', status: 'running' }, { name: 'Test 2 · Database pressure', status: 'waiting' }, { name: 'Test 3 · Scale target', status: 'waiting' }])
+    try {
+      const response = await simulateArchitecture(question.id, design.nodes, design.edges, targetRps, isRecommendedDesign(design))
+      if (response.simulationQuota) { setSimulationQuota(response.simulationQuota); onSimulationQuota?.(response.simulationQuota) }
+      const checks = response.tests || []
+      setTests(checks.map((t, i) => ({ ...t, status: i === 0 ? 'running' : 'waiting' })))
+      for (let i = 0; i < checks.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 650))
+        setTests(ts => ts.map((t, index) => index === i ? { ...t, status: t.passed ? 'passed' : 'failed' } : index === i + 1 ? { ...t, status: 'running' } : t))
+      }
+      setResult(response)
+    } catch (error) {
+      if (error.status === 402) {
+        if (error.simulationQuota) { setSimulationQuota(error.simulationQuota); onSimulationQuota?.(error.simulationQuota) }
+        onUpgradePremium?.()
+      } else setSimulationError(error.message)
+    } finally { setBusy(false) }
+  }
+  const beginLink = (event, type) => {
+    event.stopPropagation()
+    drag.current = null
+    const rect = event.currentTarget.closest('.arch-canvas').getBoundingClientRect()
+    setLinkFrom(type)
+    setLinkCursor(pointerPosition(event, rect))
+  }
+  const connectionPath = (from, to) => {
+    const dx = (to.x - from.x) * canvasSize.width / 100
+    const dy = (to.y - from.y) * canvasSize.height / 100
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      const direction = dx >= 0 ? 1 : -1
+      const sx = direction > 0 ? from.x + nodeWidthPct : from.x
+      const ex = direction > 0 ? to.x : to.x + nodeWidthPct
+      const sy = from.y + nodeHeightPct / 2
+      const ey = to.y + nodeHeightPct / 2
+      const bend = Math.max(6, Math.abs(ex - sx) * 0.42)
+      return 'M ' + sx + ' ' + sy + ' C ' + (sx + direction * bend) + ' ' + sy + ', ' + (ex - direction * bend) + ' ' + ey + ', ' + ex + ' ' + ey
+    }
+    const direction = dy >= 0 ? 1 : -1
+    const sx = from.x + nodeWidthPct / 2
+    const ex = to.x + nodeWidthPct / 2
+    const sy = direction > 0 ? from.y + nodeHeightPct : from.y
+    const ey = direction > 0 ? to.y : to.y + nodeHeightPct
+    const bend = Math.max(5, Math.abs(ey - sy) * 0.38)
+    return 'M ' + sx + ' ' + sy + ' C ' + sx + ' ' + (sy + direction * bend) + ', ' + ex + ' ' + (ey - direction * bend) + ', ' + ex + ' ' + ey
+  }
+  if (!simulationEnabled) return null
+  return <section className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm dark:border-violet-400/20 dark:bg-slate-950 sm:p-5">
+    <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-violet-600 dark:text-violet-300">Architecture canvas</p><h3 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">Design for scale</h3><p className="mt-1 text-xs font-medium text-slate-500">{linkFrom ? `Connecting from ${linkFrom}: release on a component’s left input dot.` : 'Drag cards to position. Connect an output dot to an input dot; vertical flows attach at the top and bottom. Double-click a card to disconnect it; click a line to remove only that link.'}</p></div><div className="flex items-center gap-2"><button type="button" onClick={undo} disabled={!history.current.past.length} title="Undo (⌘/Ctrl + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↶ Undo</button><button type="button" onClick={redo} disabled={!history.current.future.length} title="Redo (⌘/Ctrl + Shift + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↷</button><button type="button" onClick={arrange} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Auto arrange</button><button type="button" onClick={reset} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Reset</button><button type="button" onClick={() => run()} disabled={busy} className="rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-violet-900/20 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:opacity-60">{busy ? 'Running tests…' : 'Submit architecture'}</button></div></div>
+    {simulationQuota && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-800/20 bg-emerald-950/80 px-3 py-2 text-xs text-emerald-100"><span>{simulationQuota.premium ? 'Premium · unlimited simulations' : `${simulationQuota.freeLeft} of ${simulationQuota.freeTotal} free simulations left`}</span>{!simulationQuota.premium && simulationQuota.freeLeft <= 1 && <button type="button" onClick={onUpgradePremium} className="rounded-lg bg-emerald-300 px-3 py-1.5 font-bold text-emerald-950 transition hover:bg-emerald-200">Get unlimited with Premium</button>}</div>}
+    {simulationError && <p role="alert" className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:bg-rose-950/40 dark:text-rose-200">{simulationError}</p>}
+    <div ref={canvasRef} className="arch-canvas relative mt-4 h-[30rem] min-h-[30rem] touch-none overflow-hidden rounded-2xl border border-slate-200 shadow-inner shadow-slate-200/40 md:h-[34rem] md:min-h-[34rem] dark:border-white/10 dark:shadow-black/20" onPointerMove={move} onPointerUp={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }} onPointerLeave={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }}>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full"><defs><marker id="arch-arrow" viewBox="0 0 2 2" refX="1.8" refY="1" markerWidth="2.2" markerHeight="2.2" markerUnits="userSpaceOnUse" orient="auto"><path d="M 0 0 L 2 1 L 0 2 z" fill="#8b5cf6" /></marker></defs>{edges.map(([from, to]) => { const a = nodes.find(n => n.type === from), b = nodes.find(n => n.type === to); if (!a || !b) return null; const d = connectionPath(a, b); return <g key={`${from}-${to}`} className="pointer-events-auto cursor-pointer" onClick={event => { event.stopPropagation(); disconnectEdge(from, to) }}><title>Click to remove this connection</title><path d={d} fill="none" stroke="transparent" strokeWidth="18" vectorEffect="non-scaling-stroke" /><path d={d} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="7 8" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="pointer-events-none arch-flow" /></g> })}{linkFrom && linkCursor && (() => { const source = nodes.find(n => n.type === linkFrom); if (!source) return null; const sx = source.x + nodeWidthPct, sy = source.y + nodeHeightPct / 2, ex = linkCursor.x, ey = linkCursor.y, bend = Math.max(8, Math.abs(ex - sx) * 0.46); return <path d={`M ${sx} ${sy} C ${sx + bend} ${sy}, ${ex - bend} ${ey}, ${ex} ${ey}`} fill="none" stroke="#a78bfa" strokeWidth="3" strokeDasharray="6 6" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="arch-link-preview" /> })()}</svg>
+      {nodes.map((n, i) => {
+        const isEntry = n.type === 'Client' || n.type === 'Clients / Editors'
+        const isStorage = ['Database', 'PostgreSQL', 'Asset storage', 'Object Storage'].includes(n.type)
+        const isMessaging = n.type === 'Redis' || n.type === 'Redis / PubSub' || n.type === 'Queue' || n.type === 'PubSub'
+        const isCollaboration = n.type === 'Collaboration Service' || n.type === 'Collaboration service' || n.type === 'CRDT State'
+        const icon = isEntry ? '◉' : isStorage ? '▤' : isMessaging ? '⚡' : n.type === 'Load Balancer' || n.type === 'Load-balancer' ? '⇄' : n.type === 'Update Log' ? '≡' : isCollaboration ? '✦' : '◇'
+        const category = isEntry ? 'Entry point' : isStorage ? 'Storage' : isMessaging ? 'Messaging' : isCollaboration ? 'Coordination' : n.type === 'Monitoring' ? 'Observability' : 'Compute'
+        const accent = isEntry ? 'bg-sky-50 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300' : isStorage ? 'bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300' : isMessaging ? 'bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300' : isCollaboration ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300' : 'bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300'
+        const border = isEntry ? 'border-sky-200' : isStorage ? 'border-amber-200' : isMessaging ? 'border-rose-200' : isCollaboration ? 'border-emerald-200' : n.type === 'Monitoring' ? 'border-cyan-200' : 'border-violet-200'
+        return <button key={n.type} type="button" onPointerDown={e => { drag.current = { type: n.type, origin: snapshot() }; e.currentTarget.setPointerCapture(e.pointerId) }} onDoubleClick={() => disconnectComponent(n.type)} style={{ left: n.x + '%', top: n.y + '%' }} className={`absolute flex h-20 w-40 cursor-grab items-center rounded-2xl border bg-white/95 px-3 py-2 text-left shadow-[0_12px_32px_-18px_rgba(15,23,42,0.45)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(91,33,182,0.45)] dark:bg-slate-900/95 ${linkFrom === n.type ? 'ring-4 ring-violet-400/40 border-violet-600' : border}`}>
+          <span onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title="Input: release a connection here" className="absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Input connection point" />
+          <span onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title="Top input connection point" className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Top input connection point" />
+          <span onPointerDown={e => beginLink(e, n.type)} title="Output: drag to another input" className="absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Output connection point" />
+          <span onPointerDown={e => beginLink(e, n.type)} title="Bottom output connection point" className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Bottom output connection point" />
+          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-lg font-bold ${accent}`}>{icon}</span>
+          <span className="ml-2.5 min-w-0">
+            <b className="block line-clamp-2 text-[13px] font-extrabold leading-[18px] text-slate-900 dark:text-white">{n.type}</b>
+            <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.12em] text-slate-500 dark:bg-white/[.07] dark:text-slate-400">{category}</span>
+          </span>
+        </button>
+      })}
+    </div>
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-200 bg-violet-50/70 px-3 py-2 dark:border-violet-400/20 dark:bg-violet-400/10"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-violet-600 dark:text-violet-300">Question-aware blueprint</p><p className="mt-0.5 text-sm font-bold text-violet-950 dark:text-violet-100">{blueprint.name}</p><p className="mt-0.5 max-w-3xl text-xs text-violet-900/75 dark:text-violet-100/75">{blueprint.summary}</p></div><button type="button" onClick={loadReference} className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700">Load recommended design</button></div>
+    <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-semibold text-slate-500">Recommended building blocks:</span>{palette.map(type => <button key={type} type="button" onClick={() => add(type)} className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-violet-400 hover:text-violet-700 dark:border-white/10 dark:text-slate-300">+ {type}</button>)}</div>
+    <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 dark:bg-white/[.04]"><label className="text-xs font-bold text-slate-600 dark:text-slate-300">Target RPS</label><div className="relative min-w-[16rem] flex-1 py-3"><input type="range" min="0" max="4" step="1" value={targetStep} onChange={e => setTargetStep(Number(e.target.value))} aria-label="Target requests per second" className="relative z-10 w-full cursor-pointer accent-violet-600" /><div className="pointer-events-none absolute z-20 inset-x-[9px] top-1/2 flex -translate-y-1/2 justify-between">{requestTargets.map((value, index) => <span key={value} className={`h-2.5 w-2.5 rounded-full ring-2 ring-slate-50 dark:ring-slate-900 ${index <= targetStep ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`} />)}</div><div className="absolute inset-x-0 top-full flex justify-between pt-1 text-[10px] font-bold text-slate-500"><span>1K</span><span>10K</span><span>1M</span><span>100M</span><span>1B</span></div></div><output className="min-w-36 text-right text-xs font-bold text-violet-700 dark:text-violet-300"><span className="block">{formatRps(targetRps)} RPS</span><span className="block font-mono text-[10px] font-medium text-violet-500">{targetRps.toLocaleString()} requests/sec</span></output></div>
+    {tests.length > 0 && <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">{tests.map(t => <div key={t.name} className="flex items-start justify-between gap-3 border-b border-slate-100 px-3 py-2.5 text-sm last:border-0 dark:border-white/5"><span><b className="block">{t.name}</b>{t.detail && <small className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{t.detail}</small>}</span><span className={t.status === 'passed' ? 'text-emerald-600' : t.status === 'failed' ? 'text-rose-600' : t.status === 'running' ? 'animate-pulse text-violet-600' : 'text-slate-400'}>{t.status === 'passed' ? '✓ Passed' : t.status === 'failed' ? '✕ Failed' : t.status === 'running' ? 'Running…' : 'Waiting'}</span></div>)}</div>}
+    {result && <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-white/10 dark:bg-white/[.03]"><div className="grid grid-cols-2 gap-3 sm:grid-cols-4"><p><b>{result.handlesTarget ? 'Ready' : 'Bottleneck'}</b><br/><span className="text-xs text-slate-500">target verdict</span></p><p><b>{result.cacheHitRate}%</b><br/><span className="text-xs text-slate-500">cache hit rate</span></p><p><b>{Number(result.estimatedDbReadsPerSecond).toLocaleString()}</b><br/><span className="text-xs text-slate-500">DB reads/sec</span></p><p><b>{Number(result.estimatedCapacityRps).toLocaleString()}</b><br/><span className="text-xs text-slate-500">capacity</span></p></div>{result.tests?.some(test => !test.passed) ? <ul className="mt-3 list-disc space-y-1 pl-4 text-xs text-slate-600 dark:text-slate-300">{result.findings.map(x => <li key={x}>{x}</li>)}</ul> : <p className="mt-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300">All architecture checks passed at this request rate.</p>}{!result.handlesTarget && <div className="mt-4 border-t border-slate-200 pt-3 dark:border-white/10"><div className="flex flex-wrap items-center justify-between gap-3"><div><b className="text-slate-900 dark:text-white">Need a model answer?</b><p className="mt-0.5 text-xs text-slate-500">Compare your design with a scalable reference topology.</p></div><button type="button" onClick={() => setShowReference(value => !value)} className="rounded-lg border border-violet-300 px-3 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-50 dark:text-violet-200">{showReference ? 'Hide reference' : 'View reference solution'}</button></div>{showReference && <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50/70 p-3 dark:border-violet-400/20 dark:bg-violet-400/10"><p className="font-bold text-violet-950 dark:text-violet-100">{blueprint.name} reference flow</p><p className="mt-1 text-xs leading-5 text-violet-900/80 dark:text-violet-100/80">{blueprint.summary}</p><button type="button" onClick={loadReference} className="mt-3 rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700">Load recommended design</button></div>}</div>}</div>}
+  </section>
+}
+
+function HldSimulationIntro({ onDismiss }) {
+  return <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-teal-50 p-5 shadow-sm dark:border-emerald-800/70 dark:from-emerald-950/50 dark:via-slate-950 dark:to-teal-950/40 sm:p-6">
+    <div className="grid items-center gap-5 md:grid-cols-[1fr_auto]">
+      <div>
+        <span className="inline-flex rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-white">Interactive HLD simulator</span>
+        <h2 className="mt-2 text-xl font-extrabold text-slate-900 dark:text-white">Build it. Connect it. Test the scale.</h2>
+        <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-300">Choose a design question to open its canvas. Add architecture blocks, connect the dots, then run traffic tests from 1K to 1B requests per second.</p>
+        <p className="mt-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">3 free system-design questions per member · Premium unlocks continued answer practice</p>
+      </div>
+      <div className="hld-intro-flow flex items-center justify-center gap-2" aria-label="Client connects to service, which connects to database">
+        <span className="hld-intro-node">Client</span><span className="hld-intro-line" aria-hidden="true" /><span className="hld-intro-node hld-intro-delay-1">Service</span><span className="hld-intro-line hld-intro-line-delay" aria-hidden="true" /><span className="hld-intro-node">Database</span>
+      </div>
+    </div>
+    <button type="button" onClick={onDismiss} className="absolute right-3 top-3 rounded-md px-2 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:text-emerald-200 dark:hover:bg-white/10">Got it</button>
+  </section>
+}
+
 function Session(props) {
   // ?mode=interview (from the mock interview promo) opens straight into interview mode.
   const [interview, setInterview] = useState(() => new URLSearchParams(window.location.search).get('mode') === 'interview')
@@ -297,7 +541,7 @@ function Session(props) {
     : <FreeSession {...props} onInterview={() => setInterview(true)} />
 }
 
-function FreeSession({ question, quota, onScored, onOutOfAttempts, onBack, onInterview }) {
+function FreeSession({ question, quota, onScored, onOutOfAttempts, onBack, onInterview, onSimulationQuota, onUpgradePremium }) {
   const draftKey = `ir_design_draft_${question.id}`
   const [answer, setAnswer] = useState(() => localStorage.getItem(draftKey) || '')
   const [usedVoice, setUsedVoice] = useState(false)
@@ -335,7 +579,7 @@ function FreeSession({ question, quota, onScored, onOutOfAttempts, onBack, onInt
 
   return (
     <div className="grid gap-5 lg:grid-cols-[3fr_1fr]">
-      <section className={`${card} space-y-4`}>
+      <section className={`${card} space-y-4 lg:col-span-2`}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <button type="button" onClick={onBack} className="text-sm text-blue-600 hover:underline dark:text-blue-400">← All questions</button>
@@ -347,6 +591,7 @@ function FreeSession({ question, quota, onScored, onOutOfAttempts, onBack, onInt
           </span>
         </div>
         {left < 0 && <p className="text-sm text-rose-600 dark:text-rose-400">Time's up for a real round. Wrap up and submit when ready.</p>}
+        <ArchitectureCanvas question={question} onSimulationQuota={onSimulationQuota} onUpgradePremium={onUpgradePremium} />
 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-200 bg-gradient-to-r from-violet-50 to-pink-50 p-3 dark:border-violet-900/50 dark:from-violet-950/40 dark:to-pink-950/30">
           <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -378,12 +623,12 @@ function FreeSession({ question, quota, onScored, onOutOfAttempts, onBack, onInt
 
         {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="text-xs text-slate-500 dark:text-slate-400">{words} words · uses 1 attempt{quota && !quota.unlimited ? ` (${quota.freeLeft > 0 ? `${quota.freeLeft} free left` : `${quota.planLeft} left on your plan`})` : ''}</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">{words} words · counts as 1 scored question{quota && !quota.unlimited && !quota.premium ? ` · ${quota.freeLeft} free questions left before this` : ''}</span>
           <button type="button" onClick={submit} disabled={busy || words < 5} className={btnPrimary}>{busy ? 'Scoring…' : 'Submit for scoring'}</button>
         </div>
       </section>
 
-      <aside className={`${card} h-fit space-y-2`}>
+      <aside className={`${card} h-fit space-y-2 lg:col-span-2`}>
         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Cover these stages</h3>
         <ol className="space-y-1.5 text-sm text-slate-700 dark:text-slate-300">
           {question.stages.map((s, i) => <li key={s.key} className="flex gap-2"><span className="text-slate-400">{i + 1}.</span>{s.label}</li>)}
@@ -830,7 +1075,7 @@ function InterviewSession({ question, quota, onScored, onOutOfAttempts, onBack, 
           <li>• It ends when you've covered the design, or press <strong>End interview & score</strong>.</li>
         </ul>
         <p className="pt-1 text-xs text-slate-500 dark:text-slate-400">
-          {startedAt ? `${minutes}-minute round · ` : ''}{quota && !quota.unlimited ? `Uses 1 attempt at the end (${quota.freeLeft > 0 ? `${quota.freeLeft} free left` : `${quota.planLeft} left on your plan`}).` : 'Uses 1 attempt at the end.'}
+          {startedAt ? `${minutes}-minute round · ` : ''}{quota && !quota.unlimited && !quota.premium ? `Uses 1 of your 3 free questions (${quota.freeLeft} left before this).` : 'Your answer will be scored when you finish.'}
         </p>
       </aside>
     </div>
@@ -1051,63 +1296,6 @@ function ResultView({ attempt, onRetry, onBack }) {
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={onRetry} className={btnPrimary}>Try this question again</button>
         <button type="button" onClick={onBack} className={btnSecondary}>Pick another question</button>
-      </div>
-    </div>
-  )
-}
-
-function PlanPicker({ quota, onClose, onBought }) {
-  const [busy, setBusy] = useState('')
-  const [error, setError] = useState('')
-  useEffect(() => {
-    const onKey = e => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-  const buy = async plan => {
-    setBusy(plan); setError('')
-    try { await subscribePractice(plan); onBought() }
-    catch (e) { if (e.message !== 'Payment cancelled.') setError(e.message) }
-    finally { setBusy('') }
-  }
-  return (
-    <div role="dialog" aria-modal="true" aria-labelledby="plans-title" onClick={onClose} className="premium-fade fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-      <div onClick={e => e.stopPropagation()} className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 id="plans-title" className="text-lg font-bold text-slate-900 dark:text-white">More system design practice</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Monthly plans. Attempts renew every billing month; unused ones don't carry over. Cancel any time from your profile.</p>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">✕</button>
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          {quota.plans.map(p => {
-            const currentPlan = quota.plan === p.key
-            const popular = p.key === 'p18'
-            const rupeesOf = label => parseInt(String(label || '').replace(/[^\d]/g, ''), 10) || 0
-            const now = rupeesOf(p.priceLabel), was = rupeesOf(p.regularLabel)
-            const off = was > now ? Math.round((1 - now / was) * 100) : 0
-            return (
-              <div key={p.key} className={`relative rounded-xl border p-4 text-center ${popular ? 'border-pink-400 shadow-md' : 'border-slate-200 dark:border-slate-700'}`}>
-                {popular && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-500 to-pink-600 px-2 py-0.5 text-[10px] font-bold text-white">POPULAR</span>}
-                <p className="text-3xl font-extrabold text-slate-900 dark:text-white">{p.attempts}</p>
-                <p className="text-xs text-slate-500">attempts / month</p>
-                <p className="mt-2 flex flex-wrap items-baseline justify-center gap-x-1.5">
-                  {off > 0 && <span className="text-sm text-slate-400 line-through decoration-rose-500/70">{p.regularLabel.replace('/month', '')}</span>}
-                  <span className="text-lg font-bold text-slate-900 dark:text-white">{p.priceLabel}</span>
-                </p>
-                {off > 0 && <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{off}% OFF</p>}
-                <p className="text-xs text-slate-500">≈ ₹{Math.round(now / p.attempts)} per attempt</p>
-                <button type="button" disabled={!!busy || currentPlan || !p.available} onClick={() => buy(p.key)}
-                  className={`mt-3 w-full rounded-lg px-3 py-2 text-sm font-semibold ${popular ? 'bg-gradient-to-r from-amber-500 to-pink-600 text-white' : 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'} disabled:opacity-50`}>
-                  {currentPlan ? 'Current plan' : busy === p.key ? 'Opening payment…' : !p.available ? 'Coming soon' : quota.plan ? 'Switch' : 'Choose'}
-                </button>
-              </div>
-            )
-          })}
-        </div>
-        {error && <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
-        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">Separate from Premium roadmaps. Your {quota.freeTotal} free attempts are used first.</p>
       </div>
     </div>
   )

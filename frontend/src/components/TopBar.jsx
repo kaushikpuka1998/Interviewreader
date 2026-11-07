@@ -15,7 +15,7 @@ import SiteNoticeBanner from './SiteNoticeBanner.jsx'
 const ITEMS = {
   questions: ['Questions', '/questions'],
   daily: ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
-  design: ['System design problems', '/interview/practice', null, true],
+  design: ['HLD practice', '/interview/practice', null, 'new_badge_hld_practice'],
   tracks: ['Role tracks', '/tracks', null, true],
   skills: ['Skill gap analysis', '/skills'],
   coding: ['Coding problems', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
@@ -31,7 +31,7 @@ const ITEMS = {
 // an object is a menu (label, optional short label, the links inside, and the "New" pill shown on the menu itself).
 const BAR = [
   'questions', 'daily',
-  { menu: 'Practice', items: ['tracks', 'coding', 'editor', 'design', 'skills'], badge: true },
+  { menu: 'Practice', items: ['design', 'tracks', 'coding', 'editor', 'skills'], badge: true },
   'roadmaps', 'interview',
   { menu: 'Community', items: ['community', 'leaderboard', 'posts'], badge: true },
   'resume',
@@ -48,7 +48,7 @@ const isActive = (href, path) => href === '/questions'
   : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
   : path === href || (href !== '/' && path.startsWith(href + '/'))
 
-function NavLink({ label, short, href, flag, badge, premium, path, features, mobile = false, menu = false }) {
+function NavLink({ label, short, href, flag, badge, premium, path, features, mobile = false, menu = false, highlight = false }) {
   if (flag && features[flag] === false) return null
   const active = isActive(href, path)
   const handleClick = (e) => {
@@ -63,7 +63,7 @@ function NavLink({ label, short, href, flag, badge, premium, path, features, mob
       href={href}
       onClick={handleClick}
       aria-current={active ? 'page' : undefined}
-      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : menu ? 'flex px-3 py-2 text-sm' : 'inline-flex px-1.5 py-1.5 min-[1420px]:px-2 2xl:px-3'} ${active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+      className={`items-center gap-1.5 whitespace-nowrap rounded-lg transition-colors ${mobile ? 'flex px-3 py-2.5 text-base' : menu ? 'flex px-3 py-2 text-sm' : 'inline-flex px-1.5 py-1.5 min-[1420px]:px-2 2xl:px-3'} ${highlight ? 'bg-emerald-50 font-bold text-emerald-800 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100 dark:bg-emerald-400/10 dark:text-emerald-200 dark:ring-emerald-400/20 dark:hover:bg-emerald-400/15' : active ? 'bg-blue-600/10 font-semibold text-blue-700 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
     >
       {short && !mobile && !menu ? <><span className="2xl:hidden">{short}</span><span className="hidden 2xl:inline">{label}</span></> : label}
       {premium && <NavBadge compact={!(mobile || menu)} className="bg-gradient-to-r from-amber-500 to-pink-600 text-white">Premium</NavBadge>}
@@ -142,7 +142,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
   const link = (key, mobile, menu = false) => {
     const [label, href, flag, badge, premium, authRequired, short] = ITEMS[key]
     if (authRequired && !signedIn) return null
-    return <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} menu={menu} />
+    return <NavLink key={href} label={label} short={short} href={href} flag={flag} badge={badge} premium={premium} path={path} features={features} mobile={mobile} menu={menu} highlight={key === 'design'} />
   }
   // Phone menu: every link in one list. Desktop bar: single links and the two menus.
   const links = mobile => (mobile
