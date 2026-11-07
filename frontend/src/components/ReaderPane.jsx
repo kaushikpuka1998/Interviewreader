@@ -158,7 +158,7 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
 
   return (
       <main className="reader flex-1 h-full overflow-hidden bg-white dark:bg-slate-800 flex flex-col min-w-0">
-        <div className="flex-1 overflow-hidden py-4 sm:py-6 lg:py-8 px-3 sm:px-6 lg:px-8 min-w-0 flex flex-col">
+        <div className="reader-body flex-1 overflow-hidden py-4 sm:py-6 lg:py-8 px-3 sm:px-6 lg:px-8 min-w-0 flex flex-col">
           {/* Article plus the section rail */}
           <div className="mx-auto w-full max-w-5xl xl:max-w-[76rem] 2xl:max-w-[88rem] flex gap-6 items-start h-full min-w-0">
 

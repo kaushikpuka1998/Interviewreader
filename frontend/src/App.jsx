@@ -604,7 +604,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   }
 
   return (
-    <div className="app-shell h-screen overflow-hidden bg-slate-100 dark:bg-slate-900 flex flex-col">
+    <div className="app-shell min-h-[100dvh] overflow-x-hidden bg-slate-100 dark:bg-slate-900 flex flex-col lg:h-screen lg:overflow-hidden">
       {!online && (
         <div className="fixed top-0 inset-x-0 z-50 bg-amber-500 text-amber-950 text-xs font-semibold text-center py-1">
           You're offline — showing cached questions. Marking read/visited and flags are saved now and will sync automatically when you're back online. Suggestions and login still need a connection.
@@ -614,7 +614,7 @@ function App({ path = '/', onPathChange = () => {} }) {
       <div className="flex-shrink-0">
         <TopBar user={user} isDark={isDark} onToggleDark={toggleDarkMode} onLogin={() => setAuthOpen(true)} onLogout={handleLogout} onAdmin={() => { window.location.href = '/admin' }} />
       </div>
-      <div className="flex min-h-0 flex-1">
+      <div className="app-content flex min-h-0 flex-1">
       {/* The desktop list stays mounted while collapsed so its search, filters, and scroll position are retained. */}
       <div className="relative hidden min-h-0 flex-shrink-0 lg:flex">
         <div

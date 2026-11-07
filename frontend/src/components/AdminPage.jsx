@@ -196,6 +196,33 @@ function QuestionPreview({ form }) {
   )
 }
 
+const PRIMARY_TABS = [
+  ['single', 'Add'],
+  ['bulk', 'Bulk import'],
+  ['manage', 'Question library'],
+  ['suggestions', 'Review queue'],
+  ['analytics', 'Analytics'],
+  ['engagement', 'Engagement'],
+]
+
+const TOOL_TABS = [
+  ['feedback-dashboard', 'Feedback dashboard'],
+  ['feedback', 'Feedback'],
+  ['answers', 'Answer ratings'],
+  ['comments', 'Comments'],
+  ['community', 'Community'],
+  ['offers', 'Offers'],
+  ['interviews', 'Interviews'],
+  ['duplicates', 'Duplicates'],
+  ['emails', 'Emails'],
+  ['templates', 'Resume templates'],
+  ['coding', 'Coding problems'],
+  ['rubrics', 'Design rubrics'],
+  ['premium', 'Premium'],
+  ['features', 'Feature flags'],
+  ['export', 'Export JSON'],
+]
+
 export default function AdminPage() {
   const [user, setUser] = useState(() => getUser())
   const isAdmin = user && user.admin
@@ -349,18 +376,44 @@ export default function AdminPage() {
 
   return (
     <Shell tabWide={tab === "analytics"}>
-      <div className="flex gap-2 mb-5 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-        {[['single', editingId ? 'Edit' : 'Add'], ['bulk', 'Bulk (JSON)'], ['manage', 'Manage'], ['suggestions', 'Suggestions'], ['feedback-dashboard', 'Feedback dashboard'], ['feedback', 'Feedback'], ['answers', 'Answer ratings'], ['comments', 'Comments'], ['community', 'Community'], ['offers', 'Offers'], ['interviews', 'Interviews'], ['duplicates', 'Duplicates'], ['analytics', 'Analytics'], ['engagement', 'Engagement'], ['emails', 'Emails'], ['templates', 'Resume templates'], ['coding', 'Coding problems'], ['rubrics', 'Design rubrics'], ['premium', 'Premium'], ['features', 'Feature flags'], ['export', 'Export JSON']].map(([t, label]) => (
-          <button key={t} onClick={() => { setTab(t); setMsg(null) }}
-            className={`inline-flex shrink-0 items-center whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
-            {label}
-            {pending[t] > 0 && (
-              <span className="ml-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[11px] font-bold leading-none text-white"
-                title={`${pending[t]} waiting for review`} aria-label={`${pending[t]} waiting for review`}>{pending[t] > 99 ? '99+' : pending[t]}</span>
-            )}
-          </button>
-        ))}
-      </div>
+      <nav className="mb-5 rounded-xl border border-slate-200 bg-slate-50/80 p-2 dark:border-white/10 dark:bg-black/15" aria-label="Admin sections">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 gap-1 overflow-x-auto pb-1 lg:pb-0" role="tablist" aria-label="Primary workspace">
+            {PRIMARY_TABS.map(([t, label]) => (
+              <button
+                key={t}
+                role="tab"
+                aria-selected={tab === t}
+                onClick={() => { setTab(t); setMsg(null) }}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+                  tab === t
+                    ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-900/25'
+                    : 'text-slate-600 hover:bg-white hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white'
+                }`}
+              >
+                {t === 'single' && editingId ? 'Edit question' : label}
+                {pending[t] > 0 && (
+                  <span className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                    tab === t ? 'bg-white/20 text-white' : 'bg-rose-500 text-white'
+                  }`} aria-label={`${pending[t]} waiting for review`}>{pending[t] > 99 ? '99+' : pending[t]}</span>
+                )}
+              </button>
+            ))}
+          </div>
+          <label className="flex shrink-0 items-center gap-2 px-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="hidden sm:inline">More tools</span>
+            <select
+              value={TOOL_TABS.some(([t]) => t === tab) ? tab : ''}
+              onChange={(e) => { if (e.target.value) { setTab(e.target.value); setMsg(null) } }}
+              className="min-w-36 rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm font-semibold text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200"
+              aria-label="Choose another admin tool"
+            >
+              <option value="">More tools…</option>
+              {TOOL_TABS.map(([t, label]) => <option key={t} value={t}>{pending[t] ? `${label} (${pending[t]})` : label}</option>)}
+            </select>
+          </label>
+        </div>
+      </nav>
 
       <div className="mb-4"><Banner msg={msg} /></div>
 
@@ -532,28 +585,32 @@ export default function AdminPage() {
 
 function Shell({ children, tabWide }) {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-100 dark:bg-slate-900 p-3 sm:p-6">
-      <div className={tabWide ? "max-w-6xl mx-auto" : "max-w-5xl mx-auto"}>
-        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">Admin Dashboard</h1>
+    <main className="min-h-screen overflow-x-hidden bg-slate-100 px-3 py-4 text-slate-900 dark:bg-[#08110f] dark:text-slate-100 sm:px-6 sm:py-8">
+      <div className={tabWide ? "mx-auto max-w-[90rem]" : "mx-auto max-w-6xl"}>
+        <header className="mb-5 flex flex-col gap-4 border-b border-slate-200 pb-5 dark:border-white/10 sm:mb-7 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">Interview Reader</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">Admin workspace</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Publish content, review activity, and keep the platform healthy.</p>
+          </div>
           <button
             onClick={() => {
               window.history.pushState({}, '', '/');
               window.dispatchEvent(new PopStateEvent('popstate'));
             }}
-            className="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
+            className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to app
           </button>
-        </div>
-        <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6">
+        </header>
+        <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-[#0d1916] dark:shadow-2xl dark:shadow-black/20 sm:p-5">
           {children}
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   )
 }
 

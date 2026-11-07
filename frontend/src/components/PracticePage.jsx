@@ -323,15 +323,15 @@ export default function PracticePage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-slate-100 dark:bg-slate-900">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100 dark:bg-slate-900 lg:h-screen lg:overflow-hidden">
       <TopBar />
-      <div className="mx-auto flex w-full max-w-[1800px] min-h-0 flex-1 flex-col p-3 sm:p-4">
+      <div className="mx-auto flex w-full max-w-[1800px] flex-1 flex-col p-3 sm:p-4 lg:min-h-0">
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
         {error && <p className="mb-4 shrink-0 text-sm text-red-600 dark:text-red-400">{error}</p>}
         {!problems && !error && <Loader label="Loading problems…" />}
 
         {problems && (
-          <div className={`grid grid-cols-[minmax(0,1fr)] min-h-0 flex-1 items-stretch gap-5 ${listOpen ? 'lg:grid-cols-[260px_minmax(0,1fr)]' : 'lg:grid-cols-1'}`}>
+          <div className={`grid grid-cols-[minmax(0,1fr)] flex-1 items-stretch gap-4 lg:min-h-0 lg:gap-5 ${listOpen ? 'lg:grid-cols-[260px_minmax(0,1fr)]' : 'lg:grid-cols-1'}`}>
             {listOpen && <div className="space-y-2 min-h-0 overflow-y-auto">
             {listOpen && <>
             <ul className="overflow-hidden rounded-2xl bg-white dark:bg-slate-950">
@@ -425,7 +425,7 @@ export default function PracticePage() {
             </>}
             </div>}
 
-            <div className="min-w-0 flex min-h-0 flex-1 flex-col gap-4">
+            <div className="min-w-0 flex flex-1 flex-col gap-4 lg:min-h-0">
             {/* Top bar across the statement and the code box: home and problem navigation on the left, Run and Submit in the middle. */}
             <div className="shrink-0 grid grid-cols-[minmax(0,1fr)] items-center gap-3 rounded-2xl bg-white p-3 dark:bg-slate-950 lg:grid-cols-[1fr_auto_1fr]">
               <div className="flex min-w-0 items-center gap-2">
@@ -530,7 +530,7 @@ export default function PracticePage() {
                         ))}
                       </div>
                     </div>
-                    <div className="pr-1 min-h-0 flex-1 overflow-y-auto">
+                    <div className="min-h-0 flex-1 pr-1 lg:overflow-y-auto">
                       {tab === 'description' ? (
                         <>
                           <div className="mb-3">

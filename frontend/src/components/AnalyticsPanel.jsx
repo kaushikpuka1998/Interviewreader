@@ -7,18 +7,21 @@ const SEEN_KEY = 'ir_signups_seen_at'
 
 function Stat({ label, value, sub, tone }) {
   const tones = {
-    blue: 'text-blue-600 dark:text-blue-400',
-    green: 'text-green-600 dark:text-green-400',
-    violet: 'text-violet-600 dark:text-violet-400',
+    blue: 'text-sky-600 dark:text-sky-300',
+    green: 'text-emerald-600 dark:text-emerald-300',
+    violet: 'text-violet-600 dark:text-violet-300',
   }
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-      <p className={`mt-1 text-2xl font-bold tabular-nums ${tones[tone] || 'text-slate-900 dark:text-slate-100'}`}>
+    <article className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/15">
+      <span className={`absolute inset-x-0 top-0 h-0.5 ${
+        tone === 'green' ? 'bg-emerald-400' : tone === 'violet' ? 'bg-violet-400' : 'bg-sky-400'
+      }`} aria-hidden="true" />
+      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{label}</p>
+      <p className={`mt-2 text-2xl font-bold tracking-tight tabular-nums sm:text-3xl ${tones[tone] || 'text-slate-950 dark:text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
-      {sub && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sub}</p>}
-    </div>
+      {sub && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+    </article>
   )
 }
 
@@ -119,23 +122,54 @@ function BarList({ title, rows, labelKey, valueKey, empty }) {
 function DailyChart({ daily }) {
   if (!daily || daily.length === 0) return null
   const max = Math.max(1, ...daily.map(d => d.views))
+  const width = 640, height = 220, pad = { top: 20, right: 12, bottom: 28, left: 38 }
+  const innerWidth = width - pad.left - pad.right
+  const innerHeight = height - pad.top - pad.bottom
+  const pointAt = (d, i) => ({
+    x: pad.left + (daily.length === 1 ? innerWidth / 2 : (i / (daily.length - 1)) * innerWidth),
+    y: pad.top + innerHeight - (d.views / max) * innerHeight,
+  })
+  const points = daily.map(pointAt)
+  const line = points.map(p => `${p.x},${p.y}`).join(' ')
+  const area = `M ${points[0].x} ${pad.top + innerHeight} L ${points.map(p => `${p.x} ${p.y}`).join(' L ')} L ${points[points.length - 1].x} ${pad.top + innerHeight} Z`
+  const labels = [daily[0], daily[Math.floor((daily.length - 1) / 2)], daily[daily.length - 1]].filter(Boolean)
+  const totalViews = daily.reduce((sum, d) => sum + d.views, 0)
+
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4">
-      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Views per day</h3>
-      <div className="flex items-end gap-1 h-28">
-        {daily.map((d) => (
-          <div key={d.date} className="flex-1 min-w-0 group relative flex flex-col justify-end h-full">
-            <div
-              className="w-full rounded-t bg-gradient-to-t from-blue-500 to-indigo-400 min-h-[2px] transition-opacity group-hover:opacity-80"
-              style={{ height: `${(d.views / max) * 100}%` }}
-            />
-            <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 z-10">
-              {d.date}: {d.views} views · {d.visitors} visitors
-            </span>
-          </div>
-        ))}
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.02] sm:p-5">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-sky-600 dark:text-sky-300">Traffic trend</p>
+          <h3 className="mt-1 text-base font-bold text-slate-950 dark:text-white">Daily views</h3>
+        </div>
+        <div className="text-right">
+          <p className="text-lg font-bold tabular-nums text-slate-950 dark:text-white">{totalViews.toLocaleString()}</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">total views</p>
+        </div>
       </div>
-    </div>
+      <div className="h-52">
+        <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full overflow-visible" role="img" aria-label="Line chart showing daily views">
+          {[0, 0.5, 1].map((mark) => {
+            const y = pad.top + innerHeight - mark * innerHeight
+            return <g key={mark}><line x1={pad.left} x2={width - pad.right} y1={y} y2={y} stroke="currentColor" className="text-slate-200 dark:text-white/10" strokeDasharray="3 4" /><text x={pad.left - 7} y={y + 3} textAnchor="end" className="fill-slate-400 text-[10px]">{Math.round(max * mark).toLocaleString()}</text></g>
+          })}
+          <defs>
+            <linearGradient id="daily-views-fill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.32" />
+              <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.01" />
+            </linearGradient>
+          </defs>
+          <path d={area} fill="url(#daily-views-fill)" />
+          <polyline points={line} fill="none" stroke="#14b8a6" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+          {points.map((p, i) => <g key={daily[i].date} className="group"><circle cx={p.x} cy={p.y} r="4" fill="#0f766e" stroke="white" strokeWidth="2" className="dark:stroke-[#0d1916]" /><title>{`${daily[i].date}: ${daily[i].views.toLocaleString()} views · ${daily[i].visitors.toLocaleString()} visitors`}</title></g>)}
+          {labels.map((d) => {
+            const i = daily.indexOf(d)
+            const p = points[i]
+            return <text key={d.date} x={p.x} y={height - 5} textAnchor={i === 0 ? 'start' : i === daily.length - 1 ? 'end' : 'middle'} className="fill-slate-400 text-[10px]">{d.date.slice(5)}</text>
+          })}
+        </svg>
+      </div>
+    </section>
   )
 }
 
@@ -169,55 +203,29 @@ function AudienceBlock({ audience, days }) {
     identifiedUsers = 0, signedInViews = 0, anonymousViews = 0,
     registeredMembers = 0, viewsPerVisitor = 0,
   } = audience
-
   const signedInPct = registeredMembers > 0 ? Math.round((identifiedUsers / registeredMembers) * 100) : 0
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4">
-      <div className="flex items-baseline justify-between mb-4">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Unique audience</h3>
-        <span className="text-[11px] text-slate-400">last {days} days</span>
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.02] sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-violet-600 dark:text-violet-300">Audience health</p>
+          <h3 className="mt-1 text-base font-bold text-slate-950 dark:text-white">Who is engaging</h3>
+        </div>
+        <span className="rounded-full bg-violet-100 px-2 py-1 text-[10px] font-bold text-violet-700 dark:bg-violet-400/10 dark:text-violet-300">{days} days</span>
       </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-        <div>
-          <p className="text-2xl font-bold tabular-nums text-violet-600 dark:text-violet-400">{unique.toLocaleString()}</p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">unique visitors</p>
-        </div>
-        <div>
-          <p className="text-2xl font-bold tabular-nums text-blue-600 dark:text-blue-400">{identifiedUsers.toLocaleString()}</p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">signed-in users</p>
-        </div>
-        <div>
-          <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{engagedVisitors.toLocaleString()}</p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">read 2+ questions</p>
-        </div>
-        <div>
-          <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{viewsPerVisitor}</p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">views per visitor</p>
-        </div>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-violet-50 p-3 dark:bg-violet-400/[0.07]"><p className="text-xl font-bold tabular-nums text-violet-700 dark:text-violet-300">{unique.toLocaleString()}</p><p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400">unique visitors</p></div>
+        <div className="rounded-xl bg-emerald-50 p-3 dark:bg-emerald-400/[0.07]"><p className="text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{engagedVisitors.toLocaleString()}</p><p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400">read 2+ questions</p></div>
+        <div><p className="text-lg font-bold tabular-nums text-slate-900 dark:text-white">{identifiedUsers.toLocaleString()}</p><p className="text-[11px] text-slate-500 dark:text-slate-400">signed-in users</p></div>
+        <div><p className="text-lg font-bold tabular-nums text-slate-900 dark:text-white">{viewsPerVisitor}</p><p className="text-[11px] text-slate-500 dark:text-slate-400">views per visitor</p></div>
       </div>
-
-      <div className="space-y-4">
-        <SplitBar
-          a={newVisitors} b={returningVisitors}
-          aLabel="New" bLabel="Returning"
-          aTone="bg-violet-500"
-        />
-        <SplitBar
-          a={signedInViews} b={anonymousViews}
-          aLabel="Signed-in views" bLabel="Anonymous views"
-          aTone="bg-blue-500"
-        />
+      <div className="mt-5 space-y-4">
+        <SplitBar a={newVisitors} b={returningVisitors} aLabel="New visitors" bLabel="Returning" aTone="bg-violet-500" />
+        <SplitBar a={signedInViews} b={anonymousViews} aLabel="Signed-in views" bLabel="Anonymous views" aTone="bg-emerald-500" />
       </div>
-
-      <p className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-        <span className="font-semibold text-slate-700 dark:text-slate-200">{identifiedUsers.toLocaleString()}</span>
-        {' '}of{' '}
-        <span className="font-semibold text-slate-700 dark:text-slate-200">{registeredMembers.toLocaleString()}</span>
-        {' '}members were active ({signedInPct}%)
-      </p>
-    </div>
+      <p className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-white/10 dark:text-slate-400"><span className="font-bold text-slate-700 dark:text-slate-200">{identifiedUsers.toLocaleString()}</span> of {registeredMembers.toLocaleString()} members were active <span className="font-bold text-emerald-700 dark:text-emerald-300">({signedInPct}%)</span></p>
+    </section>
   )
 }
 
@@ -339,32 +347,36 @@ function OnlineNow() {
   }
   const total = online.members.length + online.visitors
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/40">
-      <div className="mb-2 flex items-baseline justify-between gap-3">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" /> Online now
-        </h3>
-        <span className="text-xs text-slate-500 dark:text-slate-400">{total} total · {online.members.length} signed in · {online.visitors} visitor{online.visitors === 1 ? '' : 's'}</span>
+    <section className="rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-4 dark:border-emerald-400/15 dark:bg-emerald-400/[0.045]">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="relative flex h-2.5 w-2.5" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" /></span>
+          <div>
+            <h3 className="text-sm font-bold text-slate-950 dark:text-white">Live activity</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400">{total} active now · {online.members.length} signed in · {online.visitors} visitor{online.visitors === 1 ? '' : 's'}</p>
+          </div>
+        </div>
+        <span className="w-fit rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-800 dark:bg-emerald-400/10 dark:text-emerald-300">Updates every 15s</span>
       </div>
       {online.members.length === 0 ? (
-        <p className="text-sm text-slate-400">No signed-in members online right now.</p>
+        <p className="mt-4 border-t border-emerald-200/70 pt-3 text-sm text-slate-600 dark:border-emerald-400/10 dark:text-slate-400">No signed-in members online right now.</p>
       ) : (
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+        <ul className="mt-4 divide-y divide-emerald-200/70 border-t border-emerald-200/70 dark:divide-emerald-400/10 dark:border-emerald-400/10">
           {online.members.map(m => (
-            <li key={m.email} className="flex items-center justify-between gap-3 py-1.5 text-sm">
-              <span className="min-w-0 truncate text-slate-800 dark:text-slate-100">
+            <li key={m.email} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+              <span className="min-w-0 truncate font-medium text-slate-800 dark:text-slate-100">
                 {m.name || m.email}
-                {m.name && <span className="ml-2 text-xs text-slate-400">{m.email}</span>}
+                {m.name && <span className="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">{m.email}</span>}
               </span>
-              <span className="flex flex-shrink-0 items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                {m.username && <a href={`/u/${m.username}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline dark:text-blue-400">profile ↗</a>}
+              <span className="flex shrink-0 items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                {m.username && <a href={`/u/${m.username}`} target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-700 hover:underline dark:text-emerald-300">Profile ↗</a>}
                 {ago(m.lastSeen)}
               </span>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </section>
   )
 }
 
@@ -390,53 +402,64 @@ function FunnelBlock({ days }) {
     ['Came back on another day', t.returned],
   ]
   const table = (title, col, rows) => (
-    <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-      <h4 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h4>
-      <table className="w-full text-xs tabular-nums">
-        <thead className="text-slate-400"><tr><th className="text-left font-medium">{col}</th><th className="text-right font-medium">Visitors</th><th className="text-right font-medium">Bounce</th><th className="text-right font-medium">Opened sign-up</th><th className="text-right font-medium">Signed in</th></tr></thead>
-        <tbody className="text-slate-700 dark:text-slate-300">
-          {rows.map(r => (
-            <tr key={r.k} className="border-t border-slate-100 dark:border-slate-800">
-              <td className="py-1.5 pr-2 truncate">{r.k}</td><td className="text-right">{r.visitors}</td>
-              <td className="text-right">{pct(r.bounced, r.visitors)}</td><td className="text-right">{r.opened_signup}</td><td className="text-right">{r.signed_in}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
+      <div className="border-b border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.035]">
+        <h4 className="text-sm font-bold text-slate-900 dark:text-white">{title}</h4>
+      </div>
+      <div className="overflow-x-auto p-3">
+        <table className="w-full min-w-[30rem] text-xs tabular-nums">
+          <thead className="text-slate-500 dark:text-slate-400"><tr><th className="text-left font-semibold">{col}</th><th className="text-right font-semibold">Visitors</th><th className="text-right font-semibold">Bounce</th><th className="text-right font-semibold">Opened sign-up</th><th className="text-right font-semibold">Signed in</th></tr></thead>
+          <tbody className="text-slate-700 dark:text-slate-300">
+            {rows.map(r => (
+              <tr key={r.k} className="border-t border-slate-100 dark:border-white/5">
+                <td className="max-w-48 truncate py-2 pr-2 font-medium">{r.k}</td><td className="text-right">{r.visitors}</td>
+                <td className="text-right">{pct(r.bounced, r.visitors)}</td><td className="text-right">{r.opened_signup}</td><td className="text-right">{r.signed_in}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
   return (
-    <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/40">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Conversion funnel ({f.windowDays}d)</h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {t.visitors} visitors, {t.no_interaction} left out as likely bots (one view, no scroll or click) · {pct(t.bounced, real)} of real visitors left after one page · {f.newMembers} new members
-        </p>
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.02]">
+      <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 dark:border-white/10 dark:bg-white/[0.025] sm:px-5">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">Acquisition</p>
+            <h3 className="mt-1 text-base font-bold text-slate-950 dark:text-white">Conversion funnel <span className="font-medium text-slate-500 dark:text-slate-400">· {f.windowDays} days</span></h3>
+          </div>
+          <p className="max-w-3xl text-xs leading-5 text-slate-600 dark:text-slate-400">{t.visitors} visitors, {t.no_interaction} likely bots removed · {pct(t.bounced, real)} of real visitors left after one page · {f.newMembers} new members</p>
+        </div>
       </div>
-      <ol className="space-y-1.5">
-        {steps.map(([label, n], i) => (
-          <li key={label} className="grid grid-cols-[minmax(0,14rem)_1fr_7rem] items-center gap-3 text-sm">
-            <span className="truncate text-slate-700 dark:text-slate-300">{label}</span>
-            <span className="h-5 overflow-hidden rounded bg-slate-100 dark:bg-slate-800">
-              <span className="block h-full rounded bg-blue-500" style={{ width: pct(n, real) === '–' ? 0 : pct(n, real) }} />
-            </span>
-            <span className="text-right tabular-nums text-slate-600 dark:text-slate-300">
-              {n} <span className="text-slate-400">· {pct(n, real)}</span>
-              {/* Steps recorded only recently (submitted sign-up) can be smaller than the next one; skip the drop there. */}
-              {i > 0 && i < 7 && steps[i - 1][1] > 0 && n <= steps[i - 1][1] && <span className="block text-[10px] text-rose-500">−{100 - Math.round((n * 100) / steps[i - 1][1])}% from previous</span>}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {table('By source', 'Source', f.bySource)}
-        {table('By device', 'Device', f.byDevice)}
+      <div className="p-4 sm:p-5">
+        <ol className="space-y-3">
+          {steps.map(([label, n], i) => {
+            const percentage = pct(n, real)
+            return (
+              <li key={label} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 sm:grid-cols-[minmax(11rem,14rem)_1fr_7rem] sm:items-center">
+                <span className="min-w-0 truncate text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
+                <span className="order-3 col-span-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10 sm:order-none sm:col-auto sm:h-2.5">
+                  <span className="block h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400" style={{ width: percentage === '–' ? 0 : percentage }} />
+                </span>
+                <span className="text-right text-sm tabular-nums text-slate-700 dark:text-slate-200">
+                  {n} <span className="text-slate-400">· {percentage}</span>
+                  {i > 0 && i < 7 && steps[i - 1][1] > 0 && n <= steps[i - 1][1] && <span className="block text-[10px] font-semibold text-rose-500">−{100 - Math.round((n * 100) / steps[i - 1][1])}%</span>}
+                </span>
+              </li>
+            )
+          })}
+        </ol>
+        <div className="mt-5 grid grid-cols-1 gap-3 xl:grid-cols-2">
+          {table('By source', 'Source', f.bySource)}
+          {table('By device', 'Device', f.byDevice)}
+        </div>
+        <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <BarList title="Sign-up dialog opened from" rows={f.signupOpenedFrom} labelKey="k" valueKey="sessions" empty="Recorded from the next deploy onwards." />
+          <BarList title="Sign-up / log-in errors" rows={f.authErrors} labelKey="k" valueKey="sessions" empty="No failed attempts recorded." />
+        </div>
       </div>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <BarList title="Sign-up dialog opened from" rows={f.signupOpenedFrom} labelKey="k" valueKey="sessions" empty="Recorded from the next deploy onwards." />
-        <BarList title="Sign-up / log-in errors" rows={f.authErrors} labelKey="k" valueKey="sessions" empty="No failed attempts recorded." />
-      </div>
-    </div>
+    </section>
   )
 }
 
@@ -474,7 +497,19 @@ export default function AnalyticsPanel() {
   const newJoiners = signups?.newSince || 0
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 dark:border-white/10 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-400">Performance</p>
+          <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-950 dark:text-white">Analytics overview</h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Understand audience growth, engagement, and conversion at a glance.</p>
+        </div>
+        <button onClick={load} disabled={loading} className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-700 disabled:cursor-wait disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:border-emerald-400/50 dark:hover:text-emerald-300">
+          <svg className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          {loading ? 'Refreshing' : 'Refresh data'}
+        </button>
+      </div>
+
       {/* New-joiner alert: only an admin ever sees this panel */}
       {newJoiners > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3">
@@ -490,23 +525,22 @@ export default function AnalyticsPanel() {
 
       <OnlineNow />
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex gap-1">
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Reporting period</span>
+        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-white/10 dark:bg-black/20" role="group" aria-label="Reporting period">
           {[7, 30, 90].map(d => (
             <button
               key={d}
               onClick={() => setDays(d)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
-                days === d ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+              aria-pressed={days === d}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${
+                days === d ? 'bg-white text-emerald-700 shadow-sm dark:bg-emerald-500 dark:text-slate-950' : 'text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white'
               }`}
             >
-              {d}d
+              {d} days
             </button>
           ))}
         </div>
-        <button onClick={load} className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
-          Refresh
-        </button>
       </div>
 
       {/* Headline numbers */}
@@ -517,13 +551,14 @@ export default function AnalyticsPanel() {
         <Stat label="Members" value={s.total ?? 0} sub={`+${s.today ?? 0} today · +${s.thisWeek ?? 0} this week`} tone="green" />
       </div>
 
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(22rem,0.8fr)]">
+        <DailyChart daily={data.daily} />
+        <AudienceBlock audience={data.audience} days={data.windowDays} />
+      </div>
+
       <FunnelBlock days={days} />
 
-      <AudienceBlock audience={data.audience} days={data.windowDays} />
-
       <EngagementBlock engagement={data.engagement} topQuestions={data.topQuestions} />
-
-      <DailyChart daily={data.daily} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
         <BarList

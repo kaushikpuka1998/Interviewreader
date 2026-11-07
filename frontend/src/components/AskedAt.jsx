@@ -62,7 +62,7 @@ export default function AskedAt({ questionId }) {
   const exactExists = suggestions.some(s => s.toLowerCase() === value.trim().toLowerCase())
 
   return (
-    <div className="mt-2 pt-2 sm:mt-4 sm:pt-3 border-t border-slate-200 dark:border-slate-800">
+    <div className="asked-at mt-2 border-t border-slate-200 pt-2 sm:mt-4 sm:pt-3 dark:border-slate-800">
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
           Asked at
