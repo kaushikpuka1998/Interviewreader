@@ -24,6 +24,7 @@ export const fetchDesignQuestion = id => call(`/questions/${encodeURIComponent(i
 export const submitDesignAttempt = (id, answer, mode, durationSec, difficulty, signals) => call(`/questions/${encodeURIComponent(id)}/attempts`, 'POST', { answer, mode, durationSec, difficulty, signals })
 export const probeDesignAnswer = (id, answer) => call(`/questions/${encodeURIComponent(id)}/probe`, 'POST', { answer })
 export const simulateArchitecture = (id, nodes, edges, targetRps, referenceTemplate = false) => call(`/questions/${encodeURIComponent(id)}/simulate`, 'POST', { nodes, edges, targetRps, referenceTemplate })
+export const fetchLatestSimulation = id => call(`/questions/${encodeURIComponent(id)}/simulation/latest`)
 export const fetchDesignAttempts = () => call('/attempts')
 export const fetchDesignAttempt = id => call(`/attempts/${id}`)
 export const fetchPracticeQuota = () => call('/quota')

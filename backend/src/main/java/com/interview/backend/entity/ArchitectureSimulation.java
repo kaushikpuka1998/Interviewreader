@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-/** One successful architecture simulation, used to enforce the three free runs per member. */
+/** One successful architecture simulation, used for the free-run quota and to restore the member's latest design. */
 @Entity
 @Table(name = "architecture_simulations", indexes = {
         @Index(name = "idx_architecture_simulations_user", columnList = "user_id, created_at")
@@ -25,6 +25,18 @@ public class ArchitectureSimulation {
 
     @Column(name = "question_id", nullable = false, length = 100)
     private String questionId;
+
+    @Column(name = "target_rps")
+    private Long targetRps;
+
+    @Column(name = "nodes_json", columnDefinition = "TEXT")
+    private String nodesJson;
+
+    @Column(name = "edges_json", columnDefinition = "TEXT")
+    private String edgesJson;
+
+    @Column(name = "result_json", columnDefinition = "TEXT")
+    private String resultJson;
 
     @Column(nullable = false)
     private Instant createdAt = Instant.now();

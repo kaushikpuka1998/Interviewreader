@@ -171,6 +171,29 @@ public class DesignPracticeController {
 
     public record SimulationInput(List<Map<String, Object>> nodes, List<List<String>> edges, Long targetRps, Boolean referenceTemplate) {}
 
+    /** Restore the signed-in member's most recently submitted canvas for this question. */
+    @GetMapping("/questions/{id}/simulation/latest")
+    public ResponseEntity<?> latestSimulation(@PathVariable String id) {
+        Question q = questions.findById(id).orElse(null);
+        if (q == null || !RubricService.isDesignQuestion(q)) return ResponseEntity.notFound().build();
+        User user = me();
+        return simulations.findTopByUserIdAndQuestionIdOrderByCreatedAtDescIdDesc(user.getId(), q.getId())
+                .<ResponseEntity<?>>map(saved -> {
+                    Map<String, Object> out = new LinkedHashMap<>();
+                    try {
+                        out.put("nodes", json.readValue(saved.getNodesJson(), new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}));
+                        out.put("edges", json.readValue(saved.getEdgesJson(), new com.fasterxml.jackson.core.type.TypeReference<List<List<String>>>() {}));
+                        out.put("result", json.readValue(saved.getResultJson(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {}));
+                    } catch (Exception e) {
+                        return ResponseEntity.internalServerError().body(Map.of("error", "Could not restore the saved architecture."));
+                    }
+                    out.put("targetRps", saved.getTargetRps());
+                    out.put("createdAt", saved.getCreatedAt());
+                    return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore()).body(out);
+                })
+                .orElseGet(() -> ResponseEntity.noContent().cacheControl(org.springframework.http.CacheControl.noStore()).build());
+    }
+
     /** Deterministic architecture simulation for the design canvas. It complements the verbal rubric score. */
     @PostMapping("/questions/{id}/simulate")
     public ResponseEntity<?> simulate(@PathVariable String id, @RequestBody SimulationInput in) {
@@ -237,10 +260,6 @@ public class DesignPracticeController {
                 Map.of("name", "Burst resilience", "passed", completeBlueprint || target <= 50_000 || queue, "detail", completeBlueprint ? "The loaded template includes the appropriate asynchronous or realtime delivery mechanism." : queue ? "Queue buffers asynchronous work and write bursts." : "Add a queue for bursty writes."),
                 Map.of("name", "Target capacity", "passed", handles, "detail", handles ? "Estimated capacity covers the selected request target." : "Estimated capacity is below the target; add sharding or more scale primitives.")
         );
-        ArchitectureSimulation usage = new ArchitectureSimulation();
-        usage.setUserId(user.getId());
-        usage.setQuestionId(q.getId());
-        simulations.save(usage);
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("targetRps", target);
         response.put("estimatedCapacityRps", (long) capacity);
@@ -252,6 +271,18 @@ public class DesignPracticeController {
         response.put("findings", findings);
         response.put("tests", tests);
         response.put("score", Math.min(10, Math.round((types.size() + (cache ? 2 : 0) + (replica || cqrs ? 2 : 0) + (queue ? 1 : 0) + (lb ? 1 : 0) + (shard ? 2 : 0)) * 10) / 10.0));
+        ArchitectureSimulation usage = new ArchitectureSimulation();
+        usage.setUserId(user.getId());
+        usage.setQuestionId(q.getId());
+        usage.setTargetRps(target);
+        try {
+            usage.setNodesJson(json.writeValueAsString(in == null || in.nodes() == null ? List.of() : in.nodes()));
+            usage.setEdgesJson(json.writeValueAsString(in == null || in.edges() == null ? List.of() : in.edges()));
+            usage.setResultJson(json.writeValueAsString(response));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Could not save this simulation."));
+        }
+        simulations.save(usage);
         response.put("simulationQuota", simulationQuota(user));
         return ResponseEntity.ok(response);
     }

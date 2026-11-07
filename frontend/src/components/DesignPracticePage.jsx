@@ -9,7 +9,7 @@ import PremiumPlans from './PremiumPlans.jsx'
 import { getUser } from '../lib/auth.js'
 import { setPageSeo } from '../lib/seo.js'
 import { respond, newInterviewState, systemName } from '../lib/interviewer.js'
-import { fetchDesignQuestions, fetchDesignQuestion, submitDesignAttempt, fetchDesignAttempts, fetchDesignAttempt, fetchPracticeQuota, probeDesignAnswer, simulateArchitecture } from '../lib/designPractice.js'
+import { fetchDesignQuestions, fetchDesignQuestion, submitDesignAttempt, fetchDesignAttempts, fetchDesignAttempt, fetchPracticeQuota, probeDesignAnswer, simulateArchitecture, fetchLatestSimulation } from '../lib/designPractice.js'
 
 // Solo system design practice: pick a "Design …" question, answer by voice or typing under a timer, and get a
 // coverage score out of 10 with what was covered and missed. 3 free scored questions per member, then Premium unlocks continued practice.
@@ -318,6 +318,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   const [targetStep, setTargetStep] = useState(blueprint.defaultStep)
   const targetRps = requestTargets[targetStep]
   const [result, setResult] = useState(null), [busy, setBusy] = useState(false), [tests, setTests] = useState([])
+  const [restoredSimulation, setRestoredSimulation] = useState(false)
   const [simulationQuota, setSimulationQuota] = useState(question.simulationQuota || null)
   const [simulationError, setSimulationError] = useState('')
   const architecture = useRef({ nodes: starterNodes, edges: starterEdges })
@@ -328,6 +329,32 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   const nodeWidthPct = (160 / canvasSize.width) * 100
   const nodeHeightPct = (80 / canvasSize.height) * 100
   useEffect(() => { setSimulationQuota(question.simulationQuota || null) }, [question.id, question.simulationQuota])
+  useEffect(() => {
+    let cancelled = false
+    setNodes(starterNodes)
+    setEdges(starterEdges)
+    architecture.current = { nodes: starterNodes, edges: starterEdges }
+    history.current = { past: [], future: [] }
+    setHistoryVersion(version => version + 1)
+    setShowReference(false)
+    setTargetStep(blueprint.defaultStep)
+    setResult(null)
+    setTests([])
+    setRestoredSimulation(false)
+    fetchLatestSimulation(question.id).then(saved => {
+      if (cancelled || !saved.nodes || !saved.edges) return
+      const restored = { nodes: saved.nodes, edges: saved.edges }
+      architecture.current = restored
+      setNodes(restored.nodes)
+      setEdges(restored.edges)
+      const savedStep = requestTargets.indexOf(Number(saved.targetRps))
+      if (savedStep >= 0) setTargetStep(savedStep)
+      setResult(saved.result || null)
+      setTests((saved.result?.tests || []).map(test => ({ ...test, status: test.passed ? 'passed' : 'failed' })))
+      setRestoredSimulation(true)
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [question.id])
   const sameArchitecture = (a, b) => JSON.stringify(a) === JSON.stringify(b)
   const snapshot = () => ({ nodes: architecture.current.nodes.map(n => ({ ...n })), edges: architecture.current.edges.map(e => [...e]) })
   const apply = next => { architecture.current = next; setNodes(next.nodes); setEdges(next.edges) }
@@ -438,6 +465,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     try {
       const response = await simulateArchitecture(question.id, design.nodes, design.edges, targetRps, isRecommendedDesign(design))
       if (response.simulationQuota) { setSimulationQuota(response.simulationQuota); onSimulationQuota?.(response.simulationQuota) }
+      setRestoredSimulation(false)
       const checks = response.tests || []
       setTests(checks.map((t, i) => ({ ...t, status: i === 0 ? 'running' : 'waiting' })))
       for (let i = 0; i < checks.length; i++) {
@@ -483,6 +511,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   return <section className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm dark:border-violet-400/20 dark:bg-slate-950 sm:p-5">
     <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-violet-600 dark:text-violet-300">Architecture canvas</p><h3 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">Design for scale</h3><p className="mt-1 text-xs font-medium text-slate-500">{linkFrom ? `Connecting from ${linkFrom}: release on a component’s left input dot.` : 'Drag cards to position. Connect an output dot to an input dot; vertical flows attach at the top and bottom. Double-click a card to disconnect it; click a line to remove only that link.'}</p></div><div className="flex items-center gap-2"><button type="button" onClick={undo} disabled={!history.current.past.length} title="Undo (⌘/Ctrl + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↶ Undo</button><button type="button" onClick={redo} disabled={!history.current.future.length} title="Redo (⌘/Ctrl + Shift + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↷</button><button type="button" onClick={arrange} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Auto arrange</button><button type="button" onClick={reset} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Reset</button><button type="button" onClick={() => run()} disabled={busy} className="rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-violet-900/20 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:opacity-60">{busy ? 'Running tests…' : 'Submit architecture'}</button></div></div>
     {simulationQuota && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-800/20 bg-emerald-950/80 px-3 py-2 text-xs text-emerald-100"><span>{simulationQuota.premium ? 'Premium · unlimited simulations' : `${simulationQuota.freeLeft} of ${simulationQuota.freeTotal} free simulations left`}</span>{!simulationQuota.premium && simulationQuota.freeLeft <= 1 && <button type="button" onClick={onUpgradePremium} className="rounded-lg bg-emerald-300 px-3 py-1.5 font-bold text-emerald-950 transition hover:bg-emerald-200">Get unlimited with Premium</button>}</div>}
+    {restoredSimulation && <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">Restored your last submitted design and simulation for this question.</p>}
     {simulationError && <p role="alert" className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:bg-rose-950/40 dark:text-rose-200">{simulationError}</p>}
     <div ref={canvasRef} className="arch-canvas relative mt-4 h-[30rem] min-h-[30rem] touch-none overflow-hidden rounded-2xl border border-slate-200 shadow-inner shadow-slate-200/40 md:h-[34rem] md:min-h-[34rem] dark:border-white/10 dark:shadow-black/20" onPointerMove={move} onPointerUp={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }} onPointerLeave={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full"><defs><marker id="arch-arrow" viewBox="0 0 2 2" refX="1.8" refY="1" markerWidth="2.2" markerHeight="2.2" markerUnits="userSpaceOnUse" orient="auto"><path d="M 0 0 L 2 1 L 0 2 z" fill="#8b5cf6" /></marker></defs>{edges.map(([from, to]) => { const a = nodes.find(n => n.type === from), b = nodes.find(n => n.type === to); if (!a || !b) return null; const d = connectionPath(a, b); return <g key={`${from}-${to}`} className="pointer-events-auto cursor-pointer" onClick={event => { event.stopPropagation(); disconnectEdge(from, to) }}><title>Click to remove this connection</title><path d={d} fill="none" stroke="transparent" strokeWidth="18" vectorEffect="non-scaling-stroke" /><path d={d} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="7 8" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="pointer-events-none arch-flow" /></g> })}{linkFrom && linkCursor && (() => { const source = nodes.find(n => n.type === linkFrom); if (!source) return null; const sx = source.x + nodeWidthPct, sy = source.y + nodeHeightPct / 2, ex = linkCursor.x, ey = linkCursor.y, bend = Math.max(8, Math.abs(ex - sx) * 0.46); return <path d={`M ${sx} ${sy} C ${sx + bend} ${sy}, ${ex - bend} ${ey}, ${ex} ${ey}`} fill="none" stroke="#a78bfa" strokeWidth="3" strokeDasharray="6 6" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="arch-link-preview" /> })()}</svg>

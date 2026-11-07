@@ -114,7 +114,7 @@ function HldInteractivePreview({ showBadge }) {
 
   return (
     <section className="mx-auto mt-5 max-w-4xl overflow-hidden rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50 via-white to-teal-50 text-left shadow-sm dark:border-emerald-800 dark:from-[#10251c] dark:via-[#101a16] dark:to-[#11231d]">
-      <div className="grid items-center gap-5 p-5 sm:p-6 lg:grid-cols-[.9fr_1.1fr]">
+      <div className="grid min-w-0 items-center gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(15rem,.85fr)_minmax(0,1.15fr)]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             {showBadge && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">New · HLD</span>}
@@ -125,7 +125,7 @@ function HldInteractivePreview({ showBadge }) {
           <p className="mt-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">3 free system-design questions · Premium unlocks continued practice</p>
         </div>
 
-        <div className="rounded-xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-900 dark:bg-black/25">
+        <div className="min-w-0 rounded-xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-900 dark:bg-black/25">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Live architecture preview</span>
             <button type="button" onClick={() => setPlaying(value => !value)} aria-pressed={playing}
@@ -171,8 +171,10 @@ function HldInteractivePreview({ showBadge }) {
               <span className="block text-[10px] text-slate-500 dark:text-slate-400">{redisEnabled ? 'Illustrative 92% cache hit rate' : 'No cache: all reads reach storage'}</span>
             </div>
           </div>
-          <a href="/interview/practice" className="mt-4 inline-flex rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-800 dark:bg-emerald-500 dark:text-emerald-950 dark:hover:bg-emerald-400">Open HLD practice →</a>
-          <span className="ml-3 text-[10px] text-slate-500 dark:text-slate-400">Preview values are illustrative; the simulator evaluates your submitted design.</span>
+          <div className="mt-4 flex flex-col items-start gap-2 border-t border-emerald-100 pt-3 dark:border-emerald-900">
+            <a href="/interview/practice" className="inline-flex rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-800 dark:bg-emerald-500 dark:text-emerald-950 dark:hover:bg-emerald-400">Open HLD practice →</a>
+            <p className="max-w-full text-xs leading-relaxed text-slate-500 dark:text-slate-400">Preview values are illustrative. HLD practice evaluates your submitted design.</p>
+          </div>
         </div>
       </div>
     </section>
