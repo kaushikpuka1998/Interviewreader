@@ -53,7 +53,7 @@ function normalizeDiagram(src) {
     .replace(/\u2014>|\u2013>/g, '-->')         // —> –>
 }
 
-export default function Mermaid({ code }) {
+export default function Mermaid({ code, animated = false }) {
   const ref = useRef(null)
   const [svg, setSvg] = useState('')
   const [error, setError] = useState('')
@@ -81,6 +81,47 @@ export default function Mermaid({ code }) {
 
     return () => { cancelled = true }
   }, [code])
+
+  // HLD diagrams keep all content visible. Small arrow markers travel along the
+  // existing connector paths, so the direction is clear without changing layout.
+  useEffect(() => {
+    if (!animated || !svg || !ref.current) return
+    const container = ref.current
+    const motionReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (motionReduced) return
+
+    const svgRoot = container.querySelector('svg')
+    if (!svgRoot) return
+    const paths = [...container.querySelectorAll('svg path')].filter(path => {
+      const classes = path.getAttribute('class') || ''
+      return path.hasAttribute('marker-end') || path.hasAttribute('marker-start') || /(?:edge|flowchart-link|messageLine|relation)/i.test(classes)
+    })
+    const movingArrows = paths.flatMap((path, index) => {
+      try {
+        const route = path.getAttribute('d')
+        if (!route) return []
+        const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+        arrow.setAttribute('d', 'M -5 -3 L 5 0 L -5 3 z')
+        arrow.setAttribute('fill', '#34d399')
+        arrow.setAttribute('stroke', 'none')
+        arrow.setAttribute('aria-hidden', 'true')
+        arrow.setAttribute('class', 'hld-mermaid-flow-arrow')
+        arrow.style.pointerEvents = 'none'
+        arrow.style.filter = 'drop-shadow(0 0 3px rgba(52,211,153,.8))'
+
+        const motion = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion')
+        motion.setAttribute('path', route)
+        motion.setAttribute('dur', `${1.8 + (index % 3) * 0.28}s`)
+        motion.setAttribute('begin', `${index * 0.16}s`)
+        motion.setAttribute('repeatCount', 'indefinite')
+        motion.setAttribute('rotate', 'auto')
+        arrow.appendChild(motion)
+        svgRoot.appendChild(arrow)
+        return [arrow]
+      } catch { return [] }
+    })
+    return () => movingArrows.forEach(arrow => arrow.remove())
+  }, [animated, svg])
 
   // Failed to parse/render: fall back to the source so no content is ever lost.
   if (error) {
@@ -118,7 +159,7 @@ export default function Mermaid({ code }) {
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true) } }}
       // The SVG scales to fit the container width (never cut off) and keeps its
       // aspect ratio, so the box hugs the diagram instead of leaving dead space.
-      className="mermaid-diagram my-3 cursor-zoom-in overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-2 sm:p-3 [&>svg]:mx-auto [&>svg]:block [&>svg]:h-auto [&>svg]:max-w-full"
+      className={`mermaid-diagram my-3 cursor-zoom-in overflow-x-auto rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900/40 sm:p-3 [&>svg]:mx-auto [&>svg]:block [&>svg]:h-auto [&>svg]:max-w-full ${animated ? 'hld-mermaid is-animated' : ''}`}
       // mermaid output is generated from the diagram source with securityLevel: 'strict'
       dangerouslySetInnerHTML={{ __html: svg }}
     />

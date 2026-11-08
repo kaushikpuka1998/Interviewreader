@@ -125,7 +125,7 @@ const HEADING_STYLES = {
  * - Blockquotes (multi-line, inline formatted)
  * - Horizontal rules
  */
-export default function Markdown({ text }) {
+export default function Markdown({ text, animateMermaid = false }) {
   const [lightbox, setLightbox] = useState(null)   // { src, alt } while an image is open
   const normalized = String(text || '').replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1')
   const parts = normalized.split(/```[ \t]*([^\s`\r\n]+)?[ \t]*\r?\n([\s\S]*?)```/g)
@@ -145,7 +145,7 @@ export default function Markdown({ text }) {
           const body = part.replace(/\r?\n$/, '')
 
           // Mermaid blocks render as real diagrams (lazy-loaded).
-          if (lang === 'mermaid') return <Mermaid key={index} code={body.trim()} />
+          if (lang === 'mermaid') return <Mermaid key={index} code={body.trim()} animated={animateMermaid} />
 
           const plain = PLAIN_LANGS.has(lang)
           return (

@@ -630,6 +630,20 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 @media (prefers-reduced-motion: reduce) { .arch-flow, .arch-node, .arch-packet { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .hld-intro-node, .hld-intro-line::after { animation: none; } }
 
+/* HLD Mermaid diagrams use two motion cues: a travelling dashed route plus the
+   visible packet arrow added by Mermaid.jsx. Diagram nodes and labels stay still. */
+.hld-mermaid.is-animated svg .edgePath path,
+.hld-mermaid.is-animated svg path.flowchart-link,
+.hld-mermaid.is-animated svg .messageLine0,
+.hld-mermaid.is-animated svg .messageLine1,
+.hld-mermaid.is-animated svg .relation,
+.hld-mermaid.is-animated svg path[marker-end] {
+  stroke-dasharray: 7 15;
+  animation: hld-mermaid-route-flow 1.6s linear infinite;
+}
+@keyframes hld-mermaid-route-flow { to { stroke-dashoffset: -22; } }
+@media (prefers-reduced-motion: reduce) { .hld-mermaid.is-animated svg .edgePath path, .hld-mermaid.is-animated svg path.flowchart-link, .hld-mermaid.is-animated svg .messageLine0, .hld-mermaid.is-animated svg .messageLine1, .hld-mermaid.is-animated svg .relation, .hld-mermaid.is-animated svg path[marker-end] { stroke-dasharray: none; animation: none; } }
+
 /* Mobile readers use the page's natural scroll. Desktop keeps focused split panes,
    but nested phone-height scrollers hide context and let fixed controls overlap text. */
 @media (max-width: 1023px) {

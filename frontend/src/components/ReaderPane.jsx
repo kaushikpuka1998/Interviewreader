@@ -287,7 +287,7 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
                   <div className="space-y-3 animate-pulse" aria-label="Loading answer" role="status">
                     {[92, 100, 85, 96, 60].map((w, i) => <div key={i} className="h-4 rounded bg-slate-200 dark:bg-slate-700" style={{ width: `${w}%` }} />)}
                   </div>
-                ) : <Markdown text={question.answer || ''} />}
+                ) : <Markdown text={question.answer || ''} animateMermaid={question.tech === 'hld'} />}
                 <AnswerExtras question={question} />
                 </>)}
               </div>
