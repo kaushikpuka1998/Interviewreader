@@ -18,7 +18,7 @@ function cleanLabel(raw) {
     .trim()
 }
 
-export default function OnThisPage({ text, scrollRef }) {
+export default function OnThisPage({ text, scrollRef, onActiveChange }) {
   // Same id sequence the renderer uses (deduplicated), filtered to h1-h3 for display.
   const headings = useMemo(
     () => headingIds(text).filter(h => h.level <= 3).map(h => ({ ...h, label: cleanLabel(h.raw) })),
@@ -82,6 +82,14 @@ export default function OnThisPage({ text, scrollRef }) {
 
   // Reset when the question changes.
   useEffect(() => { setActiveId(''); setProgress(0); setFillPx(0) }, [text])
+
+  useEffect(() => {
+    const active = headings.find(heading => heading.id === activeId)
+    if (!active) { onActiveChange?.(null); return }
+    const activeIndex = headings.findIndex(heading => heading.id === active.id)
+    const parent = headings.slice(0, activeIndex).reverse().find(heading => heading.level < active.level) || null
+    onActiveChange?.({ ...active, parent })
+  }, [activeId, headings, onActiveChange])
 
   const jump = (id) => {
     const el = document.getElementById(id)

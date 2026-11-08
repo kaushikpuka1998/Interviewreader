@@ -11,6 +11,7 @@ import OnThisPage from './OnThisPage.jsx'
 import AskedAt from './AskedAt.jsx'
 import SuggestEdit from './SuggestEdit.jsx'
 import MarkDuplicate from './MarkDuplicate.jsx'
+import EstimationQuickReference from './EstimationQuickReference.jsx'
 import { isLoggedIn } from '../lib/auth.js'
 import { techBadge, difficultyBadge, techLabel } from '../lib/badges.js'
 import { useFullQuestion } from '../lib/useFullQuestion.js'
@@ -92,7 +93,10 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
 
   // The action bar hides while the answer scrolls down and returns when it scrolls up or reaches the top.
   const [barHidden, setBarHidden] = useState(false)
+  const [activeSection, setActiveSection] = useState(null)
+  const [referenceDismissed, setReferenceDismissed] = useState(false)
   useEffect(() => { setBarHidden(false) }, [question?.id])
+  useEffect(() => { setActiveSection(null); setReferenceDismissed(false) }, [question?.id])
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
@@ -127,6 +131,8 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
   const selectedIndex = questions.findIndex(q => q.id === question?.id)
   const prev = questions[selectedIndex - 1]
   const next = questions[selectedIndex + 1]
+  const estimationHeading = `${activeSection?.label || ''} ${activeSection?.parent?.label || ''}`
+  const isEstimationSection = question?.tech === 'hld' && /(?:back[-\s]?of[-\s]?the[-\s]?envelope|capacity\s*(?:math|calculation|planning)?|estimat(?:e|ion)|traffic\s*(?:math|calculation)|throughput|bandwidth|storage(?:\s*(?:growth|sizing|planning|calculation))?|data\s*growth|sizing)/i.test(estimationHeading)
 
   // Add keyboard navigation listener for arrow keys
   useEffect(() => {
@@ -317,9 +323,10 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
               </div>
             </article>
 
-            <OnThisPage text={question.answer || ''} scrollRef={scrollRef} />
+            <OnThisPage text={question.answer || ''} scrollRef={scrollRef} onActiveChange={setActiveSection} />
           </div>
         </div>
+        {isEstimationSection && !referenceDismissed && <EstimationQuickReference onClose={() => setReferenceDismissed(true)} />}
       </main>
   )
 }
