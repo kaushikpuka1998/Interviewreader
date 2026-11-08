@@ -12,6 +12,8 @@ import AskedAt from './AskedAt.jsx'
 import SuggestEdit from './SuggestEdit.jsx'
 import MarkDuplicate from './MarkDuplicate.jsx'
 import EstimationQuickReference from './EstimationQuickReference.jsx'
+import LatencyPercentileReference from './LatencyPercentileReference.jsx'
+import DatabaseUseCaseReference from './DatabaseUseCaseReference.jsx'
 import { isLoggedIn } from '../lib/auth.js'
 import { techBadge, difficultyBadge, techLabel } from '../lib/badges.js'
 import { useFullQuestion } from '../lib/useFullQuestion.js'
@@ -95,8 +97,10 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
   const [barHidden, setBarHidden] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
   const [referenceDismissed, setReferenceDismissed] = useState(false)
+  const [latencyReferenceDismissed, setLatencyReferenceDismissed] = useState(false)
+  const [databaseReferenceDismissed, setDatabaseReferenceDismissed] = useState(false)
   useEffect(() => { setBarHidden(false) }, [question?.id])
-  useEffect(() => { setActiveSection(null); setReferenceDismissed(false) }, [question?.id])
+  useEffect(() => { setActiveSection(null); setReferenceDismissed(false); setLatencyReferenceDismissed(false); setDatabaseReferenceDismissed(false) }, [question?.id])
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
@@ -133,6 +137,8 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
   const next = questions[selectedIndex + 1]
   const estimationHeading = `${activeSection?.label || ''} ${activeSection?.parent?.label || ''}`
   const isEstimationSection = question?.tech === 'hld' && /(?:back[-\s]?of[-\s]?the[-\s]?envelope|capacity\s*(?:math|calculation|planning)?|estimat(?:e|ion)|traffic\s*(?:math|calculation)|throughput|bandwidth|storage(?:\s*(?:growth|sizing|planning|calculation))?|data\s*growth|sizing)/i.test(estimationHeading)
+  const isLatencySection = question?.tech === 'hld' && /(?:latency|percentile|tail\s*latency|service\s*level|\bslo\b|\bsla\b)/i.test(estimationHeading)
+  const isArchitectureSection = question?.tech === 'hld' && /(?:high[-\s]?level\s*(?:architecture|design)|system\s*architecture|architecture\s*overview|component\s*design)/i.test(estimationHeading)
 
   // Add keyboard navigation listener for arrow keys
   useEffect(() => {
@@ -326,7 +332,9 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
             <OnThisPage text={question.answer || ''} scrollRef={scrollRef} onActiveChange={setActiveSection} />
           </div>
         </div>
-        {isEstimationSection && !referenceDismissed && <EstimationQuickReference onClose={() => setReferenceDismissed(true)} />}
+        {isEstimationSection && !isLatencySection && !isArchitectureSection && !referenceDismissed && <EstimationQuickReference onClose={() => setReferenceDismissed(true)} />}
+        {isLatencySection && !isArchitectureSection && !latencyReferenceDismissed && <LatencyPercentileReference onClose={() => setLatencyReferenceDismissed(true)} />}
+        {isArchitectureSection && !databaseReferenceDismissed && <DatabaseUseCaseReference onClose={() => setDatabaseReferenceDismissed(true)} />}
       </main>
   )
 }
