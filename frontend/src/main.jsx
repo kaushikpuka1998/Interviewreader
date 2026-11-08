@@ -35,6 +35,7 @@ import { syncSession } from './lib/auth.js'
 const PracticePage = lazy(() => import('./components/PracticePage.jsx'))
 const RoadmapsPage = lazy(() => import('./components/RoadmapsPage.jsx'))
 const DesignPracticePage = lazy(() => import('./components/DesignPracticePage.jsx'))
+const NetworkingPage = lazy(() => import('./components/NetworkingPage.jsx'))
 import { useFeature } from './lib/features.js'
 
 // Every page except the home page is its own chunk (React.lazy), so a first visit to / doesn't download the reader, admin,
@@ -106,6 +107,7 @@ function Routes() {
 
   // Solo system design practice (no interviewer). Before the /interview routes so it isn't taken for one.
   if (path === '/interview/practice') return <DesignPracticePage />
+  if (path === '/networking') return <NetworkingPage />
 
   if (path.startsWith('/interview/live/')) return <Gate flag="mock_interview" what="Mock interviews"><LiveInterview id={path.split('/')[3]} /></Gate>
 

@@ -16,6 +16,7 @@ const ITEMS = {
   questions: ['Questions', '/questions'],
   daily: ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
   design: ['HLD practice', '/interview/practice', null, 'new_badge_hld_practice'],
+  networking: ['Networking', '/networking', null],
   tracks: ['Role tracks', '/tracks', null, true],
   skills: ['Skill gap analysis', '/skills'],
   coding: ['Coding problems', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
@@ -31,7 +32,7 @@ const ITEMS = {
 // an object is a menu (label, optional short label, the links inside, and the "New" pill shown on the menu itself).
 const BAR = [
   'questions', 'daily',
-  { menu: 'Practice', items: ['design', 'tracks', 'coding', 'editor', 'skills'], badge: true },
+  { menu: 'Practice', items: ['design', 'networking', 'tracks', 'coding', 'editor', 'skills'], badge: true },
   'roadmaps', 'interview',
   { menu: 'Community', items: ['community', 'leaderboard', 'posts'], badge: true },
   'resume',
