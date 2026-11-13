@@ -33,6 +33,8 @@ public class AnalyticsController {
     private final UserProgressRepository progress;
     private final UserEventRepository events;
     private final PresenceController presence;
+    private final com.interview.backend.repository.PaymentAttemptRepository payments;
+    private final com.interview.backend.repository.ServerErrorRepository serverErrors;
 
     /** A member counts as "reading" once they spend this long on, or scroll this far into, an answer. */
     private static final int READ_SECONDS = 30, READ_SCROLL = 50;
@@ -444,6 +446,41 @@ public class AnalyticsController {
     }
 
     /** Who is online right now: signed-in members by name, plus how many anonymous visitors. Admin only (under /analytics/**). */
+    /** Who is going for payment: every Premium checkout attempt in the window, with how it ended. */
+    @GetMapping("/payments")
+    public Map<String, Object> payments(@RequestParam(defaultValue = "30") int days) {
+        int window = Math.min(Math.max(days, 1), 365);
+        Instant since = Instant.now().minus(window, ChronoUnit.DAYS);
+        var rows = payments.findTop200ByCreatedAtAfterOrderByCreatedAtDesc(since);
+        long started = rows.stream().filter(r -> "STARTED".equals(r.getStatus())).count();
+        long paid = rows.stream().filter(r -> "PAID".equals(r.getStatus())).count();
+        long failed = rows.stream().filter(r -> "FAILED".equals(r.getStatus())).count();
+        long revenue = rows.stream().filter(r -> "PAID".equals(r.getStatus()) && r.getAmount() != null).mapToLong(r -> r.getAmount()).sum();
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (var r : rows) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("email", r.getEmail()); m.put("plan", r.getPlan()); m.put("amount", r.getAmount());
+            m.put("status", r.getStatus()); m.put("error", r.getError()); m.put("at", r.getCreatedAt().toString());
+            list.add(m);
+        }
+        return Map.of("days", window, "summary", Map.of("openCheckouts", started, "paid", paid, "failed", failed, "revenue", revenue), "attempts", list);
+    }
+
+    /** Server (5xx) errors in the window, newest first. */
+    @GetMapping("/errors")
+    public Map<String, Object> serverErrors(@RequestParam(defaultValue = "7") int days) {
+        int window = Math.min(Math.max(days, 1), 90);
+        Instant since = Instant.now().minus(window, ChronoUnit.DAYS);
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (var e : serverErrors.findTop200ByCreatedAtAfterOrderByCreatedAtDesc(since)) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("method", e.getMethod()); m.put("path", e.getPath()); m.put("status", e.getStatus());
+            m.put("type", e.getExceptionType()); m.put("message", e.getMessage()); m.put("user", e.getUserEmail()); m.put("at", e.getCreatedAt().toString());
+            list.add(m);
+        }
+        return Map.of("days", window, "total", serverErrors.countByCreatedAtAfter(since), "errors", list);
+    }
+
     /** The money path in order: distinct sessions that reached each step (recorded by the app as "funnel" events). */
     @GetMapping("/money-funnel")
     public Map<String, Object> moneyFunnel(@RequestParam(defaultValue = "30") int days) {

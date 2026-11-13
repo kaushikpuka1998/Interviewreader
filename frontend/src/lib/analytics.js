@@ -235,3 +235,15 @@ export async function fetchEngagementBreakdown(days = 30) {
   if (!res.ok) throw new Error('Failed to load engagement breakdown')
   return res.json()
 }
+
+// Admin: every Premium checkout attempt (who, which pass, how it ended) and the server (5xx) errors.
+export async function fetchPayments(days = 30) {
+  const res = await fetch(`${API_BASE}/analytics/payments?days=${days}`)
+  if (!res.ok) throw new Error('Failed to load payments')
+  return res.json()
+}
+export async function fetchServerErrors(days = 7) {
+  const res = await fetch(`${API_BASE}/analytics/errors?days=${days}`)
+  if (!res.ok) throw new Error('Failed to load server errors')
+  return res.json()
+}

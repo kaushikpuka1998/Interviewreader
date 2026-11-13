@@ -79,6 +79,9 @@ public class BillingService {
     private volatile boolean allFree;
     private volatile long allFreeAt;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.interview.backend.repository.PaymentAttemptRepository payments;
+
     public boolean isEverythingFree() {
         long now = System.currentTimeMillis();
         if (now - allFreeAt > 10_000) {
@@ -406,6 +409,8 @@ public class BillingService {
                 u.setSubscriptionStatus("cancelled");
             } catch (Exception e) { log.warn("Could not cancel the old Premium subscription {}", u.getRazorpaySubscriptionId(), e); }
         }
+        try { if (payments != null && u.getPremiumPendingOrderId() != null) payments.markPaid(u.getPremiumPendingOrderId(), Instant.now()); }
+        catch (Exception e) { log.warn("Could not mark the payment attempt as paid", e); }
         u.setPremiumPendingPlan(null);
         u.setPremiumPendingOrderId(null);
         if (u.getPremiumPendingCoupon() != null) {

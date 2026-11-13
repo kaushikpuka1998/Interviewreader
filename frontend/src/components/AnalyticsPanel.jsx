@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Loader from './Loader.jsx'
-import { fetchAnalytics, fetchSignups, fetchOnline, fetchFunnel } from '../lib/analytics.js'
+import { fetchAnalytics, fetchSignups, fetchOnline, fetchFunnel, fetchPayments, fetchServerErrors } from '../lib/analytics.js'
 
 // When the admin last acknowledged the signup list — used to badge new joiners.
 const SEEN_KEY = 'ir_signups_seen_at'
@@ -235,6 +235,79 @@ const STATUS_STYLE = {
   reading: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   browsing: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   'logged-in only': 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+}
+
+const PAY_STYLE = {
+  PAID: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+  STARTED: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+  FAILED: 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+}
+const STATUS_LABEL = { PAID: 'Paid', STARTED: 'Opened checkout', FAILED: 'Failed' }
+const when = iso => new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+
+// Who is going for payment: each Premium checkout attempt with how it ended, plus server errors (5xx) with the same period.
+function PaymentsBlock({ days }) {
+  const [p, setP] = useState(null)
+  const [e, setE] = useState(null)
+  useEffect(() => {
+    setP(null); setE(null)
+    fetchPayments(days).then(setP).catch(() => setP({ summary: {}, attempts: [] }))
+    fetchServerErrors(days).then(setE).catch(() => setE({ total: 0, errors: [] }))
+  }, [days])
+  const card = 'rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4'
+  const sm = p?.summary || {}
+  return (
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <section className={card}>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Payments: who is going to pay</h3>
+        {!p ? <p className="mt-3 text-sm text-slate-400">Loading…</p> : (
+          <>
+            <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+              {[['Opened', sm.openCheckouts], ['Paid', sm.paid], ['Failed', sm.failed], ['Revenue', `₹${Number(sm.revenue || 0).toLocaleString('en-IN')}`]].map(([l, v]) => (
+                <div key={l} className="rounded-lg bg-slate-50 px-2 py-2 dark:bg-white/5">
+                  <div className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100">{v ?? 0}</div>
+                  <div className="text-[11px] text-slate-500">{l}</div>
+                </div>
+              ))}
+            </div>
+            {!p.attempts.length ? <p className="mt-3 text-sm text-slate-400">No checkout attempts in this period.</p> : (
+              <ul className="mt-3 max-h-80 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
+                {p.attempts.map((a, i) => (
+                  <li key={i} className="flex items-start justify-between gap-3 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-slate-800 dark:text-slate-100" title={a.email}>{a.email}</p>
+                      <p className="text-xs text-slate-500">{a.plan || '–'}{a.amount != null ? ` · ₹${Number(a.amount).toLocaleString('en-IN')}` : ''} · {when(a.at)}</p>
+                      {a.error && <p className="mt-0.5 break-words text-xs text-rose-600 dark:text-rose-400">{a.error}</p>}
+                    </div>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${PAY_STYLE[a.status] || ''}`}>{STATUS_LABEL[a.status] || a.status}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-2 text-xs text-slate-500">"Opened checkout" that never turns into Paid is someone who left at the payment window.</p>
+          </>
+        )}
+      </section>
+
+      <section className={`${card} ${e?.total ? 'border-rose-300 dark:border-rose-500/40' : ''}`}>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          Server errors (5xx) {e ? <span className={`ml-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${e.total ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'}`}>{e.total ? e.total : 'none'}</span> : null}
+        </h3>
+        {!e ? <p className="mt-3 text-sm text-slate-400">Loading…</p> : !e.errors.length ? <p className="mt-3 text-sm text-slate-400">No server errors in this period.</p> : (
+          <ul className="mt-3 max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
+            {e.errors.map((x, i) => (
+              <li key={i} className="py-2">
+                <p className="break-all text-sm font-medium text-slate-800 dark:text-slate-100"><span className="mr-1.5 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] dark:bg-white/10">{x.method} {x.status}</span>{x.path}</p>
+                <p className="mt-0.5 break-words text-xs text-rose-600 dark:text-rose-400">{(x.type || '').split('.').pop()}: {x.message}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{when(x.at)} · {x.user || 'signed out'}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-2 text-xs text-slate-500">The admin gets an email for each new error, at most one per endpoint every 15 minutes.</p>
+      </section>
+    </div>
+  )
 }
 
 // What signed-in members actually do: read, skim, or just log in.
@@ -555,6 +628,8 @@ export default function AnalyticsPanel() {
         <DailyChart daily={data.daily} />
         <AudienceBlock audience={data.audience} days={data.windowDays} />
       </div>
+
+      <PaymentsBlock days={days} />
 
       <FunnelBlock days={days} />
 

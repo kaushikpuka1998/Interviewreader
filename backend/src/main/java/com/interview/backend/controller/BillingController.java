@@ -18,6 +18,7 @@ public class BillingController {
 
     private final BillingService billing;
     private final UserRepository users;
+    private final com.interview.backend.repository.PaymentAttemptRepository payments;
 
     private User currentUser() {
         return users.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow();
@@ -56,13 +57,33 @@ public class BillingController {
     // Premium one-time pass: monthly / yearly / lifetime.
     @PostMapping("/premium/order")
     public ResponseEntity<?> premiumOrder(@RequestBody PlanInput in) {
+        User u = currentUser();
+        String plan = in == null ? null : in.plan();
         try {
-            return ResponseEntity.ok(billing.createPremiumOrder(currentUser(), in == null ? null : in.plan(), in == null ? null : in.coupon()));
+            Map<String, Object> order = billing.createPremiumOrder(u, plan, in == null ? null : in.coupon());
+            attempt(u, plan, order.get("amount") instanceof Number n ? n.intValue() / 100 : null, String.valueOf(order.get("orderId")), com.interview.backend.entity.PaymentAttempt.STARTED, null);
+            return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {
+            attempt(u, plan, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
+            attempt(u, plan, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, e.getMessage());
             return ResponseEntity.status(503).body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            attempt(u, plan, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, "Order could not be created: " + e.getMessage());
+            throw e;   // still a 500, which the server-error log and the admin alert pick up
         }
+    }
+
+    /** Remembers a checkout attempt for the admin's payments list. Never lets bookkeeping break a payment. */
+    private void attempt(User u, String plan, Integer rupees, String orderId, String status, String error) {
+        try {
+            var a = new com.interview.backend.entity.PaymentAttempt();
+            a.setUserId(u.getId()); a.setEmail(u.getEmail()); a.setPlan(plan); a.setAmount(rupees);
+            a.setOrderId(orderId); a.setStatus(status);
+            a.setError(error == null ? null : (error.length() > 300 ? error.substring(0, 300) : error));
+            payments.save(a);
+        } catch (Exception ignored) { /* bookkeeping only */ }
     }
 
     public record OrderVerifyRequest(String razorpay_payment_id, String razorpay_order_id, String razorpay_signature) {}
