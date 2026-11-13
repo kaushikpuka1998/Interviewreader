@@ -178,6 +178,43 @@ public class ProfileController {
      * The optional details shown on the member's public profile. Replaces all of them at once (a blank field clears it), so the form can
      * simply send what it shows. Handles for GitHub and LinkedIn are reduced to the bare name; see PublicDetails for the rules.
      */
+    public record GoalRequest(String company, String role, String interviewDate) {}
+
+    private Map<String, Object> goalBody(User u) {
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("company", u.getTargetCompany() == null ? "" : u.getTargetCompany());
+        out.put("role", u.getTargetRole() == null ? "" : u.getTargetRole());
+        out.put("interviewDate", u.getInterviewDate() == null ? "" : u.getInterviewDate().toString());
+        long days = u.getInterviewDate() == null ? -1 : java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), u.getInterviewDate());
+        out.put("daysLeft", days >= 0 ? days : null);
+        out.put("sprintEligible", billing.sprintEligible(u));
+        return out;
+    }
+
+    /** The member's interview goal: target company, role and date. Drives the countdown and the 30-day pass. */
+    @GetMapping("/goal")
+    public Map<String, Object> goal() { return goalBody(currentUser()); }
+
+    @PutMapping("/goal")
+    public ResponseEntity<?> saveGoal(@RequestBody GoalRequest req) {
+        User u = currentUser();
+        String company = req.company() == null ? "" : req.company().trim();
+        String role = req.role() == null ? "" : req.role().trim();
+        if (company.length() > 60 || role.length() > 60) return ResponseEntity.badRequest().body(Map.of("error", "Keep company and role under 60 characters."));
+        java.time.LocalDate date = null;
+        if (req.interviewDate() != null && !req.interviewDate().isBlank()) {
+            try { date = java.time.LocalDate.parse(req.interviewDate().trim()); }
+            catch (Exception e) { return ResponseEntity.badRequest().body(Map.of("error", "Use a valid interview date.")); }
+            java.time.LocalDate today = java.time.LocalDate.now();
+            if (date.isBefore(today) || date.isAfter(today.plusDays(400))) return ResponseEntity.badRequest().body(Map.of("error", "Pick a date from today up to about a year from now."));
+        }
+        u.setTargetCompany(company.isEmpty() ? null : company);
+        u.setTargetRole(role.isEmpty() ? null : role);
+        u.setInterviewDate(date);
+        userRepository.save(u);
+        return ResponseEntity.ok(goalBody(u));
+    }
+
     @PutMapping("/public-details")
     public ResponseEntity<?> savePublicDetails(@RequestBody PublicDetailsRequest req) {
         User u = currentUser();

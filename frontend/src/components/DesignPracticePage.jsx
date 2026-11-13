@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { designBlueprintFor } from '../lib/designBlueprints.js'
+import { nodeKind } from '../lib/designBlueprintCatalog.js'
 import { useFeature } from '../lib/features.js'
 import TopBar from './TopBar.jsx'
 import Loader from './Loader.jsx'
 import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
+import ShareLinkedIn from './ShareLinkedIn.jsx'
 import PremiumPlans from './PremiumPlans.jsx'
 import { getUser } from '../lib/auth.js'
 import { setPageSeo } from '../lib/seo.js'
+import { trackFunnel } from '../lib/analytics.js'
 import { respond, newInterviewState, systemName } from '../lib/interviewer.js'
 import { fetchDesignQuestions, fetchDesignQuestion, submitDesignAttempt, fetchDesignAttempts, fetchDesignAttempt, fetchPracticeQuota, probeDesignAnswer, simulateArchitecture, fetchLatestSimulation } from '../lib/designPractice.js'
 
@@ -73,6 +76,7 @@ export default function DesignPracticePage() {
   const backToList = () => { setUrl({}); openFromUrl(); refresh() }
 
   const onScored = attempt => {
+    trackFunnel('first_answer')
     setQuota(attempt.quota)
     setResult(attempt)
     setCurrent(null)
@@ -103,7 +107,7 @@ export default function DesignPracticePage() {
               <button type="button" onClick={() => setAuthOpen(true)} className={`${btnPrimary} mt-4`}>Sign in or create a free account</button>
             </div>
           ) : result ? (
-            <ResultView attempt={result} onRetry={() => start(result.questionId, result.mode === 'interview' ? 'interview' : undefined)} onBack={backToList} />
+            <ResultView attempt={result} quota={quota} onUpgrade={() => setPremiumPlansOpen(true)} onRetry={() => start(result.questionId, result.mode === 'interview' ? 'interview' : undefined)} onBack={backToList} />
           ) : current ? (
             <Session question={current} quota={quota} onScored={onScored} onOutOfAttempts={q => { setQuota(q); setPremiumPlansOpen(true) }} onBack={backToList}
               onSimulationQuota={simQuota => setCurrent(q => q ? { ...q, simulationQuota: simQuota } : q)}
@@ -328,6 +332,10 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   const [canvasSize, setCanvasSize] = useState({ width: 128, height: 80 })
   const nodeWidthPct = (160 / canvasSize.width) * 100
   const nodeHeightPct = (80 / canvasSize.height) * 100
+  // The canvas is never narrower or shorter than its widest column and tallest row need (cards are a fixed 160x80), so cards can't overlap.
+  const lanes = (key, tol) => { const v = Object.values(layout).map(p => p[key]).sort((a, b) => a - b); return v.filter((x, i) => i === 0 || x - v[i - 1] > tol).length }
+  const minCanvasW = Math.max(560, lanes('x', 4) * 178 + 24)
+  const minCanvasH = Math.max(480, lanes('y', 8) * 108 + 40)
   useEffect(() => { setSimulationQuota(question.simulationQuota || null) }, [question.id, question.simulationQuota])
   useEffect(() => {
     let cancelled = false
@@ -487,7 +495,9 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     setLinkFrom(type)
     setLinkCursor(pointerPosition(event, rect))
   }
-  const connectionPath = (from, to) => {
+  const toPx = path => { let i = 0; return path.replace(/-?\d*\.?\d+/g, n => (+n * (i++ % 2 ? canvasSize.height : canvasSize.width) / 100).toFixed(1)) }
+  const connectionPath = (from, to) => toPx(pctPath(from, to))
+  const pctPath = (from, to) => {
     const dx = (to.x - from.x) * canvasSize.width / 100
     const dy = (to.y - from.y) * canvasSize.height / 100
     if (Math.abs(dx) >= Math.abs(dy)) {
@@ -513,30 +523,32 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     {simulationQuota && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-800/20 bg-emerald-950/80 px-3 py-2 text-xs text-emerald-100"><span>{simulationQuota.premium ? 'Premium · unlimited simulations' : `${simulationQuota.freeLeft} of ${simulationQuota.freeTotal} free simulations left`}</span>{!simulationQuota.premium && simulationQuota.freeLeft <= 1 && <button type="button" onClick={onUpgradePremium} className="rounded-lg bg-emerald-300 px-3 py-1.5 font-bold text-emerald-950 transition hover:bg-emerald-200">Get unlimited with Premium</button>}</div>}
     {restoredSimulation && <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">Restored your last submitted design and simulation for this question.</p>}
     {simulationError && <p role="alert" className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:bg-rose-950/40 dark:text-rose-200">{simulationError}</p>}
-    <div ref={canvasRef} className="arch-canvas relative mt-4 h-[30rem] min-h-[30rem] touch-none overflow-hidden rounded-2xl border border-slate-200 shadow-inner shadow-slate-200/40 md:h-[34rem] md:min-h-[34rem] dark:border-white/10 dark:shadow-black/20" onPointerMove={move} onPointerUp={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }} onPointerLeave={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full"><defs><marker id="arch-arrow" viewBox="0 0 2 2" refX="1.8" refY="1" markerWidth="2.2" markerHeight="2.2" markerUnits="userSpaceOnUse" orient="auto"><path d="M 0 0 L 2 1 L 0 2 z" fill="#8b5cf6" /></marker></defs>{edges.map(([from, to], edgeIndex) => { const a = nodes.find(n => n.type === from), b = nodes.find(n => n.type === to); if (!a || !b) return null; const d = connectionPath(a, b); return <g key={`${from}-${to}`} className="pointer-events-auto cursor-pointer" onClick={event => { event.stopPropagation(); disconnectEdge(from, to) }}><title>Click to remove this connection</title><path d={d} fill="none" stroke="transparent" strokeWidth="18" vectorEffect="non-scaling-stroke" /><path d={d} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="7 8" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="pointer-events-none arch-flow" /><circle r="1.15" fill="#c4b5fd" className="arch-packet"><animateMotion dur={`${1.8 + (edgeIndex % 3) * .35}s`} repeatCount="indefinite" path={d} begin={`${edgeIndex * .22}s`} /></circle></g> })}{linkFrom && linkCursor && (() => { const source = nodes.find(n => n.type === linkFrom); if (!source) return null; const sx = source.x + nodeWidthPct, sy = source.y + nodeHeightPct / 2, ex = linkCursor.x, ey = linkCursor.y, bend = Math.max(8, Math.abs(ex - sx) * 0.46); return <path d={`M ${sx} ${sy} C ${sx + bend} ${sy}, ${ex - bend} ${ey}, ${ex} ${ey}`} fill="none" stroke="#a78bfa" strokeWidth="3" strokeDasharray="6 6" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="arch-link-preview" /> })()}</svg>
+    <div className="mt-4 overflow-x-auto rounded-2xl"><div ref={canvasRef} style={{ minWidth: minCanvasW, minHeight: minCanvasH }} className="arch-canvas relative h-[30rem] touch-pan-x touch-pan-y overflow-hidden sm:touch-none rounded-2xl border border-slate-200 shadow-inner shadow-slate-200/40 md:h-[34rem] dark:border-white/10 dark:shadow-black/20" onPointerMove={move} onPointerUp={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }} onPointerLeave={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }}>
+      <svg viewBox={`0 0 ${canvasSize.width} ${canvasSize.height}`} className="pointer-events-none absolute inset-0 h-full w-full"><defs><marker id="arch-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6" /></marker></defs>{edges.map(([from, to], edgeIndex) => { const a = nodes.find(n => n.type === from), b = nodes.find(n => n.type === to); if (!a || !b) return null; const d = connectionPath(a, b); return <g key={`${from}-${to}`} className="pointer-events-auto cursor-pointer" onClick={event => { event.stopPropagation(); disconnectEdge(from, to) }}><title>Click to remove this connection</title><path d={d} fill="none" stroke="transparent" strokeWidth="18" vectorEffect="non-scaling-stroke" /><path d={d} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="7 8" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="pointer-events-none arch-flow" /><circle r="3.5" fill="#c4b5fd" className="arch-packet"><animateMotion dur={`${1.8 + (edgeIndex % 3) * .35}s`} repeatCount="indefinite" path={d} begin={`${edgeIndex * .22}s`} /></circle></g> })}{linkFrom && linkCursor && (() => { const source = nodes.find(n => n.type === linkFrom); if (!source) return null; const sx = source.x + nodeWidthPct, sy = source.y + nodeHeightPct / 2, ex = linkCursor.x, ey = linkCursor.y, bend = Math.max(8, Math.abs(ex - sx) * 0.46); return <path d={toPx(`M ${sx} ${sy} C ${sx + bend} ${sy}, ${ex - bend} ${ey}, ${ex} ${ey}`)} fill="none" stroke="#a78bfa" strokeWidth="3" strokeDasharray="6 6" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="arch-link-preview" /> })()}</svg>
       {nodes.map((n, i) => {
-        const isEntry = n.type === 'Client' || n.type === 'Clients / Editors'
-        const isStorage = ['Database', 'PostgreSQL', 'Asset storage', 'Object Storage'].includes(n.type)
-        const isMessaging = n.type === 'Redis' || n.type === 'Redis / PubSub' || n.type === 'Queue' || n.type === 'PubSub'
-        const isCollaboration = n.type === 'Collaboration Service' || n.type === 'Collaboration service' || n.type === 'CRDT State'
-        const icon = isEntry ? '◉' : isStorage ? '▤' : isMessaging ? '⚡' : n.type === 'Load Balancer' || n.type === 'Load-balancer' ? '⇄' : n.type === 'Update Log' ? '≡' : isCollaboration ? '✦' : '◇'
-        const category = isEntry ? 'Entry point' : isStorage ? 'Storage' : isMessaging ? 'Messaging' : isCollaboration ? 'Coordination' : n.type === 'Monitoring' ? 'Observability' : 'Compute'
+        const kind = nodeKind(n.type)
+        const isEntry = kind === 'entry'
+        const isStorage = kind === 'storage'
+        const isMessaging = kind === 'messaging'
+        const isCollaboration = kind === 'coordination'
+        const icon = isEntry ? '◉' : isStorage ? '▤' : isMessaging ? '⚡' : kind === 'balancer' ? '⇄' : n.type === 'Update Log' ? '≡' : isCollaboration ? '✦' : '◇'
+        const category = isEntry ? 'Entry point' : isStorage ? 'Storage' : isMessaging ? 'Messaging' : isCollaboration ? 'Coordination' : kind === 'observability' ? 'Observability' : 'Compute'
         const accent = isEntry ? 'bg-sky-50 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300' : isStorage ? 'bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300' : isMessaging ? 'bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300' : isCollaboration ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300' : 'bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300'
-        const border = isEntry ? 'border-sky-200' : isStorage ? 'border-amber-200' : isMessaging ? 'border-rose-200' : isCollaboration ? 'border-emerald-200' : n.type === 'Monitoring' ? 'border-cyan-200' : 'border-violet-200'
-        return <button key={n.type} type="button" onPointerDown={e => { drag.current = { type: n.type, origin: snapshot() }; e.currentTarget.setPointerCapture(e.pointerId) }} onDoubleClick={() => disconnectComponent(n.type)} style={{ left: n.x + '%', top: n.y + '%' }} className={`arch-node absolute flex h-20 w-40 cursor-grab items-center rounded-2xl border bg-white/95 px-3 py-2 text-left shadow-[0_12px_32px_-18px_rgba(15,23,42,0.45)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(91,33,182,0.45)] dark:bg-slate-900/95 ${linkFrom === n.type ? 'ring-4 ring-violet-400/40 border-violet-600' : border}`}>
+        const border = isEntry ? 'border-sky-200' : isStorage ? 'border-amber-200' : isMessaging ? 'border-rose-200' : isCollaboration ? 'border-emerald-200' : kind === 'observability' ? 'border-cyan-200' : 'border-violet-200'
+        return <button key={n.type} type="button" onPointerDown={e => { drag.current = { type: n.type, origin: snapshot() }; e.currentTarget.setPointerCapture(e.pointerId) }} onDoubleClick={() => disconnectComponent(n.type)} style={{ left: n.x + '%', top: n.y + '%' }} className={`arch-node touch-none absolute flex h-20 w-40 cursor-grab items-center rounded-2xl border bg-white/95 px-3 py-2 text-left shadow-[0_12px_32px_-18px_rgba(15,23,42,0.45)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(91,33,182,0.45)] dark:bg-slate-900/95 ${linkFrom === n.type ? 'ring-4 ring-violet-400/40 border-violet-600' : border}`}>
           <span onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title="Input: release a connection here" className="absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Input connection point" />
           <span onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title="Top input connection point" className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Top input connection point" />
           <span onPointerDown={e => beginLink(e, n.type)} title="Output: drag to another input" className="absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Output connection point" />
           <span onPointerDown={e => beginLink(e, n.type)} title="Bottom output connection point" className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Bottom output connection point" />
           <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-lg font-bold ${accent}`}>{icon}</span>
           <span className="ml-2.5 min-w-0">
-            <b className="block line-clamp-2 text-[13px] font-extrabold leading-[18px] text-slate-900 dark:text-white">{n.type}</b>
+            <b title={n.type} className="block line-clamp-2 text-[13px] font-extrabold leading-[18px] text-slate-900 dark:text-white">{n.type.length > 24 ? (n.type.replace(/\s*\([^)]*\)/g, '').trim() || n.type) : n.type}</b>
             <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.12em] text-slate-500 dark:bg-white/[.07] dark:text-slate-400">{category}</span>
           </span>
         </button>
       })}
-    </div>
+    </div></div>
+    <p className="mt-1.5 text-xs text-slate-500 lg:hidden">Scroll sideways on the diagram to see all of it. Drag a card to move it.</p>
     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-200 bg-violet-50/70 px-3 py-2 dark:border-violet-400/20 dark:bg-violet-400/10"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-violet-600 dark:text-violet-300">Question-aware blueprint</p><p className="mt-0.5 text-sm font-bold text-violet-950 dark:text-violet-100">{blueprint.name}</p><p className="mt-0.5 max-w-3xl text-xs text-violet-900/75 dark:text-violet-100/75">{blueprint.summary}</p></div><button type="button" onClick={loadReference} className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700">Load recommended design</button></div>
     <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-semibold text-slate-500">Recommended building blocks:</span>{palette.map(type => <button key={type} type="button" onClick={() => add(type)} className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-violet-400 hover:text-violet-700 dark:border-white/10 dark:text-slate-300">+ {type}</button>)}</div>
     <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 dark:bg-white/[.04]"><label className="text-xs font-bold text-slate-600 dark:text-slate-300">Target RPS</label><div className="relative min-w-[16rem] flex-1 py-3"><input type="range" min="0" max="4" step="1" value={targetStep} onChange={e => setTargetStep(Number(e.target.value))} aria-label="Target requests per second" className="relative z-10 w-full cursor-pointer accent-violet-600" /><div className="pointer-events-none absolute z-20 inset-x-[9px] top-1/2 flex -translate-y-1/2 justify-between">{requestTargets.map((value, index) => <span key={value} className={`h-2.5 w-2.5 rounded-full ring-2 ring-slate-50 dark:ring-slate-900 ${index <= targetStep ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`} />)}</div><div className="absolute inset-x-0 top-full flex justify-between pt-1 text-[10px] font-bold text-slate-500"><span>1K</span><span>10K</span><span>1M</span><span>100M</span><span>1B</span></div></div><output className="min-w-36 text-right text-xs font-bold text-violet-700 dark:text-violet-300"><span className="block">{formatRps(targetRps)} RPS</span><span className="block font-mono text-[10px] font-medium text-violet-500">{targetRps.toLocaleString()} requests/sec</span></output></div>
@@ -1245,9 +1257,13 @@ function HiringDecision({ attempt }) {
   )
 }
 
-function ResultView({ attempt, onRetry, onBack }) {
+function ResultView({ attempt, quota, onUpgrade, onRetry, onBack }) {
   const r = attempt.result || {}
   const stages = r.stages || []
+  // A free member who just used their last scored question: show what the result is worth before asking for money.
+  const spent = !!quota && !quota.premium && !quota.unlimited && quota.canAttempt === false
+  const missedAll = stages.flatMap(s => (s.missed || []).map(m => ({ stage: s.label, item: m })))
+  useEffect(() => { if (spent) { trackFunnel('free_limit_hit'); trackFunnel('paywall_seen') } }, [spent])
   const [showModel, setShowModel] = useState(false)
   const pct = Math.max(0, Math.min(100, (attempt.score || 0) * 10))
   return (
@@ -1282,6 +1298,26 @@ function ResultView({ attempt, onRetry, onBack }) {
           Compare with the model answer below to judge the details.
         </p>
       </section>
+
+      {spent && (
+        <section className="rounded-2xl border border-amber-300 bg-gradient-to-br from-amber-50 to-pink-50 p-5 dark:border-amber-500/30 dark:from-amber-950/30 dark:to-pink-950/20">
+          <p className="text-xs font-bold uppercase tracking-[.14em] text-amber-700 dark:text-amber-300">You've used your {quota.freeTotal || 3} free scored questions</p>
+          <h3 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
+            You scored {Number(attempt.score).toFixed(1)}/10{missedAll.length ? ` and left ${missedAll.length} things out` : ''}. Close the gap before your interview.
+          </h3>
+          {missedAll.length > 0 && (
+            <ul className="mt-3 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+              {missedAll.slice(0, 2).map((m, i) => <li key={i} className="flex gap-2"><span className="text-rose-500">✗</span><span><strong>{m.stage}:</strong> {m.item}</span></li>)}
+              {missedAll.length > 2 && <li className="flex gap-2 text-slate-500 dark:text-slate-400"><span aria-hidden="true">🔒</span>{missedAll.length - 2} more gaps to review on your next attempts</li>}
+            </ul>
+          )}
+          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">Premium gives you unlimited scored attempts, so you can retry this question and watch the score climb.</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={onUpgrade} className="rounded-xl bg-gradient-to-r from-amber-500 to-pink-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:opacity-95">Unlock unlimited attempts</button>
+            <span className="text-xs text-slate-500 dark:text-slate-400">One-time payment, no auto-renewal</span>
+          </div>
+        </section>
+      )}
 
       <HiringDecision attempt={attempt} />
 
@@ -1325,6 +1361,7 @@ function ResultView({ attempt, onRetry, onBack }) {
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={onRetry} className={btnPrimary}>Try this question again</button>
         <button type="button" onClick={onBack} className={btnSecondary}>Pick another question</button>
+        {Number(attempt.score) >= 6 && attempt.questionId && <ShareLinkedIn score={{ questionId: attempt.questionId, title: attempt.title, score: attempt.score }} label="Share my score" />}
       </div>
     </div>
   )

@@ -50,8 +50,8 @@ public class BillingService {
     private final String keyId, keySecret, webhookSecret;
 
     /** Premium passes: how long each grants (null = lifetime). */
-    public static final Map<String, Duration> PREMIUM_LENGTH = Map.of("monthly", Duration.ofDays(31), "yearly", Duration.ofDays(365));
-    private static final List<String> PREMIUM_PLANS = List.of("monthly", "yearly", "lifetime");
+    public static final Map<String, Duration> PREMIUM_LENGTH = Map.of("sprint", Duration.ofDays(30), "monthly", Duration.ofDays(31), "yearly", Duration.ofDays(365));
+    private static final List<String> PREMIUM_PLANS = List.of("sprint", "monthly", "yearly", "lifetime");
     // Lifetime = an end date nobody reaches.
     private static final Instant LIFETIME = Instant.parse("2999-12-31T00:00:00Z");
     private final Map<String, Integer> premiumPrices;   // rupees
@@ -93,6 +93,7 @@ public class BillingService {
                           @Value("${app.razorpay.key-id:}") String keyId,
                           @Value("${app.razorpay.key-secret:}") String keySecret,
                           @Value("${app.razorpay.webhook-secret:}") String webhookSecret,
+                          @Value("${app.premium.price-sprint:999}") int priceSprint,
                           @Value("${app.premium.price-monthly:2200}") int priceMonthly,
                           @Value("${app.premium.price-yearly:6500}") int priceYearly,
                           @Value("${app.premium.price-lifetime:14000}") int priceLifetime,
@@ -120,8 +121,8 @@ public class BillingService {
         this.keyId = keyId;
         this.keySecret = keySecret;
         this.webhookSecret = webhookSecret;
-        this.premiumPrices = Map.of("monthly", priceMonthly, "yearly", priceYearly, "lifetime", priceLifetime);
-        this.premiumRegular = Map.of("monthly", regularMonthly, "yearly", regularYearly, "lifetime", regularLifetime);
+        this.premiumPrices = Map.of("sprint", priceSprint, "monthly", priceMonthly, "yearly", priceYearly, "lifetime", priceLifetime);
+        this.premiumRegular = Map.of("sprint", 0, "monthly", regularMonthly, "yearly", regularYearly, "lifetime", regularLifetime);
         this.practiceRegularLabels = Map.of("p12", practiceRegular12, "p18", practiceRegular18, "p24", practiceRegular24);
         this.practicePlanIds = Map.of("p12", practicePlan12, "p18", practicePlan18, "p24", practicePlan24);
         this.practicePriceLabels = Map.of("p12", practiceLabel12, "p18", practiceLabel18, "p24", practiceLabel24);
@@ -261,9 +262,20 @@ public class BillingService {
         }
     }
 
+    /** The Premium passes everyone can buy (the 30-day sprint pass is only offered to members with an interview coming up). */
+    public List<Map<String, Object>> premiumPlans() { return premiumPlans(null); }
+
     /** The Premium passes for the pricing cards: key and price in rupees. */
-    public List<Map<String, Object>> premiumPlans() {
-        return PREMIUM_PLANS.stream().map(k -> Map.<String, Object>of("key", k, "price", premiumPrices.get(k), "regular", premiumRegular.get(k))).toList();
+    public List<Map<String, Object>> premiumPlans(User u) {
+        return PREMIUM_PLANS.stream().filter(k -> !"sprint".equals(k) || sprintEligible(u))
+                .map(k -> Map.<String, Object>of("key", k, "price", premiumPrices.get(k), "regular", premiumRegular.get(k))).toList();
+    }
+
+    /** The 30-day pass is for people with a dated interview in the next 60 days, so it doesn't undercut the monthly pass. */
+    public boolean sprintEligible(User u) {
+        if (u == null || u.getInterviewDate() == null) return false;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        return !u.getInterviewDate().isBefore(today) && !u.getInterviewDate().isAfter(today.plusDays(60));
     }
 
     public boolean isPremium(User u) {
@@ -343,6 +355,7 @@ public class BillingService {
     public Map<String, Object> createPremiumOrder(User u, String plan, String couponCode) {
         Integer price = premiumPrices.get(plan);
         if (price == null) throw new IllegalArgumentException("Unknown plan.");
+        if ("sprint".equals(plan) && !sprintEligible(u)) throw new IllegalArgumentException("The 30-day pass is for members with an interview in the next 60 days. Add your interview date first.");
         String applied = null;
         int pay = price;
         if (couponCode != null && !couponCode.isBlank()) {

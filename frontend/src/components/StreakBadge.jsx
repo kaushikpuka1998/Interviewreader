@@ -13,7 +13,7 @@ export default function StreakBadge() {
     checkInToday().then(({ data, fresh }) => {
       setData(data)
       if (fresh) {
-        setToast(`+${data.awarded} points · ${data.milestone ? `🎉 ${data.milestone}!` : `🔥 ${data.streak}-day streak`}`)
+        setToast(data.freezeUsed ? `🧊 Premium saved your ${data.streak - 1}-day streak after a missed day` : `+${data.awarded} points · ${data.milestone ? `🎉 ${data.milestone}!` : `🔥 ${data.streak}-day streak`}`)
         setTimeout(() => setToast(null), 4000)
       }
     }).catch(() => {})

@@ -38,6 +38,7 @@ public class PointsService implements CommandLineRunner {
 
     private final PointEventRepository points;
     private final UserRepository users;
+    private final BillingService billing;
 
     /** Awards points once for (user, kind, ref). Returns true when this call awarded them. */
     public boolean award(Long userId, String kind, String ref, int amount) {
@@ -77,8 +78,17 @@ public class PointsService implements CommandLineRunner {
         LocalDate today = LocalDate.now(ZONE);
         int bonus = 0;
         String milestone = null;
+        boolean froze = false;
         if (!today.equals(u.getStreakLastDate())) {
-            int streak = today.minusDays(1).equals(u.getStreakLastDate()) && u.getStreakCount() != null ? u.getStreakCount() + 1 : 1;
+            boolean continuing = today.minusDays(1).equals(u.getStreakLastDate());
+            // Premium perk: one missed day every 30 days doesn't end a streak of 3 or more.
+            if (!continuing && today.minusDays(2).equals(u.getStreakLastDate()) && u.getStreakCount() != null && u.getStreakCount() >= 3
+                    && billing.isPremium(u) && (u.getStreakFreezeUsedOn() == null || u.getStreakFreezeUsedOn().isBefore(today.minusDays(30)))) {
+                continuing = true;
+                froze = true;
+                u.setStreakFreezeUsedOn(today);
+            }
+            int streak = continuing && u.getStreakCount() != null ? u.getStreakCount() + 1 : 1;
             u.setStreakCount(streak);
             u.setStreakBest(Math.max(streak, u.getStreakBest() == null ? 0 : u.getStreakBest()));
             u.setStreakLastDate(today);
@@ -93,6 +103,7 @@ public class PointsService implements CommandLineRunner {
         Map<String, Object> out = summary(u);
         out.put("awarded", bonus);
         out.put("milestone", milestone);
+        out.put("freezeUsed", froze);
         return out;
     }
 

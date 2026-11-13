@@ -124,6 +124,18 @@ function trackEvent(evt) {
   } catch { /* never break the page */ }
 }
 
+// A step on the money path (goal_set, first_answer, free_limit_hit, paywall_seen, pricing_viewed, checkout_started, paid).
+// Counted once per browser session per step and sent right away, so the admin funnel can show where people drop off.
+export function trackFunnel(step) {
+  try {
+    const key = 'ir_funnel_' + step
+    if (sessionStorage.getItem(key)) return
+    sessionStorage.setItem(key, '1')
+    trackEvent({ type: 'funnel', label: step })
+    flushEvents()
+  } catch { /* never break the page */ }
+}
+
 // Label a click by its control: explicit data-track, then aria-label/title, then visible text.
 if (typeof document !== 'undefined') {
   document.addEventListener('click', (e) => {
@@ -212,6 +224,12 @@ export async function fetchSignups(since, limit = 20) {
 }
 
 // Admin: who is using the daily challenge, who only reads vs only solves, code practice usage, and top referrers.
+export async function fetchMoneyFunnel(days = 30) {
+  const res = await fetch(`${API_BASE}/analytics/money-funnel?days=${days}`)
+  if (!res.ok) throw new Error('Failed to load the money funnel')
+  return res.json()
+}
+
 export async function fetchEngagementBreakdown(days = 30) {
   const res = await fetch(`${API_BASE}/analytics/engagement?days=${days}`)
   if (!res.ok) throw new Error('Failed to load engagement breakdown')

@@ -1,4 +1,6 @@
 import './lib/apiFetch.js'   // must stay first: makes every API request carry the session cookie
+import { startAutoUpdate } from './lib/autoUpdate.js'
+startAutoUpdate()
 import { LANDING_PATHS } from './lib/landingPaths.js'
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'

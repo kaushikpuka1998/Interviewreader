@@ -9,6 +9,7 @@ const SHARE_BASE = `${window.location.origin}/share`
 //   <ShareLinkedIn question={q} />                  a question
 //   <ShareLinkedIn company={{ id, name }} />        a company roadmap
 //   <ShareLinkedIn progress={{ username, read, solved, streak, points }} />   "my progress" certificate
+//   <ShareLinkedIn score={{ questionId, title, score }} />                    a scored system-design attempt
 const hashtag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '')
 
 // LinkedIn posts need a useful preview, not the full (often long, Markdown-rich)
@@ -28,7 +29,15 @@ function answerTakeaway(answer) {
   return plain.length > 280 ? `${plain.slice(0, 280).trimEnd()}…` : plain
 }
 
-function post({ question, company, progress }) {
+function post({ question, company, progress, score }) {
+  if (score) {
+    return {
+      link: `${SHARE_BASE}/q/${encodeURIComponent(score.questionId)}`,
+      text: `🎯 Scored ${Number(score.score).toFixed(1)}/10 on the system design question “${score.title}”.\n\n`
+        + `Practising design answers out loud and getting a coverage score on Interview Reader, then fixing what I missed.\n\n`
+        + `#SystemDesign #InterviewPrep #SoftwareEngineering #LearningInPublic`,
+    }
+  }
   if (question) {
     const topic = question.category || question.tech || 'tech'
     const takeaway = answerTakeaway(question.answer)
@@ -64,11 +73,11 @@ export function linkedInShareUrl(props) {
   return `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`${text}\n\n${link}`)}`
 }
 
-export default function ShareLinkedIn({ question, company, progress, label = 'Share', className = '' }) {
+export default function ShareLinkedIn({ question, company, progress, score, label = 'Share', className = '' }) {
   const iconOnly = !label
   const open = () => {
-    trackClick(`share_linkedin:${question ? 'question' : company ? 'roadmap' : 'progress'}`)
-    window.open(linkedInShareUrl({ question, company, progress }), 'linkedin-share', 'width=700,height=720,noopener')
+    trackClick(`share_linkedin:${score ? 'score' : question ? 'question' : company ? 'roadmap' : 'progress'}`)
+    window.open(linkedInShareUrl({ question, company, progress, score }), 'linkedin-share', 'width=700,height=720,noopener')
   }
   return (
     <button type="button" onClick={open} title={iconOnly ? undefined : 'Share on LinkedIn'} data-tip={iconOnly ? 'Share on LinkedIn' : undefined} aria-label="Share on LinkedIn"

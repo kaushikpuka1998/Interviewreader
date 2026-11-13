@@ -1,4 +1,8 @@
+import { catalogBlueprintFor } from './designBlueprintCatalog.js'
+
 export function designBlueprintFor(question) {
+  const catalog = catalogBlueprintFor(question?.title)
+  if (catalog) return catalog
   const text = [question?.title, question?.description, question?.prompt, question?.body].filter(Boolean).join(' ').toLowerCase()
   const generic = {
     name: 'General high-scale system',

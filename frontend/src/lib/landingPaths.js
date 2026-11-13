@@ -7,4 +7,10 @@ export const LANDING_PATHS = new Set([
   '/companies/amazon/sde-2',
   '/kafka-interview-questions',
   '/dsa/sliding-window',
+  '/system-design-interview-questions',
+  '/companies/google/sde-2',
+  '/companies/meta/sde-2',
+  '/companies/microsoft/sde-2',
+  '/dsa/dynamic-programming',
+  '/dsa/graph',
 ])

@@ -22,6 +22,11 @@ export function HelpfulVote({ question }) {
   const btn = on => `rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${on ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-slate-700 hover:border-blue-400 hover:text-blue-700 dark:border-slate-700 dark:text-slate-200'}`
   return (
     <div className="mt-8 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+      {(question.updatedAt || question.createdAt) && (
+        <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">
+          Last reviewed {new Date(question.updatedAt || question.createdAt).toLocaleDateString([], { month: 'short', year: 'numeric' })}. Spotted a mistake? Choose 👎 and tell us what is wrong; your note goes straight to the review list.
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Was this answer helpful?</p>
         <button type="button" onClick={() => vote(true)} aria-pressed={s.mine === true} className={btn(s.mine === true)}>👍 Yes{s.helpful ? ` · ${s.helpful}` : ''}</button>

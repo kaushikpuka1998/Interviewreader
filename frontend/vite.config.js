@@ -34,7 +34,7 @@ export default defineConfig({
     // a static asset Workbox can glob.
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      injectRegister: false,   // registered in src/lib/autoUpdate.js, which also reloads open tabs when a new release arrives
       workbox: {
         // Precache only the app shell. A glob over every .js pulled in ~80 lazy Mermaid
         // diagram chunks (~3.7 MB) on the first visit, though they only load when a

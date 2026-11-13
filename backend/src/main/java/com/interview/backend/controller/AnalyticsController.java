@@ -82,7 +82,7 @@ public class AnalyticsController {
             Long userId = currentUserId();
             List<UserEvent> rows = new ArrayList<>();
             for (EventRequest r : batch.subList(0, Math.min(batch.size(), 50))) {
-                if (!"read".equals(r.type()) && !"click".equals(r.type())) continue;
+                if (!"read".equals(r.type()) && !"click".equals(r.type()) && !"funnel".equals(r.type())) continue;
                 UserEvent e = new UserEvent();
                 e.setType(r.type());
                 e.setQuestionId(trim(r.questionId(), 100));
@@ -444,6 +444,19 @@ public class AnalyticsController {
     }
 
     /** Who is online right now: signed-in members by name, plus how many anonymous visitors. Admin only (under /analytics/**). */
+    /** The money path in order: distinct sessions that reached each step (recorded by the app as "funnel" events). */
+    @GetMapping("/money-funnel")
+    public Map<String, Object> moneyFunnel(@RequestParam(defaultValue = "30") int days) {
+        int window = Math.min(Math.max(days, 1), 365);
+        Instant since = Instant.now().minus(window, ChronoUnit.DAYS);
+        Map<String, Long> seen = new HashMap<>();
+        for (Object[] r : events.funnelSteps(since)) seen.put(String.valueOf(r[0]), ((Number) r[1]).longValue());
+        List<String> order = List.of("goal_set", "first_answer", "free_limit_hit", "paywall_seen", "pricing_viewed", "checkout_started", "paid");
+        List<Map<String, Object>> steps = new ArrayList<>();
+        for (String k : order) steps.add(Map.of("step", k, "sessions", seen.getOrDefault(k, 0L)));
+        return Map.of("days", window, "steps", steps);
+    }
+
     @GetMapping("/online")
     public Map<String, Object> online() {
         Map<String, Object> snap = presence.snapshot();

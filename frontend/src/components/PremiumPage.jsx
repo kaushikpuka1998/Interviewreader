@@ -18,6 +18,7 @@ const ROWS = [
   ['Direct links to system design and LLD answers per company', false, true],
   ['Scored system-design practice', '3 free questions', 'Continue with Premium'],
   ['HLD architecture simulator (3 free runs, then unlimited)', '3 simulations', 'Unlimited simulations'],
+  ['Streak freeze: one missed day every 30 days will not end a streak', false, true],
   ['Behavioral question bank mapped to company values', false, true],
   ['Cheat sheets, progress tracking and readiness score', false, true],
   ['New roadmaps as they are added (yearly and lifetime)', false, true],

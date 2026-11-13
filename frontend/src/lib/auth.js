@@ -412,3 +412,18 @@ export async function fetchProfilePrompt() {
   return res.json()
 }
 export const markProfilePromptSeen = () => fetch(`${API_BASE}/profile/prompt-seen`, { method: 'POST', credentials: 'include' }).catch(() => {})
+
+// The member's interview goal (target company, role, date) drives the countdown, the roadmap plan length and the 30-day pass.
+export async function fetchGoal() {
+  const res = await fetch(`${API_BASE}/profile/goal`, { credentials: 'include' })
+  if (!res.ok) return null
+  return res.json()
+}
+export async function saveGoal(goal) {
+  const res = await fetch(`${API_BASE}/profile/goal`, {
+    method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(goal),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || 'Could not save your goal.')
+  return data
+}

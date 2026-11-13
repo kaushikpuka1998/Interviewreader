@@ -50,7 +50,6 @@ export default function RoadmapsPage() {
   }
   const [track, setTrack] = useState('all') // 'all' | 'dsa' | 'system-design' | 'behavioral'
   const [level, setLevel] = useState('sde2') // 'sde1' | 'sde2' | 'sde3'
-  const [duration, setDuration] = useState('8weeks') // '4weeks' | '8weeks' | '12weeks'
   const [search, setSearch] = useState('')
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [expandedTopic, setExpandedTopic] = useState(null)
@@ -152,6 +151,12 @@ export default function RoadmapsPage() {
     })
   }
 
+  const setWeeks = w => setCustomPlan(p => {
+    const next = { ...p, targetWeeks: w }
+    try { localStorage.setItem(CUSTOM_PLAN_KEY, JSON.stringify(next)) } catch {}
+    return next
+  })
+
   const resetAllProgress = () => {
     if (window.confirm('Are you sure you want to reset your roadmap progress? This cannot be undone.')) {
       setCompleted(new Set())
@@ -205,8 +210,19 @@ export default function RoadmapsPage() {
       topics: level === 'sde1' ? design.slice(0, 3) : design })
     out.push({ id: `${company.id}-behavioral`, number: 5, track: 'behavioral', timeline: 'Week 11+', title: `${company.name} Behavioral & Culture`,
       description: 'Stories and values that decide offer level.', topics: extra.filter(t => t.track === 'behavioral') })
-    return out.filter(p => p.topics.length)
-  }, [roadmap, company, dbProblems, level, shuffles, locked])
+    // Week ranges follow the chosen plan length. Design gets the biggest share; behavioral is the last stretch.
+    const live = out.filter(p => p.topics.length)
+    const share = p => (p.track === 'system-design' ? 3 : p.track === 'behavioral' ? 1 : 2)
+    const total = live.reduce((n, p) => n + share(p), 0)
+    let weeksUsed = 0, acc = 0
+    live.forEach((p, i) => {
+      acc += share(p)
+      const end = i === live.length - 1 ? customPlan.targetWeeks : Math.max(weeksUsed + 1, Math.round((acc / total) * customPlan.targetWeeks))
+      p.timeline = end - weeksUsed > 1 ? `Weeks ${weeksUsed + 1}-${end}` : `Week ${end}`
+      weeksUsed = end
+    })
+    return live
+  }, [roadmap, company, dbProblems, level, shuffles, locked, customPlan.targetWeeks])
 
   // Filter phases and topics based on Track, Search, and Experience Level
   const filteredPhases = useMemo(() => {
@@ -253,10 +269,10 @@ export default function RoadmapsPage() {
   const readinessPercent = totalTopicsCount > 0 ? Math.round((completedTopicsCount / totalTopicsCount) * 100) : 0
 
   const readinessTier = useMemo(() => {
-    if (readinessPercent >= 85) return { label: 'FAANG Ready', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500' }
-    if (readinessPercent >= 50) return { label: 'Interview Ready', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500' }
-    if (readinessPercent >= 25) return { label: 'Contender', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500' }
-    return { label: 'Foundation Stage', color: 'text-slate-500 dark:text-slate-400', bg: 'bg-slate-400' }
+    if (readinessPercent >= 85) return { label: 'Well prepared', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500' }
+    if (readinessPercent >= 50) return { label: 'Interview-ready', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500' }
+    if (readinessPercent >= 25) return { label: 'Getting there', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500' }
+    return { label: 'Just starting', color: 'text-slate-500 dark:text-slate-400', bg: 'bg-slate-400' }
   }, [readinessPercent])
 
   if (!roadmap || !company) {
@@ -284,15 +300,11 @@ export default function RoadmapsPage() {
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300">
-                  <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-                  Targeted Company Interview Preparation
-                </div>
                 <h1 className="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                   DSA & System Design <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">Company Roadmaps</span>
                 </h1>
                 <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300">
-                  Customized, battle-tested learning paths tailored for top tech loops. Track your progress, solve company-frequency coding problems, and master architectural trade-offs.
+                  One ordered plan per company: the coding patterns that company's problems lean on, the design prompts it is known for, and the behavioral round. Tick things off as you go and the plan keeps your place.
                 </p>
               </div>
 
@@ -397,14 +409,14 @@ export default function RoadmapsPage() {
               </div>
               <div className="flex flex-wrap items-center gap-2 xl:max-w-md xl:shrink-0 xl:justify-end">
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                  <span className="text-blue-500">⏱</span> ~{company.recommendedHoursPerDay} hrs/day recommended
+                  About {company.recommendedHoursPerDay} hrs/day
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                  <span className="text-amber-500">★</span> {company.rounds.length} Interview Rounds
+                  {company.rounds.length} interview rounds
                 </span>
                 <button type="button" onClick={() => copyLink(`/roadmaps?company=${company.id}`)}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
-                  {copied === `/roadmaps?company=${company.id}` ? '✓ Link copied' : '🔗 Share roadmap'}
+                  {copied === `/roadmaps?company=${company.id}` ? '✓ Link copied' : 'Share roadmap'}
                 </button>
                 {/* Sharing a roadmap on LinkedIn is for signed-in Premium members; everyone can still copy the link. */}
                 {roadmap?.signedIn && roadmap?.premium && <ShareLinkedIn company={company} label="Share on LinkedIn" className="!min-h-0 py-1.5 text-xs font-semibold" />}
@@ -435,7 +447,7 @@ export default function RoadmapsPage() {
             <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
                 <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
-                  <span>⚠️</span> Critical Company Gotchas & Warnings
+                  Where candidates slip
                 </h4>
                 <ul className="mt-2.5 space-y-2 text-xs text-amber-900/90 dark:text-amber-200/90">
                   {company.gotchas.map((g, i) => (
@@ -449,7 +461,7 @@ export default function RoadmapsPage() {
 
               <div className="rounded-xl border border-blue-200/60 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-950/20">
                 <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300">
-                  <span>🎯</span> What {company.name} Evaluators Score On
+                  What each round is scored on
                 </h4>
                 <div className="mt-2.5 space-y-2 text-xs text-blue-900/90 dark:text-blue-200/90">
                   <div><strong className="font-semibold text-blue-950 dark:text-blue-100">Coding:</strong> {company.rubric.coding}</div>
@@ -459,6 +471,48 @@ export default function RoadmapsPage() {
               </div>
             </div>
           </div>
+
+          {/* The path: every stage in order, where you are, and what to open next. */}
+          {phases.length > 0 && (() => {
+            const next = locked ? null : phases.flatMap(ph => ph.topics.map(t => ({ t, ph }))).find(x => !completed.has(x.t.id))
+            return (
+              <section aria-label="Your path" className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">Your path: {phases.length} stages over {customPlan.targetWeeks} weeks</h2>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Work through them in order; each one builds on the last.</span>
+                </div>
+                <ol className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                  {phases.map(ph => {
+                    const done = ph.topics.filter(t => completed.has(t.id)).length
+                    const isCurrent = next?.ph.id === ph.id
+                    return (
+                      <li key={ph.id}>
+                        <a href={`#${ph.id}`} className={`block h-full rounded-xl border p-3 transition ${isCurrent ? 'border-blue-500 bg-blue-50/60 dark:border-blue-500/60 dark:bg-blue-950/30' : 'border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700'}`}>
+                          <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">{ph.number}. {ph.timeline}</div>
+                          <div className="mt-0.5 text-[13px] font-semibold leading-snug text-slate-900 dark:text-slate-100">{ph.title}</div>
+                          <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">{locked ? `${ph.topics.length} topics` : `${done} of ${ph.topics.length} done`}</div>
+                        </a>
+                      </li>
+                    )
+                  })}
+                </ol>
+                {next && (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/50">
+                    <div className="min-w-0 text-sm">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{completedTopicsCount === 0 ? 'Start here' : 'Up next'}</span>
+                      <div className="truncate font-semibold text-slate-900 dark:text-white">{next.t.title}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">Stage {next.ph.number}: {next.ph.title}</div>
+                    </div>
+                    <button type="button"
+                      onClick={() => { setTrack('all'); setSearch(''); setExpandedTopic(next.t.id); setTimeout(() => document.getElementById(`topic-${next.t.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50) }}
+                      className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">
+                      Open topic
+                    </button>
+                  </div>
+                )}
+              </section>
+            )
+          })()}
 
           {/* Interactive Filters & Controls Bar */}
           <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
@@ -500,16 +554,16 @@ export default function RoadmapsPage() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                <span className="font-medium">Duration:</span>
+              <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                <span className="font-medium">Plan length:</span>
                 <select
-                  value={duration}
-                  onChange={e => setDuration(e.target.value)}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  value={customPlan.targetWeeks}
+                  onChange={e => setWeeks(Number(e.target.value))}
+                  className="min-w-0 max-w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                 >
-                  <option value="4weeks">4 Weeks (Fast Sprint)</option>
-                  <option value="8weeks">8 Weeks (Standard)</option>
-                  <option value="12weeks">12 Weeks (Zero to Hero)</option>
+                  <option value={4}>4 weeks</option>
+                  <option value={8}>8 weeks</option>
+                  <option value={12}>12 weeks</option>
                 </select>
               </div>
 
@@ -566,7 +620,7 @@ export default function RoadmapsPage() {
                 const isAllDone = phasePercent === 100
 
                 return (
-                  <div key={phase.id} className="relative">
+                  <div key={phase.id} id={phase.id} className="relative scroll-mt-24">
                     {/* Connecting line between phases */}
                     {pIdx < filteredPhases.length - 1 && (
                       <div className="absolute left-6 top-16 -bottom-8 w-0.5 bg-slate-200 dark:bg-slate-800 -z-10" />
@@ -586,7 +640,7 @@ export default function RoadmapsPage() {
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                                Phase {phase.number} · {phase.timeline}
+                                Stage {phase.number} · {phase.timeline}
                               </span>
                               <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                 phase.track === 'dsa'
@@ -635,6 +689,7 @@ export default function RoadmapsPage() {
                           return (
                             <div
                               key={topic.id}
+                              id={`topic-${topic.id}`}
                               className={`group relative rounded-xl border p-4 transition-all duration-200 ${
                                 isDone
                                   ? 'border-emerald-200 bg-emerald-50/30 dark:border-emerald-900/40 dark:bg-emerald-950/10'
@@ -712,7 +767,7 @@ export default function RoadmapsPage() {
                                       {/* Cheat Sheet Box */}
                                       {topic.cheatSheet && (
                                         <div className="rounded-md bg-blue-50/70 p-2.5 text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
-                                          <strong className="font-bold">💡 Pro Tip / Blueprint:</strong> {topic.cheatSheet}
+                                          <strong className="font-bold">Rule of thumb:</strong> {topic.cheatSheet}
                                         </div>
                                       )}
 

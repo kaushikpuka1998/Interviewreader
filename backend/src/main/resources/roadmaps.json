@@ -7,38 +7,38 @@
       "color": "from-blue-500 via-emerald-500 to-amber-500",
       "badgeTone": "border-blue-500/30 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
       "icon": "G",
-      "tagline": "Deep Algorithmic Rigor, Novel Graph Problems & Massive Distributed Scale",
+      "tagline": "Hard algorithm problems, graph-heavy follow-ups, and design questions at very large scale.",
       "rounds": [
         {
           "name": "Technical Screening",
           "duration": "45 mins",
-          "desc": "1-2 DSA problems on Google Meet with shared Docs/editor"
+          "desc": "One or two coding problems in a shared doc, so no autocomplete and no running your code."
         },
         {
           "name": "Onsite Coding (3 rounds)",
           "duration": "45 mins each",
-          "desc": "Advanced Graphs, Dynamic Programming, Trees & complex data structures"
+          "desc": "Three coding rounds that lean on graphs, dynamic programming and trees."
         },
         {
           "name": "System Design (L4+)",
           "duration": "45 mins",
-          "desc": "Global scale systems, data partitioning, trade-offs and RPC design"
+          "desc": "Design a large system and defend partitioning, replication and API choices (usually L4 and up)."
         },
         {
           "name": "Googliness & Leadership",
           "duration": "45 mins",
-          "desc": "Ethics, inclusive collaboration, navigating ambiguity and conflict resolution"
+          "desc": "How you work with others, handle ambiguity and deal with disagreement."
         }
       ],
       "rubric": {
-        "coding": "Clean syntax, fast execution, correct edge cases, thorough dry runs before running.",
-        "design": "Top-down architecture, back-of-envelope calculations, fault tolerance, API design.",
-        "mindset": "Collaborative problem solving, questioning assumptions, receiving hints constructively."
+        "coding": "Correct code you have traced by hand, with edge cases named before you finish.",
+        "design": "Start from requirements, do the rough numbers, then say what breaks and how the system recovers.",
+        "mindset": "Think out loud, question the problem, and take hints without getting defensive."
       },
       "gotchas": [
-        "Do not jump into coding immediately. State your approach, analyze time/space complexity, and verify edge cases first.",
-        "Google interviewers frequently introduce follow-ups that turn 1D problems into multi-dimensional or streaming problems.",
-        "Hard problems often rely on Graph theory (Dijkstra, Topological Sort, Disjoint Set Union) or DP."
+        "Say your approach and its complexity before you type. Interviewers want to follow your reasoning, not watch you guess.",
+        "Expect the follow-up: the same problem again, but with a stream of input, a bigger grid or tighter memory.",
+        "Graph problems (shortest path, topological order, union-find) and DP come up in the harder rounds, so practise those first."
       ],
       "recommendedHoursPerDay": 3,
       "logo": "https://www.google.com/s2/favicons?domain=google.com&sz=128"
@@ -50,43 +50,43 @@
       "color": "from-amber-500 to-orange-600",
       "badgeTone": "border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
       "icon": "A",
-      "tagline": "Production Code, Clean OOP/LLD & 16 Leadership Principles (LP)",
+      "tagline": "Clean, production-style code, object-oriented design, and a behavioral round built on the leadership principles.",
       "rounds": [
         {
           "name": "Online Assessment (OA)",
           "duration": "90 mins",
-          "desc": "2 coding problems (Sliding Window, Trees, Heaps) + Work Style Survey"
+          "desc": "Two coding problems plus a work-style questionnaire."
         },
         {
           "name": "Onsite DSA Loops (2-3 rounds)",
           "duration": "60 mins each",
-          "desc": "20 mins Leadership Principles + 40 mins Coding & complexity"
+          "desc": "Each round opens with leadership-principle questions, then moves to coding and complexity."
         },
         {
           "name": "Low-Level Design (LLD / OOP)",
           "duration": "60 mins",
-          "desc": "Design clean class hierarchies, design patterns, and thread-safe APIs"
+          "desc": "Model a real system as classes: parking lot, locker, elevator. Patterns and thread safety matter."
         },
         {
           "name": "High-Level System Design (SDE II+)",
           "duration": "60 mins",
-          "desc": "Scalable cloud architectures (SQS, DynamoDB, caching, async jobs)"
+          "desc": "Design a cloud-style system using queues, a key-value store, caching and background jobs (SDE II and up)."
         },
         {
           "name": "Bar Raiser",
           "duration": "60 mins",
-          "desc": "Deep-dive into past architectural challenges and extreme LP alignment"
+          "desc": "A senior interviewer from another team digs into one of your past projects and tests the principles hard."
         }
       ],
       "rubric": {
-        "coding": "Correctness over esoteric tricks; readable variable names and modular methods.",
-        "design": "High availability, eventual consistency, decoupled microservices, database choice rationale.",
-        "mindset": "Customer Obsession, Ownership, Bias for Action, Dive Deep, Deliver Results."
+        "coding": "Correct and readable: clear names, small methods, no clever tricks.",
+        "design": "Availability first, then data-store choice, and an honest answer about eventual consistency.",
+        "mindset": "Ownership, customer focus and getting results, shown through specific past work."
       },
       "gotchas": [
-        "Leadership Principles are worth 50% of your total score. If you fail LP, optimal DSA code will NOT save you.",
-        "Always structure behavioral answers in the STAR format (Situation, Task, Action, Result) with quantified impact.",
-        "Heavy focus on Trees/BFS, Heaps, and Low-Level Object Oriented Design."
+        "The behavioral half carries real weight at Amazon. A strong coding round does not rescue weak stories.",
+        "Write each story in STAR form with a number in the result, and say what you personally did.",
+        "Trees, BFS, heaps and object-oriented design show up more than most other topics."
       ],
       "recommendedHoursPerDay": 2.5,
       "logo": "https://www.google.com/s2/favicons?domain=amazon.com&sz=128"
@@ -98,38 +98,38 @@
       "color": "from-blue-600 to-indigo-600",
       "badgeTone": "border-indigo-500/30 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
       "icon": "M",
-      "tagline": "High Speed Problem Solving & High-Throughput Real-Time Feeds",
+      "tagline": "Fast, bug-free coding and design questions about feeds, messaging and counters at huge volume.",
       "rounds": [
         {
           "name": "Technical Phone Screen",
           "duration": "45 mins",
-          "desc": "2 medium DSA problems to solve, code, and test in 40 minutes"
+          "desc": "Two medium problems in about 40 minutes: solve, code and test both."
         },
         {
           "name": "Coding Onsite (2 rounds)",
           "duration": "45 mins each",
-          "desc": "Fast, bug-free implementation of Arrays, Graphs, Strings, Binary Search"
+          "desc": "Two more rounds of quick implementation: arrays, strings, graphs, binary search."
         },
         {
           "name": "System Design (Product / Infra)",
           "duration": "45 mins",
-          "desc": "News Feed, Live Comments, Messenger, Distributed Counters, Graph DB"
+          "desc": "Design a product or an infrastructure piece: news feed, messenger, live comments, counters."
         },
         {
           "name": "Behavioral & Values",
           "duration": "45 mins",
-          "desc": "Move Fast, Focus on Long-Term Impact, Be Bold, resolving cross-team friction"
+          "desc": "How you move quickly, how you weigh long-term impact, and how you resolve friction between teams."
         }
       ],
       "rubric": {
-        "coding": "Speed and bug-free implementation. Interviewers expect 2 completed problems in 45 minutes.",
-        "design": "Clear APIs, caching layers, real-time message fanout, database schemas, and data pipelines.",
-        "mindset": "High autonomy, pragmatic engineering decisions, rapid prioritization."
+        "coding": "Two finished, working problems in the time. Speed counts, but only if the code is right.",
+        "design": "Clear APIs, a caching layer, how messages fan out, and the schema behind it.",
+        "mindset": "Pragmatic calls, quick prioritising, and comfort deciding with incomplete information."
       },
       "gotchas": [
-        "Meta has a strict pace: you usually have only 18-20 minutes per coding problem. Hesitation leads to timeouts.",
-        "Focus heavily on Top 100 Meta LeetCode patterns: HashMaps, Two Pointers, BFS, and Binary Search.",
-        "System design rounds expect deep product architecture knowledge (WebSockets, Feed generation, Fanout-on-write)."
+        "You get roughly 20 minutes per problem. Long pauses cost you the second one.",
+        "Practise the common patterns until they are automatic: hash maps, two pointers, BFS, binary search.",
+        "Design rounds assume you know how WebSockets, feed generation and fan-out on write actually work."
       ],
       "recommendedHoursPerDay": 3,
       "logo": "https://www.google.com/s2/favicons?domain=meta.com&sz=128"
@@ -141,38 +141,38 @@
       "color": "from-cyan-500 to-blue-600",
       "badgeTone": "border-cyan-500/30 bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300",
       "icon": "MS",
-      "tagline": "Solid CS Fundamentals, Clean Code Quality & Cloud Native Architecture",
+      "tagline": "Strong fundamentals, code a teammate could maintain, and cloud-style system design.",
       "rounds": [
         {
           "name": "Online Screen / Codility",
           "duration": "60 mins",
-          "desc": "2 coding problems focusing on strings, math, arrays, linked lists"
+          "desc": "Timed online coding: strings, math, arrays and linked lists."
         },
         {
           "name": "Technical Rounds (3-4 rounds)",
           "duration": "60 mins each",
-          "desc": "Balanced DSA (Trees, DP, BFS/DFS) + Low-Level Design"
+          "desc": "Several technical rounds mixing trees, DP and graph search with some object-oriented design."
         },
         {
           "name": "System Design (L61+)",
           "duration": "60 mins",
-          "desc": "Cloud storage, distributed messaging, collaborative editing, microservices"
+          "desc": "Design cloud storage, messaging, collaborative editing or a set of services (L61 and up)."
         },
         {
           "name": "AA (As-Appropriate / Partner)",
           "duration": "60 mins",
-          "desc": "Growth mindset, team collaboration, technical ambition"
+          "desc": "A final conversation with a senior person on growth, teamwork and ambition."
         }
       ],
       "rubric": {
-        "coding": "Readable, maintainable code with unit tests, exception handling, and edge case coverage.",
-        "design": "Scalability, microservices, reliability, Azure-aligned patterns, clean RESTful APIs.",
-        "mindset": "Growth Mindset, empathy, technical adaptability, clear communication."
+        "coding": "Readable code with sensible error handling, tests and covered edge cases.",
+        "design": "Scales sensibly, fails gracefully, and the API is clean and consistent.",
+        "mindset": "Curiosity, learning from feedback and clear communication."
       },
       "gotchas": [
-        "Microsoft values writing clean, testable code over rushing to an unreadable one-liner.",
-        "Trees, LinkedLists, Strings, and Grid Traversal appear with very high frequency.",
-        "Expect discussion around error handling, null safety, and boundary checks."
+        "A clear, testable solution beats a clever one-liner.",
+        "Trees, linked lists, strings and grid traversal come up again and again.",
+        "Be ready to talk about null handling, bad input and boundary cases without being asked."
       ],
       "recommendedHoursPerDay": 2,
       "logo": "https://www.google.com/s2/favicons?domain=microsoft.com&sz=128"
@@ -184,37 +184,38 @@
       "color": "from-slate-700 to-slate-950",
       "badgeTone": "border-slate-500/30 bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
       "icon": "U",
-      "tagline": "Geospatial Indexing, Real-Time Dispatch & High Concurrency",
+      "tagline": "Location data, real-time matching and getting concurrency right when money is involved.",
       "rounds": [
         {
           "name": "CodeSignal OA",
           "duration": "70 mins",
-          "desc": "4 algorithmic questions testing speed, precision, and matrix manipulation"
+          "desc": "Four problems in 70 minutes. Speed and accuracy matter, and there is some matrix work."
         },
         {
           "name": "Onsite Coding (2 rounds)",
           "duration": "60 mins each",
-          "desc": "Graphs (Dijkstra, A*), Geospatial algorithms, Heap, Sliding Window"
+          "desc": "Two coding rounds on graphs (Dijkstra, A*), geometry on coordinates, heaps and sliding windows."
         },
         {
           "name": "Architecture & System Design",
           "duration": "60 mins",
-          "desc": "Real-time location ingestion, Driver-Rider matching, Dynamic pricing"
+          "desc": "Design location ingestion, driver-rider matching and dynamic pricing."
         },
         {
           "name": "Bar Raiser & Culture",
           "duration": "60 mins",
-          "desc": "High standards, cross-functional collaboration, technical ownership"
+          "desc": "Standards, ownership and working across teams."
         }
       ],
       "rubric": {
-        "coding": "Optimal complexity, thread-safety, handling streaming or coordinate data.",
-        "design": "Geohashing (H3/QuadTree), WebSocket state, distributed locks, low-latency dispatch.",
-        "mindset": "Engineering craft, data-driven decisions, system resiliency."
+        "coding": "Optimal complexity, safe under concurrency, and comfortable with streaming or coordinate data.",
+        "design": "Spatial indexing, WebSocket state, locking, and low-latency matching.",
+        "mindset": "Careful engineering and decisions backed by data."
       },
       "gotchas": [
-        "Always consider geospatial indexing (QuadTrees, Geohash, H3) for location-based design questions.",
-        "Heavy focus on concurrency, race conditions during booking/payments, and distributed transactions."
+        "For anything location-based, reach for a spatial index first: geohash, quadtree or H3.",
+        "Booking and payment flows invite race-condition questions. Know how you would prevent double assignment.",
+        "Be ready to explain how a transaction spanning several services stays correct."
       ],
       "recommendedHoursPerDay": 2.5,
       "logo": "https://www.google.com/s2/favicons?domain=uber.com&sz=128"
@@ -226,37 +227,38 @@
       "color": "from-red-600 to-rose-700",
       "badgeTone": "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300",
       "icon": "N",
-      "tagline": "Senior Independence, Chaos Engineering & Resilient Video Infrastructure",
+      "tagline": "Senior-level depth, systems built to survive failure, and a culture that runs on candor.",
       "rounds": [
         {
           "name": "Recruiter & Hiring Manager",
           "duration": "45 mins",
-          "desc": "In-depth resume breakdown and alignment with the Netflix Culture Memo"
+          "desc": "A walk through your resume and how you line up with the Culture Memo."
         },
         {
           "name": "Technical Deep Dive",
           "duration": "60 mins",
-          "desc": "Concurrency, multithreading, system internals, high-performance data structures"
+          "desc": "Concurrency, threading and internals, down to the data structures."
         },
         {
           "name": "Distributed Systems Design",
           "duration": "60 mins",
-          "desc": "Global CDN distribution, video transcoding, resilience, telemetry"
+          "desc": "Design for global video delivery, transcoding, resilience and telemetry."
         },
         {
           "name": "Leadership & Culture Loop (2 rounds)",
           "duration": "45 mins each",
-          "desc": "Freedom & Responsibility, Context Not Control, mature feedback"
+          "desc": "Two conversations about independence, candor and giving feedback."
         }
       ],
       "rubric": {
-        "coding": "Production-ready architecture, concurrency control, clean asynchronous logic.",
-        "design": "Chaos engineering, circuit breakers, caching hierarchy, multi-region failover.",
-        "mindset": "Stunning colleagues, candor, context over control, high accountability."
+        "coding": "Production-ready, with sound concurrency and clean asynchronous code.",
+        "design": "Timeouts and breakers, cache layers, and a plan for losing a whole region.",
+        "mindset": "Direct, honest, and accountable for outcomes."
       },
       "gotchas": [
-        "Netflix hires predominantly Senior and Staff engineers; they look for deep production battle scars.",
-        "Be prepared to explain how your system handles complete data center failures gracefully."
+        "Most hires are senior or staff, so interviewers look for real production experience and the scars that go with it.",
+        "Expect to be asked what happens when an entire data center goes dark.",
+        "Read the Culture Memo and have an example ready for each point."
       ],
       "recommendedHoursPerDay": 3,
       "logo": "https://www.google.com/s2/favicons?domain=netflix.com&sz=128"
@@ -310,7 +312,7 @@
       "color": "from-slate-800 via-slate-600 to-slate-400",
       "badgeTone": "border-slate-500/30 bg-slate-100 text-slate-800 dark:bg-slate-800/60 dark:text-slate-200",
       "icon": "A",
-      "tagline": "Craft, Privacy & Devices at Scale: Strong Coding, Sync, Messaging & Product Passion",
+      "tagline": "Careful craft, privacy by default, and software that has to work on a device with a battery.",
       "rounds": [
         {
           "name": "Recruiter Screen",
@@ -499,37 +501,38 @@
       "color": "from-blue-500 to-yellow-500",
       "badgeTone": "border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
       "icon": "FK",
-      "tagline": "Machine Coding, PS/DS Rounds & E-commerce Scale (Big Billion Days)",
+      "tagline": "A machine-coding round, standard data-structure problems, and e-commerce design that has to survive a sale day.",
       "rounds": [
         {
           "name": "Machine Coding",
           "duration": "90 mins",
-          "desc": "Build a working, extensible system (e.g. a cab booking or library app) with clean code"
+          "desc": "Build a small working system, such as a cab booking or library app, in 90 minutes."
         },
         {
           "name": "Problem Solving & Data Structures",
           "duration": "60 mins",
-          "desc": "2-3 DSA problems: graphs, DP, heaps; optimal solution expected"
+          "desc": "Two or three problems on graphs, DP and heaps. They expect the optimal solution."
         },
         {
           "name": "System Design",
           "duration": "60 mins",
-          "desc": "HLD for SDE 2+: cart, inventory, flash sales, search"
+          "desc": "Design cart, inventory, flash sales and search (SDE 2 and up)."
         },
         {
           "name": "Hiring Manager",
           "duration": "45-60 mins",
-          "desc": "Projects deep dive, ownership, conflict and culture"
+          "desc": "A conversation about your projects, ownership and how you handle conflict."
         }
       ],
       "rubric": {
-        "coding": "Executable code, modular design, extensibility for new requirements, edge cases handled.",
-        "design": "Massive read and burst traffic, inventory consistency, caching, search and catalog scale.",
-        "mindset": "Ownership, bias for action, customer-first thinking."
+        "coding": "Code that runs, is split into sensible modules, and can take a new requirement.",
+        "design": "Heavy reads, bursts of writes, consistent inventory, caching and search.",
+        "mindset": "Ownership, a bias for action and starting from the customer."
       },
       "gotchas": [
-        "Machine coding is evaluated on running code plus extensibility; leave time to add a new requirement.",
-        "Flash-sale design (Big Billion Days): inventory oversell, queueing and caching are favourites."
+        "In machine coding the code must run. Leave time at the end to add a requirement they throw at you.",
+        "Sale-day design is a favourite: overselling, queueing users and caching the catalog.",
+        "Go through the extension step even if the base version is not perfect; it shows how you structure code."
       ],
       "recommendedHoursPerDay": 3,
       "logo": "https://www.google.com/s2/favicons?domain=flipkart.com&sz=128"
@@ -1893,8 +1896,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Google)",
-        "summary": "Crawl and index billions of pages, then answer queries and prefixes fast.",
+        "weightage": "Frequent",
+        "summary": "Index a very large set of pages, then answer queries and prefix lookups quickly.",
         "concepts": [
           "URL frontier & politeness per host",
           "Content dedupe with SimHash / Bloom filters",
@@ -1915,7 +1918,7 @@
             "path": "/design-an-autocomplete-system?id=hld-836"
           }
         ],
-        "cheatSheet": "Shard the index by document, replicate by query load."
+        "cheatSheet": "Shard the index by document and add replicas where query load is heaviest."
       },
       {
         "id": "g-kv",
@@ -1923,8 +1926,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Google)",
-        "summary": "Partitioning, replication, and consistency trade-offs at global scale.",
+        "weightage": "Frequent",
+        "summary": "Partitioning, replication and what you give up for consistency when the data is global.",
         "concepts": [
           "Consistent hashing & range partitioning",
           "Quorum reads/writes, Paxos/Raft",
@@ -1953,7 +1956,7 @@
             "path": "/explain-the-cap-theorem-through-system-design?id=hld-944"
           }
         ],
-        "cheatSheet": "Pick the consistency level per operation, not per system."
+        "cheatSheet": "Choose the consistency level per operation, not once for the whole system."
       },
       {
         "id": "g-docs",
@@ -1961,8 +1964,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Google)",
-        "summary": "Real-time collaboration and productivity apps at Google scale.",
+        "weightage": "Common",
+        "summary": "Several people editing one document, plus mail and calendar storage behind it.",
         "concepts": [
           "Operational Transformation vs CRDTs",
           "WebSocket sessions & presence",
@@ -1987,7 +1990,7 @@
             "path": "/design-google-calendar?id=hld-905"
           }
         ],
-        "cheatSheet": "Server serialises operations; clients transform against the unseen ones."
+        "cheatSheet": "One server decides the order of edits; clients adjust theirs against edits they have not seen."
       },
       {
         "id": "g-yt",
@@ -1995,8 +1998,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Google)",
-        "summary": "Upload, transcode, stream and count views at scale.",
+        "weightage": "Frequent",
+        "summary": "Upload, transcode, stream and count views without touching the original file on playback.",
         "concepts": [
           "Chunked upload & async transcoding",
           "HLS / DASH adaptive bitrate",
@@ -2017,7 +2020,7 @@
             "path": "/what-is-a-cdn?id=hld-710"
           }
         ],
-        "cheatSheet": "Clients stream 2-10s chunks listed in a manifest, never the raw file."
+        "cheatSheet": "Players fetch short chunks listed in a manifest; they never download the raw upload."
       },
       {
         "id": "g-maps",
@@ -2025,8 +2028,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Google)",
-        "summary": "Tile serving, routing and location search.",
+        "weightage": "Common",
+        "summary": "Serving map tiles, planning routes and finding places near a point.",
         "concepts": [
           "Quadtrees / S2 cells",
           "Contraction hierarchies for routing",
@@ -2042,7 +2045,7 @@
             "path": "/design-real-time-gps-tracking?id=hld-976"
           }
         ],
-        "cheatSheet": "Index space hierarchically so nearby points share a prefix."
+        "cheatSheet": "Index space in a hierarchy so nearby points share a prefix."
       },
       {
         "id": "g-googleyness",
@@ -2050,8 +2053,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Decisive (Google)",
-        "summary": "Show collaboration, comfort with ambiguity and intellectual humility.",
+        "weightage": "Decides the offer",
+        "summary": "How you handle ambiguity, take feedback and collaborate when the answer is not obvious.",
         "concepts": [
           "Navigating ambiguity",
           "Receiving hints and feedback well",
@@ -2084,7 +2087,7 @@
             "path": "/tell-me-about-a-time-you-had-to-learn-from-a-hint-or-feedback-during-problem-sol?id=behavioral-34"
           }
         ],
-        "cheatSheet": "Narrate your thinking and welcome hints; Google scores how you collaborate, not just the answer."
+        "cheatSheet": "Narrate your thinking and welcome hints; the interviewer is scoring how you work with them."
       },
       {
         "id": "star-core",
@@ -2092,7 +2095,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -2144,8 +2147,8 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (Amazon)",
-        "summary": "Class design with clean OOP, patterns and thread-safe APIs.",
+        "weightage": "Core",
+        "summary": "Turn a real-world object into clean classes, with patterns where they earn their place and safe access to shared state.",
         "concepts": [
           "Entities, enums & interfaces",
           "Strategy for pricing / allocation",
@@ -2174,7 +2177,7 @@
             "path": "/what-is-reentrantlock-and-how-does-it-differ-from-synchronized?id=java-164"
           }
         ],
-        "cheatSheet": "Clarify requirements, define entities, interfaces, concrete services, then concurrency."
+        "cheatSheet": "Clarify requirements, list entities, define interfaces, then add concurrency last."
       },
       {
         "id": "a-orders",
@@ -2182,8 +2185,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Amazon)",
-        "summary": "Cart, inventory reservation, payment and fulfilment.",
+        "weightage": "Frequent",
+        "summary": "Cart, stock reservation, payment and fulfilment across services that can each fail.",
         "concepts": [
           "Saga pattern for distributed orders",
           "Inventory reservation & overselling",
@@ -2208,7 +2211,7 @@
             "path": "/design-an-idempotent-payment-api?id=hld-801"
           }
         ],
-        "cheatSheet": "Never hold a lock across services; use compensating actions."
+        "cheatSheet": "Never hold a lock across services; undo steps with compensating actions."
       },
       {
         "id": "a-flash",
@@ -2216,8 +2219,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Amazon)",
-        "summary": "Survive 100x traffic spikes without overselling.",
+        "weightage": "Common",
+        "summary": "Taking a sudden spike many times normal load without selling stock you do not have.",
         "concepts": [
           "Queue-based load leveling",
           "Atomic decrement / conditional writes",
@@ -2242,7 +2245,7 @@
             "path": "/design-a-distributed-cache?id=hld-779"
           }
         ],
-        "cheatSheet": "Absorb the spike with a queue, decide stock atomically at one place."
+        "cheatSheet": "Absorb the spike in a queue and decide stock in one place with an atomic write."
       },
       {
         "id": "a-s3",
@@ -2250,8 +2253,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Amazon)",
-        "summary": "Durable blob storage and a managed queue.",
+        "weightage": "Common",
+        "summary": "Durable object storage and a managed queue, built from first principles.",
         "concepts": [
           "Erasure coding vs replication",
           "Metadata vs data plane",
@@ -2271,7 +2274,7 @@
             "path": "/design-a-distributed-file-system?id=hld-848"
           }
         ],
-        "cheatSheet": "Separate the metadata service from the data nodes and scale them independently."
+        "cheatSheet": "Keep the metadata service apart from the data nodes so each scales on its own."
       },
       {
         "id": "a-notif",
@@ -2279,8 +2282,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium",
-        "weightage": "High (Amazon)",
-        "summary": "Fan-out email / SMS / push reliably.",
+        "weightage": "Common",
+        "summary": "Sending email, SMS and push reliably to many users with their own preferences.",
         "concepts": [
           "Pub/sub fan-out",
           "Retries, DLQ, deduplication",
@@ -2300,7 +2303,7 @@
             "path": "/design-a-dead-letter-queue-system?id=hld-797"
           }
         ],
-        "cheatSheet": "At-least-once delivery plus idempotent consumers."
+        "cheatSheet": "Deliver at least once and make the receiving side safe to repeat."
       },
       {
         "id": "a-lp",
@@ -2308,8 +2311,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Decisive (Amazon: ~50% of score)",
-        "summary": "Every loop round opens with LP questions; the Bar Raiser is the veto.",
+        "weightage": "Decides the offer",
+        "summary": "Each round starts with principle-based questions, and the senior outside interviewer can block an offer.",
         "concepts": [
           "Customer Obsession, Ownership, Bias for Action",
           "Dive Deep, Deliver Results, Earn Trust",
@@ -2350,7 +2353,7 @@
             "path": "/tell-me-about-a-time-you-earned-the-trust-of-a-skeptical-stakeholder-earn-trust?id=behavioral-28"
           }
         ],
-        "cheatSheet": "Prepare 8-10 stories and map each to 2-3 LPs; always state your own contribution."
+        "cheatSheet": "Prepare eight to ten stories, map each to two or three principles, and state your own part."
       },
       {
         "id": "star-core",
@@ -2358,7 +2361,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -2410,8 +2413,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Highest (Meta)",
-        "summary": "Feed generation, ranking and fan-out.",
+        "weightage": "Core",
+        "summary": "Building, ranking and delivering a feed to millions of people.",
         "concepts": [
           "Fan-out on write vs read (hybrid for celebrities)",
           "Feed cache (TAO / Memcache)",
@@ -2432,7 +2435,7 @@
             "path": "/design-a-globally-distributed-social-media-platform?id=hld-997"
           }
         ],
-        "cheatSheet": "Push for normal users, pull for users with millions of followers."
+        "cheatSheet": "Push posts to ordinary followers' feeds; pull them at read time for accounts with huge followings."
       },
       {
         "id": "m-chat",
@@ -2440,8 +2443,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Meta)",
-        "summary": "Low-latency 1:1 and group messaging with presence.",
+        "weightage": "Frequent",
+        "summary": "Low-latency one-to-one and group messaging with online status.",
         "concepts": [
           "WebSockets & connection servers",
           "User-to-server mapping",
@@ -2462,7 +2465,7 @@
             "path": "/design-online-offline-user-status?id=hld-983"
           }
         ],
-        "cheatSheet": "Keep connection servers stateless; map users to servers in a shared store."
+        "cheatSheet": "Keep connection servers stateless and look up which server holds a user in a shared store."
       },
       {
         "id": "m-live",
@@ -2470,8 +2473,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Meta)",
-        "summary": "Millions of concurrent viewers, bursty writes.",
+        "weightage": "Common",
+        "summary": "A huge audience watching at once, with bursts of comments.",
         "concepts": [
           "Long polling vs SSE vs WebSocket",
           "Write coalescing & sampling",
@@ -2491,7 +2494,7 @@
             "path": "/design-live-sports-score-updates?id=hld-971"
           }
         ],
-        "cheatSheet": "Sample and batch at the edge; not every viewer needs every comment."
+        "cheatSheet": "Sample and batch at the edge; no viewer needs every comment."
       },
       {
         "id": "m-counter",
@@ -2499,8 +2502,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Meta)",
-        "summary": "Hot keys, approximate vs exact counts.",
+        "weightage": "Common",
+        "summary": "Counting likes on a hot item, and when an approximate count is fine.",
         "concepts": [
           "Sharded counters",
           "Write-behind aggregation",
@@ -2520,7 +2523,7 @@
             "path": "/how-do-you-handle-hot-keys?id=hld-1023"
           }
         ],
-        "cheatSheet": "Split a hot counter into N shards and sum on read."
+        "cheatSheet": "Split a hot counter into shards and add them up when it is read."
       },
       {
         "id": "m-search",
@@ -2528,8 +2531,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (Meta)",
-        "summary": "Prefix search and \"people you may know\".",
+        "weightage": "Occasional",
+        "summary": "Prefix search and 'people you may know' suggestions.",
         "concepts": [
           "Trie / prefix index",
           "Precomputed candidates",
@@ -2545,7 +2548,7 @@
             "path": "/design-a-recommendation-storage-system?id=hld-839"
           }
         ],
-        "cheatSheet": "Precompute top suggestions per prefix and serve from cache."
+        "cheatSheet": "Precompute the top suggestions for each prefix and serve them from cache."
       },
       {
         "id": "m-values",
@@ -2553,8 +2556,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "High (Meta)",
-        "summary": "Move fast, be bold, focus on long-term impact.",
+        "weightage": "Common",
+        "summary": "Moving fast, being bold, and showing long-term impact.",
         "concepts": [
           "Move Fast and ship",
           "Be Direct and Respect Your Colleagues",
@@ -2587,7 +2590,7 @@
             "path": "/how-do-you-decide-what-not-to-work-on?id=behavioral-40"
           }
         ],
-        "cheatSheet": "Lead with impact numbers and what you personally shipped."
+        "cheatSheet": "Lead with the impact and be specific about what you shipped yourself."
       },
       {
         "id": "star-core",
@@ -2595,7 +2598,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -2647,7 +2650,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Highest (Microsoft)",
+        "weightage": "Core",
         "summary": "Readable, testable, extensible code with unit tests.",
         "concepts": [
           "SOLID principles",
@@ -2677,7 +2680,7 @@
             "path": "/what-is-dependency-injection-and-how-does-it-relate-to-ioc?id=design-patterns-2592"
           }
         ],
-        "cheatSheet": "Favour composition over inheritance; program to interfaces."
+        "cheatSheet": "Prefer composition to inheritance and code against interfaces."
       },
       {
         "id": "ms-collab",
@@ -2685,8 +2688,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Microsoft)",
-        "summary": "Concurrent edits, meetings and real-time presence.",
+        "weightage": "Frequent",
+        "summary": "Concurrent editing, meetings and presence across many users.",
         "concepts": [
           "Operational Transformation / CRDT",
           "WebSocket gateway (SignalR style)",
@@ -2706,7 +2709,7 @@
             "path": "/design-a-video-conferencing-system-generic?id=hld-890"
           }
         ],
-        "cheatSheet": "One authoritative ordering per document."
+        "cheatSheet": "Give each document one authoritative order of changes."
       },
       {
         "id": "ms-storage",
@@ -2714,8 +2717,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Microsoft)",
-        "summary": "Sync, chunking and dedupe.",
+        "weightage": "Common",
+        "summary": "File sync, chunking and removing duplicate data.",
         "concepts": [
           "Chunking & content-addressed storage",
           "Delta / resumable sync",
@@ -2735,7 +2738,7 @@
             "path": "/design-file-deduplication?id=hld-851"
           }
         ],
-        "cheatSheet": "Upload only changed chunks, identified by hash."
+        "cheatSheet": "Upload only the chunks that changed, identified by their hash."
       },
       {
         "id": "ms-chat",
@@ -2743,8 +2746,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Microsoft)",
-        "summary": "Channels, threads, presence.",
+        "weightage": "Common",
+        "summary": "Channels, threads and who is online.",
         "concepts": [
           "Fan-out per channel",
           "Presence service",
@@ -2764,7 +2767,7 @@
             "path": "/design-presence-detection?id=hld-982"
           }
         ],
-        "cheatSheet": "Channel membership drives the fan-out set."
+        "cheatSheet": "Channel membership decides who a message fans out to."
       },
       {
         "id": "ms-cache",
@@ -2772,8 +2775,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Microsoft)",
-        "summary": "Azure-style platform building blocks.",
+        "weightage": "Common",
+        "summary": "Platform building blocks: a distributed cache, a rate limiter and identity.",
         "concepts": [
           "Cache-aside / invalidation",
           "Sliding window rate limiting",
@@ -2793,7 +2796,7 @@
             "path": "/design-an-enterprise-iam-platform?id=hld-992"
           }
         ],
-        "cheatSheet": "Cache-aside is the default; invalidate on write."
+        "cheatSheet": "Cache-aside is the default; invalidate when you write."
       },
       {
         "id": "ms-growth",
@@ -2801,8 +2804,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "High (Microsoft AA round)",
-        "summary": "Learn, listen, and make others better.",
+        "weightage": "Common",
+        "summary": "Learning, listening, and helping the people around you do better.",
         "concepts": [
           "Learning from failure",
           "Customer empathy",
@@ -2839,7 +2842,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -2891,8 +2894,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Very Hard",
-        "weightage": "Highest (Uber)",
-        "summary": "Matching riders to drivers in real time.",
+        "weightage": "Core",
+        "summary": "Matching riders to nearby drivers while both keep moving.",
         "concepts": [
           "Geospatial indexing: Geohash / QuadTree / H3",
           "Location ingestion every ~4s",
@@ -2913,7 +2916,7 @@
             "path": "/design-ola?id=hld-909"
           }
         ],
-        "cheatSheet": "H3 hexagons give uniform neighbour distances."
+        "cheatSheet": "Hexagonal cells (H3) give even distances to neighbouring cells."
       },
       {
         "id": "u-eats",
@@ -2921,8 +2924,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Uber)",
-        "summary": "Three-sided marketplace: eater, restaurant, courier.",
+        "weightage": "Common",
+        "summary": "Three parties at once: the eater, the restaurant and the courier.",
         "concepts": [
           "Order state machine",
           "Courier dispatch & batching",
@@ -2938,7 +2941,7 @@
             "path": "/design-an-order-processing-pipeline?id=hld-860"
           }
         ],
-        "cheatSheet": "Model the order as a state machine; every transition is an event."
+        "cheatSheet": "Model an order as a state machine and treat every transition as an event."
       },
       {
         "id": "u-surge",
@@ -2946,8 +2949,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Uber)",
-        "summary": "Compute demand-supply per region in near real time.",
+        "weightage": "Common",
+        "summary": "Working out demand against supply for each area in near real time.",
         "concepts": [
           "Stream processing windows",
           "Per-cell aggregation",
@@ -2963,7 +2966,7 @@
             "path": "/design-a-kafka-based-analytics-pipeline?id=hld-863"
           }
         ],
-        "cheatSheet": "Aggregate per geo-cell over a sliding window."
+        "cheatSheet": "Aggregate per map cell over a sliding window."
       },
       {
         "id": "u-pay",
@@ -2971,8 +2974,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Uber)",
-        "summary": "Exactly-once money movement.",
+        "weightage": "Frequent",
+        "summary": "Moving money exactly once, with a record you can audit.",
         "concepts": [
           "Idempotency keys",
           "Double-entry ledger",
@@ -2996,7 +2999,7 @@
             "path": "/design-payment-idempotency?id=hld-930"
           }
         ],
-        "cheatSheet": "Money is a ledger of immutable entries, never an updated balance column."
+        "cheatSheet": "Keep money as a ledger of immutable entries, not a balance you overwrite."
       },
       {
         "id": "u-lock",
@@ -3004,8 +3007,8 @@
         "track": "system-design",
         "category": "Concurrency",
         "difficulty": "Hard",
-        "weightage": "High (Uber)",
-        "summary": "Race conditions during booking.",
+        "weightage": "Common",
+        "summary": "Preventing double booking and similar races.",
         "concepts": [
           "Optimistic vs pessimistic locking",
           "Redlock caveats",
@@ -3025,7 +3028,7 @@
             "path": "/what-is-deadlock-and-how-do-you-prevent-it?id=java-178"
           }
         ],
-        "cheatSheet": "Prefer a single owner (a partition) over a distributed lock."
+        "cheatSheet": "Give each resource a single owner (a partition) before reaching for a distributed lock."
       },
       {
         "id": "u-culture",
@@ -3033,8 +3036,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "High (Uber)",
-        "summary": "High standards, ownership, cross-functional collaboration.",
+        "weightage": "Common",
+        "summary": "High standards, taking ownership, and working across teams.",
         "concepts": [
           "Technical ownership",
           "Data-driven decisions",
@@ -3062,7 +3065,7 @@
             "path": "/tell-me-about-a-time-you-had-to-balance-speed-with-safety?id=behavioral-50"
           }
         ],
-        "cheatSheet": "Use incident stories: detection, mitigation, root cause, prevention."
+        "cheatSheet": "Use incident stories: how it was detected, contained, diagnosed and prevented."
       },
       {
         "id": "star-core",
@@ -3070,7 +3073,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -3122,8 +3125,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Highest (Netflix)",
-        "summary": "Encoding pipeline, adaptive streaming and playback.",
+        "weightage": "Core",
+        "summary": "The encoding pipeline, adaptive streaming and playback.",
         "concepts": [
           "Parallel chunked transcoding",
           "ABR ladders (HLS/DASH)",
@@ -3144,7 +3147,7 @@
             "path": "/design-a-live-streaming-platform?id=hld-977"
           }
         ],
-        "cheatSheet": "Pre-position popular titles at the ISP edge overnight."
+        "cheatSheet": "Place popular titles on servers inside ISPs ahead of time, overnight."
       },
       {
         "id": "n-resilience",
@@ -3152,8 +3155,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Highest (Netflix)",
-        "summary": "Design for dependency failure and region loss.",
+        "weightage": "Core",
+        "summary": "Designing for a dependency that fails, or a whole region that goes away.",
         "concepts": [
           "Circuit breaker / bulkhead (Hystrix)",
           "Retry storms & backoff",
@@ -3182,7 +3185,7 @@
             "path": "/design-an-active-active-architecture?id=hld-817"
           }
         ],
-        "cheatSheet": "Every remote call needs a timeout, a fallback and a breaker."
+        "cheatSheet": "Every remote call gets a timeout, a fallback and a circuit breaker."
       },
       {
         "id": "n-gateway",
@@ -3190,8 +3193,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Netflix)",
-        "summary": "Edge routing, auth, filters and discovery.",
+        "weightage": "Common",
+        "summary": "Edge routing, authentication, request filters and service discovery.",
         "concepts": [
           "Request filters",
           "Dynamic routing",
@@ -3211,7 +3214,7 @@
             "path": "/what-is-a-reverse-proxy?id=hld-711"
           }
         ],
-        "cheatSheet": "Shed low-priority traffic first when overloaded."
+        "cheatSheet": "When overloaded, drop low-priority traffic first."
       },
       {
         "id": "n-telemetry",
@@ -3219,8 +3222,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Netflix)",
-        "summary": "Ingest millions of events per second.",
+        "weightage": "Common",
+        "summary": "Taking in millions of log, metric and trace events every second.",
         "concepts": [
           "Kafka ingestion",
           "Time-series metrics",
@@ -3240,7 +3243,7 @@
             "path": "/design-a-distributed-tracing-system?id=hld-791"
           }
         ],
-        "cheatSheet": "Buffer in Kafka so downstream outages never drop events."
+        "cheatSheet": "Buffer in Kafka so a downstream outage does not lose events."
       },
       {
         "id": "n-conc",
@@ -3248,8 +3251,8 @@
         "track": "system-design",
         "category": "Concurrency",
         "difficulty": "Hard",
-        "weightage": "High (Netflix)",
-        "summary": "Senior-level JVM and concurrency depth.",
+        "weightage": "Common",
+        "summary": "Senior-level JVM and concurrency knowledge.",
         "concepts": [
           "Executors & thread pools",
           "Lock-free structures",
@@ -3273,7 +3276,7 @@
             "path": "/how-does-concurrenthashmap-work-internally-java-8?id=java-198"
           }
         ],
-        "cheatSheet": "Know the cost of each lock and when not to use one."
+        "cheatSheet": "Know what each lock costs and when not to use one."
       },
       {
         "id": "n-culture",
@@ -3281,8 +3284,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Decisive (Netflix)",
-        "summary": "Context not control, candor, high performance.",
+        "weightage": "Decides the offer",
+        "summary": "Context rather than control, candor, and a high bar for performance.",
         "concepts": [
           "Candid feedback",
           "Owning decisions end to end",
@@ -3311,7 +3314,7 @@
             "path": "/how-do-you-keep-your-skills-sharp-and-stay-a-stunning-colleague?id=behavioral-55"
           }
         ],
-        "cheatSheet": "Read the Culture Memo and bring real examples of each value."
+        "cheatSheet": "Read the Culture Memo and bring a real example for each value."
       },
       {
         "id": "star-core",
@@ -3319,7 +3322,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -3371,7 +3374,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (Atlassian)",
+        "weightage": "Core",
         "summary": "Extend an existing codebase cleanly, with tests.",
         "concepts": [
           "SOLID",
@@ -3409,7 +3412,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Atlassian)",
+        "weightage": "Frequent",
         "summary": "Custom workflows, search and real-time updates.",
         "concepts": [
           "State machine for workflows",
@@ -3439,7 +3442,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Atlassian)",
+        "weightage": "Frequent",
         "summary": "Concurrent editing with OT or CRDTs.",
         "concepts": [
           "Operational Transformation",
@@ -3468,7 +3471,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Atlassian)",
+        "weightage": "Common",
         "summary": "Isolation, RBAC and noisy neighbours.",
         "concepts": [
           "Tenant isolation models",
@@ -3501,7 +3504,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Atlassian)",
+        "weightage": "Common",
         "summary": "Reliable integrations at scale.",
         "concepts": [
           "Outbox pattern",
@@ -3534,7 +3537,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "High (Atlassian)",
+        "weightage": "Common",
         "summary": "Teamwork, candor, and being the change you seek.",
         "concepts": [
           "Open company, no bullshit",
@@ -3572,7 +3575,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -3624,7 +3627,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Apple)",
+        "weightage": "Frequent",
         "summary": "Keep files and photos in step across a person's devices, securely and offline-first.",
         "concepts": [
           "Chunking and delta sync",
@@ -3654,7 +3657,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Apple)",
+        "weightage": "Frequent",
         "summary": "Private one-to-one and group chat that works across a person's many devices.",
         "concepts": [
           "End-to-end encryption and key exchange",
@@ -3684,7 +3687,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Apple)",
+        "weightage": "Common",
         "summary": "Reach a billion devices through one persistent connection each, without draining the battery.",
         "concepts": [
           "Persistent device connections",
@@ -3714,7 +3717,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Medium (Apple)",
+        "weightage": "Occasional",
         "summary": "Tap-to-pay where the merchant never sees the card number.",
         "concepts": [
           "Tokenisation",
@@ -3744,7 +3747,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "High (Apple)",
+        "weightage": "Common",
         "summary": "Pride in the details, respect for the user's privacy, and working closely with design and product.",
         "concepts": [
           "Attention to detail",
@@ -3782,7 +3785,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -3834,7 +3837,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Very High (Guidewire)",
+        "weightage": "Frequent",
         "summary": "Java fundamentals asked in every technical round.",
         "concepts": [
           "SOLID and immutability",
@@ -3872,7 +3875,7 @@
         "track": "system-design",
         "category": "LLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Guidewire)",
+        "weightage": "Common",
         "summary": "Model policy, claim and billing lifecycles as state machines with rules.",
         "concepts": [
           "State machine for lifecycles",
@@ -3906,7 +3909,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Senior)",
+        "weightage": "Common",
         "summary": "Guidewire Cloud: tenant isolation, configuration and safe upgrades.",
         "concepts": [
           "Tenant isolation",
@@ -3940,7 +3943,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (Guidewire)",
+        "weightage": "Occasional",
         "summary": "Recurring premiums, invoices and integrations with external systems.",
         "concepts": [
           "Recurring billing",
@@ -3973,7 +3976,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Guidewire)",
+        "weightage": "Occasional",
         "summary": "Integrity, collaboration and delivering for insurer customers.",
         "concepts": [
           "Customer empathy",
@@ -4010,7 +4013,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -4062,7 +4065,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (JFrog)",
+        "weightage": "Frequent",
         "summary": "Store and serve huge binaries with checksum-based dedup.",
         "concepts": [
           "Content-addressable storage",
@@ -4100,7 +4103,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (JFrog)",
+        "weightage": "Common",
         "summary": "Push releases to edges and replicate repositories across regions.",
         "concepts": [
           "Edge caching / CDN",
@@ -4133,7 +4136,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (JFrog)",
+        "weightage": "Occasional",
         "summary": "Scan every artifact and its dependency graph for CVEs and licences.",
         "concepts": [
           "Event-driven scanning",
@@ -4166,7 +4169,7 @@
         "track": "system-design",
         "category": "Concurrency",
         "difficulty": "Medium-Hard",
-        "weightage": "High (JFrog)",
+        "weightage": "Common",
         "summary": "Rate limits, locks and idempotency in a busy shared service.",
         "concepts": [
           "Rate limiting",
@@ -4200,7 +4203,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (JFrog)",
+        "weightage": "Occasional",
         "summary": "Owning outcomes and working well with distributed teams.",
         "concepts": [
           "End-to-end ownership",
@@ -4237,7 +4240,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -4289,7 +4292,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (Navi)",
+        "weightage": "Core",
         "summary": "A runnable, extensible app in 90 minutes.",
         "concepts": [
           "Model entities first",
@@ -4327,7 +4330,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Navi)",
+        "weightage": "Frequent",
         "summary": "Application, KYC, underwriting, disbursal and EMI collection.",
         "concepts": [
           "Workflow orchestration",
@@ -4361,7 +4364,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Navi)",
+        "weightage": "Frequent",
         "summary": "Money movement with exact-once effects.",
         "concepts": [
           "UPI flow",
@@ -4399,7 +4402,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Navi)",
+        "weightage": "Common",
         "summary": "Scheduled SIP orders, NAV-based allocation and order batching.",
         "concepts": [
           "Scheduled jobs",
@@ -4433,7 +4436,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Navi)",
+        "weightage": "Occasional",
         "summary": "Moving fast with ownership in a startup-paced fintech.",
         "concepts": [
           "Speed with safety",
@@ -4470,7 +4473,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -4522,7 +4525,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (Flipkart)",
+        "weightage": "Core",
         "summary": "Runnable, extensible code in 90 minutes.",
         "concepts": [
           "Entities, services, repositories",
@@ -4560,8 +4563,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Flipkart)",
-        "summary": "End-to-end e-commerce at Indian scale.",
+        "weightage": "Frequent",
+        "summary": "Catalog, cart and orders at Indian e-commerce scale.",
         "concepts": [
           "Catalog and search",
           "Cart service",
@@ -4586,7 +4589,7 @@
             "path": "/design-an-order-processing-pipeline?id=hld-860"
           }
         ],
-        "cheatSheet": "Split read-heavy catalog from write-heavy orders."
+        "cheatSheet": "Keep the read-heavy catalog apart from the write-heavy order path."
       },
       {
         "id": "fk-flash",
@@ -4594,8 +4597,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Flipkart)",
-        "summary": "Millions of buyers, limited stock, no oversell.",
+        "weightage": "Frequent",
+        "summary": "Millions of buyers chasing limited stock, with no overselling.",
         "concepts": [
           "Inventory reservation",
           "Rate limiting and queueing",
@@ -4620,7 +4623,7 @@
             "path": "/how-would-you-handle-a-traffic-spike?id=hld-1037"
           }
         ],
-        "cheatSheet": "Reserve stock atomically with a TTL; queue the rest."
+        "cheatSheet": "Reserve stock atomically with a time limit and queue everyone else."
       },
       {
         "id": "fk-search",
@@ -4628,8 +4631,8 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Flipkart)",
-        "summary": "Search, autocomplete and recommendations for a huge catalog.",
+        "weightage": "Common",
+        "summary": "Search, autocomplete and recommendations over a huge catalog.",
         "concepts": [
           "Inverted index",
           "Autocomplete",
@@ -4661,8 +4664,8 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Flipkart)",
-        "summary": "Hiring manager round: ownership, bias for action and conflict handling.",
+        "weightage": "Occasional",
+        "summary": "Ownership, speed and starting from the customer.",
         "concepts": [
           "Ownership",
           "Customer first",
@@ -4690,7 +4693,7 @@
             "path": "/tell-me-about-your-most-impactful-project?id=behavioral-36"
           }
         ],
-        "cheatSheet": "Quantify impact: latency, conversion, revenue or cost."
+        "cheatSheet": "Put numbers on your impact: latency, conversion, revenue or cost."
       },
       {
         "id": "star-core",
@@ -4698,7 +4701,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -4750,7 +4753,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Cohesity)",
+        "weightage": "Frequent",
         "summary": "Incremental-forever backups with fast restore.",
         "concepts": [
           "Incremental backups",
@@ -4784,7 +4787,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Cohesity)",
+        "weightage": "Frequent",
         "summary": "Chunk, fingerprint and store each chunk once.",
         "concepts": [
           "Variable-size chunking",
@@ -4817,7 +4820,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Cohesity)",
+        "weightage": "Common",
         "summary": "A scale-out file system with a consistent metadata layer.",
         "concepts": [
           "Metadata service",
@@ -4851,7 +4854,7 @@
         "track": "system-design",
         "category": "Concurrency",
         "difficulty": "Hard",
-        "weightage": "High (Cohesity)",
+        "weightage": "Common",
         "summary": "Locks, leases and coordination across nodes.",
         "concepts": [
           "Mutex vs semaphore",
@@ -4884,7 +4887,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Cohesity)",
+        "weightage": "Occasional",
         "summary": "Owning hard problems end to end.",
         "concepts": [
           "Technical depth",
@@ -4921,7 +4924,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -4973,7 +4976,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Zomato)",
+        "weightage": "Frequent",
         "summary": "Restaurants, orders, riders and payments.",
         "concepts": [
           "Order state machine",
@@ -5007,7 +5010,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Zomato)",
+        "weightage": "Common",
         "summary": "Millions of location pings and live updates to customers.",
         "concepts": [
           "Geo-indexing",
@@ -5040,7 +5043,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (Zomato)",
+        "weightage": "Occasional",
         "summary": "Location-aware search, autocomplete and reviews.",
         "concepts": [
           "Search index",
@@ -5073,7 +5076,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (Zomato)",
+        "weightage": "Common",
         "summary": "Clean, extensible classes for a small domain.",
         "concepts": [
           "SOLID",
@@ -5110,7 +5113,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Zomato)",
+        "weightage": "Occasional",
         "summary": "Speed, ownership and caring about customers and partners.",
         "concepts": [
           "Customer obsession",
@@ -5147,7 +5150,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -5199,7 +5202,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (PhonePe)",
+        "weightage": "Core",
         "summary": "A runnable, extensible app in 90-120 minutes.",
         "concepts": [
           "Entities and services",
@@ -5237,7 +5240,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (PhonePe)",
+        "weightage": "Frequent",
         "summary": "Payment flow across apps, PSPs, NPCI and banks.",
         "concepts": [
           "UPI flow",
@@ -5275,7 +5278,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (PhonePe)",
+        "weightage": "Frequent",
         "summary": "Exact balances under huge concurrency.",
         "concepts": [
           "Double-entry ledger",
@@ -5312,7 +5315,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (PhonePe)",
+        "weightage": "Common",
         "summary": "Stay up through festival peaks and region failures.",
         "concepts": [
           "Rate limiting",
@@ -5345,7 +5348,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (PhonePe)",
+        "weightage": "Occasional",
         "summary": "Owning outcomes on systems people trust with money.",
         "concepts": [
           "Ownership",
@@ -5382,7 +5385,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -5434,7 +5437,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Slice)",
+        "weightage": "Frequent",
         "summary": "Authorise, settle and bill card spends against a credit limit.",
         "concepts": [
           "Authorisation flow",
@@ -5467,7 +5470,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Slice)",
+        "weightage": "Common",
         "summary": "Exactly-once money movement.",
         "concepts": [
           "UPI flow",
@@ -5500,7 +5503,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Medium (Slice)",
+        "weightage": "Occasional",
         "summary": "Real-time risk checks without slowing payments.",
         "concepts": [
           "Rules + scoring",
@@ -5529,7 +5532,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (Slice)",
+        "weightage": "Common",
         "summary": "Clean, extensible code for a small fintech domain.",
         "concepts": [
           "SOLID",
@@ -5566,7 +5569,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Slice)",
+        "weightage": "Occasional",
         "summary": "Startup pace with care for users.",
         "concepts": [
           "Product sense",
@@ -5603,7 +5606,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -5655,7 +5658,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (6sense)",
+        "weightage": "Frequent",
         "summary": "Ingest billions of web events and turn them into account signals.",
         "concepts": [
           "Kafka ingestion",
@@ -5689,7 +5692,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (6sense)",
+        "weightage": "Common",
         "summary": "Serve fresh account-level metrics to sales and marketing.",
         "concepts": [
           "Pre-aggregation",
@@ -5722,7 +5725,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (6sense)",
+        "weightage": "Common",
         "summary": "Isolation, quotas and integrations for enterprise customers.",
         "concepts": [
           "Tenant isolation",
@@ -5755,7 +5758,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (6sense)",
+        "weightage": "Occasional",
         "summary": "Find and rank accounts and contacts.",
         "concepts": [
           "Search index",
@@ -5784,7 +5787,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (6sense)",
+        "weightage": "Occasional",
         "summary": "Delivering for B2B customers with cross-functional teams.",
         "concepts": [
           "Customer focus",
@@ -5821,7 +5824,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -5873,7 +5876,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Walmart)",
+        "weightage": "Frequent",
         "summary": "Omni-channel e-commerce at peak scale.",
         "concepts": [
           "Catalog / search",
@@ -5906,7 +5909,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Walmart)",
+        "weightage": "Frequent",
         "summary": "Accurate stock with no oversell during sales.",
         "concepts": [
           "Reservations with TTL",
@@ -5939,7 +5942,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Walmart)",
+        "weightage": "Common",
         "summary": "Slots, substitutions and last-mile delivery.",
         "concepts": [
           "Slot booking",
@@ -5968,7 +5971,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Walmart)",
+        "weightage": "Common",
         "summary": "Survive Black Friday traffic.",
         "concepts": [
           "Distributed cache",
@@ -6001,7 +6004,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Walmart)",
+        "weightage": "Occasional",
         "summary": "Service to the customer, respect, integrity.",
         "concepts": [
           "Customer focus",
@@ -6038,7 +6041,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -6090,7 +6093,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (InMobi)",
+        "weightage": "Frequent",
         "summary": "Pick and price an ad within a strict latency budget.",
         "concepts": [
           "Latency budget",
@@ -6119,7 +6122,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (InMobi)",
+        "weightage": "Frequent",
         "summary": "Count billions of events exactly enough for billing.",
         "concepts": [
           "Kafka ingestion",
@@ -6152,7 +6155,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (InMobi)",
+        "weightage": "Common",
         "summary": "Advertiser dashboards over fresh data.",
         "concepts": [
           "Pre-aggregation",
@@ -6180,7 +6183,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (InMobi)",
+        "weightage": "Common",
         "summary": "Clean, extensible code.",
         "concepts": [
           "SOLID",
@@ -6216,7 +6219,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (InMobi)",
+        "weightage": "Occasional",
         "summary": "Owning outcomes with data.",
         "concepts": [
           "Ownership",
@@ -6253,7 +6256,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -6305,7 +6308,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Very High (JP Morgan)",
+        "weightage": "Frequent",
         "summary": "Java fundamentals asked in every technical round.",
         "concepts": [
           "Collections internals",
@@ -6347,7 +6350,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (JP Morgan)",
+        "weightage": "Common",
         "summary": "Order entry, matching and market data at low latency.",
         "concepts": [
           "Order book",
@@ -6376,7 +6379,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (JP Morgan)",
+        "weightage": "Frequent",
         "summary": "Money movement with strong consistency.",
         "concepts": [
           "Double-entry",
@@ -6413,7 +6416,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (JP Morgan)",
+        "weightage": "Common",
         "summary": "Cross-border transfers with fraud checks.",
         "concepts": [
           "Remittance flow",
@@ -6446,7 +6449,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (JP Morgan)",
+        "weightage": "Occasional",
         "summary": "Client focus, integrity, teamwork.",
         "concepts": [
           "Integrity",
@@ -6483,7 +6486,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -6535,7 +6538,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (eBay)",
+        "weightage": "Frequent",
         "summary": "Bids, closing times and notifications.",
         "concepts": [
           "Real-time bidding",
@@ -6568,7 +6571,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (eBay)",
+        "weightage": "Common",
         "summary": "Index millions of listings fast.",
         "concepts": [
           "Inverted index",
@@ -6597,7 +6600,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (eBay)",
+        "weightage": "Common",
         "summary": "Managed payments with buyer protection.",
         "concepts": [
           "Payment gateway",
@@ -6630,7 +6633,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (eBay)",
+        "weightage": "Occasional",
         "summary": "Sellers, buyers, orders and reputation.",
         "concepts": [
           "Order pipeline",
@@ -6659,7 +6662,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (eBay)",
+        "weightage": "Occasional",
         "summary": "Doing the right thing for buyers and sellers.",
         "concepts": [
           "Customer focus",
@@ -6696,7 +6699,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -6748,7 +6751,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Sony)",
+        "weightage": "Frequent",
         "summary": "Matchmaking, sessions and real-time state.",
         "concepts": [
           "Matchmaking",
@@ -6777,7 +6780,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Sony)",
+        "weightage": "Common",
         "summary": "Who is online and what they are playing.",
         "concepts": [
           "Presence",
@@ -6806,7 +6809,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Sony)",
+        "weightage": "Common",
         "summary": "Stream video and gameplay worldwide.",
         "concepts": [
           "CDN",
@@ -6835,7 +6838,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (Sony)",
+        "weightage": "Common",
         "summary": "Fundamentals asked in technical rounds.",
         "concepts": [
           "SOLID",
@@ -6872,7 +6875,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Sony)",
+        "weightage": "Occasional",
         "summary": "Love of the product and working across teams.",
         "concepts": [
           "Collaboration",
@@ -6909,7 +6912,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -6961,7 +6964,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Warner Bros)",
+        "weightage": "Frequent",
         "summary": "Encode, store and deliver video globally.",
         "concepts": [
           "Transcoding pipeline",
@@ -6990,7 +6993,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Warner Bros)",
+        "weightage": "Common",
         "summary": "Personalised rows for every profile.",
         "concepts": [
           "Recommendation storage",
@@ -7019,7 +7022,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Warner Bros)",
+        "weightage": "Common",
         "summary": "Stay up when everyone presses play at once.",
         "concepts": [
           "Load shedding",
@@ -7052,7 +7055,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (Warner Bros)",
+        "weightage": "Occasional",
         "summary": "Quality-of-experience metrics at scale.",
         "concepts": [
           "Metrics pipeline",
@@ -7080,7 +7083,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Warner Bros)",
+        "weightage": "Occasional",
         "summary": "Working across product, content and engineering.",
         "concepts": [
           "Collaboration",
@@ -7116,7 +7119,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -7168,7 +7171,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (Moneyview)",
+        "weightage": "Core",
         "summary": "Runnable, extensible code.",
         "concepts": [
           "Entities and services",
@@ -7205,7 +7208,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Moneyview)",
+        "weightage": "Frequent",
         "summary": "From application to repayment.",
         "concepts": [
           "Workflow orchestration",
@@ -7238,7 +7241,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Moneyview)",
+        "weightage": "Common",
         "summary": "Exact accounting of disbursals and repayments.",
         "concepts": [
           "Double-entry",
@@ -7266,7 +7269,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Medium (Moneyview)",
+        "weightage": "Occasional",
         "summary": "Decide fast, safely.",
         "concepts": [
           "Rules engine",
@@ -7295,7 +7298,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Moneyview)",
+        "weightage": "Occasional",
         "summary": "Building credit products people trust.",
         "concepts": [
           "Ownership",
@@ -7332,7 +7335,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -7384,7 +7387,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Tekion)",
+        "weightage": "Frequent",
         "summary": "Isolation and scale for thousands of dealerships.",
         "concepts": [
           "Tenant isolation",
@@ -7417,7 +7420,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Tekion)",
+        "weightage": "Common",
         "summary": "Deals, repair orders and approvals as workflows.",
         "concepts": [
           "Workflow orchestration",
@@ -7446,7 +7449,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (Tekion)",
+        "weightage": "Common",
         "summary": "Connect OEMs, lenders and partners reliably.",
         "concepts": [
           "Webhooks",
@@ -7475,7 +7478,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (Tekion)",
+        "weightage": "Common",
         "summary": "Clean, extensible domain code.",
         "concepts": [
           "SOLID",
@@ -7511,7 +7514,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Tekion)",
+        "weightage": "Occasional",
         "summary": "Startup pace and ownership.",
         "concepts": [
           "Ownership",
@@ -7548,7 +7551,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -7600,7 +7603,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Very High (Harman)",
+        "weightage": "Frequent",
         "summary": "Fundamentals asked in every round.",
         "concepts": [
           "SOLID",
@@ -7633,7 +7636,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Harman)",
+        "weightage": "Common",
         "summary": "Millions of cars sending sensor data.",
         "concepts": [
           "Time-series storage",
@@ -7662,7 +7665,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Medium (Harman)",
+        "weightage": "Occasional",
         "summary": "Roll out firmware safely to a fleet.",
         "concepts": [
           "Large file distribution",
@@ -7691,7 +7694,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium",
-        "weightage": "Medium (Harman)",
+        "weightage": "Occasional",
         "summary": "Health checks, metrics and failure handling.",
         "concepts": [
           "Health checks",
@@ -7720,7 +7723,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Harman)",
+        "weightage": "Occasional",
         "summary": "Quality and collaboration.",
         "concepts": [
           "Quality",
@@ -7756,7 +7759,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -7808,7 +7811,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Very High (Mercedes-Benz)",
+        "weightage": "Frequent",
         "summary": "Core fundamentals in every round.",
         "concepts": [
           "SOLID",
@@ -7845,7 +7848,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Mercedes-Benz)",
+        "weightage": "Common",
         "summary": "Car-to-cloud data and remote commands.",
         "concepts": [
           "Telemetry ingestion",
@@ -7874,7 +7877,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Medium (Mercedes-Benz)",
+        "weightage": "Occasional",
         "summary": "Ship updates safely to vehicles.",
         "concepts": [
           "Large file distribution",
@@ -7903,7 +7906,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium",
-        "weightage": "Medium (Mercedes-Benz)",
+        "weightage": "Occasional",
         "summary": "Monitoring and failure handling.",
         "concepts": [
           "Metrics",
@@ -7932,7 +7935,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Mercedes-Benz)",
+        "weightage": "Occasional",
         "summary": "Quality and collaboration.",
         "concepts": [
           "Quality",
@@ -7968,7 +7971,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -8020,7 +8023,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (NetApp)",
+        "weightage": "Frequent",
         "summary": "Scale-out storage with a metadata layer.",
         "concepts": [
           "Metadata service",
@@ -8049,7 +8052,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (NetApp)",
+        "weightage": "Frequent",
         "summary": "Protect data across sites.",
         "concepts": [
           "Snapshots",
@@ -8082,7 +8085,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (NetApp)",
+        "weightage": "Common",
         "summary": "Store data once, serve it everywhere.",
         "concepts": [
           "Dedup",
@@ -8111,7 +8114,7 @@
         "track": "system-design",
         "category": "Concurrency",
         "difficulty": "Hard",
-        "weightage": "High (NetApp)",
+        "weightage": "Common",
         "summary": "Locks, leases and consensus.",
         "concepts": [
           "Distributed locks",
@@ -8140,7 +8143,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (NetApp)",
+        "weightage": "Occasional",
         "summary": "Owning hard technical problems.",
         "concepts": [
           "Depth",
@@ -8177,7 +8180,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -8229,7 +8232,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Very High (Boeing)",
+        "weightage": "Frequent",
         "summary": "Fundamentals and clean design.",
         "concepts": [
           "SOLID",
@@ -8266,7 +8269,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Boeing)",
+        "weightage": "Common",
         "summary": "Systems that keep working when parts fail.",
         "concepts": [
           "Redundancy",
@@ -8299,7 +8302,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (Boeing)",
+        "weightage": "Occasional",
         "summary": "Collect and analyse large sensor datasets.",
         "concepts": [
           "Time-series storage",
@@ -8327,7 +8330,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (Boeing)",
+        "weightage": "Occasional",
         "summary": "Seats, inventory and bookings.",
         "concepts": [
           "Seat locking",
@@ -8351,7 +8354,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Boeing)",
+        "weightage": "Occasional",
         "summary": "Safety culture and integrity.",
         "concepts": [
           "Safety",
@@ -8388,7 +8391,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -8440,7 +8443,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Instamart)",
+        "weightage": "Frequent",
         "summary": "10-minute delivery from dark stores.",
         "concepts": [
           "Store selection by location",
@@ -8469,7 +8472,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (Instamart)",
+        "weightage": "Frequent",
         "summary": "No oversell across many small stores.",
         "concepts": [
           "Reservations",
@@ -8498,7 +8501,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Instamart)",
+        "weightage": "Common",
         "summary": "Live tracking with tight ETAs.",
         "concepts": [
           "GPS ingestion",
@@ -8526,7 +8529,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium-Hard",
-        "weightage": "Highest (Instamart)",
+        "weightage": "Core",
         "summary": "Runnable, extensible code.",
         "concepts": [
           "Entities",
@@ -8563,7 +8566,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Instamart)",
+        "weightage": "Occasional",
         "summary": "Speed with ownership.",
         "concepts": [
           "Ownership",
@@ -8600,7 +8603,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -8652,7 +8655,7 @@
         "track": "system-design",
         "category": "Ruby on Rails",
         "difficulty": "Medium-Hard",
-        "weightage": "Very High (GitLab)",
+        "weightage": "Frequent",
         "summary": "The Ruby object model the GitLab codebase leans on.",
         "concepts": [
           "Method lookup and mixins",
@@ -8694,7 +8697,7 @@
         "track": "system-design",
         "category": "Ruby on Rails",
         "difficulty": "Hard",
-        "weightage": "Very High (GitLab)",
+        "weightage": "Frequent",
         "summary": "Find and fix slow queries in a huge Rails app.",
         "concepts": [
           "N+1 queries",
@@ -8737,7 +8740,7 @@
         "track": "system-design",
         "category": "Ruby on Rails",
         "difficulty": "Hard",
-        "weightage": "Very High (GitLab)",
+        "weightage": "Frequent",
         "summary": "Change a huge production schema without downtime.",
         "concepts": [
           "Safe migrations",
@@ -8779,7 +8782,7 @@
         "track": "system-design",
         "category": "Ruby on Rails",
         "difficulty": "Medium-Hard",
-        "weightage": "High (GitLab)",
+        "weightage": "Common",
         "summary": "Reliable, idempotent jobs at scale.",
         "concepts": [
           "Idempotent jobs",
@@ -8821,7 +8824,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (Senior)",
+        "weightage": "Common",
         "summary": "Service objects in a monolith, and how CI runners and artifacts scale.",
         "concepts": [
           "Service objects vs callbacks",
@@ -8863,7 +8866,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "High (GitLab)",
+        "weightage": "Common",
         "summary": "Transparency, iteration and written collaboration across time zones.",
         "concepts": [
           "Transparency",
@@ -8905,7 +8908,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -8957,7 +8960,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (GoDaddy)",
+        "weightage": "Frequent",
         "summary": "Resolve, register and search domains at internet scale.",
         "concepts": [
           "DNS resolution",
@@ -8995,7 +8998,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (GoDaddy)",
+        "weightage": "Common",
         "summary": "Millions of small sites on shared infrastructure.",
         "concepts": [
           "Tenant isolation",
@@ -9028,7 +9031,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (GoDaddy)",
+        "weightage": "Common",
         "summary": "Auto-renew domains and plans reliably.",
         "concepts": [
           "Recurring billing",
@@ -9061,7 +9064,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Medium (GoDaddy)",
+        "weightage": "Occasional",
         "summary": "Professional email and customer notifications.",
         "concepts": [
           "Email sending",
@@ -9090,7 +9093,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (GoDaddy)",
+        "weightage": "Occasional",
         "summary": "Serving small-business customers.",
         "concepts": [
           "Customer focus",
@@ -9127,7 +9130,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -9179,7 +9182,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (MoEngage)",
+        "weightage": "Frequent",
         "summary": "Send a campaign to millions of users on time.",
         "concepts": [
           "Fan-out",
@@ -9216,7 +9219,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (MoEngage)",
+        "weightage": "Frequent",
         "summary": "Track every user action and segment in real time.",
         "concepts": [
           "Kafka ingestion",
@@ -9249,7 +9252,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (MoEngage)",
+        "weightage": "Common",
         "summary": "Time-zone aware schedules and multi-step journeys.",
         "concepts": [
           "Distributed scheduler",
@@ -9282,7 +9285,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (MoEngage)",
+        "weightage": "Common",
         "summary": "Clean, extensible code.",
         "concepts": [
           "SOLID",
@@ -9318,7 +9321,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (MoEngage)",
+        "weightage": "Occasional",
         "summary": "Owning outcomes for B2B customers.",
         "concepts": [
           "Ownership",
@@ -9355,7 +9358,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -9407,7 +9410,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "Very High (Brillio)",
+        "weightage": "Frequent",
         "summary": "Fundamentals asked in every technical round.",
         "concepts": [
           "SOLID",
@@ -9444,7 +9447,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "Very High (Brillio)",
+        "weightage": "Frequent",
         "summary": "Design and migrate to microservices.",
         "concepts": [
           "Monolith to microservices",
@@ -9482,7 +9485,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium",
-        "weightage": "High (Brillio)",
+        "weightage": "Common",
         "summary": "Ship and run services safely.",
         "concepts": [
           "Zero-downtime deploys",
@@ -9515,7 +9518,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium",
-        "weightage": "Medium (Brillio)",
+        "weightage": "Occasional",
         "summary": "Pick and scale the right store.",
         "concepts": [
           "SQL vs NoSQL",
@@ -9548,7 +9551,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (Brillio)",
+        "weightage": "Occasional",
         "summary": "Working with clients and changing requirements.",
         "concepts": [
           "Client communication",
@@ -9585,7 +9588,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -9637,7 +9640,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (HackerRank)",
+        "weightage": "Frequent",
         "summary": "Run untrusted code safely and fast.",
         "concepts": [
           "Sandboxed containers",
@@ -9671,7 +9674,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (HackerRank)",
+        "weightage": "Common",
         "summary": "Thousands submit at once; rankings update live.",
         "concepts": [
           "Sorted sets / counters",
@@ -9704,7 +9707,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (HackerRank)",
+        "weightage": "Common",
         "summary": "Companies run hiring tests for candidates.",
         "concepts": [
           "Tenant isolation",
@@ -9737,7 +9740,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (HackerRank)",
+        "weightage": "Common",
         "summary": "Clean, extensible code.",
         "concepts": [
           "SOLID",
@@ -9773,7 +9776,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (HackerRank)",
+        "weightage": "Occasional",
         "summary": "Building for developers and recruiters.",
         "concepts": [
           "Ownership",
@@ -9810,7 +9813,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",
@@ -9862,7 +9865,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "Very High (HackerEarth)",
+        "weightage": "Frequent",
         "summary": "Compile, run and grade submissions safely.",
         "concepts": [
           "Sandboxing",
@@ -9895,7 +9898,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Medium-Hard",
-        "weightage": "High (HackerEarth)",
+        "weightage": "Common",
         "summary": "Teams submit projects; judges score them.",
         "concepts": [
           "Large file upload",
@@ -9928,7 +9931,7 @@
         "track": "system-design",
         "category": "HLD Case Study",
         "difficulty": "Hard",
-        "weightage": "High (HackerEarth)",
+        "weightage": "Common",
         "summary": "Real-time rankings under burst load.",
         "concepts": [
           "Sorted sets",
@@ -9961,7 +9964,7 @@
         "track": "system-design",
         "category": "OOP & LLD",
         "difficulty": "Medium",
-        "weightage": "High (HackerEarth)",
+        "weightage": "Common",
         "summary": "Clean, extensible code.",
         "concepts": [
           "SOLID",
@@ -9997,7 +10000,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Medium (HackerEarth)",
+        "weightage": "Occasional",
         "summary": "Moving fast with care.",
         "concepts": [
           "Ownership",
@@ -10034,7 +10037,7 @@
         "track": "behavioral",
         "category": "Behavioral",
         "difficulty": "Medium",
-        "weightage": "Mandatory (all companies)",
+        "weightage": "Every company",
         "summary": "The 8 stories every loop asks for in some form. Prepare these once, reuse everywhere.",
         "concepts": [
           "Situation 15% / Task 10% / Action 60% / Result 15%",

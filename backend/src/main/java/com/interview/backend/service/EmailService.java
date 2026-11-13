@@ -52,6 +52,43 @@ public class EmailService {
     @Value("${app.jwt.secret}")
     private String signingSecret;
 
+
+    /**
+     * Local testing switch (EMAIL_ADMIN_ONLY=true in .env): mail goes only to the admin addresses (ADMIN_EMAILS); everyone else is
+     * skipped and logged, so running the app against real data never emails real members. Off by default, so production sends normally.
+     */
+    @Value("${app.mail.admin-only:false}")
+    private boolean adminOnly;
+
+    @Value("${app.admin.emails:}")
+    private String adminEmailsCsv;
+
+    private boolean isAdminAddress(String address) {
+        if (address == null) return false;
+        for (String a : adminEmailsCsv.split(",")) if (a.trim().equalsIgnoreCase(address.trim())) return true;
+        return false;
+    }
+
+    private void deliver(SimpleMailMessage message) {
+        if (adminOnly) {
+            String[] to = message.getTo() == null ? new String[0] : message.getTo();
+            String[] kept = java.util.Arrays.stream(to).filter(this::isAdminAddress).toArray(String[]::new);
+            if (kept.length == 0) { log.info("EMAIL_ADMIN_ONLY is on: skipped \"{}\" to {}", message.getSubject(), String.join(",", to)); return; }
+            message.setTo(kept);
+        }
+        mailSender.send(message);
+    }
+
+    private void deliver(MimeMessage mime) throws MessagingException {
+        if (adminOnly) {
+            var all = mime.getAllRecipients();
+            boolean any = false;
+            if (all != null) for (var r : all) if (r instanceof jakarta.mail.internet.InternetAddress ia && isAdminAddress(ia.getAddress())) any = true;
+            if (!any) { log.info("EMAIL_ADMIN_ONLY is on: skipped \"{}\"", mime.getSubject()); return; }
+        }
+        mailSender.send(mime);
+    }
+
     @PostConstruct
     public void init() {
         log.info("Email service initialized - host: {}, username: {}", mailHost, mailUsername);
@@ -81,7 +118,7 @@ public class EmailService {
         message.setSubject("Dashboard Export Unlock Code");
         message.setText("Your daily unlock code for exporting data is: " + code + "\n\n" +
             "This code is valid for 24 hours (UTC timezone).");
-        mailSender.send(message);
+        deliver(message);
         log.info("Export code email sent to {}", toEmail);
     }
 
@@ -103,7 +140,7 @@ public class EmailService {
             "Interview Reader Team"
         );
 
-        mailSender.send(message);
+        deliver(message);
         log.info("Password reset email sent to {}", toEmail);
     }
 
@@ -145,7 +182,7 @@ public class EmailService {
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(body.toString());
-        mailSender.send(message);
+        deliver(message);
     }
 
     private void appendQuestion(StringBuilder body, Question q, String tag) {
@@ -170,7 +207,7 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(plain, announcementHtml(body, unsubscribe));
-            mailSender.send(mime);
+            deliver(mime);
         } catch (MessagingException e) {
             throw new IllegalStateException("Could not build the announcement email", e);
         }
@@ -317,7 +354,7 @@ public class EmailService {
                 "Happy preparing!\nInterview Reader Team\n\n" +
                 "Don't want these emails? Unsubscribe: " + backendUrl + "/api/auth/unsubscribe?email=" +
                 URLEncoder.encode(toEmail, StandardCharsets.UTF_8) + "&sig=" + unsubscribeSig(toEmail));
-        mailSender.send(message);
+        deliver(message);
     }
 
     /** "Your N-day streak ends tonight": one tap to keep it, with today's challenge picture. */
@@ -360,7 +397,7 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(hi + "\n\n" + plainBody + "\n\n---\nDon't want these emails? Unsubscribe: " + unsubscribe, html);
-            mailSender.send(mime);
+            deliver(mime);
         } catch (MessagingException e) {
             throw new IllegalStateException("Could not build the email", e);
         }

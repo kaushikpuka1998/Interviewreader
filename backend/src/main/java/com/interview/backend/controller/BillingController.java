@@ -31,7 +31,12 @@ public class BillingController {
     /** Premium pass prices for the plan picker. Public, so the top bar can show it before sign-in. */
     @GetMapping("/plans")
     public Object plans() {
-        return billing.premiumPlans();
+        User u = null;
+        try {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) u = users.findByEmail(auth.getName()).orElse(null);
+        } catch (Exception ignored) { /* anonymous visitors just see the standard passes */ }
+        return billing.premiumPlans(u);
     }
 
     public record PlanInput(String plan, String coupon) {}

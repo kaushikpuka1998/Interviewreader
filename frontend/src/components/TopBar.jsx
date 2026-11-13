@@ -6,6 +6,7 @@ import AuthModal from './AuthModal.jsx'
 import PremiumPlans from './PremiumPlans.jsx'
 import ProfileMenu from './ProfileMenu.jsx'
 import StreakBadge from './StreakBadge.jsx'
+import GoalChip from './InterviewGoal.jsx'
 import PromoBanner from './PromoBanner.jsx'
 import SiteNoticeBanner from './SiteNoticeBanner.jsx'
 
@@ -195,6 +196,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
             )}
           </button>
 
+          {signedIn && <GoalChip />}
           {signedIn && <StreakBadge />}
           {signedIn && <Notifications align="right" />}
           {signedIn ? (

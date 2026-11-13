@@ -23,6 +23,11 @@ public interface UserEventRepository extends JpaRepository<UserEvent, Long> {
            "GROUP BY e.questionId")
     List<Object[]> readStatsFor(@Param("since") Instant since, @Param("ids") Collection<String> ids);
 
+    /** Funnel steps (signup, first answer, paywall seen, pricing viewed, checkout, paid): distinct sessions per step. */
+    @Query("SELECT e.label, COUNT(DISTINCT e.sessionId) FROM UserEvent e " +
+           "WHERE e.type = 'funnel' AND e.createdAt > :since AND e.label IS NOT NULL GROUP BY e.label")
+    List<Object[]> funnelSteps(@Param("since") Instant since);
+
     @Query("SELECT e.label, COUNT(e) FROM UserEvent e " +
            "WHERE e.type = 'click' AND e.createdAt > :since AND e.label IS NOT NULL " +
            "GROUP BY e.label ORDER BY COUNT(e) DESC")

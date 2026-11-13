@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchEngagementBreakdown } from '../lib/analytics.js'
+import { fetchEngagementBreakdown, fetchMoneyFunnel } from '../lib/analytics.js'
 
 const Row = ({ label, value }) => (
   <div className="flex items-baseline justify-between gap-3 py-1.5">
@@ -13,6 +13,32 @@ const Card = ({ title, children }) => (
     {children}
   </section>
 )
+
+const STEP_LABELS = { goal_set: 'Set an interview goal', first_answer: 'Finished a scored answer', free_limit_hit: 'Used all free attempts', paywall_seen: 'Saw the upgrade prompt', pricing_viewed: 'Opened the pricing plans', checkout_started: 'Started checkout', paid: 'Paid' }
+
+// Sessions at each step of the money path, with the share kept from the step before.
+function MoneyFunnel({ days }) {
+  const [f, setF] = useState(null)
+  useEffect(() => { setF(null); fetchMoneyFunnel(days).then(setF).catch(() => setF({ steps: [] })) }, [days])
+  const steps = f?.steps || []
+  return (
+    <Card title="💳 Path to paying (browser sessions)">
+      {!f ? <p className="text-xs text-slate-500">Loading…</p> : steps.map((s, i) => {
+        const prev = i ? steps[i - 1].sessions : null
+        return (
+          <div key={s.step} className="flex items-baseline justify-between gap-3 py-1.5">
+            <span className="text-sm text-slate-600 dark:text-slate-300">{STEP_LABELS[s.step] || s.step}</span>
+            <span className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100">
+              {Number(s.sessions).toLocaleString('en-IN')}
+              {prev ? <span className="ml-2 text-xs font-medium text-slate-500">{Math.round((s.sessions / prev) * 100)}%</span> : null}
+            </span>
+          </div>
+        )
+      })}
+      <p className="mt-2 text-xs text-slate-500">Steps are counted once per browser session, so the percentages show where people drop off.</p>
+    </Card>
+  )
+}
 
 // Admin: engagement across the key loops — the daily challenge, code practice, read-only vs solver mix, and referrals.
 export default function EngagementPanel() {
@@ -33,6 +59,7 @@ export default function EngagementPanel() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MoneyFunnel days={days} />
         <Card title="🔥 Daily challenge">
           <Row label="Page visitors" value={d.daily.pageVisitors} />
           <Row label="Signed-in page visits" value={d.daily.pageMembers} />

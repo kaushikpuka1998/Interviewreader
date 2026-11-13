@@ -31,6 +31,12 @@ Every question has its own page at a readable URL, for example `https://intervie
 - [SDE-2 interview preparation](https://interviewreader.cloud/sde-2-preparation): DSA, system design, LLD and behavioral plan.
 - [Amazon SDE-2 interview](https://interviewreader.cloud/companies/amazon/sde-2): rounds, Amazon-tagged problems and preparation.
 - [Sliding window problems](https://interviewreader.cloud/dsa/sliding-window): the pattern and problems to practise.
+- [System design interview questions](https://interviewreader.cloud/system-design-interview-questions): System design interview questions with worked answers and trade-offs.
+- [Google SDE-2 interview guide and reported coding problems](https://interviewreader.cloud/companies/google/sde-2): Google SDE-2 interview guide and reported coding problems.
+- [Meta SDE-2 interview guide and reported coding problems](https://interviewreader.cloud/companies/meta/sde-2): Meta SDE-2 interview guide and reported coding problems.
+- [Microsoft SDE-2 interview guide and reported coding problems](https://interviewreader.cloud/companies/microsoft/sde-2): Microsoft SDE-2 interview guide and reported coding problems.
+- [Dynamic programming problems from real interviews](https://interviewreader.cloud/dsa/dynamic-programming): Dynamic programming problems from real interviews, with solutions.
+- [Graph problems: BFS](https://interviewreader.cloud/dsa/graph): Graph problems: BFS, DFS, topological sort, shortest path and union-find.
 
 ## Topics (questions with answers)
 

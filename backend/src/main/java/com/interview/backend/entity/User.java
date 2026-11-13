@@ -76,6 +76,13 @@ public class User {
     /** When the one-time "add your college, GitHub and LinkedIn" invitation was shown (and answered or dismissed); null = not yet. */
     private Instant profilePromptSeenAt;
 
+    /** What the member is preparing for: drives the countdown, the plan and the 30-day pass. */
+    @Column(length = 60)
+    private String targetCompany;
+    @Column(length = 60)
+    private String targetRole;
+    private java.time.LocalDate interviewDate;
+
     /** The member's uploaded profile picture (a URL served by this app). Wins over the Google one. */
     @Column(length = 512)
     private String avatarUrl;
@@ -145,6 +152,8 @@ public class User {
     private Integer streakCount;
     private Integer streakBest;
     private java.time.LocalDate streakLastDate;
+    /** Premium members' streak survives one missed day every 30 days; this is the day it last did. */
+    private java.time.LocalDate streakFreezeUsedOn;
 
     /** Peer (real person) mock interview plan (i5, i10): monthly interview allowance, billed separately from Premium. */
     @Column(length = 8)

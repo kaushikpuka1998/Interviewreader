@@ -147,12 +147,12 @@
   }
 
   /* Inline code gets its own accent so it stands out from prose; pre code resets below. */
-  .prose code {
+  .prose :not(pre) > code {
     @apply font-mono text-sm bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-400/20 px-1.5 py-0.5 rounded text-emerald-600 dark:text-emerald-300;
   }
 
   .prose pre code {
-    @apply text-slate-100 dark:text-slate-100 bg-transparent p-0 border-0;
+    @apply text-slate-100 dark:text-slate-100 bg-transparent dark:bg-transparent p-0 border-0 rounded-none;
   }
 
   .prose pre {
@@ -745,4 +745,86 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     padding: 0.75rem 1rem 0.75rem 4.5rem;
     line-height: 1.5;
   }
+}
+
+/* Protocol explorer: node icons sit exactly on the route's corner points (the route SVG uses the same 0-100 box), so the dashed
+   line meets each icon's centre instead of cutting through its label. The side panel is a little taller and its rows tighter,
+   so more of the protocol list and walkthrough is visible without scrolling. */
+.lab-network .lab-node { right: auto; bottom: auto; transform: translate(-50%, -41px); }
+.lab-network .lab-node--client { left: 16%; top: 72%; }
+.lab-network .lab-node--router { left: 43%; top: 45%; }
+.lab-network .lab-node--internet { left: 64%; top: 60%; }
+.lab-network .lab-node--server { left: 82%; top: 28%; }
+.lab-network .lab-node.is-hidden { transform: translate(-50%, -41px) scale(.88); }
+.lab-network.protocol-udp.scene-step-0 .lab-node--client { left: 50%; top: 46%; transform: translate(-50%, -41px) scale(1.34); }
+.lab-network:not(.protocol-udp).scene-step-0 .lab-node--client { left: 16%; top: 72%; bottom: auto; transform: translate(-50%, -41px); }
+.lab-stage, .lab-network, .lab-detail { height: 520px; min-height: 520px; }
+.lab-rail { max-height: 520px; }
+.lab-protocol { padding: 7px 10px; }
+.lab-lesson { padding: 6px 5px; }
+@media (max-width: 700px) {
+  .lab-network .lab-node { transform: translate(-50%, -41px) scale(.72); }
+  .lab-network .lab-node.is-hidden { transform: translate(-50%, -41px) scale(.62); }
+  .lab-network.protocol-udp.scene-step-0 .lab-node--client { transform: translate(-50%, -41px) scale(1); }
+  .lab-network:not(.protocol-udp).scene-step-0 .lab-node--client { transform: translate(-50%, -41px) scale(.72); }
+  .lab-stage, .lab-network { height: 420px; min-height: 420px; }
+  .lab-detail { height: auto; min-height: 0; }
+  .lab-rail { max-height: 320px; }
+}
+@media (max-width: 1100px) { .lab-detail { height: auto; min-height: 0; } }
+
+/* Protocol explorer polish: a soft glow behind the stage, a pulse on the node that is sending or receiving, the packet note moved
+   to the bottom of the stage so it never covers a node, and clearer "you are here" states in the side panel. */
+.lab-stage { background: radial-gradient(120% 80% at 50% -10%, rgba(16,185,129,.12), transparent 62%), #091329; }
+.lab-node > div { box-shadow: inset 0 0 24px rgba(52,211,153,.10), 0 12px 28px rgba(1,7,21,.45); }
+.lab-node b { font-size: 12.5px; letter-spacing: .08em; color: #d1fae5; }
+.lab-node small { color: #7fa6a0; }
+.lab-node.is-active > div { animation: lab-pulse 1.7s ease-in-out infinite; }
+@keyframes lab-pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(251,191,36,.12), 0 0 22px rgba(251,191,36,.22); } 50% { box-shadow: 0 0 0 8px rgba(251,191,36,.06), 0 0 34px rgba(251,191,36,.38); } }
+.lab-network .lab-packet-note, .lab-network:not(.protocol-udp).scene-step-0 .lab-packet-note, .scene-step-0 .lab-packet-note {
+  top: auto; bottom: 18px; left: 50%; transform: translateX(-50%); width: min(380px, 88%); text-align: center;
+}
+.lab-protocol.is-selected { box-shadow: inset 3px 0 0 #34d399; }
+.lab-lesson.is-current { border-radius: 10px; background: rgba(52,211,153,.08); }
+.lab-lesson.is-current b { color: #ecfdf5; }
+@media (prefers-reduced-motion: reduce) { .lab-node.is-active > div { animation: none; } }
+
+/* Protocol explorer on phones: protocols become a 3-column chip grid, then the diagram, then the walkthrough, then the details.
+   Icons shrink in layout (not just with a transform) so the labels stay readable and nothing overlaps on a 320-390px stage. */
+@media (max-width: 700px) {
+  .lab-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .lab-rail { display: contents; }
+  .lab-rail > p { grid-column: 1 / -1; order: 0; margin: 0; }
+  .lab-protocol { order: 1; justify-content: center; padding: 9px 6px; border: 1px solid rgba(148,163,184,.16); border-radius: 10px; background: #0b1428; text-align: center; }
+  .lab-protocol.is-selected { box-shadow: none; border-color: #34d399; }
+  .lab-protocol small, .lab-protocol i { display: none; }
+  .lab-stage { order: 2; grid-column: 1 / -1; height: 440px; min-height: 440px; margin-top: 6px; }
+  .lab-network { height: 440px; min-height: 440px; }
+  .lab-lessons { order: 3; grid-column: 1 / -1; max-height: 260px; overflow-y: auto; margin: 6px 0 0; padding: 12px; border: 1px solid rgba(121,145,198,.17); border-radius: 14px; background: #0b1428; }
+  .lab-detail { order: 4; grid-column: 1 / -1; }
+  .lab-network .lab-node > div { width: 58px; height: 46px; border-radius: 11px; }
+  .lab-network .lab-node--internet > div { width: 72px; }
+  .lab-network .lab-node { transform: translate(-50%, -23px); }
+  .lab-network .lab-node.is-hidden { transform: translate(-50%, -23px) scale(.88); }
+  .lab-network.protocol-udp.scene-step-0 .lab-node--client { left: 50%; top: 46%; transform: translate(-50%, -23px) scale(1.15); }
+  .lab-network:not(.protocol-udp).scene-step-0 .lab-node--client { left: 16%; top: 72%; transform: translate(-50%, -23px); }
+  .lab-node b { margin-top: 5px; font-size: 10px; letter-spacing: .04em; white-space: nowrap; }
+  .lab-node small { display: none; }
+  .lab-tabs button { padding: 8px 10px; font-size: 11px; }
+  .lab-transfer { top: 62px; left: 50%; width: 92%; justify-content: center; flex-wrap: wrap; font-size: 11px; }
+  .lab-network .lab-packet-note, .lab-network:not(.protocol-udp).scene-step-0 .lab-packet-note, .scene-step-0 .lab-packet-note { bottom: 10px; width: 92%; }
+}
+@media (max-width: 700px) {
+  /* Packet flow on phones: controls share a row, and the table keeps No., source, destination and info instead of scrolling sideways. */
+  .lab-packets > header > div:last-child { width: 100%; flex-wrap: nowrap; gap: 6px; justify-content: stretch; }
+  .lab-packets > header > div:last-child label, .lab-packets > header > div:last-child button { flex: 1 1 0; min-width: 0; padding: 0 6px; }
+  .lab-table { overflow-x: visible; }
+  .lab-table__head, .lab-table__row { min-width: 0; grid-template-columns: 26px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 9px 12px; }
+  .lab-table__head > :nth-child(2), .lab-table__head > :nth-child(5), .lab-table__head > :nth-child(6), .lab-table__head > :nth-child(7),
+  .lab-table__row > :nth-child(2), .lab-table__row > :nth-child(5), .lab-table__row > :nth-child(7) { display: none; }
+  .lab-table__row > :nth-child(6) { grid-column: 2 / -1; color: #8fa2c9; overflow-wrap: anywhere; }
+}
+@media (max-width: 700px) {
+  .lab-packets > header > div:last-child label { flex: 1.7 1 0; white-space: nowrap; gap: 4px; }
+  .lab-packets > header > div:last-child select { min-width: 0; width: auto; }
 }

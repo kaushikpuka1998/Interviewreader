@@ -48,7 +48,7 @@ function IconButton({ label, icon, onClick, disabled = false }) {
       disabled={disabled}
       data-tip={label}
       aria-label={label}
-      className="tip tip-below relative rounded-md p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+      className="tip tip-below relative max-sm:order-4 rounded-md p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
     >
       <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">{ICON_PATHS[icon]}</svg>
     </button>
@@ -263,18 +263,18 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
           value={language}
           onChange={e => pickLanguage(e.target.value)}
           aria-label="Language"
-          className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+          className="max-sm:order-1 max-sm:min-w-0 max-sm:flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         >
           {options.map(l => <option key={l.key} value={l.key}>{l.label}</option>)}
         </select>
 
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 max-sm:contents">
           {problemId ? (
             <button
               type="button"
               onClick={() => setShowInput(v => !v)}
               aria-expanded={showInput}
-              className="whitespace-nowrap rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="max-sm:order-3 max-sm:flex-1 whitespace-nowrap rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               {showInput ? 'Hide custom input' : 'Custom input'}
             </button>
@@ -282,7 +282,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
             <button
               type="button"
               onClick={() => setShowInput(v => !v)}
-              className="whitespace-nowrap text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="max-sm:order-3 max-sm:flex-1 whitespace-nowrap text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
             >
               {showInput ? 'Hide input' : 'Add input'}
             </button>
@@ -298,7 +298,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
             type="button"
             onClick={() => fileRef.current?.click()}
             data-track="code_upload"
-            className="whitespace-nowrap rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-orange-600"
+            className="max-sm:order-5 max-sm:flex-1 whitespace-nowrap rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-orange-600"
           >
             Upload file
           </button>
@@ -314,7 +314,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
             value={font}
             onChange={e => chooseFont(e.target.value)}
             aria-label="Editor font"
-            className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            className="max-sm:order-2 max-sm:min-w-0 max-sm:flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
           >
             {Object.entries(FONTS).map(([key, f]) => <option key={key} value={key}>{f.label}</option>)}
           </select>

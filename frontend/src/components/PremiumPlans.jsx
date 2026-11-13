@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buyPremium, fetchPremiumPlans, PREMIUM_PLAN_NAMES } from '../lib/billing.js'
+import { trackFunnel } from '../lib/analytics.js'
 import { validateCoupon } from '../lib/promo.js'
 import { getUser } from '../lib/auth.js'
 
@@ -16,6 +17,7 @@ const PREMIUM_FEATURES = [
   '6 mock interviews a month with real interviewers',
 ]
 const PLAN_EXTRAS = {
+  sprint: { access: '30 days access', badge: 'For your interview', extra: [] },
   monthly: { access: '1 month access', extra: [] },
   yearly: { access: '1 year access', badge: 'Most Popular', extra: ['New roadmaps as they are added'] },
   lifetime: { access: 'Forever access', badge: 'Best Value', extra: ['New roadmaps as they are added', 'All future Premium content included'] },
@@ -44,7 +46,7 @@ export default function PremiumPlans({ onClose, onBought }) {
       setApplied({ code: c, quotes, any, message: any ? `${c} applied.` : (res[0]?.message || "That code isn't valid.") })
     } finally { setChecking(false) }
   }
-  useEffect(() => { fetchPremiumPlans().then(setPlans).catch(e => setError(e.message)) }, [])
+  useEffect(() => { trackFunnel('pricing_viewed'); fetchPremiumPlans().then(setPlans).catch(e => setError(e.message)) }, [])
   const onBuy = async plan => {
     setError('')
     setPaying(plan)
@@ -81,7 +83,7 @@ export default function PremiumPlans({ onClose, onBought }) {
             className="rounded-lg bg-slate-900 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50 dark:bg-white dark:text-slate-900">{checking ? 'Checking…' : 'Apply'}</button>
           {applied && <span className={`text-sm font-medium ${applied.any ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>{applied.any ? '✓ ' : ''}{applied.message}</span>}
         </div>
-        <div className="mt-10 grid items-center gap-6 md:grid-cols-3">
+        <div className={`mt-10 grid items-center gap-6 ${plans.length > 3 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-3'}`}>
           {plans.map(p => {
             const meta = PLAN_EXTRAS[p.key] || { extra: [] }
             const popular = p.key === 'yearly'
@@ -106,6 +108,8 @@ export default function PremiumPlans({ onClose, onBought }) {
                   {couponQ?.valid ? <span className="text-base text-slate-400 line-through">{rupees(p.price)}</span> : full && <span className="text-base text-slate-400 line-through">{rupees(full)}</span>}
                   {couponQ?.valid ? <span className="ml-auto text-xs font-bold text-emerald-600 dark:text-emerald-400">Save {rupees(couponQ.discount)}</span> : off && <span className="ml-auto text-xs font-bold text-emerald-600 dark:text-emerald-400">{off}% OFF</span>}
                 </div>
+                {p.key === 'yearly' && <p className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">Works out to about {rupees(Math.round((couponQ?.valid ? couponQ.finalPrice : p.price) / 12))} a month</p>}
+                {p.key === 'sprint' && <p className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">Unlocked because your interview is coming up</p>}
                 <ul className="mt-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
                   {[...PREMIUM_FEATURES, ...meta.extra, 'One-time payment (no auto-renewal)'].map(f => (
                     <li key={f} className="flex gap-2"><span className="text-emerald-500">✓</span>{f}</li>

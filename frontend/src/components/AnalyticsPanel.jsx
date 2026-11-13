@@ -252,34 +252,34 @@ function EngagementBlock({ engagement, topQuestions }) {
         <Stat label="Logged in only" value={statusCounts.loggedInOnly ?? 0} sub="no activity after sign-in" />
       </div>
 
-      <PieChart
-        title="Member status"
-        rows={[
-          { label: 'Reading', value: statusCounts.reading ?? 0 },
-          { label: 'Browsing', value: statusCounts.browsing ?? 0 },
-          { label: 'Logged in only', value: statusCounts.loggedInOnly ?? 0 },
-        ]}
-        labelKey="label"
-        valueKey="value"
-        empty="No signed-in member activity yet."
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+        <PieChart
+          title="Member status"
+          rows={[
+            { label: 'Reading', value: statusCounts.reading ?? 0 },
+            { label: 'Browsing', value: statusCounts.browsing ?? 0 },
+            { label: 'Logged in only', value: statusCounts.loggedInOnly ?? 0 },
+          ]}
+          labelKey="label"
+          valueKey="value"
+          empty="No signed-in member activity yet."
+        />
 
-      <div className={card}>
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Reading depth on top questions</h3>
-        {!topQuestions?.length ? <p className="text-sm text-slate-400">No question views yet.</p> : (
-          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-            {topQuestions.map(q => (
-              <li key={q.id} className="py-2.5">
-                <p className="text-sm text-slate-800 dark:text-slate-100 break-words" title={q.title}>{q.title}</p>
-                <p className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 tabular-nums">
-                  <span>{q.views} views</span>
-                  <span>{q.avgScroll == null ? '–' : `${q.avgScroll}%`} scroll</span>
-                  <span>{fmtSecs(q.avgSeconds)} avg time</span>
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className={card}>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Reading depth on top questions</h3>
+          {!topQuestions?.length ? <p className="text-sm text-slate-400">No question views yet.</p> : (
+            <ul className="max-h-64 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
+              {topQuestions.map(q => (
+                <li key={q.id} className="flex items-baseline justify-between gap-3 py-1.5">
+                  <p className="min-w-0 flex-1 truncate text-sm text-slate-800 dark:text-slate-100" title={q.title}>{q.title}</p>
+                  <p className="shrink-0 whitespace-nowrap text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                    {q.views} views · {q.avgScroll == null ? '–' : `${q.avgScroll}%`} · {fmtSecs(q.avgSeconds)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
@@ -288,7 +288,7 @@ function EngagementBlock({ engagement, topQuestions }) {
         <div className={card}>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Member activity</h3>
           {!members.length ? <p className="text-sm text-slate-400">No signed-in activity yet.</p> : (
-            <ul className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[40rem] overflow-y-auto">
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800 max-h-96 overflow-y-auto">
               {members.map(m => (
                 <li key={m.email}>
                   {(() => {
