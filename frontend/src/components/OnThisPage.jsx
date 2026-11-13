@@ -106,7 +106,7 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
   return (
     <nav
       aria-label="Sections in this answer"
-      className="hidden xl:flex w-56 flex-shrink-0 sticky top-6 self-start max-h-[calc(100vh-6rem)] flex-col pl-2"
+      className="hidden xl:flex w-56 flex-shrink-0 self-stretch min-h-0 flex-col pl-2 pb-1"
     >
       <div className="flex items-baseline justify-between mb-3 pr-1 flex-shrink-0">
         <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
@@ -117,7 +117,8 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
         </span>
       </div>
 
-      <div ref={listRef} className="relative overflow-y-auto min-h-0">
+      <div ref={listRef} className="relative overflow-y-auto min-h-0 flex-1 pb-6 overscroll-contain">
+        <div className="relative">
         {/* the rail: a track whose fill ends at the section you are reading */}
         <div className="absolute left-[5px] top-1 bottom-1 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
         <div
@@ -167,6 +168,7 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
             )
           })}
         </ul>
+        </div>
       </div>
     </nav>
   )
