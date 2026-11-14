@@ -11,6 +11,8 @@ import java.time.Instant;
 import java.util.List;
 
 public interface PaymentAttemptRepository extends JpaRepository<PaymentAttempt, Long> {
+    List<PaymentAttempt> findByUserIdAndStatusAndAskedAtIsNullAndCreatedAtAfterOrderByCreatedAtDesc(Long userId, String status, Instant since);
+
     List<PaymentAttempt> findTop200ByCreatedAtAfterOrderByCreatedAtDesc(Instant since);
 
     @Transactional

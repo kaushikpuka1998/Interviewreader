@@ -45,6 +45,9 @@ public class Coupon {
     @Column(nullable = false)
     private int redemptions = 0;
 
+    /** When set, only this member can use the code (a personal coupon sent through a message). */
+    private Long forUserId;
+
     /** Admin's own note ("Diwali campaign"). Not shown to members. */
     @Column(length = 200)
     private String note;

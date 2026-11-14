@@ -78,3 +78,7 @@ export async function subscribeInterviewPlan(plan) {
 }
 
 export const cancelInterviewPlan = () => call('/billing/interviews/cancel', 'POST')
+
+// Checkout opened but not paid: ask once why. Empty reason = dismissed.
+export const fetchAbandonedCheckout = () => call('/billing/abandoned')
+export const answerAbandonedCheckout = (reason) => call('/billing/abandoned/reason', 'POST', { reason })

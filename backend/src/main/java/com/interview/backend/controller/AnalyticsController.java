@@ -460,7 +460,7 @@ public class AnalyticsController {
         for (var r : rows) {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("email", r.getEmail()); m.put("plan", r.getPlan()); m.put("amount", r.getAmount());
-            m.put("status", r.getStatus()); m.put("error", r.getError()); m.put("at", r.getCreatedAt().toString());
+            m.put("status", r.getStatus()); m.put("error", r.getError()); m.put("at", r.getCreatedAt().toString()); m.put("reason", r.getReason());
             list.add(m);
         }
         return Map.of("days", window, "summary", Map.of("openCheckouts", started, "paid", paid, "failed", failed, "revenue", revenue), "attempts", list);

@@ -36,6 +36,7 @@ export async function syncSession() {
 export async function logout({ redirect } = {}) {
   localStorage.removeItem(USER_KEY)
   localStorage.removeItem('ir_session_exp')
+  sessionStorage.removeItem('ir_msg_dismissed')   // admin messages show again at the next login
   // Saved profile data and code drafts belong to the account that's leaving.
   Object.keys(localStorage).filter(k => k.startsWith('ir_dash_') || k.startsWith('ir_draft_')).forEach(k => localStorage.removeItem(k))
   try {

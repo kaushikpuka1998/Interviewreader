@@ -48,12 +48,15 @@ public class CodeController {
     private final CodeJobs jobs;
     private final FeatureFlagRepository flags;
     private final CodeSubmissionRepository submissions;
+    private final com.interview.backend.service.DesignActivity designActivity;
     private final ObjectMapper json = new ObjectMapper();
     // user -> [windowStartMillis, count]
     private final Map<String, long[]> windows = new ConcurrentHashMap<>();
 
     public CodeController(CodeRunner runner, CodingProblemRepository problems, CodeJobs jobs, FeatureFlagRepository flags, CodeSubmissionRepository submissions,
-                          com.interview.backend.service.PointsService pointsService, com.interview.backend.repository.UserRepository users) {
+                          com.interview.backend.service.PointsService pointsService, com.interview.backend.repository.UserRepository users,
+                          com.interview.backend.service.DesignActivity designActivity) {
+        this.designActivity = designActivity;
         this.submissions = submissions;
         this.pointsService = pointsService;
         this.users = users;
@@ -170,8 +173,10 @@ public class CodeController {
     @GetMapping("/activity")
     public Map<String, Object> activity(Authentication auth) {
         java.time.Instant since = java.time.Instant.EPOCH;   // all of it: the calendar lets the member pick any past year
-        List<String> times = submissions.findByUserEmailAndCreatedAtAfter(auth.getName(), since).stream()
-                .map(s -> s.getCreatedAt().toString()).toList();
+        List<String> times = new java.util.ArrayList<>(submissions.findByUserEmailAndCreatedAtAfter(auth.getName(), since).stream()
+                .map(s -> s.getCreatedAt().toString()).toList());
+        // Solved system-design runs count on the heatmap too.
+        users.findByEmail(auth.getName()).ifPresent(u -> times.addAll(designActivity.solvedTimes(u.getId())));
         return Map.of("times", times);
     }
 

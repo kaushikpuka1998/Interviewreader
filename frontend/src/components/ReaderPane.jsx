@@ -9,6 +9,7 @@ import NotFound from './NotFound.jsx'
 import ReaderLoading from './ReaderLoading.jsx'
 import OnThisPage from './OnThisPage.jsx'
 import AskedAt from './AskedAt.jsx'
+import PaywallSurvey from './PaywallSurvey.jsx'
 import SuggestEdit from './SuggestEdit.jsx'
 import MarkDuplicate from './MarkDuplicate.jsx'
 import EstimationQuickReference from './EstimationQuickReference.jsx'
@@ -287,6 +288,7 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
                     <h3 className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">This answer is part of Premium</h3>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">The first few questions of every topic are free to read. Go Premium to unlock the rest, plus company-wise filters and full roadmaps.</p>
                     <button onClick={onPremium} className="mt-4 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold shadow-sm transition-colors">Unlock with Premium</button>
+                    <div><PaywallSurvey key={question.id} questionId={question.id} /></div>
                   </div>
                 ) : (<>
                 {answerLoading ? (

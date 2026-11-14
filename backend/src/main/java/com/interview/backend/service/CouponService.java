@@ -42,6 +42,7 @@ public class CouponService {
         Optional<Coupon> found = coupons.findByCodeIgnoreCase(c);
         if (found.isEmpty() || !found.get().isActive()) return Quote.no("That code isn't valid.", price);
         Coupon k = found.get();
+        if (k.getForUserId() != null && !k.getForUserId().equals(userId)) return Quote.no("That code isn't valid.", price);   // personal coupon
         Instant now = Instant.now();
         if (k.getStartsAt() != null && now.isBefore(k.getStartsAt())) return Quote.no("That code isn't active yet.", price);
         if (k.getEndsAt() != null && now.isAfter(k.getEndsAt())) return Quote.no("That code has expired.", price);

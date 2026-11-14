@@ -9,12 +9,18 @@ import StreakBadge from './StreakBadge.jsx'
 import GoalChip from './InterviewGoal.jsx'
 import PromoBanner from './PromoBanner.jsx'
 import SiteNoticeBanner from './SiteNoticeBanner.jsx'
+import { techLabel } from '../lib/badges.js'
 
 // Shared top bar (LeetCode style): brand and page links on the left, theme toggle, notifications, avatar and log out on the right.
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
 // [label, href, feature flag that must be on, flag that turns on the "New" badge (true = always, 'hot' = 🔥 Hot)]
+// Topics in the Questions menu (desktop bar only): each links to /questions?tech=<topic>.
+const TOPICS = ['java', 'react', 'node', 'angular', 'golang', 'sql', 'kafka', 'microservices', 'hld', 'design-patterns', 'rails', 'misc', 'behavioral']
+const TOPIC_ITEMS = Object.fromEntries(TOPICS.map(t => [`t:${t}`, [techLabel(t) || t, `/questions?tech=${t}`]]))
 const ITEMS = {
   questions: ['Questions', '/questions'],
+  all: ['All questions', '/questions'],
+  ...TOPIC_ITEMS,
   daily: ['Daily challenge', '/question-of-the-day', null, true, false, false, 'Daily'],
   design: ['HLD practice', '/interview/practice', null, 'new_badge_hld_practice'],
   networking: ['Networking', '/networking', null],
@@ -32,7 +38,7 @@ const ITEMS = {
 // The desktop bar: single links, plus two menus so everything fits and stays visible. A string is a link from ITEMS;
 // an object is a menu (label, optional short label, the links inside, and the "New" pill shown on the menu itself).
 const BAR = [
-  'questions', 'daily',
+  { menu: 'Questions', items: ['all', ...TOPICS.map(t => `t:${t}`)] }, 'daily',
   { menu: 'Practice', items: ['design', 'networking', 'tracks', 'coding', 'editor', 'skills'], badge: true },
   'roadmaps', 'interview',
   { menu: 'Community', items: ['community', 'leaderboard', 'posts'], badge: true },
@@ -148,7 +154,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
   }
   // Phone menu: every link in one list. Desktop bar: single links and the two menus.
   const links = mobile => (mobile
-    ? Object.keys(ITEMS).map(k => link(k, true))
+    ? Object.keys(ITEMS).filter(k => k !== 'all' && !k.startsWith('t:')).map(k => link(k, true))
     : BAR.map(entry => {
         if (typeof entry === 'string') return link(entry, false)
         const rows = entry.items.filter(k => { const [, , flag, , , authRequired] = ITEMS[k]; return !(flag && features[flag] === false) && !(authRequired && !signedIn) })

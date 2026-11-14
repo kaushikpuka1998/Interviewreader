@@ -75,6 +75,38 @@ public class BillingController {
         }
     }
 
+    /** Checkout the member opened and walked away from (still STARTED after 5 minutes, not asked yet): the app then asks why. */
+    @GetMapping("/abandoned")
+    public Map<String, Object> abandoned() {
+        User u = currentUser();
+        var now = java.time.Instant.now();
+        // Skip members who really bought a pass (or when everything is free). Admins count as Premium for access, but without a
+        // purchase they are still asked, so the question can be tried with an admin account.
+        if (billing.isEverythingFree() || (u.getPremiumUntil() != null && u.getPremiumUntil().isAfter(now))) return Map.of();
+        return payments.findByUserIdAndStatusAndAskedAtIsNullAndCreatedAtAfterOrderByCreatedAtDesc(u.getId(), "STARTED", now.minus(14, java.time.temporal.ChronoUnit.DAYS)).stream()
+                .filter(a -> a.getCreatedAt().isBefore(now.minus(5, java.time.temporal.ChronoUnit.MINUTES)))
+                .findFirst()
+                .<Map<String, Object>>map(a -> Map.of("id", a.getId(), "plan", a.getPlan() == null ? "" : a.getPlan(), "amount", a.getAmount() == null ? 0 : a.getAmount()))
+                .orElse(Map.of());
+    }
+
+    public record ReasonInput(String reason) {}
+
+    /** The answer (or a dismissal with an empty reason). Closes every open unasked checkout for the member so they are asked once. */
+    @PostMapping("/abandoned/reason")
+    public ResponseEntity<?> abandonedReason(@RequestBody ReasonInput in) {
+        User u = currentUser();
+        String reason = in == null || in.reason() == null ? "" : in.reason().trim();
+        if (reason.length() > 700) reason = reason.substring(0, 700);
+        var open = payments.findByUserIdAndStatusAndAskedAtIsNullAndCreatedAtAfterOrderByCreatedAtDesc(u.getId(), "STARTED", java.time.Instant.EPOCH);
+        for (int i = 0; i < open.size(); i++) {
+            open.get(i).setAskedAt(java.time.Instant.now());
+            if (i == 0 && !reason.isEmpty()) open.get(i).setReason(reason);
+        }
+        payments.saveAll(open);
+        return ResponseEntity.ok(Map.of("ok", true));
+    }
+
     /** Remembers a checkout attempt for the admin's payments list. Never lets bookkeeping break a payment. */
     private void attempt(User u, String plan, Integer rupees, String orderId, String status, String error) {
         try {

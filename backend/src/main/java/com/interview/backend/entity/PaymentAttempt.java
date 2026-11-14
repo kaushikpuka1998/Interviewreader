@@ -40,4 +40,10 @@ public class PaymentAttempt {
     private Instant createdAt = Instant.now();
     @Column(name = "updated_at")
     private Instant updatedAt;
+    /** When the member was asked why they didn't pay (or dismissed the question); null = not asked yet. */
+    @Column(name = "asked_at")
+    private Instant askedAt;
+    /** Their answer to "what stopped you?". */
+    @Column(length = 700)
+    private String reason;
 }

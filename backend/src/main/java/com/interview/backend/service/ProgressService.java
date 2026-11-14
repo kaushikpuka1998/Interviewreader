@@ -4,7 +4,6 @@ import com.interview.backend.entity.UserProgress;
 import com.interview.backend.repository.UserProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,43 +26,57 @@ public class ProgressService {
         });
     }
 
-    @Transactional
-    public void markVisited(Long userId, String questionId) {
-        UserProgress p = row(userId, questionId);
-        p.setVisited(true);
-        repo.save(p);
+    /**
+     * Find-or-create then change one row. Two requests for the same (user, question) can both find no row and both
+     * insert; the second hits uq_user_question. Not one transaction on purpose: Postgres aborts a transaction after
+     * that error, so the retry must run fresh, find the row the other request created, and apply the change to it.
+     */
+    private UserProgress change(Long userId, String questionId, java.util.function.Consumer<UserProgress> edit) {
+        try {
+            return save(userId, questionId, edit);
+        } catch (org.springframework.dao.DataIntegrityViolationException raced) {
+            return save(userId, questionId, edit);
+        }
     }
 
-    @Transactional
-    public void markRead(Long userId, String questionId) {
+    private UserProgress save(Long userId, String questionId, java.util.function.Consumer<UserProgress> edit) {
         UserProgress p = row(userId, questionId);
-        if (!p.isRead() || p.getReadAt() == null) p.setReadAt(java.time.Instant.now());
-        p.setRead(true);
-        p.setVisited(true); // reading implies visiting
-        repo.save(p);
+        edit.accept(p);
+        return repo.save(p);
+    }
+
+    public void markVisited(Long userId, String questionId) {
+        change(userId, questionId, p -> p.setVisited(true));
+    }
+
+    public void markRead(Long userId, String questionId) {
+        change(userId, questionId, p -> {
+            if (!p.isRead() || p.getReadAt() == null) p.setReadAt(java.time.Instant.now());
+            p.setRead(true);
+            p.setVisited(true); // reading implies visiting
+        });
         if (points != null) points.touchStreak(userId);
     }
 
-    @Transactional
     public boolean toggleFlagged(Long userId, String questionId) {
-        UserProgress p = row(userId, questionId);
-        p.setFlagged(!p.isFlagged());
-        repo.save(p);
-        return p.isFlagged();
+        return change(userId, questionId, p -> p.setFlagged(!p.isFlagged())).isFlagged();
     }
 
-    @Transactional
     public boolean toggleImportant(Long userId, String questionId) {
-        UserProgress p = row(userId, questionId);
-        p.setImportant(!p.isImportant());
-        repo.save(p);
-        return p.isImportant();
+        return change(userId, questionId, p -> p.setImportant(!p.isImportant())).isImportant();
     }
 
     // Merge guest ids from localStorage; never downgrades existing flags.
     // One read of the user's rows, then one batched save: no per-id query.
-    @Transactional
     public void merge(Long userId, Collection<String> visited, Collection<String> read) {
+        try {
+            doMerge(userId, visited, read);
+        } catch (org.springframework.dao.DataIntegrityViolationException raced) {
+            doMerge(userId, visited, read);   // a visit created one of these rows meanwhile; re-read and retry
+        }
+    }
+
+    private void doMerge(Long userId, Collection<String> visited, Collection<String> read) {
         java.util.Set<String> v = visited == null ? java.util.Set.of() : new java.util.HashSet<>(visited);
         java.util.Set<String> r = read == null ? java.util.Set.of() : new java.util.HashSet<>(read);
         if (v.isEmpty() && r.isEmpty()) return;

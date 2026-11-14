@@ -18,6 +18,8 @@ const UpdatesPage = lazy(() => import('./components/UpdatesPage.jsx'))
 const DiscussPage = lazy(() => import('./components/DiscussPage.jsx'))
 const DiscussDetailPage = lazy(() => import('./components/DiscussDetailPage.jsx'))
 import { DailyPromoGate } from './components/DailyPromo.jsx'
+import AbandonedCheckoutAsk from './components/AbandonedCheckoutAsk.jsx'
+import MemberMessages from './components/MemberMessages.jsx'
 import ProfilePromptGate from './components/ProfilePromptGate.jsx'
 const ResumePage = lazy(() => import('./components/ResumePage.jsx'))
 const ResumeEditor = lazy(() => import('./components/ResumeEditor.jsx'))
@@ -163,7 +165,7 @@ const NEEDS_FOOTER = [...LANDING_PATHS, '/skills', '/tracks', '/admin', '/profil
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'
-  const page = <><Suspense fallback={<div className="min-h-screen bg-slate-100 dark:bg-slate-900" />}><Routes /></Suspense><FeedbackButton /><DailyPromoGate /><ProfilePromptGate /></>
+  const page = <><Suspense fallback={<div className="min-h-screen bg-slate-100 dark:bg-slate-900" />}><Routes /></Suspense><FeedbackButton /><DailyPromoGate /><ProfilePromptGate /><AbandonedCheckoutAsk /><MemberMessages /></>
   return NEEDS_FOOTER.some(p => path === p || path.startsWith(p === '/u/' ? p : p + '/')) ? (
     <div className="flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col [&>div]:flex-1 [&>div]:!min-h-0">{page}</div>

@@ -278,6 +278,7 @@ function PaymentsBlock({ days }) {
                       <p className="truncate text-sm text-slate-800 dark:text-slate-100" title={a.email}>{a.email}</p>
                       <p className="text-xs text-slate-500">{a.plan || '–'}{a.amount != null ? ` · ₹${Number(a.amount).toLocaleString('en-IN')}` : ''} · {when(a.at)}</p>
                       {a.error && <p className="mt-0.5 break-words text-xs text-rose-600 dark:text-rose-400">{a.error}</p>}
+                      {a.reason && <p className="mt-0.5 break-words text-xs text-amber-700 dark:text-amber-300">Why they left: {a.reason}</p>}
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${PAY_STYLE[a.status] || ''}`}>{STATUS_LABEL[a.status] || a.status}</span>
                   </li>

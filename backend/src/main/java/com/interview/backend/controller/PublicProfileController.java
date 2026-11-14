@@ -32,6 +32,7 @@ public class PublicProfileController {
     private final com.interview.backend.service.UsernameService usernames;
     private final com.interview.backend.repository.CodeSubmissionRepository submissions;
     private final com.interview.backend.repository.CodingProblemRepository codingProblems;
+    private final com.interview.backend.service.DesignActivity designActivity;
 
     @GetMapping("/{username}")
     public ResponseEntity<Map<String, Object>> profile(@PathVariable String username) {
@@ -81,12 +82,12 @@ public class PublicProfileController {
         // The lists behind the Solved / Visited filter on the public page.
         body.put("solved", toItems(questions.findAllById(solved)));
         body.put("visited", toItems(visitedQuestions));
-        body.put("coding", codingStats(u.getEmail()));
+        body.put("coding", codingStats(u.getEmail(), id));
         return ResponseEntity.ok(body);
     }
 
     /** Coding practice: problems the member has an Accepted submission for, with totals per difficulty. */
-    private Map<String, Object> codingStats(String email) {
+    private Map<String, Object> codingStats(String email, Long userId) {
         List<com.interview.backend.repository.CodingProblemRepository.Summary> all = codingProblems.findSummariesByOrderByIdAsc();
         java.util.Set<Long> accepted = submissions.findByUserEmailAndStatus(email, "Accepted").stream()
                 .map(com.interview.backend.entity.CodeSubmission::getProblemId).collect(Collectors.toSet());
@@ -113,8 +114,10 @@ public class PublicProfileController {
         out.put("byDifficulty", diffs);
         out.put("solved", solved);
         // Every submission time, so the calendar can show any past year (no code or problem details).
-        out.put("activity", submissions.findByUserEmailAndCreatedAtAfter(email, java.time.Instant.EPOCH).stream()
+        List<String> activity = new ArrayList<>(submissions.findByUserEmailAndCreatedAtAfter(email, java.time.Instant.EPOCH).stream()
                 .map(x -> x.getCreatedAt().toString()).toList());
+        activity.addAll(designActivity.solvedTimes(userId));   // solved system-design runs count too
+        out.put("activity", activity);
         return out;
     }
 
