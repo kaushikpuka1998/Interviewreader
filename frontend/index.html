@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script>
+      // Stale-release recovery: after a deploy, a cached page can point at hashed files the server no longer has. When one of
+      // our /assets files fails to load, drop the service worker and caches once and reload to get the new release.
+      window.addEventListener('error', function (e) {
+        var t = e.target, u = t && (t.src || t.href)
+        if (!u || u.indexOf('/assets/') < 0 || sessionStorage.getItem('ir_recover')) return
+        sessionStorage.setItem('ir_recover', '1')
+        var jobs = []
+        if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (r) { return Promise.all(r.map(function (x) { return x.unregister() })) }))
+        if (window.caches) jobs.push(caches.keys().then(function (k) { return Promise.all(k.map(function (x) { return caches.delete(x) })) }))
+        Promise.all(jobs).then(function () { location.reload() }, function () { location.reload() })
+      }, true)
+    </script>
     <script>if (location.hostname === 'interviewreader.up.railway.app') location.replace('https://interviewreader.cloud' + location.pathname + location.search + location.hash)</script>
     <meta charset="UTF-8" />
     <script>
