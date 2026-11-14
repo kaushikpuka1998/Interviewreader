@@ -16,6 +16,7 @@ import PromoAdmin from './PromoAdmin.jsx'
 import EmailCenter from './EmailCenter.jsx'
 import ResumeTemplatesAdmin from './ResumeTemplatesAdmin.jsx'
 import FeatureFlagsPanel from './FeatureFlagsPanel.jsx'
+import GlossaryAdmin from './GlossaryAdmin.jsx'
 import CodingProblemsAdmin from './CodingProblemsAdmin.jsx'
 import SuggestionsPanel from './SuggestionsPanel.jsx'
 import FeedbackPanel from './FeedbackPanel.jsx'
@@ -220,6 +221,7 @@ const TOOL_TABS = [
   ['rubrics', 'Design rubrics'],
   ['premium', 'Premium'],
   ['features', 'Feature flags'],
+  ['glossary', 'Glossary'],
   ['export', 'Export JSON'],
 ]
 
@@ -466,6 +468,7 @@ export default function AdminPage() {
       {tab === 'templates' && <ResumeTemplatesAdmin />}
       {tab === 'coding' && <CodingProblemsAdmin onExport={() => { setExportSource('coding'); setTab('export') }} />}
       {tab === 'features' && <FeatureFlagsPanel />}
+      {tab === 'glossary' && <GlossaryAdmin />}
       {tab === 'premium' && <PremiumAdmin />}
 
       {tab === 'suggestions' && <SuggestionsPanel />}

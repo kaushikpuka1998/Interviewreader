@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Mermaid from './Mermaid.jsx'
 import ImageLightbox from './ImageLightbox.jsx'
+import { glossify, useGlossary } from '../lib/glossary.js'
 
 // ponytail: regex tokenizer, covers Java/JS/TS/Go well enough; swap for Shiki if more langs needed
 const KEYWORDS = new Set('abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public return short static strictfp super switch synchronized this throw throws transient try void volatile while var let function async await yield typeof of in delete null true false undefined NaN chan defer fallthrough func go map range select struct type nil iota make append copy panic recover len cap string error any rune uint int64 int32 float64 bool def elif except raise lambda pass None True False self'.split(' '))
@@ -31,6 +33,47 @@ function highlightCode(code) {
   }
   if (last < code.length) out.push(code.slice(last))
   return out
+}
+
+// Dotted-underline term with a hover/focus tooltip (see lib/glossary.js).
+// The tooltip is portalled to <body> (position:fixed inside a transformed/scrolling ancestor would drift) and clamped to the viewport.
+function Term({ text, hint }) {
+  const ref = useRef(null)
+  const [pos, setPos] = useState(null)
+  const [def, eg] = hint.split('||')
+  const show = () => {
+    const r = ref.current.getBoundingClientRect()
+    const w = Math.min(288, window.innerWidth - 16)
+    const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8))
+    const above = r.top > 170
+    setPos({ left, w, above, top: above ? r.top - 10 : r.bottom + 10, arrow: Math.max(14, Math.min(r.left + r.width / 2 - left, w - 14)) })
+  }
+  useEffect(() => {
+    if (!pos) return
+    const hide = () => setPos(null)
+    window.addEventListener('scroll', hide, true)
+    return () => window.removeEventListener('scroll', hide, true)
+  }, [pos])
+  return (
+    <span ref={ref} tabIndex={0} onMouseEnter={show} onMouseLeave={() => setPos(null)} onFocus={show} onBlur={() => setPos(null)}
+      className="cursor-pointer underline decoration-dotted decoration-emerald-500 underline-offset-2 outline-none">
+      {text}
+      {pos && createPortal(
+        <span role="tooltip" style={{ left: pos.left, top: pos.top, width: pos.w, transform: pos.above ? 'translateY(-100%)' : undefined }}
+          className="pointer-events-none fixed z-50 rounded-xl border border-emerald-500/50 bg-slate-950 p-3 text-left text-[13px] font-normal normal-case not-italic leading-snug tracking-normal text-slate-200 no-underline shadow-xl shadow-black/40">
+          <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-emerald-400">{text}</span>
+          <span className="block">{def}</span>
+          {eg && <span className="mt-2 block rounded-md bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200">{eg}</span>}
+          <span style={{ left: pos.arrow }} className={`absolute h-2 w-2 -translate-x-1/2 rotate-45 border-emerald-500/50 bg-slate-950 ${pos.above ? 'top-full -translate-y-1 border-b border-r' : 'bottom-full translate-y-1 border-l border-t'}`} />
+        </span>,
+        document.body
+      )}
+    </span>
+  )
+}
+
+function Terms({ text }) {
+  return glossify(text).map((p, i) => p.hint ? <Term key={i} text={p.text} hint={p.hint} /> : p.text)
 }
 
 function formatInline(line) {
@@ -67,7 +110,7 @@ function formatInline(line) {
     if (chunk.startsWith('**') && chunk.endsWith('**')) return <strong key={index} className="font-semibold text-slate-900 dark:text-slate-100">{chunk.slice(2, -2)}</strong>
     if (chunk.startsWith('*') && chunk.endsWith('*')) return <em key={index} className="italic text-slate-700 dark:text-slate-300">{chunk.slice(1, -1)}</em>
     if (chunk.startsWith('~~') && chunk.endsWith('~~')) return <del key={index} className="line-through text-slate-500 dark:text-slate-400">{chunk.slice(2, -2)}</del>
-    return <span key={index}>{chunk}</span>
+    return <span key={index}><Terms text={chunk} /></span>
   })
 }
 
@@ -127,6 +170,7 @@ const HEADING_STYLES = {
  */
 export default function Markdown({ text, animateMermaid = false }) {
   const [lightbox, setLightbox] = useState(null)   // { src, alt } while an image is open
+  useGlossary()
   const normalized = String(text || '').replace(/```[ \t]+text[ \t]*(\r?\n|$)/g, '```text$1')
   const parts = normalized.split(/```[ \t]*([^\s`\r\n]+)?[ \t]*\r?\n([\s\S]*?)```/g)
 
