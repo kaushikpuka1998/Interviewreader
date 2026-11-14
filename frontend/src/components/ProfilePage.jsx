@@ -19,7 +19,8 @@ import { resumeBuilderLink } from '../lib/analytics.js'
 import { updateUsername, fetchNotes, saveNote, removeNote, uploadAvatar, removeAvatar } from '../lib/auth.js'
 import { cancelSubscription, cancelPracticePlan, cancelInterviewPlan, PREMIUM_PLAN_NAMES } from '../lib/billing.js'
 import { fetchInterviewQuota } from '../lib/interviews.js'
-import { fetchPracticeQuota } from '../lib/designPractice.js'
+import { fetchPracticeQuota, fetchDesignSubmissions } from '../lib/designPractice.js'
+import DesignSubmissions from './DesignSubmissions.jsx'
 import { fetchPoints } from '../lib/points.js'
 
 export const TECH_COLOR = {
@@ -341,6 +342,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(() => cache?.me ?? null)
   const [solved, setSolved] = useState(() => cache?.solved ?? [])
   const [visited, setVisited] = useState(() => cache?.visited ?? [])
+  const [design, setDesign] = useState(null)
   const [coding, setCoding] = useState(null)   // { solved, total } for the coding problems
   const [visitedLoaded, setVisitedLoaded] = useState(false)   // the visited list loads when its tab is opened
   // Which tab of the bottom panel is open; /profile?tab=notes (from the account menu) opens that tab.
@@ -367,6 +369,7 @@ export default function ProfilePage() {
     Promise.all([fetchSolvedIds(), fetchCodingProblems()])
       .then(([ids, all]) => setCoding({ solved: ids.length, total: all.length }))
       .catch(() => {})
+    fetchDesignSubmissions().then(d => setDesign({ solved: d.solved, submitted: d.submitted })).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -457,7 +460,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
         {[
           ['Solved', solvedCount, `${solvedPct}% of ${totalQuestions}`, 'text-green-600 dark:text-green-400'],
           ['Visited', visitedCount, `of ${totalQuestions}`, 'text-blue-600 dark:text-blue-400'],
@@ -465,6 +468,7 @@ export default function ProfilePage() {
           ['Important', important.length, '', 'text-rose-600 dark:text-rose-400'],
           ['Remaining', Math.max(totalQuestions - solvedCount, 0), '', ''],
           ['Coding solved', coding ? coding.solved : '—', coding ? `of ${coding.total}` : '', 'text-emerald-600 dark:text-emerald-400'],
+          ['System design', design ? design.solved : '—', design ? `solved · ${design.submitted} submitted` : '', 'text-indigo-600 dark:text-indigo-400'],
           ['Topics', topics.length, `of ${byTech.length}`, 'text-violet-600 dark:text-violet-400'],
         ].map(([label, value, sub, accent]) => (
           <div key={label} className="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-800 dark:bg-slate-950">
@@ -476,6 +480,8 @@ export default function ProfilePage() {
       </div>
 
       <ProfileGrowth username={handle} />
+
+      {isLoggedIn() && <DesignSubmissions />}
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <StreakCard />

@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ArchitectureSimulationRepository extends JpaRepository<ArchitectureSimulation, Long> {
     long countByUserId(Long userId);
+    java.util.List<ArchitectureSimulation> findTop500ByUserIdOrderByCreatedAtDesc(Long userId);
     java.util.Optional<ArchitectureSimulation> findTopByUserIdAndQuestionIdOrderByCreatedAtDescIdDesc(Long userId, String questionId);
 }

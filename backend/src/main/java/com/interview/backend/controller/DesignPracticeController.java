@@ -32,6 +32,11 @@ import java.util.*;
 public class DesignPracticeController {
 
     // A 60-minute spoken interview transcribes to about 9,000 words (~55,000 characters); this leaves room for two hours.
+    private static boolean anyType(Set<String> types, String... keys) {
+        for (String t : types) for (String k : keys) if (t.contains(k)) return true;
+        return false;
+    }
+
     private static final int MAX_ANSWER_CHARS = 120_000;
 
     private final QuestionRepository questions;
@@ -215,12 +220,14 @@ public class DesignPracticeController {
             if (type != null) types.add(type.toString().toLowerCase(Locale.ROOT));
         }
         long target = in == null || in.targetRps() == null ? 10_000L : Math.max(1, Math.min(in.targetRps(), 10_000_000_000L));
-        boolean cache = types.contains("redis") || types.contains("cache");
-        boolean replica = types.contains("read-replica") || types.contains("replica");
-        boolean queue = types.contains("queue") || types.contains("kafka");
-        boolean cqrs = types.contains("cqrs");
-        boolean lb = types.contains("load-balancer") || types.contains("gateway");
-        boolean shard = types.contains("shard") || types.contains("sharding");
+        // Capabilities are recognised by keywords in the component names, because every question's design names its parts differently
+        // ("Redis (preference cache)", "Load Balancer / API Gateway", "Sharded Counters", ...).
+        boolean cache = anyType(types, "redis", "cache", "memcached", "cdn");
+        boolean replica = anyType(types, "replica", "read model", "read store", "projection");
+        boolean queue = anyType(types, "queue", "kafka", "topic", "stream", "broker", "pub/sub", "pubsub", "event bus", "rabbit", "sqs");
+        boolean cqrs = anyType(types, "cqrs", "read model");
+        boolean lb = anyType(types, "load balancer", "load-balancer", "gateway", "router", "proxy", "ingress", "edge");
+        boolean shard = anyType(types, "shard", "partition", "consistent hash", "hash ring");
         Set<String> links = new HashSet<>();
         if (in != null && in.edges() != null) for (List<String> edge : in.edges()) {
             if (edge != null && edge.size() >= 2 && edge.get(0) != null && edge.get(1) != null) {
@@ -249,12 +256,12 @@ public class DesignPracticeController {
         if (!cache && target > 20_000) findings.add("Add Redis or a CDN: every read reaches the database at this traffic.");
         if (!replica && !cqrs && target > 100_000) findings.add("Add read replicas or CQRS to separate read traffic from the primary database.");
         if (!queue && target > 50_000) findings.add("Add a queue for bursty writes and asynchronous work.");
-        if (!lb) findings.add("Add a load balancer or API gateway before scaling application instances.");
+        if (!lb && target > 20_000) findings.add("Add a load balancer or API gateway before scaling application instances.");
         if (!shard && dbReads > 100_000) findings.add("Plan sharding or partitioning: the remaining database read load is still too high.");
         boolean handles = target <= capacity;
         if (!handles) findings.add("Increase the design's serving capacity or lower the target request rate; the current estimate is below the selected load.");
         List<Map<String, Object>> tests = List.of(
-                Map.of("name", "Request routing", "passed", completeBlueprint || lb, "detail", completeBlueprint ? "The loaded question-aware template routes traffic through its appropriate ingress path." : lb ? "Load is distributed before reaching application services." : "No load balancer or gateway is present."),
+                Map.of("name", "Request routing", "passed", completeBlueprint || lb || target <= 20_000, "detail", completeBlueprint ? "The loaded question-aware template routes traffic through its appropriate ingress path." : lb ? "Load is distributed before reaching application services." : target <= 20_000 ? "At this traffic a single entry point is enough; add a load balancer or gateway before scaling out." : "No load balancer or gateway is present."),
                 Map.of("name", "Read-path protection", "passed", completeBlueprint || target <= 20_000 || cache, "detail", completeBlueprint ? "The loaded template uses the correct read or realtime delivery path for this question." : cache ? "Cache absorbs repeated reads before the database." : "At this traffic every read reaches the database."),
                 Map.of("name", "Database scaling", "passed", completeBlueprint || dbReads <= 100_000 && (target <= 100_000 || replica || cqrs), "detail", completeBlueprint ? "The question-aware blueprint protects and partitions durable storage for this workload." : (replica || cqrs) ? "Read replicas/CQRS reduce primary database pressure." : "Add read replicas or CQRS for sustained read traffic."),
                 Map.of("name", "Burst resilience", "passed", completeBlueprint || target <= 50_000 || queue, "detail", completeBlueprint ? "The loaded template includes the appropriate asynchronous or realtime delivery mechanism." : queue ? "Queue buffers asynchronous work and write bursts." : "Add a queue for bursty writes."),
@@ -285,6 +292,40 @@ public class DesignPracticeController {
         simulations.save(usage);
         response.put("simulationQuota", simulationQuota(user));
         return ResponseEntity.ok(response);
+    }
+
+    /** Architecture submissions grouped per question, like the coding "solved" list: solved = every simulator check passed. */
+    @GetMapping("/submissions")
+    public Map<String, Object> submissions() {
+        User u = me();
+        Map<String, Map<String, Object>> byQuestion = new LinkedHashMap<>();
+        for (ArchitectureSimulation s : simulations.findTop500ByUserIdOrderByCreatedAtDesc(u.getId())) {
+            Map<String, Object> item = byQuestion.computeIfAbsent(s.getQuestionId(), qid -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("questionId", qid);
+                m.put("title", questions.findById(qid).map(RubricService::textOf).orElse(qid));
+                m.put("submissions", 0);
+                m.put("solved", false);
+                m.put("bestScore", 0.0);
+                m.put("bestTargetRps", 0L);
+                m.put("lastAt", s.getCreatedAt().toString());
+                return m;
+            });
+            item.put("submissions", (int) item.get("submissions") + 1);
+            try {
+                Map<String, Object> r = json.readValue(s.getResultJson(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+                Object tests = r.get("tests");
+                boolean all = tests instanceof List<?> l && !l.isEmpty() && l.stream().allMatch(t -> t instanceof Map<?, ?> tm && Boolean.TRUE.equals(tm.get("passed")));
+                if (all) {
+                    item.put("solved", true);
+                    item.put("bestTargetRps", Math.max((long) item.get("bestTargetRps"), s.getTargetRps() == null ? 0L : s.getTargetRps()));
+                }
+                if (r.get("score") instanceof Number n) item.put("bestScore", Math.max((double) item.get("bestScore"), n.doubleValue()));
+            } catch (Exception ignored) { }
+        }
+        List<Map<String, Object>> items = new ArrayList<>(byQuestion.values());
+        long solved = items.stream().filter(i -> Boolean.TRUE.equals(i.get("solved"))).count();
+        return Map.of("solved", solved, "submitted", items.size(), "items", items);
     }
 
     @GetMapping("/attempts")

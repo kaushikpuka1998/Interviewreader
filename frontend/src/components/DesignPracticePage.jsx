@@ -8,6 +8,7 @@ import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import PremiumPlans from './PremiumPlans.jsx'
+import DesignSubmissions from './DesignSubmissions.jsx'
 import { getUser } from '../lib/auth.js'
 import { setPageSeo } from '../lib/seo.js'
 import { trackFunnel } from '../lib/analytics.js'
@@ -120,7 +121,7 @@ export default function DesignPracticePage() {
             <MockInterviewPromo questions={questions} quota={quota} onStart={id => start(id, 'interview')} />
             <div className="grid gap-5 lg:grid-cols-[2fr_1fr] [&>*]:min-w-0">
               <QuestionList questions={questions} onStart={start} />
-              <History items={history} onOpen={showAttempt} />
+              <div className="space-y-5"><DesignSubmissions refreshKey={history.length} /><History items={history} onOpen={showAttempt} /></div>
             </div>
             </>
           )}
@@ -315,6 +316,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   const [nodes, setNodes] = useState(starterNodes)
   const [edges, setEdges] = useState(starterEdges)
   const [linkFrom, setLinkFrom] = useState(null)
+  const [selected, setSelected] = useState(null)
   const [linkCursor, setLinkCursor] = useState(null)
   const [historyVersion, setHistoryVersion] = useState(0)
   const [showReference, setShowReference] = useState(false)
@@ -328,6 +330,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   const architecture = useRef({ nodes: starterNodes, edges: starterEdges })
   const history = useRef({ past: [], future: [] })
   const drag = useRef(null)
+  const selectedRef = useRef(null), removeRef = useRef(() => {})
   const canvasRef = useRef(null)
   const [canvasSize, setCanvasSize] = useState({ width: 128, height: 80 })
   const nodeWidthPct = (160 / canvasSize.width) * 100
@@ -392,6 +395,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
   useEffect(() => {
     const onKeyDown = event => {
       const editable = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName) || event.target.isContentEditable
+      if (!editable && (event.key === 'Delete' || event.key === 'Backspace') && selectedRef.current) { event.preventDefault(); removeRef.current(selectedRef.current); return }
       if (editable || !(event.metaKey || event.ctrlKey)) return
       if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? redo() : undo() }
       if (event.key.toLowerCase() === 'y') { event.preventDefault(); redo() }
@@ -408,14 +412,22 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     observer.observe(canvas)
     return () => observer.disconnect()
   }, [])
-  const add = type => {
+  const add = (type, at) => {
     const current = architecture.current
     if (current.nodes.some(x => x.type === type)) return
-    commit({ nodes: [...current.nodes, { type, ...(layout[type] || { x: 10 + (current.nodes.length % 4) * 19, y: 18 + (current.nodes.length % 3) * 28 }) }], edges: current.edges })
+    commit({ nodes: [...current.nodes, { type, ...(at || layout[type] || { x: 10 + (current.nodes.length % 4) * 19, y: 18 + (current.nodes.length % 3) * 28 }) }], edges: current.edges })
   }
   const arrange = () => {
     const current = architecture.current
     commit({ nodes: current.nodes.map((node, index) => ({ ...node, ...(layout[node.type] || { x: 10 + (index % 4) * 19, y: 18 + (Math.floor(index / 4) % 3) * 28 }) })), edges: current.edges })
+  }
+  const dropComponent = e => {
+    e.preventDefault()
+    const type = e.dataTransfer.getData('text/plain')
+    if (!type) return
+    const p = pointerPosition(e, e.currentTarget.getBoundingClientRect())
+    add(type, { x: Math.max(0, Math.min(100 - nodeWidthPct, p.x - nodeWidthPct / 2)), y: Math.max(0, Math.min(100 - nodeHeightPct, p.y - nodeHeightPct / 2)) })
+    setSelected(type)
   }
   const pointerPosition = (e, rect) => ({ x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)), y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)) })
   const move = e => {
@@ -423,7 +435,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     if (linkFrom) { setLinkCursor(pointerPosition(e, rect)); return }
     if (!drag.current) return
     const point = pointerPosition(e, rect)
-    apply({ nodes: architecture.current.nodes.map(n => n.type === drag.current.type ? { ...n, x: Math.max(0, Math.min(100 - nodeWidthPct, point.x)), y: Math.max(0, Math.min(100 - nodeHeightPct, point.y)) } : n), edges: architecture.current.edges })
+    apply({ nodes: architecture.current.nodes.map(n => n.type === drag.current.type ? { ...n, x: Math.max(0, Math.min(100 - nodeWidthPct, point.x - drag.current.dx)), y: Math.max(0, Math.min(100 - nodeHeightPct, point.y - drag.current.dy)) } : n), edges: architecture.current.edges })
   }
   const finishDrag = () => {
     if (!drag.current) return
@@ -441,6 +453,13 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     setLinkFrom(null)
     setLinkCursor(null)
   }
+  const removeComponent = type => {
+    const current = architecture.current
+    commit({ nodes: current.nodes.filter(n => n.type !== type), edges: current.edges.filter(([from, to]) => from !== type && to !== type) })
+    setSelected(null)
+    setLinkFrom(null)
+    setLinkCursor(null)
+  }
   const disconnectComponent = type => {
     const current = architecture.current
     commit({ nodes: current.nodes, edges: current.edges.filter(([from, to]) => from !== type && to !== type) })
@@ -451,6 +470,8 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     const current = architecture.current
     commit({ nodes: current.nodes, edges: current.edges.filter(([source, target]) => source !== from || target !== to) })
   }
+  selectedRef.current = selected
+  removeRef.current = removeComponent
   const reset = () => commit({ nodes: starterNodes, edges: starterEdges })
   const referenceEdges = blueprint.edges
   const isRecommendedDesign = design => {
@@ -517,13 +538,30 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     const bend = Math.max(5, Math.abs(ey - sy) * 0.38)
     return 'M ' + sx + ' ' + sy + ' C ' + sx + ' ' + (sy + direction * bend) + ', ' + ex + ' ' + (ey - direction * bend) + ', ' + ex + ' ' + ey
   }
+  // Which side of each card an edge uses, mirroring pctPath, so dots can show real direction (in = sky, out = emerald).
+  const edgeSides = (from, to) => {
+    const dx = (to.x - from.x) * canvasSize.width / 100, dy = (to.y - from.y) * canvasSize.height / 100
+    if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? ['right', 'left'] : ['left', 'right']
+    return dy >= 0 ? ['bottom', 'top'] : ['top', 'bottom']
+  }
+  const dotRole = (type, side) => {
+    let out = false, inn = false
+    for (const [f, t] of edges) {
+      const a = nodes.find(x => x.type === f), b = nodes.find(x => x.type === t)
+      if (!a || !b) continue
+      const [fs, ts] = edgeSides(a, b)
+      if (f === type && fs === side) out = true
+      if (t === type && ts === side) inn = true
+    }
+    return out && inn ? 'both' : out ? 'out' : inn ? 'in' : 'free'
+  }
   if (!simulationEnabled) return null
   return <section className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm dark:border-violet-400/20 dark:bg-slate-950 sm:p-5">
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-violet-600 dark:text-violet-300">Architecture canvas</p><h3 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">Design for scale</h3><p className="mt-1 text-xs font-medium text-slate-500">{linkFrom ? `Connecting from ${linkFrom}: release on a component’s left input dot.` : 'Drag cards to position. Connect an output dot to an input dot; vertical flows attach at the top and bottom. Double-click a card to disconnect it; click a line to remove only that link.'}</p></div><div className="flex items-center gap-2"><button type="button" onClick={undo} disabled={!history.current.past.length} title="Undo (⌘/Ctrl + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↶ Undo</button><button type="button" onClick={redo} disabled={!history.current.future.length} title="Redo (⌘/Ctrl + Shift + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↷</button><button type="button" onClick={arrange} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Auto arrange</button><button type="button" onClick={reset} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Reset</button><button type="button" onClick={() => run()} disabled={busy} className="rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-violet-900/20 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:opacity-60">{busy ? 'Running tests…' : 'Submit architecture'}</button></div></div>
+    <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-violet-600 dark:text-violet-300">Architecture canvas</p><h3 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">Design for scale</h3><p className="mt-1 text-xs font-medium text-slate-500">{linkFrom ? `Connecting from ${linkFrom}: release on any dot of the target component.` : 'Drag cards to position. Drag from any dot to another component to connect: dots turn green for outgoing and blue for incoming links. Double-click a card to disconnect it; click a line to remove only that link.'}</p></div><div className="flex items-center gap-2"><button type="button" onClick={undo} disabled={!history.current.past.length} title="Undo (⌘/Ctrl + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↶ Undo</button><button type="button" onClick={redo} disabled={!history.current.future.length} title="Redo (⌘/Ctrl + Shift + Z)" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-slate-200">↷</button><button type="button" onClick={arrange} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Auto arrange</button><button type="button" onClick={reset} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-violet-400 dark:border-white/10 dark:text-slate-200">Reset</button><button type="button" onClick={() => run()} disabled={busy} className="rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-violet-900/20 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:opacity-60">{busy ? 'Running tests…' : 'Submit architecture'}</button></div></div>
     {simulationQuota && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-800/20 bg-emerald-950/80 px-3 py-2 text-xs text-emerald-100"><span>{simulationQuota.premium ? 'Premium · unlimited simulations' : `${simulationQuota.freeLeft} of ${simulationQuota.freeTotal} free simulations left`}</span>{!simulationQuota.premium && simulationQuota.freeLeft <= 1 && <button type="button" onClick={onUpgradePremium} className="rounded-lg bg-emerald-300 px-3 py-1.5 font-bold text-emerald-950 transition hover:bg-emerald-200">Get unlimited with Premium</button>}</div>}
     {restoredSimulation && <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">Restored your last submitted design and simulation for this question.</p>}
     {simulationError && <p role="alert" className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:bg-rose-950/40 dark:text-rose-200">{simulationError}</p>}
-    <div className="mt-4 overflow-x-auto rounded-2xl"><div ref={canvasRef} style={{ minWidth: minCanvasW, minHeight: minCanvasH }} className="arch-canvas relative h-[30rem] touch-pan-x touch-pan-y overflow-hidden sm:touch-none rounded-2xl border border-slate-200 shadow-inner shadow-slate-200/40 md:h-[34rem] dark:border-white/10 dark:shadow-black/20" onPointerMove={move} onPointerUp={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }} onPointerLeave={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }}>
+    <div className="mt-4 overflow-x-auto rounded-2xl"><div ref={canvasRef} style={{ minWidth: minCanvasW, minHeight: minCanvasH }} onPointerDownCapture={e => { if (!e.target.closest('.arch-node')) setSelected(null) }} onDragOver={e => e.preventDefault()} onDrop={dropComponent} className="arch-canvas relative h-[30rem] touch-pan-x touch-pan-y overflow-hidden sm:touch-none rounded-2xl border border-slate-200 shadow-inner shadow-slate-200/40 md:h-[34rem] dark:border-white/10 dark:shadow-black/20" onPointerMove={move} onPointerUp={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }} onPointerLeave={() => { finishDrag(); if (linkFrom) { setLinkFrom(null); setLinkCursor(null) } }}>
       <svg viewBox={`0 0 ${canvasSize.width} ${canvasSize.height}`} className="pointer-events-none absolute inset-0 h-full w-full"><defs><marker id="arch-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6" /></marker></defs>{edges.map(([from, to], edgeIndex) => { const a = nodes.find(n => n.type === from), b = nodes.find(n => n.type === to); if (!a || !b) return null; const d = connectionPath(a, b); return <g key={`${from}-${to}`} className="pointer-events-auto cursor-pointer" onClick={event => { event.stopPropagation(); disconnectEdge(from, to) }}><title>Click to remove this connection</title><path d={d} fill="none" stroke="transparent" strokeWidth="18" vectorEffect="non-scaling-stroke" /><path d={d} fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="7 8" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="pointer-events-none arch-flow" /><circle r="3.5" fill="#c4b5fd" className="arch-packet"><animateMotion dur={`${1.8 + (edgeIndex % 3) * .35}s`} repeatCount="indefinite" path={d} begin={`${edgeIndex * .22}s`} /></circle></g> })}{linkFrom && linkCursor && (() => { const source = nodes.find(n => n.type === linkFrom); if (!source) return null; const sx = source.x + nodeWidthPct, sy = source.y + nodeHeightPct / 2, ex = linkCursor.x, ey = linkCursor.y, bend = Math.max(8, Math.abs(ex - sx) * 0.46); return <path d={toPx(`M ${sx} ${sy} C ${sx + bend} ${sy}, ${ex - bend} ${ey}, ${ex} ${ey}`)} fill="none" stroke="#a78bfa" strokeWidth="3" strokeDasharray="6 6" vectorEffect="non-scaling-stroke" markerEnd="url(#arch-arrow)" className="arch-link-preview" /> })()}</svg>
       {nodes.map((n, i) => {
         const kind = nodeKind(n.type)
@@ -535,14 +573,19 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
         const category = isEntry ? 'Entry point' : isStorage ? 'Storage' : isMessaging ? 'Messaging' : isCollaboration ? 'Coordination' : kind === 'observability' ? 'Observability' : 'Compute'
         const accent = isEntry ? 'bg-sky-50 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300' : isStorage ? 'bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300' : isMessaging ? 'bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300' : isCollaboration ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300' : 'bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300'
         const border = isEntry ? 'border-sky-200' : isStorage ? 'border-amber-200' : isMessaging ? 'border-rose-200' : isCollaboration ? 'border-emerald-200' : kind === 'observability' ? 'border-cyan-200' : 'border-violet-200'
-        return <button key={n.type} type="button" onPointerDown={e => { drag.current = { type: n.type, origin: snapshot() }; e.currentTarget.setPointerCapture(e.pointerId) }} onDoubleClick={() => disconnectComponent(n.type)} style={{ left: n.x + '%', top: n.y + '%' }} className={`arch-node touch-none absolute flex h-20 w-40 cursor-grab items-center rounded-2xl border bg-white/95 px-3 py-2 text-left shadow-[0_12px_32px_-18px_rgba(15,23,42,0.45)] transition-all duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(91,33,182,0.45)] dark:bg-slate-900/95 ${linkFrom === n.type ? 'ring-4 ring-violet-400/40 border-violet-600' : border}`}>
-          <span onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title="Input: release a connection here" className="absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Input connection point" />
-          <span onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title="Top input connection point" className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Top input connection point" />
-          <span onPointerDown={e => beginLink(e, n.type)} title="Output: drag to another input" className="absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Output connection point" />
-          <span onPointerDown={e => beginLink(e, n.type)} title="Bottom output connection point" className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-crosshair rounded-full border-2 border-white bg-violet-500 shadow-sm transition-transform hover:scale-125 dark:border-slate-900" aria-label="Bottom output connection point" />
+        return <button key={n.type} type="button" onPointerDown={e => { setSelected(n.type); const grab = pointerPosition(e, e.currentTarget.closest('.arch-canvas').getBoundingClientRect()); drag.current = { type: n.type, origin: snapshot(), dx: grab.x - n.x, dy: grab.y - n.y }; e.currentTarget.setPointerCapture(e.pointerId) }} onDoubleClick={() => disconnectComponent(n.type)} style={{ left: n.x + '%', top: n.y + '%' }} className={`arch-node touch-none absolute flex h-20 w-40 cursor-grab items-center rounded-2xl border bg-white/95 px-3 py-2 text-left shadow-[0_12px_32px_-18px_rgba(15,23,42,0.45)] transition-[box-shadow,transform] duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(91,33,182,0.45)] dark:bg-slate-900/95 ${linkFrom === n.type || selected === n.type ? 'ring-4 ring-violet-400/40 border-violet-600' : border}`}>
+          {selected === n.type && <span role="button" tabIndex={0} aria-label={`Remove ${n.type}`} title="Remove component (Delete)" onPointerDown={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); removeComponent(n.type) }} className="absolute -right-2.5 -top-2.5 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-rose-500 text-sm font-bold leading-none text-white shadow-md transition hover:scale-110 hover:bg-rose-600 dark:border-slate-900">×</span>}
+          {['left', 'top', 'right', 'bottom'].map(side => {
+            const role = dotRole(n.type, side)
+            const tone = role === 'both' ? 'bg-gradient-to-r from-sky-500 to-emerald-500' : role === 'in' ? 'bg-sky-500' : role === 'out' ? 'bg-emerald-500' : 'bg-violet-400'
+            const label = role === 'both' ? 'Incoming and outgoing connection' : role === 'in' ? 'Incoming connection' : role === 'out' ? 'Outgoing connection' : 'Free connection point: drag out or drop a link here'
+            const pos = side === 'left' ? '-left-[7px] top-1/2 -translate-y-1/2' : side === 'right' ? '-right-[7px] top-1/2 -translate-y-1/2' : side === 'top' ? '-top-[7px] left-1/2 -translate-x-1/2' : '-bottom-[7px] left-1/2 -translate-x-1/2'
+            return <span key={side} onPointerDown={e => beginLink(e, n.type)} onPointerUp={e => { e.stopPropagation(); finishLink(n.type) }} title={label} aria-label={label} className={`absolute ${pos} h-3.5 w-3.5 cursor-crosshair rounded-full border-2 border-white shadow-sm transition-transform hover:scale-125 dark:border-slate-900 ${tone}`} />
+          })}
+          <span title="Drag to move" aria-hidden="true" className="-ml-1.5 mr-1 flex h-8 w-4 shrink-0 cursor-grab items-center justify-center rounded text-[15px] leading-none text-slate-300 transition hover:bg-slate-100 hover:text-violet-500 active:cursor-grabbing dark:text-slate-600 dark:hover:bg-white/10">⠿</span>
           <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-lg font-bold ${accent}`}>{icon}</span>
           <span className="ml-2.5 min-w-0">
-            <b title={n.type} className="block line-clamp-2 text-[13px] font-extrabold leading-[18px] text-slate-900 dark:text-white">{n.type.length > 24 ? (n.type.replace(/\s*\([^)]*\)/g, '').trim() || n.type) : n.type}</b>
+            <b title={n.type} className="block line-clamp-2 text-[13px] font-extrabold leading-4 text-slate-900 dark:text-white">{n.type.length > 24 ? (n.type.replace(/\s*\([^)]*\)/g, '').trim() || n.type) : n.type}</b>
             <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.12em] text-slate-500 dark:bg-white/[.07] dark:text-slate-400">{category}</span>
           </span>
         </button>
@@ -550,7 +593,7 @@ function ArchitectureCanvas({ question, onSimulationQuota, onUpgradePremium }) {
     </div></div>
     <p className="mt-1.5 text-xs text-slate-500 lg:hidden">Scroll sideways on the diagram to see all of it. Drag a card to move it.</p>
     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-200 bg-violet-50/70 px-3 py-2 dark:border-violet-400/20 dark:bg-violet-400/10"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-violet-600 dark:text-violet-300">Question-aware blueprint</p><p className="mt-0.5 text-sm font-bold text-violet-950 dark:text-violet-100">{blueprint.name}</p><p className="mt-0.5 max-w-3xl text-xs text-violet-900/75 dark:text-violet-100/75">{blueprint.summary}</p></div><button type="button" onClick={loadReference} className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700">Load recommended design</button></div>
-    <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-semibold text-slate-500">Recommended building blocks:</span>{palette.map(type => <button key={type} type="button" onClick={() => add(type)} className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-violet-400 hover:text-violet-700 dark:border-white/10 dark:text-slate-300">+ {type}</button>)}</div>
+    <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-semibold text-slate-500">Building blocks · drag onto the canvas or click:</span>{palette.map(type => <button key={type} type="button" draggable onDragStart={e => { e.dataTransfer.setData('text/plain', type); e.dataTransfer.effectAllowed = 'copy' }} onClick={() => add(type)} title="Drag onto the canvas, or click to add" className="cursor-grab rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-violet-400 hover:text-violet-700 dark:border-white/10 dark:text-slate-300">+ {type}</button>)}</div>
     <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 dark:bg-white/[.04]"><label className="text-xs font-bold text-slate-600 dark:text-slate-300">Target RPS</label><div className="relative min-w-[16rem] flex-1 py-3"><input type="range" min="0" max="4" step="1" value={targetStep} onChange={e => setTargetStep(Number(e.target.value))} aria-label="Target requests per second" className="relative z-10 w-full cursor-pointer accent-violet-600" /><div className="pointer-events-none absolute z-20 inset-x-[9px] top-1/2 flex -translate-y-1/2 justify-between">{requestTargets.map((value, index) => <span key={value} className={`h-2.5 w-2.5 rounded-full ring-2 ring-slate-50 dark:ring-slate-900 ${index <= targetStep ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-600'}`} />)}</div><div className="absolute inset-x-0 top-full flex justify-between pt-1 text-[10px] font-bold text-slate-500"><span>1K</span><span>10K</span><span>1M</span><span>100M</span><span>1B</span></div></div><output className="min-w-36 text-right text-xs font-bold text-violet-700 dark:text-violet-300"><span className="block">{formatRps(targetRps)} RPS</span><span className="block font-mono text-[10px] font-medium text-violet-500">{targetRps.toLocaleString()} requests/sec</span></output></div>
     {tests.length > 0 && <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">{tests.map(t => <div key={t.name} className="flex items-start justify-between gap-3 border-b border-slate-100 px-3 py-2.5 text-sm last:border-0 dark:border-white/5"><span><b className="block">{t.name}</b>{t.detail && <small className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{t.detail}</small>}</span><span className={t.status === 'passed' ? 'text-emerald-600' : t.status === 'failed' ? 'text-rose-600' : t.status === 'running' ? 'animate-pulse text-violet-600' : 'text-slate-400'}>{t.status === 'passed' ? '✓ Passed' : t.status === 'failed' ? '✕ Failed' : t.status === 'running' ? 'Running…' : 'Waiting'}</span></div>)}</div>}
     {result && <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-white/10 dark:bg-white/[.03]"><div className="grid grid-cols-2 gap-3 sm:grid-cols-4"><p><b>{result.handlesTarget ? 'Ready' : 'Bottleneck'}</b><br/><span className="text-xs text-slate-500">target verdict</span></p><p><b>{result.cacheHitRate}%</b><br/><span className="text-xs text-slate-500">cache hit rate</span></p><p><b>{Number(result.estimatedDbReadsPerSecond).toLocaleString()}</b><br/><span className="text-xs text-slate-500">DB reads/sec</span></p><p><b>{Number(result.estimatedCapacityRps).toLocaleString()}</b><br/><span className="text-xs text-slate-500">capacity</span></p></div>{result.tests?.some(test => !test.passed) ? <ul className="mt-3 list-disc space-y-1 pl-4 text-xs text-slate-600 dark:text-slate-300">{result.findings.map(x => <li key={x}>{x}</li>)}</ul> : <p className="mt-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300">All architecture checks passed at this request rate.</p>}{!result.handlesTarget && <div className="mt-4 border-t border-slate-200 pt-3 dark:border-white/10"><div className="flex flex-wrap items-center justify-between gap-3"><div><b className="text-slate-900 dark:text-white">Need a model answer?</b><p className="mt-0.5 text-xs text-slate-500">Compare your design with a scalable reference topology.</p></div><button type="button" onClick={() => setShowReference(value => !value)} className="rounded-lg border border-violet-300 px-3 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-50 dark:text-violet-200">{showReference ? 'Hide reference' : 'View reference solution'}</button></div>{showReference && <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50/70 p-3 dark:border-violet-400/20 dark:bg-violet-400/10"><p className="font-bold text-violet-950 dark:text-violet-100">{blueprint.name} reference flow</p><p className="mt-1 text-xs leading-5 text-violet-900/80 dark:text-violet-100/80">{blueprint.summary}</p><button type="button" onClick={loadReference} className="mt-3 rounded-lg bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700">Load recommended design</button></div>}</div>}</div>}

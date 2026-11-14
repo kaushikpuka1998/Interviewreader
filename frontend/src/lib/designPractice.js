@@ -50,3 +50,4 @@ export const testRubric = (id, answer) => admin(`/${encodeURIComponent(id)}/test
 export const importInterviewBanks = data => admin('/import/banks', 'POST', data)
 export const importRubrics = (data, overwrite) => admin(`/import/rubrics?overwrite=${overwrite ? 'true' : 'false'}`, 'POST', data)
 
+export const fetchDesignSubmissions = () => call('/submissions')
