@@ -44,6 +44,27 @@ public class QuestionController {
                 .body(out);
     }
 
+    /** Public "what's new" feed for the /updates page: questions added and questions improved in the last N days (titles only, no answers). */
+    @GetMapping("/updates")
+    public ResponseEntity<Map<String, Object>> updates(@RequestParam(defaultValue = "7") int days) {
+        java.time.LocalDateTime since = java.time.LocalDateTime.now().minusDays(Math.max(1, Math.min(days, 60)));
+        java.util.function.Function<Question, Map<String, Object>> row = q -> {
+            Map<String, Object> m = new java.util.LinkedHashMap<>();
+            m.put("id", q.getId());
+            m.put("slug", slugify(q.getTitle()));
+            m.put("title", q.getTitle());
+            m.put("tech", q.getTech());
+            m.put("difficulty", q.getDifficulty());
+            m.put("at", String.valueOf(q.getUpdatedAt() != null ? q.getUpdatedAt() : q.getCreatedAt()));
+            return m;
+        };
+        Map<String, Object> out = new java.util.LinkedHashMap<>();
+        out.put("days", days);
+        out.put("added", questionService.addedSince(since).stream().map(row).toList());
+        out.put("updated", questionService.updatedSince(since).stream().map(row).toList());
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofMinutes(5)).cachePublic()).body(out);
+    }
+
     // Must match frontend/src/lib/slug.js exactly, or slug links won't resolve.
     static String slugify(String text) {
         String s = (text == null ? "" : text).toLowerCase(java.util.Locale.ROOT)

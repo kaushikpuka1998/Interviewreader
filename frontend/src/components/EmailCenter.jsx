@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Loader from './Loader.jsx'
-import { fetchEmailRecipients, fetchEmailLog, fetchDigestStatus, sendAnnouncement, fetchChallengeReminder, retryChallengeReminder } from '../lib/emailAdmin.js'
+import { fetchEmailRecipients, fetchEmailLog, fetchDigestStatus, sendTestDigest, sendAnnouncement, fetchChallengeReminder, retryChallengeReminder } from '../lib/emailAdmin.js'
 
 const STATUS_STYLE = {
   'Got digest': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -74,7 +74,10 @@ function ChallengeReminder({ onChange }) {
 
 // What the next digest will send, before it goes out.
 function DigestStatus({ status }) {
+  const [testMsg, setTestMsg] = useState('')
+  const [testing, setTesting] = useState(false)
   if (!status) return null
+  const sendTest = () => { setTesting(true); setTestMsg(''); sendTestDigest(7).then(r => setTestMsg(`Sent to ${r.sentTo}: ${r.added} new, ${r.updated} updated.`)).catch(e => setTestMsg(e.message)).finally(() => setTesting(false)) }
   const next = new Date(status.nextSendAt)
   const stat = (label, value) => (
     <div className="rounded-lg bg-slate-50 dark:bg-slate-800/60 p-3">
@@ -100,6 +103,10 @@ function DigestStatus({ status }) {
           ? 'Nothing new is waiting, so no digest will be sent at that time.'
           : 'New and edited questions are collected here and emailed as one digest at the send time.'}
       </p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button type="button" onClick={sendTest} disabled={testing} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">{testing ? 'Sending…' : 'Send me a test digest (last 7 days)'}</button>
+        <span className="text-xs text-slate-500 dark:text-slate-400">{testMsg || 'Goes to your admin address only, ignoring the schedule.'}</span>
+      </div>
       {status.runs?.length > 0 && (
         <details className="mt-3">
           <summary className="cursor-pointer text-xs font-medium text-blue-600 dark:text-blue-400">Recent digest runs</summary>

@@ -14,6 +14,9 @@ export const fetchEmailRecipients = () =>
 export const fetchDigestStatus = () =>
   fetch(`${API_BASE}/admin/emails/digest`).then(r => json(r, 'Failed to load digest status'))
 
+export const sendTestDigest = (days = 7) =>
+  fetch(`${API_BASE}/admin/emails/digest/test?days=${days}`, { method: 'POST' }).then(r => json(r, 'Could not send the test digest'))
+
 export const fetchChallengeReminder = () =>
   fetch(`${API_BASE}/admin/emails/challenge-reminder`).then(r => json(r, 'Failed to load the challenge reminder status'))
 

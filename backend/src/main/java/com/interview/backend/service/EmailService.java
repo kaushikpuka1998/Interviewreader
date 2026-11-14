@@ -84,8 +84,9 @@ public class EmailService {
             var all = mime.getAllRecipients();
             boolean any = false;
             if (all != null) for (var r : all) if (r instanceof jakarta.mail.internet.InternetAddress ia && isAdminAddress(ia.getAddress())) any = true;
-            if (!any) { log.info("EMAIL_ADMIN_ONLY is on: skipped \"{}\"", mime.getSubject()); return; }
+            if (!any) { log.info("EMAIL_ADMIN_ONLY is on: skipped \"{}\" to {}", mime.getSubject(), java.util.Arrays.toString(all)); return; }
         }
+        log.info("Sending \"{}\" to {}", mime.getSubject(), java.util.Arrays.toString(mime.getAllRecipients()));
         mailSender.send(mime);
     }
 
@@ -171,24 +172,64 @@ public class EmailService {
             for (Question q : updated.stream().limit(Math.max(room, 0)).toList()) appendQuestion(body, q, " (updated)");
             if (updated.size() > Math.max(room, 0)) body.append("…and ").append(updated.size() - Math.max(room, 0)).append(" more\n\n");
         }
-        body.append("Happy preparing!\nInterview Reader Team\n\n")
+        body.append("See everything that's new: ").append(frontendUrl).append("/updates\n\n").append("Happy preparing!\nInterview Reader Team\n\n")
             .append("Don't want these emails? Unsubscribe: ")
             .append(backendUrl).append("/api/auth/unsubscribe?email=")
             .append(URLEncoder.encode(toEmail, StandardCharsets.UTF_8))
             .append("&sig=").append(unsubscribeSig(toEmail));
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject(subject);
-        message.setText(body.toString());
-        deliver(message);
+        String unsubscribe = backendUrl + "/api/auth/unsubscribe?email=" + URLEncoder.encode(toEmail, StandardCharsets.UTF_8) + "&sig=" + unsubscribeSig(toEmail);
+        String hi = "Hi" + (name == null || name.isBlank() ? "" : " " + name) + ",";
+        String intro = added.isEmpty() ? (updated.size() == 1 ? "We improved an interview answer since your last visit." : "We improved " + updated.size() + " interview answers since your last visit.")
+                : updated.isEmpty() ? (added.size() == 1 ? "A new interview question just landed." : added.size() + " new interview questions just landed.")
+                : added.size() + " new questions and " + updated.size() + " improved answers are waiting for you.";
+        StringBuilder html = new StringBuilder("<div style=\"background:#ecfdf5;padding:24px 12px;font-family:Arial,Helvetica,sans-serif\"><div style=\"max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #a7f3d0;border-radius:16px;overflow:hidden\">")
+                .append("<div style=\"background:linear-gradient(90deg,#047857,#059669,#0d9488);padding:22px 28px;color:#ffffff\"><div style=\"font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85\">Interview Reader</div>")
+                .append("<div style=\"margin-top:6px;font-size:22px;font-weight:bold;line-height:1.3\">").append(added.isEmpty() ? "Updated questions" : updated.isEmpty() ? "New questions" : "New &amp; updated questions").append("</div></div>")
+                .append("<div style=\"padding:26px 28px 8px;color:#1e293b;font-size:15px;line-height:1.6\"><p style=\"margin:0 0 6px\">").append(escapeHtml(hi)).append("</p><p style=\"margin:0 0 18px;color:#475569\">").append(escapeHtml(intro)).append("</p>");
+        int htmlRoom = 25;
+        if (!added.isEmpty()) { appendQuestionCards(html, "New", "#047857", "#d1fae5", added, htmlRoom); htmlRoom -= Math.min(added.size(), htmlRoom); }
+        if (!updated.isEmpty()) appendQuestionCards(html, "Updated", "#0f766e", "#ccfbf1", updated, Math.max(htmlRoom, 0));
+        html.append("<p style=\"margin:22px 0 4px;text-align:center\"><a href=\"").append(escapeHtml(frontendUrl + "/updates")).append("\" style=\"display:inline-block;padding:13px 30px;border-radius:10px;background:linear-gradient(90deg,#059669,#0d9488);color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px\">See everything that’s new</a></p>")
+                .append("<p style=\"margin:18px 0 22px;color:#475569\">Happy preparing!<br>Interview Reader Team</p></div>")
+                .append("<div style=\"border-top:1px solid #e2e8f0;background:#f8fafc;padding:14px 28px;font-size:12px;color:#64748b\">Don't want these emails? <a href=\"").append(escapeHtml(unsubscribe)).append("\" style=\"color:#64748b\">Unsubscribe</a></div></div></div>");
+        try {
+            MimeMessage mime = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(body.toString(), html.toString());
+            deliver(mime);
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Could not build the new-questions email", e);
+        }
+    }
+
+    private void appendQuestionCards(StringBuilder html, String label, String color, String bg, List<Question> items, int limit) {
+        html.append("<div style=\"margin:0 0 10px;font-size:12px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;color:").append(color).append("\">").append(label).append(" · ").append(items.size()).append("</div>");
+        for (Question q : items.stream().limit(limit).toList()) {
+            String url = escapeHtml(questionUrl(q));
+            html.append("<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin:0 0 10px;border:1px solid #e2e8f0;border-left:4px solid ").append(color).append(";border-radius:10px\"><tr><td style=\"padding:12px 14px\">")
+                    .append("<span style=\"display:inline-block;padding:2px 9px;border-radius:999px;background:").append(bg).append(";color:").append(color).append(";font-size:11px;font-weight:bold;text-transform:uppercase\">").append(escapeHtml(String.valueOf(q.getTech()))).append("</span>")
+                    .append("<div style=\"margin-top:6px;font-size:15px;font-weight:bold;color:#0f172a;line-height:1.4\">").append(escapeHtml(q.getTitle())).append("</div>")
+                    .append("<a href=\"").append(url).append("\" style=\"display:inline-block;margin-top:8px;font-size:13px;font-weight:bold;color:").append(color).append(";text-decoration:none\">View question →</a></td></tr></table>");
+        }
+        if (items.size() > limit) html.append("<p style=\"margin:0 0 14px;font-size:13px;color:#64748b\">…and ").append(items.size() - limit).append(" more</p>");
+        html.append("<div style=\"height:10px\"></div>");
     }
 
     private void appendQuestion(StringBuilder body, Question q, String tag) {
         body.append("• [").append(q.getTech()).append("] ").append(q.getTitle()).append(tag).append("\n  ")
-            .append(frontendUrl).append("/?id=").append(URLEncoder.encode(q.getId(), StandardCharsets.UTF_8))
+            .append(questionUrl(q))
             .append("\n\n");
+    }
+
+    /** Same slug rule as QuestionController/frontend slug.js: /design-a-url-shortener?id=hld-749. */
+    private String questionUrl(Question q) {
+        String slug = (q.getTitle() == null ? "" : q.getTitle()).toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
+        if (slug.length() > 80) slug = slug.substring(0, 80);
+        return frontendUrl + "/" + slug + "?id=" + URLEncoder.encode(q.getId(), StandardCharsets.UTF_8);
     }
 
     /** Admin announcement: the admin's own subject and text, with the same unsubscribe footer. */

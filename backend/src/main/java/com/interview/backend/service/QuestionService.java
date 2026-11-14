@@ -249,4 +249,12 @@ public class QuestionService {
         }
         return counts;
     }
+
+    public java.util.List<Question> addedSince(java.time.LocalDateTime since) {
+        return questionRepository.findTop60ByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(since);
+    }
+
+    public java.util.List<Question> updatedSince(java.time.LocalDateTime since) {
+        return questionRepository.findTop60ByUpdatedAtGreaterThanEqualAndCreatedAtLessThanOrderByUpdatedAtDesc(since, since);
+    }
 }

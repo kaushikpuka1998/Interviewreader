@@ -14,6 +14,7 @@ const LandingPage = lazy(() => import('./components/LandingPage.jsx'))
 const ProblemsPage = lazy(() => import('./components/ProblemsPage.jsx'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage.jsx'))
 const StreakPage = lazy(() => import('./components/StreakPage.jsx'))
+const UpdatesPage = lazy(() => import('./components/UpdatesPage.jsx'))
 const DiscussPage = lazy(() => import('./components/DiscussPage.jsx'))
 const DiscussDetailPage = lazy(() => import('./components/DiscussDetailPage.jsx'))
 import { DailyPromoGate } from './components/DailyPromo.jsx'
@@ -77,7 +78,7 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
+const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/updates', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
   '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
@@ -130,6 +131,7 @@ function Routes() {
 
   if (path === '/leaderboard') return <LeaderboardPage />
   if (path === '/streak') return <StreakPage />
+  if (path === '/updates') return <UpdatesPage />
   if (path === '/skills') return <SkillGapPage />
   if (path === '/tracks') return <TracksPage />
   if (path.startsWith('/tracks/')) return <TracksPage id={path.split('/')[2]} />

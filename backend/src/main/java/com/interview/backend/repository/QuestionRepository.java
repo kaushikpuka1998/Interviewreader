@@ -32,6 +32,10 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     List<Question> findByCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByTechAscSortKeyAsc(
             java.time.LocalDateTime from, java.time.LocalDateTime to);
 
+    List<Question> findTop60ByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(java.time.LocalDateTime since);
+
+    List<Question> findTop60ByUpdatedAtGreaterThanEqualAndCreatedAtLessThanOrderByUpdatedAtDesc(java.time.LocalDateTime since, java.time.LocalDateTime createdBefore);
+
     List<Question> findByTechAndNumber(String tech, Integer number);
 
     Page<Question> findByTech(String tech, Pageable pageable);

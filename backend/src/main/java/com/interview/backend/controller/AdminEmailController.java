@@ -31,6 +31,7 @@ public class AdminEmailController {
     private final QuestionRepository questions;
     private final UserRepository users;
     private final com.interview.backend.service.ChallengeReminderNotifier challengeReminder;
+    private final com.interview.backend.service.EmailService emailService;
 
     @Value("${app.digest.time:19:00}")
     private LocalTime sendAt;
@@ -136,6 +137,18 @@ public class AdminEmailController {
         int reach = announcements.audience(audience).size();
         announcements.send(subject, body, audience);
         return ResponseEntity.accepted().body(Map.of("queued", reach, "audience", audience));
+    }
+
+    /** Sends the new/updated-questions email to the signed-in admin only, for the last N days. Ignores the daily schedule and opt-outs; for testing the design. */
+    @PostMapping("/digest/test")
+    public ResponseEntity<?> digestTest(@RequestParam(defaultValue = "30") int days) {
+        var admin = users.findByEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow();
+        LocalDateTime since = LocalDateTime.now().minusDays(Math.max(1, Math.min(days, 60)));
+        var added = questions.findTop60ByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(since);
+        var updated = questions.findTop60ByUpdatedAtGreaterThanEqualAndCreatedAtLessThanOrderByUpdatedAtDesc(since, since);
+        if (added.isEmpty() && updated.isEmpty()) return ResponseEntity.badRequest().body(Map.of("error", "No new or updated questions in the last " + days + " days."));
+        emailService.sendNewQuestionsEmail(admin.getEmail(), admin.getName(), added, updated);
+        return ResponseEntity.ok(Map.of("sentTo", admin.getEmail(), "added", added.size(), "updated", updated.size()));
     }
 
     private static Instant toInstant(Object o) {
