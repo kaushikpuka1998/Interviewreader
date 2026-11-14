@@ -10,6 +10,7 @@ import AuthModal from './AuthModal.jsx'
 import Loader from './Loader.jsx'
 
 const STORAGE_KEY = 'ir_roadmap_completed_topics'
+const SOLVED_KEY = 'ir_roadmap_solved_problems'   // problems the member ticked as solved (coding id or question path)
 const CUSTOM_PLAN_KEY = 'ir_roadmap_custom_plan'
 
 // Small deterministic PRNG (mulberry32) seeded from a string, so a company's picks stay stable across reloads.
@@ -100,6 +101,39 @@ export default function RoadmapsPage() {
   })
 
 
+  const [solvedProbs, setSolvedProbs] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(SOLVED_KEY) || '[]')) } catch { return new Set() }
+  })
+  const probKey = (prob) => (prob.id ? `p:${prob.id}` : prob.path)
+  const persist = (key, set) => { try { localStorage.setItem(key, JSON.stringify([...set])) } catch {} }
+  const probKeys = (t) => (t.practiceProblems || []).map(probKey)
+  // Ticking a problem moves its topic's progress: all problems ticked = topic done, any unticked = topic open again.
+  const toggleSolved = (prob, topic) => {
+    const k = probKey(prob)
+    const next = new Set(solvedProbs)
+    if (next.has(k)) next.delete(k); else next.add(k)
+    setSolvedProbs(next); persist(SOLVED_KEY, next)
+    const keys = probKeys(topic)
+    if (!keys.length) return
+    const all = keys.every(x => next.has(x))
+    setCompleted(prev => { const n = new Set(prev); if (all) n.add(topic.id); else n.delete(topic.id); persist(STORAGE_KEY, n); return n })
+  }
+  // The other direction: marking a topic (or a whole stage) done ticks all its problems too.
+  const syncProblems = (topics, on) => setSolvedProbs(prev => {
+    const n = new Set(prev)
+    topics.forEach(t => probKeys(t).forEach(k => (on ? n.add(k) : n.delete(k))))
+    persist(SOLVED_KEY, n)
+    return n
+  })
+
+  // Progress counts every question: a topic with practice problems contributes one unit per problem, a topic without (locked,
+  // behavioral) contributes one unit that is done when the topic itself is ticked.
+  const tally = (topics) => topics.reduce((a, t) => {
+    const ks = probKeys(t)
+    const done = ks.length ? ks.filter(k => solvedProbs.has(k)).length : (completed.has(t.id) ? 1 : 0)
+    return { done: a.done + done, total: a.total + (ks.length || 1) }
+  }, { done: 0, total: 0 })
+
   const company = useMemo(() => {
     return COMPANIES.find(c => c.id === selectedCompanyId) || COMPANIES[0] || null
   }, [selectedCompanyId, COMPANIES])
@@ -125,7 +159,9 @@ export default function RoadmapsPage() {
     })
   }, [company])
 
-  const toggleTopic = (id) => {
+  const toggleTopic = (topic) => {
+    const id = topic.id
+    syncProblems([topic], !completed.has(id))
     setCompleted(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -138,6 +174,7 @@ export default function RoadmapsPage() {
   }
 
   const markPhaseAll = (phaseTopics, markCompleted = true) => {
+    syncProblems(phaseTopics, markCompleted)
     setCompleted(prev => {
       const next = new Set(prev)
       phaseTopics.forEach(t => {
@@ -160,8 +197,10 @@ export default function RoadmapsPage() {
   const resetAllProgress = () => {
     if (window.confirm('Are you sure you want to reset your roadmap progress? This cannot be undone.')) {
       setCompleted(new Set())
+      setSolvedProbs(new Set())
       try {
         localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(SOLVED_KEY)
       } catch {}
     }
   }
@@ -266,7 +305,8 @@ export default function RoadmapsPage() {
     return allTopics.filter(t => completed.has(t.id)).length
   }, [allTopics, completed])
 
-  const readinessPercent = totalTopicsCount > 0 ? Math.round((completedTopicsCount / totalTopicsCount) * 100) : 0
+  const overall = tally(allTopics)
+  const readinessPercent = overall.total > 0 ? Math.round((overall.done / overall.total) * 100) : 0
 
   const readinessTier = useMemo(() => {
     if (readinessPercent >= 85) return { label: 'Well prepared', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500' }
@@ -483,14 +523,14 @@ export default function RoadmapsPage() {
                 </div>
                 <ol className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
                   {phases.map(ph => {
-                    const done = ph.topics.filter(t => completed.has(t.id)).length
+                    const { done, total } = tally(ph.topics)
                     const isCurrent = next?.ph.id === ph.id
                     return (
                       <li key={ph.id}>
                         <a href={`#${ph.id}`} className={`block h-full rounded-xl border p-3 transition ${isCurrent ? 'border-blue-500 bg-blue-50/60 dark:border-blue-500/60 dark:bg-blue-950/30' : 'border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700'}`}>
                           <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">{ph.number}. {ph.timeline}</div>
                           <div className="mt-0.5 text-[13px] font-semibold leading-snug text-slate-900 dark:text-slate-100">{ph.title}</div>
-                          <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">{locked ? `${ph.topics.length} topics` : `${done} of ${ph.topics.length} done`}</div>
+                          <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">{locked ? `${ph.topics.length} topics` : `${done} of ${total} solved`}</div>
                         </a>
                       </li>
                     )
@@ -614,8 +654,7 @@ export default function RoadmapsPage() {
               </div>
             ) : (
               filteredPhases.map((phase, pIdx) => {
-                const phaseCompletedCount = phase.filteredTopics.filter(t => completed.has(t.id)).length
-                const phaseTotalCount = phase.filteredTopics.length
+                const { done: phaseCompletedCount, total: phaseTotalCount } = tally(phase.filteredTopics)
                 const phasePercent = phaseTotalCount > 0 ? Math.round((phaseCompletedCount / phaseTotalCount) * 100) : 0
                 const isAllDone = phasePercent === 100
 
@@ -661,7 +700,7 @@ export default function RoadmapsPage() {
                         <div className="flex items-center gap-4 sm:flex-shrink-0">
                           <div className="flex flex-col items-end">
                             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              {phaseCompletedCount}/{phaseTotalCount} Completed
+                              {phaseCompletedCount}/{phaseTotalCount} solved · {phasePercent}%
                             </span>
                             <div className="mt-1 h-2 w-28 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                               <div
@@ -702,7 +741,7 @@ export default function RoadmapsPage() {
                                   <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center text-sm" aria-label="Premium topic">🔒</span>
                                 ) : <button
                                   type="button"
-                                  onClick={() => toggleTopic(topic.id)}
+                                  onClick={() => toggleTopic(topic)}
                                   aria-label={`Mark ${topic.title} as ${isDone ? 'incomplete' : 'completed'}`}
                                   aria-pressed={isDone}
                                   // 44px tap area (touch screens force min-height on buttons) around a 20px box; the negative
@@ -798,7 +837,10 @@ export default function RoadmapsPage() {
                                                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border border-slate-200/80 bg-slate-50/80 p-2.5 transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:border-slate-700"
                                                 >
                                                   <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">{prob.title}</span>
+                                                    <input type="checkbox" checked={solvedProbs.has(probKey(prob))} onChange={() => toggleSolved(prob, topic)}
+                                                      title={solvedProbs.has(probKey(prob)) ? 'Solved. Click to untick' : 'Tick when you have solved this'}
+                                                      aria-label={`Mark "${prob.title}" as solved`} className="h-4 w-4 shrink-0 cursor-pointer accent-emerald-600" />
+                                                    <span className={`text-xs font-semibold ${solvedProbs.has(probKey(prob)) ? 'text-slate-400 line-through dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>{prob.title}</span>
                                                     {prob.difficulty && (
                                                       <span className="shrink-0 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:border-slate-700 dark:text-slate-400">{prob.difficulty}</span>
                                                     )}
@@ -819,11 +861,24 @@ export default function RoadmapsPage() {
                                                         )}
                                                       </>
                                                     ) : (
-                                                      <a href={prob.path} target="_blank" rel="noopener noreferrer"
-                                                        title={`Open "${prob.title}" in the reader`}
-                                                        className={linkCls}>
-                                                        <span>Open question</span><span aria-hidden="true" className="text-[10px]">↗</span>
-                                                      </a>
+                                                      <>
+                                                        {/* System design questions open straight in the architecture canvas */}
+                                                        {(() => {
+                                                          const hld = /[?&]id=(hld-\d+)/.exec(prob.path || '')?.[1]
+                                                          return hld && (
+                                                            <a href={`/interview/practice?q=${hld}`} target="_blank" rel="noopener noreferrer"
+                                                              title={`Solve "${prob.title}" on the architecture canvas`}
+                                                              className="inline-flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-emerald-700">
+                                                              <span>Solve design</span><span aria-hidden="true" className="text-[10px]">◇</span>
+                                                            </a>
+                                                          )
+                                                        })()}
+                                                        <a href={prob.path} target="_blank" rel="noopener noreferrer"
+                                                          title={`Open "${prob.title}" in the reader`}
+                                                          className={linkCls}>
+                                                          <span>Open question</span><span aria-hidden="true" className="text-[10px]">↗</span>
+                                                        </a>
+                                                      </>
                                                     )}
                                                     {(() => {
                                                       const link = prob.id ? `/practice?id=${prob.id}` : prob.path
