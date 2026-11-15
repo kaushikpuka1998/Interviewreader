@@ -122,7 +122,7 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
         {/* the rail: a track whose fill ends at the section you are reading */}
         <div className="absolute left-[5px] top-1 bottom-1 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
         <div
-          className="absolute left-[5px] top-1 w-px bg-gradient-to-b from-indigo-400 to-blue-500 shadow-[0_0_6px_1px_rgba(99,102,241,0.6)] transition-[height] duration-200 ease-out"
+          className="absolute left-[5px] top-1 w-px bg-gradient-to-b from-emerald-300 to-emerald-500 shadow-[0_0_8px_1px_rgba(52,211,153,0.7)] transition-[height] duration-200 ease-out"
           style={{ height: `${Math.max(0, fillPx - 4)}px` }}
           aria-hidden="true"
         />
@@ -138,7 +138,7 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
                   aria-current={isActive ? 'true' : undefined}
                   className={`group w-full text-left flex items-start gap-2.5 rounded-md py-1 pr-1 transition-colors ${
                     isActive
-                      ? 'text-blue-600 dark:text-blue-400'
+                      ? 'text-emerald-600 dark:text-emerald-300'
                       : isPassed
                       ? 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -150,9 +150,9 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
                     <span
                       className={`block rounded-full transition-all duration-200 ${
                         isActive
-                          ? 'h-[11px] w-[11px] bg-blue-500 ring-4 ring-blue-500/25 shadow-[0_0_10px_3px_rgba(59,130,246,0.65)]'
+                          ? 'h-[11px] w-[11px] bg-emerald-400 ring-4 ring-emerald-400/25 shadow-[0_0_12px_4px_rgba(52,211,153,0.75)]'
                           : isPassed
-                          ? 'h-[7px] w-[7px] bg-indigo-400 shadow-[0_0_6px_1px_rgba(129,140,248,0.55)] dark:bg-indigo-400'
+                          ? 'h-[7px] w-[7px] bg-emerald-400 shadow-[0_0_7px_1px_rgba(52,211,153,0.6)]'
                           : 'h-[7px] w-[7px] border border-slate-300 bg-white group-hover:border-slate-400 dark:border-slate-600 dark:bg-slate-900'
                       }`}
                     />

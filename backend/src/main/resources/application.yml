@@ -167,6 +167,8 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*}
   mail:
     from: ${MAIL_FROM:info@meetly.co.in}
+    # Local testing: true = send only to ADMIN_EMAILS and skip every other recipient. Leave unset in production.
+#    admin-only: ${EMAIL_ADMIN_ONLY:false}
   frontend:
     url: ${FRONTEND_URL:http://localhost:5173}
   tectonic:
@@ -175,7 +177,7 @@ app:
   digest:
     # Daily "new questions" email: one digest per day, sent at/after this local time.
     # Covers everything published since the previous digest.
-    time: ${DIGEST_TIME:19:00}
+    time: ${DIGEST_TIME:09:00}
     zone: ${DIGEST_ZONE:Asia/Kolkata}
 #  migration:
 #    json-path: ${MIGRATION_JSON_PATH:../frontend/public/questions.json}
