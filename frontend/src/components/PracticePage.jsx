@@ -11,6 +11,7 @@ import Markdown from './Markdown.jsx'
 import AuthModal from './AuthModal.jsx'
 import OnlineCount from './OnlineCount.jsx'
 import CodeRunner, { languageLabel } from './CodeRunner.jsx'
+import ComplexityCard from './ComplexityCard.jsx'
 import { byProminence } from '../lib/companyGroups.js'
 
 const CUSTOM = 'custom'
@@ -30,6 +31,7 @@ export default function PracticePage() {
   const [detail, setDetail] = useState(null)
   const [error, setError] = useState('')
   // The statement panel has three tabs: the problem, question analysis, and submissions.
+  const [solved, setSolved] = useState(null)   // { id, code, language } of the latest accepted submission
   const [tab, setTab] = useState(() => {
     if (typeof window !== 'undefined') {
       const t = new URLSearchParams(window.location.search).get('tab')
@@ -567,10 +569,17 @@ export default function PracticePage() {
                     <span className="h-16 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
                   </div>
                   <div className="min-w-0 flex-1 min-h-0 overflow-hidden">
-                    <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
+                    <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} onAccepted={a => setSolved({ id: detail.id, ...a })} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
                       daily={dailyId != null && dailyId === selected}
                       afterAccepted={<SolveNext daily={dailyId != null && dailyId === selected} items={solveNext} onPick={id => setSelected(id)} onRandom={goToRandom} />} />
                   </div>
+                  {solved?.id === detail.id && (
+                    <div className="fixed bottom-4 right-4 z-[60] max-h-[85vh] w-[min(26rem,calc(100vw-2rem))] overflow-y-auto rounded-xl shadow-2xl">
+                      <button type="button" onClick={() => setSolved(null)} aria-label="Close complexity estimate"
+                        className="absolute right-2 top-2 z-10 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200">✕</button>
+                      <ComplexityCard code={solved.code} language={solved.language} floating />
+                    </div>
+                  )}
                 </>
               )}
             </div>

@@ -61,7 +61,7 @@ function IconButton({ label, icon, onClick, disabled = false }) {
 const MAX_CASES = 6
 const sameOutput = (a, b) => String(a ?? '').split('\n').map(l => l.trimEnd()).join('\n').trim() === String(b ?? '').split('\n').map(l => l.trimEnd()).join('\n').trim()
 
-export default function CodeRunner({ problemId, statement = '', starters = null, history = [], onSubmitted, openRequest, actionsRef, onBusyChange, afterAccepted = null, daily = false }) {
+export default function CodeRunner({ problemId, statement = '', starters = null, history = [], onSubmitted, openRequest, actionsRef, onBusyChange, afterAccepted = null, daily = false, onAccepted }) {
   // Coding problems offer only the languages they have a starter for. Own-code practice offers all of them.
   // A coding problem opens in the first of its own options, so LANGUAGES order sets the default: Java leads
   // the array deliberately. Problems without a Java starter (tree and linked list ones) fall through to C++.
@@ -217,7 +217,9 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
       const r = await runTests({ problemId, language, code, submit: saveIt, onStatus: setStatus })
       setTestResult(r)
       // A submission that passes every test is a solve: that's when the "solve next" suggestions appear.
-      setAccepted(saveIt && r.total > 0 && r.passed === r.total)
+      const won = saveIt && r.total > 0 && r.passed === r.total
+      setAccepted(won)
+      if (won) onAccepted?.({ code, language })   // the page shows the complexity estimate beside the problem statement
       if (saveIt) onSubmitted?.()
     } catch (e) {
       setError(e.message)
