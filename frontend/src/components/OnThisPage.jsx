@@ -68,7 +68,7 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
     const el = itemRefs.current[activeId]
     const list = listRef.current
     if (!el || !list) { setFillPx(0); return }
-    setFillPx(el.offsetTop + el.offsetHeight / 2)
+    setFillPx(el.offsetTop + 14.5) // centre of the node: button py-1 (4) + dot mt (5) + half dot (5.5)
 
     // Keep the active entry visible when the outline is longer than the rail.
     if (list.scrollHeight > list.clientHeight) {
@@ -122,7 +122,7 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
         {/* the rail: a track whose fill ends at the section you are reading */}
         <div className="absolute left-[5px] top-1 bottom-1 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
         <div
-          className="absolute left-[5px] top-1 w-px bg-gradient-to-b from-blue-500 to-indigo-500 transition-[height] duration-200 ease-out"
+          className="absolute left-[5px] top-1 w-px bg-gradient-to-b from-indigo-400 to-blue-500 shadow-[0_0_6px_1px_rgba(99,102,241,0.6)] transition-[height] duration-200 ease-out"
           style={{ height: `${Math.max(0, fillPx - 4)}px` }}
           aria-hidden="true"
         />
@@ -145,14 +145,15 @@ export default function OnThisPage({ text, scrollRef, onActiveChange }) {
                   }`}
                 >
                   {/* node on the rail */}
-                  <span className="relative mt-[7px] flex-shrink-0" aria-hidden="true">
+                  {/* fixed 11px slot, centred on the rail (rail centre = 5.5px), so every dot sits exactly on the line */}
+                  <span className="relative mt-[5px] flex h-[11px] w-[11px] flex-shrink-0 items-center justify-center" aria-hidden="true">
                     <span
-                      className={`block rounded-full transition-all duration-150 ${
+                      className={`block rounded-full transition-all duration-200 ${
                         isActive
-                          ? 'w-[11px] h-[11px] -ml-[3px] bg-blue-500 ring-4 ring-blue-500/20'
+                          ? 'h-[11px] w-[11px] bg-blue-500 ring-4 ring-blue-500/25 shadow-[0_0_10px_3px_rgba(59,130,246,0.65)]'
                           : isPassed
-                          ? 'w-[5px] h-[5px] bg-indigo-400 dark:bg-indigo-500'
-                          : 'w-[5px] h-[5px] bg-slate-300 dark:bg-slate-600 group-hover:bg-slate-400'
+                          ? 'h-[7px] w-[7px] bg-indigo-400 shadow-[0_0_6px_1px_rgba(129,140,248,0.55)] dark:bg-indigo-400'
+                          : 'h-[7px] w-[7px] border border-slate-300 bg-white group-hover:border-slate-400 dark:border-slate-600 dark:bg-slate-900'
                       }`}
                     />
                   </span>
