@@ -4,6 +4,7 @@ import { runCode, runTests, fetchSubmission } from '../lib/code.js'
 import { paramsOf, exampleOf, toFields, toStdin } from '../lib/testcases.js'
 import { trackClick } from '../lib/analytics.js'
 import TestResults from './TestResults.jsx'
+import ProblemLikeAsk from './ProblemLikeAsk.jsx'
 import TreeDiagram, { ListDiagram, parseTreeInput } from './TreeDiagram.jsx'
 import CodeEditor, { FONTS, formatCode } from './CodeEditor.jsx'
 
@@ -488,6 +489,7 @@ export default function CodeRunner({ problemId, statement = '', starters = null,
               </span>
             </div>
             )}
+            {problemId && isLoggedIn() && <ProblemLikeAsk key={problemId} problemId={problemId} />}
             {afterAccepted}
             <div className="mt-2 text-center">
               <button type="button" onClick={() => setNextOpen(false)} className="text-xs font-medium text-white/80 hover:text-white hover:underline">Review my solution</button>
