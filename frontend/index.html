@@ -2,17 +2,25 @@
 <html lang="en">
   <head>
     <script>
-      // Stale-release recovery: after a deploy, a cached page can point at hashed files the server no longer has. When one of
-      // our /assets files fails to load, drop the service worker and caches once and reload to get the new release.
-      window.addEventListener('error', function (e) {
-        var t = e.target, u = t && (t.src || t.href)
-        if (!u || u.indexOf('/assets/') < 0 || sessionStorage.getItem('ir_recover')) return
-        sessionStorage.setItem('ir_recover', '1')
+      // Stale-release recovery: after a deploy, a cached page can point at hashed files the server no longer has (a script tag, or a
+      // lazy page chunk such as /profile). Drop the service worker and caches and reload, at most once every 30 s so it can never loop.
+      window.__irRecover = function () {
+        var last = Number(sessionStorage.getItem('ir_recover') || 0)
+        if (Date.now() - last < 30000) return
+        sessionStorage.setItem('ir_recover', String(Date.now()))
         var jobs = []
         if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (r) { return Promise.all(r.map(function (x) { return x.unregister() })) }))
         if (window.caches) jobs.push(caches.keys().then(function (k) { return Promise.all(k.map(function (x) { return caches.delete(x) })) }))
         Promise.all(jobs).then(function () { location.reload() }, function () { location.reload() })
+      }
+      window.addEventListener('error', function (e) {
+        var t = e.target, u = t && (t.src || t.href)
+        if (u && u.indexOf('/assets/') > -1) window.__irRecover()
       }, true)
+      window.addEventListener('unhandledrejection', function (e) {
+        var m = String((e.reason && e.reason.message) || e.reason || '')
+        if (/dynamically imported module|Importing a module script failed|module script|reading 'default'/.test(m)) window.__irRecover()
+      })
     </script>
     <script>if (location.hostname === 'interviewreader.up.railway.app') location.replace('https://interviewreader.cloud' + location.pathname + location.search + location.hash)</script>
     <meta charset="UTF-8" />

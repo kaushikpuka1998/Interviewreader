@@ -181,5 +181,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <Router />
   </React.StrictMode>,
 )
-
-sessionStorage.removeItem('ir_recover')   // the app booted: the next stale release may recover again

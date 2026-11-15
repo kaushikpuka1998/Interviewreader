@@ -55,6 +55,6 @@ export function startAutoUpdate() {
   setInterval(check, CHECK_MS)
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check() })
   window.addEventListener('online', check)
-  window.addEventListener('vite:preloadError', e => { e.preventDefault(); reloadSoon() })
+  window.addEventListener('vite:preloadError', e => { e.preventDefault(); window.__irRecover ? window.__irRecover() : reloadSoon() })
   setTimeout(check, 20_000)
 }
