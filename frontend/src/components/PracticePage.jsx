@@ -3,7 +3,7 @@ import Loader from './Loader.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import TopBar from './TopBar.jsx'
 import { fetchCodingProblems, fetchCodingProblem, markPracticeSeen } from '../lib/codingProblems.js'
-import { fetchSubmissions, fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
+import { fetchSubmission, fetchSubmissions, fetchSolvedIds, fetchAttemptedIds } from '../lib/code.js'
 import { getUser, isLoggedIn } from '../lib/auth.js'
 import { fetchQotd } from '../lib/engage.js'
 import { difficultyBadge } from '../lib/badges.js'
@@ -31,7 +31,6 @@ export default function PracticePage() {
   const [detail, setDetail] = useState(null)
   const [error, setError] = useState('')
   // The statement panel has three tabs: the problem, question analysis, and submissions.
-  const [solved, setSolved] = useState(null)   // { id, code, language } of the latest accepted submission
   const [tab, setTab] = useState(() => {
     if (typeof window !== 'undefined') {
       const t = new URLSearchParams(window.location.search).get('tab')
@@ -569,17 +568,10 @@ export default function PracticePage() {
                     <span className="h-16 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
                   </div>
                   <div className="min-w-0 flex-1 min-h-0 overflow-hidden">
-                    <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} onAccepted={a => setSolved({ id: detail.id, ...a })} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
+                    <CodeRunner key={`${detail.id}-${getUser()?.email ?? 'guest'}`} problemId={detail.id} statement={detail.statement} starters={detail.starters || {}} history={history} onSubmitted={() => { loadHistory(); refreshProgress() }} openRequest={openRequest} actionsRef={codeRef} onBusyChange={setBusy}
                       daily={dailyId != null && dailyId === selected}
                       afterAccepted={<SolveNext daily={dailyId != null && dailyId === selected} items={solveNext} onPick={id => setSelected(id)} onRandom={goToRandom} />} />
                   </div>
-                  {solved?.id === detail.id && (
-                    <div className="fixed bottom-4 right-4 z-[60] max-h-[85vh] w-[min(26rem,calc(100vw-2rem))] overflow-y-auto rounded-xl shadow-2xl">
-                      <button type="button" onClick={() => setSolved(null)} aria-label="Close complexity estimate"
-                        className="absolute right-2 top-2 z-10 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200">✕</button>
-                      <ComplexityCard code={solved.code} language={solved.language} floating />
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -593,6 +585,15 @@ export default function PracticePage() {
 
 // The member's saved submissions for this problem. Clicking one opens its code in the editor.
 function SubmissionList({ items, signedIn, onOpen }) {
+  const [sel, setSel] = useState(null)   // { id, code, language } of the submission whose complexity graph is shown
+  const top = items[0]?.id
+  const first = useRef(true)
+  const pick = h => {
+    if (h.status !== 'Accepted') return setSel(null)
+    fetchSubmission(h.id).then(d => setSel({ id: h.id, code: d.code, language: d.language })).catch(() => {})
+  }
+  // A fresh submission (new newest item) shows its graph right away.
+  useEffect(() => { if (first.current) { first.current = false; return } if (items[0]) pick(items[0]) }, [top]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!signedIn) return <p className="text-sm text-slate-500 dark:text-slate-400">Sign in to see your submissions.</p>
   if (items.length === 0) return <p className="text-sm text-slate-500 dark:text-slate-400">No submissions yet. Press Submit in the code box to save one.</p>
   return (
@@ -601,12 +602,13 @@ function SubmissionList({ items, signedIn, onOpen }) {
         <li key={h.id}>
           <button
             type="button"
-            onClick={() => onOpen(h.id)}
-            className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-800/60"
+            onClick={() => { onOpen(h.id); pick(h) }}
+            className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-800/60 ${sel?.id === h.id ? 'bg-slate-50 dark:bg-slate-800/60' : ''}`}
           >
             <span className={h.status === 'Accepted' ? 'font-semibold text-emerald-600 dark:text-emerald-400' : 'font-semibold text-rose-600 dark:text-rose-400'}>{h.status}</span>
             <span className="text-xs text-slate-500 dark:text-slate-400">{h.passed}/{h.total} · {languageLabel(h.language)} · {new Date(h.createdAt).toLocaleString()}</span>
           </button>
+          {sel?.id === h.id && <div className="px-3 pb-3"><ComplexityCard code={sel.code} language={sel.language} /></div>}
         </li>
       ))}
     </ul>
