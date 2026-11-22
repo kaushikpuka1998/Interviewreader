@@ -225,7 +225,7 @@ function App({ path = '/', onPathChange = () => {} }) {
   // Whole-dataset offline sync: quietly pull every accessible question into
   // IndexedDB (once every 6h) so browsing keeps working with the network off.
   // Techs the current user can't access (401) are just skipped, not an error.
-  const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'microservices', 'design-patterns', 'misc', 'angular', 'rails', 'behavioral']
+  const TECHS = ['java', 'react', 'node', 'sql', 'hld', 'kafka', 'golang', 'microservices', 'design-patterns', 'misc', 'angular', 'rails', 'aws', 'behavioral']
   useEffect(() => {
     if (!navigator.onLine) return
     const SIX_HOURS = 6 * 60 * 60 * 1000

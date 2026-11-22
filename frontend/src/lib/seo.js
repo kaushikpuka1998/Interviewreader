@@ -11,7 +11,7 @@ const TECH_NAMES = {
   java: 'Java', react: 'React', node: 'Node.js', sql: 'SQL', hld: 'System Design',
   golang: 'Go', kafka: 'Kafka', microservices: 'Microservices',
   'design-patterns': 'Design Patterns',
-  angular: 'Angular', rails: 'Ruby on Rails', behavioral: 'Behavioral',
+  angular: 'Angular', rails: 'Ruby on Rails', aws: 'AWS', behavioral: 'Behavioral',
 }
 
 function upsertMeta(selector, attrs) {

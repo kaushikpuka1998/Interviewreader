@@ -120,6 +120,12 @@ export function TechFilter({ value, onChange, locked = false, freeTechs = [], on
       // gem/ruby icon
       icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3 4H9l3-4zM4 9l5-3-1 5-4 3v-5zm16 0v5l-4-3-1-5 5 3zM4 9l4 5-6 3 2-8zm16 0l2 8-6-3 4-5zM6 14l6 8-8-3 2-5zm12 0l2 5-8 3 6-8zM9 11h6l-3 3-3-3z"/></svg>,
     },
+    {
+      value: 'aws', label: 'AWS',
+      active: 'bg-orange-500 text-white shadow-sm shadow-orange-500/30',
+      // cloud icon
+      icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>,
+    },
   ]
 
   return (

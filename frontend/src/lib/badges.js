@@ -13,6 +13,7 @@ const TECH_BADGE = {
   'design-patterns': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   misc: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
   angular: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  aws: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
   rails: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
   behavioral: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
 }
@@ -34,6 +35,7 @@ export function techLabel(tech) {
   if (!tech) return ''
   if (tech === 'hld') return 'HLD'
   if (tech === 'sql') return 'SQL'
+  if (tech === 'aws') return 'AWS'
   if (tech === 'golang') return 'Go'
   if (tech === 'misc') return 'Miscellaneous'
   if (tech === 'rails') return 'Ruby on Rails'

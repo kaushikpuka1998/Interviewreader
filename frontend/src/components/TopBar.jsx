@@ -15,7 +15,7 @@ import { techLabel } from '../lib/badges.js'
 // Used on every full page. The home reader passes its own user and handlers (props below); other pages use the stored session.
 // [label, href, feature flag that must be on, flag that turns on the "New" badge (true = always, 'hot' = 🔥 Hot)]
 // Topics in the Questions menu (desktop bar only): each links to /questions?tech=<topic>.
-const TOPICS = ['java', 'react', 'node', 'angular', 'golang', 'sql', 'kafka', 'microservices', 'hld', 'design-patterns', 'rails', 'misc', 'behavioral']
+const TOPICS = ['java', 'react', 'node', 'angular', 'golang', 'sql', 'kafka', 'microservices', 'hld', 'design-patterns', 'rails', 'aws', 'misc', 'behavioral']
 const TOPIC_ITEMS = Object.fromEntries(TOPICS.map(t => [`t:${t}`, [techLabel(t) || t, `/questions?tech=${t}`]]))
 const ITEMS = {
   questions: ['Questions', '/questions'],
