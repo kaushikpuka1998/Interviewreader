@@ -66,6 +66,7 @@ export default function ProblemsPage() {
     for (const p of problems || []) for (const t of p.topics || []) m.set(t, (m.get(t) || 0) + 1)
     return [...m.entries()].sort((a, b) => b[1] - a[1])
   }, [problems])
+  const [topicsAll, setTopicsAll] = useState(false)
 
   const companyCounts = useMemo(() => {
     const m = new Map()
@@ -266,7 +267,7 @@ export default function ProblemsPage() {
           />
           {topicCounts.length > 0 && (
             <div className="flex flex-wrap gap-2" role="group" aria-label="Topics">
-              {topicCounts.map(([t, n]) => (
+              {(topicsAll ? topicCounts : topicCounts.slice(0, 17)).map(([t, n]) => (
                 <button
                   key={t} type="button" aria-pressed={topic === t}
                   onClick={() => setTopic(topic === t ? '' : t)}
@@ -275,6 +276,7 @@ export default function ProblemsPage() {
                   {t} <span className={topic === t ? 'text-blue-100' : 'text-slate-400'}>{n}</span>
                 </button>
               ))}
+              <button type="button" onClick={() => setTopicsAll(v => !v)} className="px-1 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">{topicsAll ? 'Collapse ▴' : `Show all ${topicCounts.length} ▾`}</button>
             </div>
           )}
           {groupTabs.length > 0 && (

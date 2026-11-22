@@ -24,10 +24,10 @@ public final class TopicTagger {
         rule("Linked List", "linked list|listnode|\\bsingly|\\bdoubly");
         rule("Binary Search Tree", "binary search tree|\\bbst\\b");
         rule("Tree", "binary tree|\\btrees?\\b|treenode|\\btrie\\b|\\bleaf\\b|\\bancestor");
-        rule("Graph", "\\bgraph|vertex|vertices|\\bedges?\\b|adjacen(cy|t nodes? in)|shortest path|topological|connected component|\\bdirected\\b|\\bundirected\\b");
+        rule("Graph Theory", "\\bgraph|vertex|vertices|\\bedges?\\b|adjacen(cy|t nodes? in)|shortest path|topological|connected component|\\bdirected\\b|\\bundirected\\b");
         rule("Stack", "\\bstack|parenthes|bracket|monotonic");
         rule("Queue", "\\bqueue|\\bdeque");
-        rule("Heap", "\\bheap|priority queue|k-?th (largest|smallest)");
+        rule("Heap (Priority Queue)", "\\bheap|priority queue|k-?th (largest|smallest)");
         rule("Hash Table", "hash|frequenc|anagram|\\bdistinct\\b|duplicate|\\bunique\\b|\\bcounts? of each");
         rule("String", "\\bstrings?\\b|substring|palindrom|\\bcharacters?\\b|\\bletters?\\b|\\bwords?\\b|\\bvowels?\\b|\\btext\\b|\\bprefix|\\bsuffix");
         rule("Array", "\\barrays?\\b|subarray|\\bnums\\b");

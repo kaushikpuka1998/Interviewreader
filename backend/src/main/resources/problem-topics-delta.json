@@ -1,0 +1,3874 @@
+{
+ "Kth Largest Element": {
+  "from": "Heap,Hash Table,Array",
+  "to": "Heap (Priority Queue),Hash Table,Array,Quickselect"
+ },
+ "Count Inversions": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Counting,Divide and Conquer,Merge Sort"
+ },
+ "Majority Element": {
+  "from": "Array",
+  "to": "Array,Divide and Conquer"
+ },
+ "Count Distinct Values": {
+  "from": "Hash Table,Array,Sorting",
+  "to": "Hash Table,Array,Sorting,Counting"
+ },
+ "Minimum Size Subarray Sum": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Prefix Sum"
+ },
+ "Subarray Sum Equals K": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Prefix Sum"
+ },
+ "Trapping Rain Water": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Count Vowels": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Pascal Triangle Value": {
+  "from": "Matrix",
+  "to": "Matrix,Combinatorics,Geometry"
+ },
+ "Greatest Common Divisor of an Array": {
+  "from": "Array,Math",
+  "to": "Array,Math,Number Theory"
+ },
+ "Sort Colors": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Counting Sort"
+ },
+ "Remove Duplicates Keeping Order": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,String Matching"
+ },
+ "Find Pivot Index": {
+  "from": "Array",
+  "to": "Array,Prefix Sum"
+ },
+ "Running Sum of Array": {
+  "from": "Array",
+  "to": "Array,Prefix Sum"
+ },
+ "Largest Rectangle in Histogram": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Next Greater Value": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Daily Temperatures": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Repeated Substring Pattern": {
+  "from": "String",
+  "to": "String,String Matching"
+ },
+ "Count and Say": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Primes": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Count Words": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Counting Bits": {
+  "from": "Bit Manipulation",
+  "to": "Bit Manipulation,Counting"
+ },
+ "Unique Grid Paths": {
+  "from": "Hash Table,Matrix",
+  "to": "Hash Table,Matrix,Simulation"
+ },
+ "Coin Change Ways": {
+  "from": "Hash Table,Dynamic Programming,Backtracking,Math,Array",
+  "to": "Hash Table,Dynamic Programming,Backtracking,Math,Array,Combinatorics"
+ },
+ "Ugly Number": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Nim Game": {
+  "from": "Math",
+  "to": "Math,Game Theory,Brainteaser"
+ },
+ "Greatest Common Divisor of Strings": {
+  "from": "String,Math",
+  "to": "String,Math,Number Theory"
+ },
+ "Merge Intervals": {
+  "from": "Sorting,Greedy,Array",
+  "to": "Sorting,Greedy,Array,Sweep Line"
+ },
+ "Insert an Interval": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Sweep Line"
+ },
+ "Sort Characters by Frequency": {
+  "from": "Hash Table,String,Sorting",
+  "to": "Hash Table,String,Sorting,Counting,Bucket Sort"
+ },
+ "Reverse Prefix Up To a Letter": {
+  "from": "String",
+  "to": "String,String Matching"
+ },
+ "Max Chunks to Make Sorted": {
+  "from": "Array,Sorting,Backtracking",
+  "to": "Array,Sorting,Backtracking,Combinatorics"
+ },
+ "Count Negative Numbers": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Good Digit Strings": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Count Substrings of Ones": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Count Odd Numbers in a Range": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Valid Parenthesis With Wildcards": {
+  "from": "Stack,String",
+  "to": "Stack,String,String Matching"
+ },
+ "Count Asterisks Outside Bars": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Minimum Deletions for Unique Frequencies": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting"
+ },
+ "Buy Two Chocolates": {
+  "from": "Array",
+  "to": "Array,Shortest Path"
+ },
+ "Count Pairs With a Difference": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Unique Number of Occurrences": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Count Subarrays With K Odd Numbers": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting"
+ },
+ "Largest Perimeter Triangle": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Count Pairs With a Target Sum": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Permutation Inside a String": {
+  "from": "String,Backtracking",
+  "to": "String,Backtracking,Combinatorics"
+ },
+ "Remove K Digits to Get the Smallest Number": {
+  "from": "Math,String",
+  "to": "Math,String,Monotonic Stack"
+ },
+ "Count Pairs With Sum Below Target": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Equal XOR Triplets": {
+  "from": "Bit Manipulation,Array",
+  "to": "Bit Manipulation,Array,Counting"
+ },
+ "Count Numbers With Even Digits": {
+  "from": "Array,Math",
+  "to": "Array,Math,Counting"
+ },
+ "Count Good Pairs": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Array Frequency Analysis": {
+  "from": "Hash Table,Array,Sorting",
+  "to": "Hash Table,Array,Sorting,Counting"
+ },
+ "Prefix Sum Queries": {
+  "from": "String,Array",
+  "to": "String,Array,Prefix Sum"
+ },
+ "Circular Window Maximum": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Geometry"
+ },
+ "Rotated Array Occurrence Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Minimum Coin Count With Limited Inventory": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Counting"
+ },
+ "Minimum Platforms for Events": {
+  "from": "Array",
+  "to": "Array,Sweep Line"
+ },
+ "Prime Factorization": {
+  "from": "Sorting,Math",
+  "to": "Sorting,Math,Number Theory"
+ },
+ "Matrix Spiral Order": {
+  "from": "Matrix",
+  "to": "Matrix,Simulation"
+ },
+ "Kth Smallest Pair Distance": {
+  "from": "Heap,Array",
+  "to": "Heap (Priority Queue),Array,Quickselect"
+ },
+ "Count Palindromic Substrings": {
+  "from": "String,Two Pointers,Sliding Window",
+  "to": "String,Two Pointers,Sliding Window,Counting"
+ },
+ "Circular Next Greater Value": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Count Pairs Divisible by K": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Unique Binary Search Trees": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Counting,Binary Tree"
+ },
+ "Maximum Gap After Sorting": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Bucket Sort,Radix Sort"
+ },
+ "Chinese Remainder Solver": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "Largest All-Ones Rectangle": {
+  "from": "Matrix",
+  "to": "Matrix,Monotonic Stack"
+ },
+ "Largest Island After One Flip": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Count Subarrays With Fixed Bounds": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting"
+ },
+ "Skyline Key Points": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Sweep Line"
+ },
+ "Count Subsets With Given XOR": {
+  "from": "Array,Backtracking,Bit Manipulation",
+  "to": "Array,Backtracking,Bit Manipulation,Counting"
+ },
+ "Count Numbers With Unique Digits": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Counting"
+ },
+ "Count Multiples in a Range": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Smaller Values After Each Element": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Minimum Platforms With Cleanup Time": {
+  "from": "Array",
+  "to": "Array,Sweep Line"
+ },
+ "Maximum Frequency After Increments": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Maximum Non-Overlapping Target Segments": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Sweep Line"
+ },
+ "Shortest Route in Weighted Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Count Islands With Diagonal Adjacency": {
+  "from": "Graph,Matrix",
+  "to": "Graph Theory,Matrix,Depth-First Search,Counting"
+ },
+ "Dependency Build Order": {
+  "from": "Array",
+  "to": "Array,Topological Sort"
+ },
+ "Shortest Path With One Free Edge": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Count Shortest Paths": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Counting,Shortest Path"
+ },
+ "Maximum Flow Network": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Minimum Height Trees": {
+  "from": "Tree,Graph,Hash Table,String,Array",
+  "to": "Tree,Graph Theory,Hash Table,String,Array"
+ },
+ "Shortest Path With Alternating Colours": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Count Complete Components": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search,Counting"
+ },
+ "Minimum Edge Reversals Per Node": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Count Walks With Exact Length": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Counting"
+ },
+ "Minimum Path Cover in a DAG": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Maximum Weight Cut": {
+  "from": "Graph,Two Pointers,Array",
+  "to": "Graph Theory,Two Pointers,Array"
+ },
+ "Minimum Cost to Connect Network": {
+  "from": "Graph,Dynamic Programming,Array",
+  "to": "Graph Theory,Dynamic Programming,Array"
+ },
+ "Shortest Cycle in Undirected Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search"
+ },
+ "Maximum Score Path in a DAG": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Shortest Bridge Between Two Islands": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Count Downward Paths With Target Sum": {
+  "from": "Tree",
+  "to": "Tree,Counting,Binary Tree"
+ },
+ "Lowest Common Ancestor With Parent Pointers": {
+  "from": "Tree,Hash Table",
+  "to": "Tree,Hash Table,Binary Tree"
+ },
+ "Tree Infection Time": {
+  "from": "Tree,Hash Table",
+  "to": "Tree,Hash Table,Binary Tree"
+ },
+ "Tree Nodes at Distance K": {
+  "from": "Tree,Graph,Hash Table,Sorting",
+  "to": "Tree,Graph Theory,Hash Table,Sorting,Binary Tree"
+ },
+ "Maximum Weight Independent Set on Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Minimum Dominating Set on Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Tree Distance Queries": {
+  "from": "Tree,Graph,Hash Table,Array",
+  "to": "Tree,Graph Theory,Hash Table,Array,Binary Tree"
+ },
+ "Tree Diameter": {
+  "from": "Tree,Graph",
+  "to": "Tree,Graph Theory,Binary Tree"
+ },
+ "Minimum Path Sum": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Maximum Circular Subarray": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Geometry"
+ },
+ "House Robber II": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Next Permutation": {
+  "from": "Array,Backtracking",
+  "to": "Array,Backtracking,Combinatorics"
+ },
+ "Gas Station": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Top K Frequent Values": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Bucket Sort"
+ },
+ "Count Subsequence Occurrences": {
+  "from": "Dynamic Programming,Math,String",
+  "to": "Dynamic Programming,Math,String,Counting"
+ },
+ "Count Trailing Zeros in Factorial": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Triangle Minimum Path": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Shortest Path In Binary Grid": {
+  "from": "Graph,Matrix",
+  "to": "Graph Theory,Matrix,Shortest Path"
+ },
+ "Flood Fill Region Size": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Number of Connected Components": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search,Union-Find"
+ },
+ "Is Bipartite": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Has Undirected Cycle": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Course Schedule Feasible": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Topological Sort"
+ },
+ "Network Delay Time": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Maximum Rectangle in Histogram": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Closest Pair Sum": {
+  "from": "Array",
+  "to": "Array,Divide and Conquer"
+ },
+ "Running Kth Largest": {
+  "from": "Heap,Array",
+  "to": "Heap (Priority Queue),Array,Quickselect"
+ },
+ "Count Paths With Target Sum": {
+  "from": "Tree",
+  "to": "Tree,Counting"
+ },
+ "Count Ways to Tile Board": {
+  "from": "Matrix,Dynamic Programming,Math",
+  "to": "Matrix,Dynamic Programming,Math,Counting"
+ },
+ "Prime Factorization Queries": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "LRU Cache Operations": {
+  "from": "Array",
+  "to": "Array,Simulation,Design,Doubly-Linked List"
+ },
+ "LFU Cache Operations": {
+  "from": "Array",
+  "to": "Array,Simulation,Design,Doubly-Linked List"
+ },
+ "Union-Find Connectivity Queries": {
+  "from": "Array",
+  "to": "Array,Union-Find"
+ },
+ "Dynamic Island Additions": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "BST Range Sum": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Prefix Sum,Binary Tree"
+ },
+ "Minimum Number of Reflections": {
+  "from": "Graph,Matrix,Greedy,String",
+  "to": "Graph Theory,Matrix,Greedy,String"
+ },
+ "Minimum Cost to Reach Destination With Fuel": {
+  "from": "Graph,Dynamic Programming,Array",
+  "to": "Graph Theory,Dynamic Programming,Array"
+ },
+ "Count Distinct Islands Shapes": {
+  "from": "Hash Table,Matrix",
+  "to": "Hash Table,Matrix,Depth-First Search,Counting"
+ },
+ "Minimum Operations to Sort by Reversals": {
+  "from": "Sorting,Sliding Window,Backtracking,Array",
+  "to": "Sorting,Sliding Window,Backtracking,Array,Combinatorics"
+ },
+ "Reconstruct Itinerary": {
+  "from": "String",
+  "to": "String,Eulerian Circuit"
+ },
+ "Shortest Path Through Maze Keys and Doors": {
+  "from": "Graph,Matrix,String",
+  "to": "Graph Theory,Matrix,String,Shortest Path"
+ },
+ "Count Perfect Matchings": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Counting"
+ },
+ "Minimum Bisection Small Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Divisible Numbers in Range": {
+  "from": "Math,Array",
+  "to": "Math,Array,Counting,Number Theory"
+ },
+ "Range Minimum Query Updates": {
+  "from": "Array",
+  "to": "Array,Segment Tree"
+ },
+ "Range Sum With Updates": {
+  "from": "Array",
+  "to": "Array,Prefix Sum"
+ },
+ "Persistent Range Kth Query": {
+  "from": "Heap,Array",
+  "to": "Heap (Priority Queue),Array,Quickselect"
+ },
+ "Count Range Sums": {
+  "from": "Array",
+  "to": "Array,Prefix Sum,Counting"
+ },
+ "Shortest Path With Limited Color Changes": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Count Substrings With Exactly K Distinct": {
+  "from": "Hash Table,String,Sliding Window",
+  "to": "Hash Table,String,Sliding Window,Counting"
+ },
+ "BST Successor and Predecessor": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search,Two Pointers",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Two Pointers,Binary Tree"
+ },
+ "N-ary Tree Diameter": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Minimum Edge Weight to Connect Components": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Find All Ancestors in DAG": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Walls and Gates Distance": {
+  "from": "Matrix",
+  "to": "Matrix,Breadth-First Search"
+ },
+ "Minimum Cost to Reach Target With Coupons": {
+  "from": "Graph,Dynamic Programming,Array",
+  "to": "Graph Theory,Dynamic Programming,Array,Shortest Path"
+ },
+ "Maximum Path Quality": {
+  "from": "Graph,Hash Table,Array",
+  "to": "Graph Theory,Hash Table,Array"
+ },
+ "Count Ways to Form Target From Columns": {
+  "from": "String,Dynamic Programming,Math",
+  "to": "String,Dynamic Programming,Math,Counting"
+ },
+ "Count Subarrays With Sum Multiple of K": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting"
+ },
+ "Count Subarrays With Median K": {
+  "from": "Array,Sorting,Sliding Window,Backtracking",
+  "to": "Array,Sorting,Sliding Window,Backtracking,Counting,Combinatorics"
+ },
+ "Count Range Frequency Queries": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Count Negative Values in Sorted Matrix": {
+  "from": "Matrix,Sorting",
+  "to": "Matrix,Sorting,Counting"
+ },
+ "Common Free Time": {
+  "from": "Sorting,Greedy,Array",
+  "to": "Sorting,Greedy,Array,Sweep Line"
+ },
+ "Longest Increasing Subsequence Count": {
+  "from": "Array,Dynamic Programming,Math",
+  "to": "Array,Dynamic Programming,Math,Counting"
+ },
+ "Minimum Cost Tickets": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Shortest Path"
+ },
+ "Decode Ways With Wildcards": {
+  "from": "String,Math",
+  "to": "String,Math,String Matching"
+ },
+ "Queue With Maximum": {
+  "from": "Queue,Array",
+  "to": "Queue,Array,Simulation"
+ },
+ "Stack With Middle Operations": {
+  "from": "Stack,Array",
+  "to": "Stack,Array,Simulation"
+ },
+ "Randomized Set With Duplicates": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Randomized"
+ },
+ "Snapshot Array": {
+  "from": "Array",
+  "to": "Array,Design"
+ },
+ "Calendar With Double Booking": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Ordered Set"
+ },
+ "Hit Counter": {
+  "from": "Array",
+  "to": "Array,Design"
+ },
+ "Prefix Sum Map": {
+  "from": "String",
+  "to": "String,Prefix Sum"
+ },
+ "Consistent Hash Ring": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Hash Function"
+ },
+ "Rate Limiter Sliding Log": {
+  "from": "Sliding Window,Array",
+  "to": "Sliding Window,Array,Design"
+ },
+ "PageRank Iteration": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Maximum Flow With Lower Bounds": {
+  "from": "Graph,Binary Search,Array",
+  "to": "Graph Theory,Binary Search,Array"
+ },
+ "Minimum Cost Maximum Flow": {
+  "from": "Graph,Dynamic Programming,Array",
+  "to": "Graph Theory,Dynamic Programming,Array"
+ },
+ "Steiner Tree Small Graph": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "A-Star Pathfinding": {
+  "from": "Matrix",
+  "to": "Matrix,Geometry"
+ },
+ "Sliding Puzzle Solver": {
+  "from": "Matrix",
+  "to": "Matrix,Brainteaser"
+ },
+ "Exact Cover Solver": {
+  "from": "Backtracking,Bit Manipulation,Array",
+  "to": "Backtracking,Bit Manipulation,Array,Bitmask"
+ },
+ "Boolean Parenthesization Count": {
+  "from": "Stack,Dynamic Programming,Math,Bit Manipulation,String",
+  "to": "Stack,Dynamic Programming,Math,Bit Manipulation,String,Counting"
+ },
+ "Sort Linked List": {
+  "from": "Linked List,Sorting",
+  "to": "Linked List,Sorting,Divide and Conquer,Merge Sort"
+ },
+ "Next Greater Node in Linked List": {
+  "from": "Linked List",
+  "to": "Linked List,Monotonic Stack"
+ },
+ "Maximum Depth of Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Balanced Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Validate Binary Search Tree": {
+  "from": "Binary Search Tree,Tree,Binary Search",
+  "to": "Binary Search Tree,Tree,Binary Search,Binary Tree"
+ },
+ "Kth Smallest Value in a BST": {
+  "from": "Binary Search Tree,Tree,Heap,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Heap (Priority Queue),Hash Table,Binary Search,Binary Tree,Quickselect"
+ },
+ "Binary Tree Maximum Path Sum": {
+  "from": "Tree,Graph",
+  "to": "Tree,Graph Theory,Depth-First Search,Binary Tree"
+ },
+ "Count Good Nodes in Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Counting,Binary Tree"
+ },
+ "Binary Tree Right Side View": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Zigzag Level Order Traversal": {
+  "from": "Tree,String",
+  "to": "Tree,String,Breadth-First Search"
+ },
+ "Binary Tree Inorder Traversal": {
+  "from": "Tree,Stack,Recursion",
+  "to": "Tree,Stack,Recursion,Binary Tree"
+ },
+ "Longest Univalue Path": {
+  "from": "Graph,Tree",
+  "to": "Graph Theory,Tree"
+ },
+ "Boundary of Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Insert GCDs Between Adjacent Nodes": {
+  "from": "Graph,Math,Linked List",
+  "to": "Graph Theory,Math,Linked List,Number Theory"
+ },
+ "Element Frequencies in a Linked List": {
+  "from": "Linked List,Hash Table",
+  "to": "Linked List,Hash Table,Counting"
+ },
+ "Spiral Matrix From Linked List": {
+  "from": "Linked List,Matrix",
+  "to": "Linked List,Matrix,Simulation"
+ },
+ "Design Linked List Operations": {
+  "from": "Linked List",
+  "to": "Linked List,Design"
+ },
+ "Invert Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Binary Tree Preorder Traversal": {
+  "from": "Tree,Stack",
+  "to": "Tree,Stack,Binary Tree"
+ },
+ "Binary Tree Postorder Traversal": {
+  "from": "Tree,Recursion",
+  "to": "Tree,Recursion,Binary Tree"
+ },
+ "Level Order Traversal": {
+  "from": "Tree,String",
+  "to": "Tree,String,Breadth-First Search"
+ },
+ "Bottom-Up Level Order": {
+  "from": "Tree,String",
+  "to": "Tree,String,Breadth-First Search"
+ },
+ "Level Sums of Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Count Complete Tree Nodes": {
+  "from": "Tree",
+  "to": "Tree,Counting"
+ },
+ "Convert Sorted Array to BST": {
+  "from": "Binary Search Tree,Tree,Array,Sorting,Binary Search",
+  "to": "Binary Search Tree,Tree,Array,Sorting,Binary Search,Binary Tree"
+ },
+ "Tree From Preorder and Inorder": {
+  "from": "Tree,Hash Table,Array",
+  "to": "Tree,Hash Table,Array,Binary Tree"
+ },
+ "Tree From Inorder and Postorder": {
+  "from": "Tree,Hash Table,Array",
+  "to": "Tree,Hash Table,Array,Binary Tree"
+ },
+ "Binary Tree Tilt": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Mode Values in a BST": {
+  "from": "Binary Search Tree,Tree,Binary Search,Recursion",
+  "to": "Binary Search Tree,Tree,Binary Search,Recursion,Binary Tree"
+ },
+ "Minimum Absolute Difference in BST": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Two Sum in a BST": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Trim a BST": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Insert Into a BST": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Delete Node in a BST": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Recover Swapped BST Values": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Maximum Width of Binary Tree": {
+  "from": "Tree,Bit Manipulation",
+  "to": "Tree,Bit Manipulation,Binary Tree"
+ },
+ "Cousins in Binary Tree": {
+  "from": "Tree,Hash Table",
+  "to": "Tree,Hash Table,Binary Tree"
+ },
+ "Univalued Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Count Univalue Subtrees": {
+  "from": "Tree",
+  "to": "Tree,Counting"
+ },
+ "Binary Tree Paths": {
+  "from": "Tree",
+  "to": "Tree,Depth-First Search,Binary Tree"
+ },
+ "Distribute Coins in Binary Tree": {
+  "from": "Tree,Dynamic Programming",
+  "to": "Tree,Dynamic Programming,Binary Tree"
+ },
+ "Flip Equivalent Binary Trees": {
+  "from": "Tree,Hash Table",
+  "to": "Tree,Hash Table,Binary Tree"
+ },
+ "Check Completeness of a Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Minimum Depth of Binary Tree": {
+  "from": "Tree,Graph",
+  "to": "Tree,Graph Theory,Binary Tree,Shortest Path"
+ },
+ "Count Nodes Equal to Subtree Average": {
+  "from": "Tree",
+  "to": "Tree,Counting"
+ },
+ "Merge Two Binary Trees": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Longest ZigZag Path in a Binary Tree": {
+  "from": "Tree,Graph",
+  "to": "Tree,Graph Theory,Binary Tree"
+ },
+ "Maximum Product of Split Binary Tree": {
+  "from": "Tree,Graph,Math",
+  "to": "Tree,Graph Theory,Math,Binary Tree"
+ },
+ "Kth Largest Level Sum": {
+  "from": "Tree,Heap",
+  "to": "Tree,Heap (Priority Queue),Quickselect"
+ },
+ "Closest Value in a BST": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Binary Tree"
+ },
+ "Tree Height After Subtree Removal Queries": {
+  "from": "Tree,Graph,Hash Table,Array",
+  "to": "Tree,Graph Theory,Hash Table,Array"
+ },
+ "Good Leaf Node Pairs": {
+  "from": "Tree,Graph",
+  "to": "Tree,Graph Theory"
+ },
+ "Binary Tree Coloring Game": {
+  "from": "Tree,Hash Table,Math",
+  "to": "Tree,Hash Table,Math,Binary Tree"
+ },
+ "Find Leaves of Binary Tree": {
+  "from": "Tree,String",
+  "to": "Tree,String,Binary Tree"
+ },
+ "BST From Preorder": {
+  "from": "Binary Search Tree,Tree,Hash Table,Binary Search,Array",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Search,Array,Binary Tree"
+ },
+ "Count Full Binary Trees": {
+  "from": "Tree,Math",
+  "to": "Tree,Math,Counting,Binary Tree"
+ },
+ "Maximum Sum BST in Binary Tree": {
+  "from": "Binary Search Tree,Tree,Binary Search",
+  "to": "Binary Search Tree,Tree,Binary Search,Binary Tree"
+ },
+ "Directions Between Two Tree Nodes": {
+  "from": "Tree,Graph,Hash Table,String",
+  "to": "Tree,Graph Theory,Hash Table,String,Shortest Path"
+ },
+ "Sum of Distances in Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Count Same-Label Nodes in Subtrees": {
+  "from": "Tree,Graph,String,Array",
+  "to": "Tree,Graph Theory,String,Array,Counting"
+ },
+ "Minimum Time to Collect All Apples": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Graph Valid Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Number of Islands": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Rotting Oranges": {
+  "from": "Matrix",
+  "to": "Matrix,Breadth-First Search"
+ },
+ "Pacific Atlantic Water Flow": {
+  "from": "Graph,Matrix",
+  "to": "Graph Theory,Matrix"
+ },
+ "Course Schedule Order": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Topological Sort"
+ },
+ "Redundant Connection": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Union-Find"
+ },
+ "Cheapest Flights Within K Stops": {
+  "from": "Array",
+  "to": "Array,Shortest Path"
+ },
+ "Eventual Safe States": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Bridges in a Graph": {
+  "from": "Graph,Sorting,Array",
+  "to": "Graph Theory,Sorting,Array,Depth-First Search,Union-Find,Biconnected Component"
+ },
+ "Articulation Points": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search,Union-Find,Biconnected Component"
+ },
+ "Strongly Connected Components Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search,Counting,Strongly Connected Component"
+ },
+ "As Far From Land as Possible": {
+  "from": "Matrix",
+  "to": "Matrix,Geometry"
+ },
+ "Count Sub Islands": {
+  "from": "Array",
+  "to": "Array,Depth-First Search,Counting"
+ },
+ "Detonate the Maximum Bombs": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Paths in a DAG": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Counting"
+ },
+ "Alien Dictionary Order": {
+  "from": "Hash Table,String,Sorting,Binary Search",
+  "to": "Hash Table,String,Sorting,Binary Search,Topological Sort"
+ },
+ "Unique Topological Order Check": {
+  "from": "Graph,Hash Table,Array",
+  "to": "Graph Theory,Hash Table,Array,Topological Sort"
+ },
+ "Shortest Path Visiting All Nodes": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Reachable Nodes in Subdivided Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Second Minimum Arrival Time": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Unreachable Pairs": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Largest Color Value in a Directed Graph": {
+  "from": "Graph,Array,String",
+  "to": "Graph Theory,Array,String,Depth-First Search"
+ },
+ "Critical and Pseudo-Critical MST Edges": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Minimum Spanning Tree"
+ },
+ "Island Perimeter": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Number of Closed Islands": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Negative Cycle Detection": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Number of Restricted Paths": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array"
+ },
+ "Immediate Dominators": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Deadlock Detection": {
+  "from": "Array",
+  "to": "Array,Concurrency"
+ },
+ "Minimum Vertices to Reach All Nodes": {
+  "from": "Graph,Hash Table,Array",
+  "to": "Graph Theory,Hash Table,Array"
+ },
+ "Minimum Edges to Make Graph Strongly Connected": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Strongly Connected Component"
+ },
+ "Minimum Vertex Cut": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Regular Expression Matching": {
+  "from": "String",
+  "to": "String,String Matching"
+ },
+ "Combination Sum IV": {
+  "from": "Hash Table,Array,Backtracking,Math",
+  "to": "Hash Table,Array,Backtracking,Math,Combinatorics"
+ },
+ "Count Vowel Permutations": {
+  "from": "String,Backtracking,Math",
+  "to": "String,Backtracking,Math,Counting,Combinatorics"
+ },
+ "Stone Game Score Difference": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Stone Game II": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Stone Game III": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Minimum Falling Path Sum": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Count Square Submatrices": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Student Attendance Record Count": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Freedom Trail": {
+  "from": "String",
+  "to": "String,Geometry"
+ },
+ "Arithmetic Subsequence Count": {
+  "from": "Array,Dynamic Programming,Math",
+  "to": "Array,Dynamic Programming,Math,Counting"
+ },
+ "Count Distinct Palindromic Subsequences": {
+  "from": "Hash Table,String,Two Pointers,Dynamic Programming,Math",
+  "to": "Hash Table,String,Two Pointers,Dynamic Programming,Math,Counting"
+ },
+ "Count Palindromic Partitions": {
+  "from": "String,Two Pointers,Dynamic Programming,Math",
+  "to": "String,Two Pointers,Dynamic Programming,Math,Counting"
+ },
+ "Minimum Score Polygon Triangulation": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Three Non-Overlapping Subarrays": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Sweep Line"
+ },
+ "Music Playlists Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Ways to Distribute Candies": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting"
+ },
+ "Digit Sum in Range Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Parallel Courses With Limit": {
+  "from": "Array",
+  "to": "Array,Topological Sort"
+ },
+ "Can I Win": {
+  "from": "Math",
+  "to": "Math,Minimax"
+ },
+ "Ways to Reorder Array to Get Same BST": {
+  "from": "Binary Search Tree,Tree,Array,Binary Search,Dynamic Programming,Backtracking,Math",
+  "to": "Binary Search Tree,Tree,Array,Binary Search,Dynamic Programming,Backtracking,Math,Binary Tree,Combinatorics"
+ },
+ "Count Sorted Vowel Strings": {
+  "from": "String,Sorting",
+  "to": "String,Sorting,Counting"
+ },
+ "Count Number of Texts": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Count Ways to Build Good Strings": {
+  "from": "String,Dynamic Programming,Math",
+  "to": "String,Dynamic Programming,Math,Counting"
+ },
+ "Count Special Subsequences": {
+  "from": "Array,Dynamic Programming,Math",
+  "to": "Array,Dynamic Programming,Math,Counting"
+ },
+ "Extra Characters in a String": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Sweep Line"
+ },
+ "Number of Increasing Paths in a Grid": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Depth-First Search"
+ },
+ "Find First Occurrence": {
+  "from": "String",
+  "to": "String,String Matching"
+ },
+ "Longest Duplicate Substring": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Rolling Hash"
+ },
+ "Sum of Scores of Built Strings": {
+  "from": "String,Dynamic Programming",
+  "to": "String,Dynamic Programming,String Matching"
+ },
+ "Group Shifted Strings Count": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting"
+ },
+ "Word Search II Count": {
+  "from": "Hash Table,String,Matrix",
+  "to": "Hash Table,String,Matrix,Counting"
+ },
+ "Palindrome Pairs Count": {
+  "from": "Hash Table,String,Two Pointers",
+  "to": "Hash Table,String,Two Pointers,Counting"
+ },
+ "Count Binary Substrings": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Count Unique Characters of All Substrings": {
+  "from": "Hash Table,String,Math",
+  "to": "Hash Table,String,Math,Counting"
+ },
+ "Maximum Occurrences of a Substring": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Min Stack Operations": {
+  "from": "Stack,Array",
+  "to": "Stack,Array,Design"
+ },
+ "Validate Stack Sequences": {
+  "from": "Stack,Hash Table,Backtracking,Array",
+  "to": "Stack,Hash Table,Backtracking,Array,Combinatorics"
+ },
+ "Number of Visible People in a Queue": {
+  "from": "Queue,Hash Table,Array",
+  "to": "Queue,Hash Table,Array,Monotonic Stack"
+ },
+ "Design Circular Queue": {
+  "from": "Queue,Array",
+  "to": "Queue,Array,Design"
+ },
+ "Design Circular Deque": {
+  "from": "Queue,Array",
+  "to": "Queue,Array,Design"
+ },
+ "Moving Average From Data Stream": {
+  "from": "Array",
+  "to": "Array,Data Stream"
+ },
+ "Ugly Number II": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Super Ugly Number": {
+  "from": "Hash Table,Math,Bit Manipulation,Array",
+  "to": "Hash Table,Math,Bit Manipulation,Array,Number Theory"
+ },
+ "Course Schedule III": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Topological Sort"
+ },
+ "Car Pooling": {
+  "from": "Matrix",
+  "to": "Matrix,Sweep Line"
+ },
+ "Total Cost to Hire K Workers": {
+  "from": "Array",
+  "to": "Array,Shortest Path"
+ },
+ "Meeting Rooms": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Sweep Line"
+ },
+ "Range Sum Query 2D": {
+  "from": "String,Matrix",
+  "to": "String,Matrix,Prefix Sum,Segment Tree"
+ },
+ "Game of Life Step": {
+  "from": "Matrix",
+  "to": "Matrix,Game Theory"
+ },
+ "Majority Element II": {
+  "from": "Array",
+  "to": "Array,Divide and Conquer"
+ },
+ "4Sum Count": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Sliding Window Maximum Values": {
+  "from": "Stack,Queue,Array,Sliding Window",
+  "to": "Stack,Queue,Array,Sliding Window,Monotonic Queue"
+ },
+ "Smallest Divisor Given a Threshold": {
+  "from": "Array,Math",
+  "to": "Array,Math,Number Theory"
+ },
+ "Kth Smallest in a Sorted Matrix": {
+  "from": "Heap,Hash Table,Matrix,Sorting",
+  "to": "Heap (Priority Queue),Hash Table,Matrix,Sorting,Quickselect"
+ },
+ "Kth Smallest Number in Multiplication Table": {
+  "from": "Heap,Hash Table,Matrix",
+  "to": "Heap (Priority Queue),Hash Table,Matrix,Quickselect"
+ },
+ "Kth Smallest Prime Fraction": {
+  "from": "Heap,Hash Table,Sorting,Math,Array",
+  "to": "Heap (Priority Queue),Hash Table,Sorting,Math,Array,Number Theory,Quickselect"
+ },
+ "Divide Two Integers": {
+  "from": "Math,Bit Manipulation",
+  "to": "Math,Bit Manipulation,Number Theory"
+ },
+ "Perfect Number": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Bulb Switcher": {
+  "from": "Math",
+  "to": "Math,Brainteaser"
+ },
+ "Prime Arrangements": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Number Theory,Combinatorics"
+ },
+ "Permutations of Distinct Values": {
+  "from": "Hash Table,Array,Backtracking",
+  "to": "Hash Table,Array,Backtracking,Combinatorics"
+ },
+ "Combination Sum": {
+  "from": "Hash Table,Sorting,Backtracking,Array",
+  "to": "Hash Table,Sorting,Backtracking,Array,Combinatorics"
+ },
+ "Combination Sum II": {
+  "from": "Hash Table,Sorting,Backtracking,Array",
+  "to": "Hash Table,Sorting,Backtracking,Array,Combinatorics"
+ },
+ "Combination Sum III": {
+  "from": "Sorting,Backtracking,Math",
+  "to": "Sorting,Backtracking,Math,Combinatorics"
+ },
+ "N-Queens Count": {
+  "from": "Matrix,Dynamic Programming,Backtracking",
+  "to": "Matrix,Dynamic Programming,Backtracking,Counting"
+ },
+ "Letter Combinations of a Phone Number": {
+  "from": "String,Backtracking,Math",
+  "to": "String,Backtracking,Math,Combinatorics"
+ },
+ "Beautiful Arrangement": {
+  "from": "Backtracking",
+  "to": "Backtracking,Combinatorics"
+ },
+ "Letter Case Permutation": {
+  "from": "String,Sorting,Backtracking,Math",
+  "to": "String,Sorting,Backtracking,Math,Combinatorics"
+ },
+ "Combinations": {
+  "from": "Sorting,Backtracking",
+  "to": "Sorting,Backtracking,Combinatorics"
+ },
+ "Implement Trie Operations": {
+  "from": "Tree,String",
+  "to": "Tree,String,Trie"
+ },
+ "Browser History": {
+  "from": "String",
+  "to": "String,Doubly-Linked List"
+ },
+ "Logger Rate Limiter": {
+  "from": "String",
+  "to": "String,Design"
+ },
+ "Ordered Stream": {
+  "from": "Array",
+  "to": "Array,Data Stream"
+ },
+ "Design HashMap": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Design,Hash Function"
+ },
+ "My Calendar I": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Ordered Set"
+ },
+ "Stock Price Fluctuation": {
+  "from": "Array",
+  "to": "Array,Ordered Set,Data Stream"
+ },
+ "Design Bitset": {
+  "from": "String,Bit Manipulation,Array",
+  "to": "String,Bit Manipulation,Array,Design"
+ },
+ "Design Parking System": {
+  "from": "Array",
+  "to": "Array,Design"
+ },
+ "Frequency Tracker": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Design Underground Totals": {
+  "from": "String",
+  "to": "String,Design"
+ },
+ "Page Replacement LRU Faults": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Design"
+ },
+ "Order Book Matching Volume": {
+  "from": "Array",
+  "to": "Array,Shortest Path"
+ },
+ "Josephus Winner": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Permutation Rank": {
+  "from": "Backtracking,Math,Array",
+  "to": "Backtracking,Math,Array,Combinatorics"
+ },
+ "Suffix Array Construction": {
+  "from": "String,Array,Sorting",
+  "to": "String,Array,Sorting,Suffix Array"
+ },
+ "Aho-Corasick Pattern Count": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting"
+ },
+ "Closest Pair of Points": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Divide and Conquer"
+ },
+ "Convex Hull Vertex Count": {
+  "from": "Graph,Hash Table,Array",
+  "to": "Graph Theory,Hash Table,Array,Counting,Geometry"
+ },
+ "Point in Polygon Classification": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Lattice Points Inside Circles": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Maximum Manhattan Distance": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Reverse Pairs": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Divide and Conquer,Binary Indexed Tree,Merge Sort"
+ },
+ "Count Number of Teams": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Count Collisions on a Road": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Largest Triangle Area": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Geometry"
+ },
+ "Count the Number of Consistent Strings": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting"
+ },
+ "Count Pairs of Similar Strings": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Maximum Ascending Subarray Sum": {
+  "from": "Array,Sorting,Sliding Window",
+  "to": "Array,Sorting,Sliding Window,Prefix Sum"
+ },
+ "Convert Sorted List to BST": {
+  "from": "Binary Search Tree,Sorting,Linked List,Tree",
+  "to": "Binary Search Tree,Sorting,Linked List,Tree,Binary Tree"
+ },
+ "Linked List in Binary Tree": {
+  "from": "Linked List,Tree",
+  "to": "Linked List,Tree,Binary Tree"
+ },
+ "Prefix Sums of a Linked List": {
+  "from": "Linked List,String,Two Pointers",
+  "to": "Linked List,String,Two Pointers,Prefix Sum"
+ },
+ "Delete Nodes at Prime Positions": {
+  "from": "Math,Linked List",
+  "to": "Math,Linked List,Number Theory"
+ },
+ "Has Root-to-Leaf Path Sum": {
+  "from": "Tree",
+  "to": "Tree,Depth-First Search"
+ },
+ "Flatten Binary Tree to Linked List": {
+  "from": "Linked List,Tree,Two Pointers",
+  "to": "Linked List,Tree,Two Pointers,Binary Tree"
+ },
+ "Construct Maximum Binary Tree": {
+  "from": "Tree,Stack,Hash Table,Array",
+  "to": "Tree,Stack,Hash Table,Array,Binary Tree"
+ },
+ "Second Minimum Node in a Binary Tree": {
+  "from": "Tree,Hash Table",
+  "to": "Tree,Hash Table,Binary Tree"
+ },
+ "Construct String From Binary Tree": {
+  "from": "Tree,Stack,String",
+  "to": "Tree,Stack,String,Binary Tree"
+ },
+ "Binary Tree Upside Down": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Increasing Order Search Tree": {
+  "from": "Binary Search Tree,Tree",
+  "to": "Binary Search Tree,Tree,Binary Tree"
+ },
+ "Convert BST to Greater Tree": {
+  "from": "Binary Search Tree,Tree,Hash Table",
+  "to": "Binary Search Tree,Tree,Hash Table,Binary Tree"
+ },
+ "Prune Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Minimum Root-to-Leaf Path Sum": {
+  "from": "Tree",
+  "to": "Tree,Depth-First Search"
+ },
+ "Largest BST Subtree Size": {
+  "from": "Binary Search Tree,Tree",
+  "to": "Binary Search Tree,Tree,Binary Tree"
+ },
+ "Diagonal Traversal of Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Top View of Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Breadth-First Search,Binary Tree"
+ },
+ "Bottom View of Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Breadth-First Search,Binary Tree"
+ },
+ "Check if Binary Tree Is a Heap": {
+  "from": "Tree,Heap",
+  "to": "Tree,Heap (Priority Queue),Binary Tree"
+ },
+ "Maximum Path Sum Between Two Leaves": {
+  "from": "Tree",
+  "to": "Tree,Depth-First Search"
+ },
+ "Balance a Binary Search Tree": {
+  "from": "Binary Search Tree,Tree,Hash Table,Sorting,Binary Search",
+  "to": "Binary Search Tree,Tree,Hash Table,Sorting,Binary Search,Binary Tree"
+ },
+ "Evaluate Boolean Binary Tree": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Create Binary Tree From Descriptions": {
+  "from": "Tree,Hash Table,Array",
+  "to": "Tree,Hash Table,Array,Binary Tree"
+ },
+ "Cousins in Binary Tree II": {
+  "from": "Tree",
+  "to": "Tree,Binary Tree"
+ },
+ "Equal Tree Partition": {
+  "from": "Tree,Graph",
+  "to": "Tree,Graph Theory"
+ },
+ "Closest Leaf to a Target": {
+  "from": "Tree,Graph,Hash Table",
+  "to": "Tree,Graph Theory,Hash Table"
+ },
+ "Count Nodes With the Highest Score": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Counting,Binary Tree"
+ },
+ "Count Subtrees With Sum Equal to X": {
+  "from": "Tree",
+  "to": "Tree,Counting"
+ },
+ "Count Root-to-Leaf Paths With Distinct Values": {
+  "from": "Tree,Hash Table",
+  "to": "Tree,Hash Table,Counting"
+ },
+ "Find Center of Star Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Find if Path Exists in Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Min Cost to Connect All Points": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Geometry,Minimum Spanning Tree"
+ },
+ "Minimum Weighted Subgraph With Required Paths": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Redundant Directed Connection": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Eulerian Path Exists": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Eulerian Circuit"
+ },
+ "Count Proper K-Colorings": {
+  "from": "Graph,Two Pointers,Dynamic Programming,Math,Array",
+  "to": "Graph Theory,Two Pointers,Dynamic Programming,Math,Array,Counting"
+ },
+ "Hamiltonian Path Exists": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Maximum Clique Size": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Maximum Independent Set in a Small Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Triangles in a Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting,Geometry"
+ },
+ "Graph Diameter": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Sum of All-Pairs Shortest Paths": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Shortest Paths With Negative Edges": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Kth Shortest Path Length": {
+  "from": "Graph,Sorting,Array",
+  "to": "Graph Theory,Sorting,Array,Shortest Path"
+ },
+ "Second Best Minimum Spanning Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Minimum Spanning Tree"
+ },
+ "Count Spanning Trees": {
+  "from": "Tree,Graph,Matrix,Math",
+  "to": "Tree,Graph Theory,Matrix,Math,Counting"
+ },
+ "Count Servers That Communicate": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Coloring a Border": {
+  "from": "Graph,Matrix",
+  "to": "Graph Theory,Matrix"
+ },
+ "Max Increase to Keep City Skyline": {
+  "from": "Matrix",
+  "to": "Matrix,Sweep Line"
+ },
+ "Find the Safest Path in a Grid": {
+  "from": "Matrix",
+  "to": "Matrix,Geometry"
+ },
+ "Count Unguarded Cells": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Minimum Days to Disconnect Island": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Walking Robot Simulation": {
+  "from": "Array",
+  "to": "Array,Simulation"
+ },
+ "Spiral Matrix III": {
+  "from": "Matrix",
+  "to": "Matrix,Simulation"
+ },
+ "Lonely Pixel Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Number of Good Paths": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Maximum Star Sum of a Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Pairs of Nodes by Degree": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Minimum Degree of a Connected Trio": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Closest Node to Two Nodes": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Longest Cycle in a Functional Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search"
+ },
+ "Collect Coins in a Tree": {
+  "from": "Tree,Graph,Dynamic Programming,Array",
+  "to": "Tree,Graph Theory,Dynamic Programming,Array"
+ },
+ "Count Possible Root Nodes": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Counting"
+ },
+ "Max Min Price Sum Difference": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Most Profitable Path in a Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Maximum Score After Tree Operations": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Count Prime Paths in a Tree": {
+  "from": "Tree,Graph,Math,Array",
+  "to": "Tree,Graph Theory,Math,Array,Counting,Number Theory"
+ },
+ "Minimum Time to Visit Disappearing Nodes": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Minimum AND Cost Walk": {
+  "from": "Graph,Bit Manipulation,Array",
+  "to": "Graph Theory,Bit Manipulation,Array"
+ },
+ "Count Visited Nodes in a Functional Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Graph Connectivity With Threshold": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Number Theory"
+ },
+ "Edge Length Limited Paths": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Remove Max Edges Keeping Full Traversal": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Game Theory"
+ },
+ "Merged Accounts Count": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Minimize Malware Spread": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Minimize Malware Spread II": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Couples Holding Hands": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Tree of Coprimes": {
+  "from": "Tree,Graph,Array,Math",
+  "to": "Tree,Graph Theory,Array,Math,Number Theory"
+ },
+ "Validate Binary Tree Nodes": {
+  "from": "Tree,Array",
+  "to": "Tree,Array,Binary Tree"
+ },
+ "Maximum K-Divisible Components": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Create Components With Same Value": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Minimum Cost to Reach City With Discounts": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Shortest Path"
+ },
+ "Count Subsets With Sum K": {
+  "from": "Array,Backtracking,Math",
+  "to": "Array,Backtracking,Math,Counting"
+ },
+ "Optimal Binary Search Tree Cost": {
+  "from": "Binary Search Tree,Tree,Binary Search,Array",
+  "to": "Binary Search Tree,Tree,Binary Search,Array,Binary Tree"
+ },
+ "Minimum Cost Tree From Leaf Values": {
+  "from": "Tree,Array,Dynamic Programming",
+  "to": "Tree,Array,Dynamic Programming,Binary Tree"
+ },
+ "Stone Game IV": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Stone Game V": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Stone Game VII": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Two Best Non-Overlapping Events": {
+  "from": "Array",
+  "to": "Array,Sweep Line"
+ },
+ "K Inverse Pairs Array": {
+  "from": "Array,Backtracking,Math",
+  "to": "Array,Backtracking,Math,Combinatorics"
+ },
+ "Ways to Build Rooms in an Ant Colony": {
+  "from": "Dynamic Programming,Math,Array",
+  "to": "Dynamic Programming,Math,Array,Topological Sort"
+ },
+ "Count the Number of Ideal Arrays": {
+  "from": "Array,Math",
+  "to": "Array,Math,Counting"
+ },
+ "Number of Beautiful Partitions": {
+  "from": "String,Math",
+  "to": "String,Math,Number Theory"
+ },
+ "Sets of K Non-Overlapping Line Segments": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Sweep Line"
+ },
+ "Count Increasing Quadruplets": {
+  "from": "Array,Backtracking",
+  "to": "Array,Backtracking,Counting,Combinatorics"
+ },
+ "Dice Roll Simulation": {
+  "from": "Math,Array",
+  "to": "Math,Array,Simulation"
+ },
+ "Count All Possible Routes": {
+  "from": "Hash Table,Math,Array",
+  "to": "Hash Table,Math,Array,Counting"
+ },
+ "Count Palindromic Subsequences of Length 5": {
+  "from": "String,Two Pointers,Dynamic Programming,Math",
+  "to": "String,Two Pointers,Dynamic Programming,Math,Counting"
+ },
+ "Count Ways to Group Overlapping Ranges": {
+  "from": "Dynamic Programming,Math,Array",
+  "to": "Dynamic Programming,Math,Array,Counting"
+ },
+ "Cat and Mouse": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Game Theory,Minimax"
+ },
+ "Flip Game II": {
+  "from": "String",
+  "to": "String,Game Theory"
+ },
+ "Divisor Game": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Number Theory"
+ },
+ "Grundy Values of Subtraction Game": {
+  "from": "Array",
+  "to": "Array,Game Theory"
+ },
+ "Stone Game VI": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Stone Game VIII": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Minimum Distance to Type With Two Fingers": {
+  "from": "String",
+  "to": "String,Geometry"
+ },
+ "Minimum Total Distance Traveled": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Simulation"
+ },
+ "Count Submatrices With All Ones": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "LIS With Bounded Difference": {
+  "from": "Tree,Dynamic Programming,Array",
+  "to": "Tree,Dynamic Programming,Array,Segment Tree"
+ },
+ "Make Array Non-Decreasing With Minimum Cost": {
+  "from": "Heap,Array,Dynamic Programming",
+  "to": "Heap (Priority Queue),Array,Dynamic Programming"
+ },
+ "Count Numbers With Non-Decreasing Digits": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Beautiful Integers in Range": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Integers Divisible by Their Digit Sum": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Stirling Numbers of the Second Kind": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Combinatorics"
+ },
+ "Derangements Count": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Counting,Combinatorics"
+ },
+ "Integer Partitions Count": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting"
+ },
+ "Necklaces With K Colors": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "DI String Valid Permutations": {
+  "from": "String,Backtracking,Math",
+  "to": "String,Backtracking,Math,Combinatorics"
+ },
+ "Count Strings With Exactly K Distinct Letters": {
+  "from": "Hash Table,String,Math",
+  "to": "Hash Table,String,Math,Counting"
+ },
+ "Count Distinct Subsequences": {
+  "from": "Hash Table,Dynamic Programming,Math,String",
+  "to": "Hash Table,Dynamic Programming,Math,String,Counting"
+ },
+ "Count Anagram Groups": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting"
+ },
+ "Robot Return to Origin": {
+  "from": "String",
+  "to": "String,Simulation"
+ },
+ "Palindrome Permutation Check": {
+  "from": "String,Two Pointers,Backtracking",
+  "to": "String,Two Pointers,Backtracking,Combinatorics"
+ },
+ "Repeated DNA Sequences": {
+  "from": "String",
+  "to": "String,Rolling Hash"
+ },
+ "String Matching in an Array": {
+  "from": "Hash Table,String,Array",
+  "to": "Hash Table,String,Array,String Matching"
+ },
+ "Count Prefixes of a Given String": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Prefix Function Array": {
+  "from": "String,Array",
+  "to": "String,Array,String Matching"
+ },
+ "Count Distinct Substrings": {
+  "from": "Hash Table,String,Array",
+  "to": "Hash Table,String,Array,Counting,Suffix Array"
+ },
+ "Occurrences After Bigram": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Count Items Matching a Rule": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Height Checker": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting Sort"
+ },
+ "Smaller Numbers Than Current": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Counting Sort"
+ },
+ "Build Array From Permutation": {
+  "from": "Array,Two Pointers,Dynamic Programming,Backtracking",
+  "to": "Array,Two Pointers,Dynamic Programming,Backtracking,Combinatorics"
+ },
+ "Fair Candy Swap": {
+  "from": "Array",
+  "to": "Array,Game Theory"
+ },
+ "Count Complete Subarrays": {
+  "from": "Hash Table,Array,Sliding Window",
+  "to": "Hash Table,Array,Sliding Window,Counting"
+ },
+ "Sliding Subarray Beauty": {
+  "from": "Heap,Array,Sliding Window",
+  "to": "Heap (Priority Queue),Array,Sliding Window,Quickselect"
+ },
+ "Valid Triangle Number": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Kth Smallest in Two Sorted Arrays": {
+  "from": "Heap,Array,Sorting",
+  "to": "Heap (Priority Queue),Array,Sorting,Quickselect"
+ },
+ "Count the Number of Fair Pairs": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Product of the Last K Numbers": {
+  "from": "Array",
+  "to": "Array,Data Stream"
+ },
+ "Two Non-Overlapping Subarrays With Target Sum": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Sweep Line"
+ },
+ "Count Number of Bad Pairs": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Homogenous Substrings": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Prefix Common Array": {
+  "from": "String,Array,Backtracking",
+  "to": "String,Array,Backtracking,Combinatorics"
+ },
+ "Maximum Frequency Stack": {
+  "from": "Stack,Hash Table,Array",
+  "to": "Stack,Hash Table,Array,Counting"
+ },
+ "Robot Printing the Smallest String": {
+  "from": "String",
+  "to": "String,Simulation"
+ },
+ "Constrained Subsequence Sum": {
+  "from": "Stack,Queue,Dynamic Programming,Array",
+  "to": "Stack,Queue,Dynamic Programming,Array,Monotonic Queue"
+ },
+ "Trapping Rain Water II": {
+  "from": "Graph,Matrix",
+  "to": "Graph Theory,Matrix,Monotonic Stack"
+ },
+ "Sort Array by Increasing Frequency": {
+  "from": "Hash Table,Array,Sorting",
+  "to": "Hash Table,Array,Sorting,Counting"
+ },
+ "Meeting Rooms III": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Sweep Line"
+ },
+ "Minimum Moves to Reach Target Score": {
+  "from": "Math",
+  "to": "Math,Breadth-First Search"
+ },
+ "Prime Number of Set Bits": {
+  "from": "Math,Bit Manipulation",
+  "to": "Math,Bit Manipulation,Number Theory"
+ },
+ "Count Triplets With AND Zero": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Decode XORed Permutation": {
+  "from": "Backtracking,Bit Manipulation,Array",
+  "to": "Backtracking,Bit Manipulation,Array,Combinatorics"
+ },
+ "Largest Combination With Positive AND": {
+  "from": "Backtracking,Bit Manipulation,Array",
+  "to": "Backtracking,Bit Manipulation,Array,Combinatorics"
+ },
+ "Rectangle Overlap": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Simplified Fractions": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Three Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Sum of Four Divisors": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "Closest Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Minimum Cuts to Divide a Circle": {
+  "from": "Graph",
+  "to": "Graph Theory,Geometry"
+ },
+ "Smallest Value After Prime Factor Sums": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Distinct Prime Factors of Product": {
+  "from": "Hash Table,Array,Math",
+  "to": "Hash Table,Array,Math,Number Theory"
+ },
+ "Closest Prime Numbers in Range": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count Integers With Even Digit Sum": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Total Colored Cells": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Sum of GCDs of All Pairs": {
+  "from": "Array,Math",
+  "to": "Array,Math,Number Theory"
+ },
+ "Count Subarrays With GCD Equal to K": {
+  "from": "Array,Sliding Window,Math",
+  "to": "Array,Sliding Window,Math,Counting,Number Theory"
+ },
+ "Count Subarrays With LCM Equal to K": {
+  "from": "Array,Sliding Window,Math",
+  "to": "Array,Sliding Window,Math,Counting,Number Theory"
+ },
+ "Smallest Number With Exactly N Divisors": {
+  "from": "Math,Bit Manipulation",
+  "to": "Math,Bit Manipulation,Number Theory"
+ },
+ "Count Squares of Primes in Range": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Sum of Largest Prime Factors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count Numbers Coprime to N in a Range": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Counting,Number Theory"
+ },
+ "Multiplicative Order Modulo N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Smallest Discrete Logarithm": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count Numbers With Digit Sum S in Range": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Square-Free Numbers up to N": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Modular Inverse Queries": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "Count Linear Diophantine Solutions in a Box": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Totient Values for a List": {
+  "from": "Array",
+  "to": "Array,Number Theory"
+ },
+ "Highest Power of a Prime Dividing a Product": {
+  "from": "Array,Math",
+  "to": "Array,Math,Number Theory"
+ },
+ "Count Abundant Numbers up to N": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Count Anagram Substring Pairs": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting"
+ },
+ "Count Balanced Bracket Prefixes": {
+  "from": "Stack,String",
+  "to": "Stack,String,Counting"
+ },
+ "Longest Substring With Vowel Count Divisible by K": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Count Substrings With More Vowels Than Consonants": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Longest Non-Overlapping Border": {
+  "from": "String",
+  "to": "String,Sweep Line"
+ },
+ "Count Subarrays Where Maximum Appears at Both Ends": {
+  "from": "Array,Sliding Window,Math",
+  "to": "Array,Sliding Window,Math,Counting"
+ },
+ "Maximum Sum of Two Non-Overlapping Subarrays": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Sweep Line"
+ },
+ "Count Elements With Smaller Left and Larger Right": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Pairs With Absolute Difference At Most K": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Subarrays With All Distinct Elements": {
+  "from": "Hash Table,Array,Sliding Window",
+  "to": "Hash Table,Array,Sliding Window,Counting"
+ },
+ "Next Greater Element Distance Sum": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Count Triplets With Sum Less Than Target": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Kth Smallest Subarray Sum": {
+  "from": "Heap,Array,Sliding Window",
+  "to": "Heap (Priority Queue),Array,Sliding Window,Prefix Sum,Quickselect"
+ },
+ "Count Pairs Whose Sum Is a Power of Two": {
+  "from": "Array,Math",
+  "to": "Array,Math,Counting"
+ },
+ "Stock Span Total": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Maximum Subarray Sum With One Deletion": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Prefix Sum"
+ },
+ "Count Subarrays With Score Less Than K": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting"
+ },
+ "Subset Sum Count to Target": {
+  "from": "Backtracking,Math,Array",
+  "to": "Backtracking,Math,Array,Counting"
+ },
+ "Domino and Tromino Tiling Count": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Counting"
+ },
+ "Count Binary Strings Without Consecutive Ones": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Minimum Path Sum With One Skip": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Count Grid Paths Around Obstacles": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Counting"
+ },
+ "Minimum Falling Path Sum With Diagonal Penalty": {
+  "from": "Matrix",
+  "to": "Matrix,Depth-First Search"
+ },
+ "Cherry Pickup Two Robots Down": {
+  "from": "Matrix",
+  "to": "Matrix,Simulation"
+ },
+ "Collatz Steps Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Number Spiral Value": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Simulation"
+ },
+ "Two Knights Placement Count": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting"
+ },
+ "Count Queen Placements on Blocked Chessboard": {
+  "from": "String,Matrix,Dynamic Programming",
+  "to": "String,Matrix,Dynamic Programming,Counting"
+ },
+ "Divisor Count Queries": {
+  "from": "Math,Array",
+  "to": "Math,Array,Counting,Number Theory"
+ },
+ "Maximum GCD Over Pairs": {
+  "from": "Array,Math",
+  "to": "Array,Math,Number Theory"
+ },
+ "Sum of Divisor Function Totals": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count Numbers Divisible by Any Given Prime": {
+  "from": "Hash Table,Math,Array",
+  "to": "Hash Table,Math,Array,Counting,Number Theory"
+ },
+ "Count Coprime Pairs in Array": {
+  "from": "Array,Math",
+  "to": "Array,Math,Counting,Number Theory"
+ },
+ "Binomial Coefficient Queries": {
+  "from": "Math,Array",
+  "to": "Math,Array,Combinatorics"
+ },
+ "Product of All Divisors": {
+  "from": "Hash Table,Math,Array",
+  "to": "Hash Table,Math,Array,Number Theory"
+ },
+ "Necklace Count Under Rotation": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Apartments Matching Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Collecting Numbers Rounds": {
+  "from": "Array,Backtracking",
+  "to": "Array,Backtracking,Combinatorics"
+ },
+ "Ranges Containing Another Range Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Best Subarray Sum With Length Between Bounds": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Prefix Sum"
+ },
+ "Count Subarrays With Equal Odd and Even Counts": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting"
+ },
+ "Count Pairs With Sum Between Bounds": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Minimum Cost to Make Array a Permutation": {
+  "from": "Array,Dynamic Programming,Backtracking",
+  "to": "Array,Dynamic Programming,Backtracking,Combinatorics"
+ },
+ "Message Route Node Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Cheapest Route With One Half-Price Flight": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Longest Path in DAG Between Two Nodes": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Number of Cheapest Routes": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Shortest Path"
+ },
+ "K-th Successor in Functional Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Largest Component Size After Each Edge": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Hamiltonian Paths From First to Last": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array,Counting"
+ },
+ "Graph Radius": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Nodes at Exact Distance K": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Fewest Edge Flips to Connect Two Nodes": {
+  "from": "Graph,Dynamic Programming,Array",
+  "to": "Graph Theory,Dynamic Programming,Array"
+ },
+ "Graphical Degree Sequence Check": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Is Edge List a Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Shortest Round Trip From Node One": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Distance to Nearest Marked Node": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Number of Closed Walks of Length K": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array"
+ },
+ "Paths of Exactly K Edges Between Two Nodes": {
+  "from": "Graph,Math,Array",
+  "to": "Graph Theory,Math,Array"
+ },
+ "Farthest Pair Distance in Connected Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Strictly Longer Second Route Length": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Nodes on Some Shortest Path": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Shortest Path"
+ },
+ "Farthest Node Distance for Every Node": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Maximum Matching in a Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Maximum Independent Set Size in Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Prufer Sequence of Labeled Tree": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array"
+ },
+ "Edges From Prufer Sequence": {
+  "from": "Tree,Graph,Sorting,Array",
+  "to": "Tree,Graph Theory,Sorting,Array"
+ },
+ "Count Labeled Trees With Given Degrees": {
+  "from": "Tree,Math,Array",
+  "to": "Tree,Math,Array,Counting"
+ },
+ "Count Node Pairs at Distance K in Tree": {
+  "from": "Tree,Array",
+  "to": "Tree,Array,Counting"
+ },
+ "Maximum Edges Cut So Components Divisible by K": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Depth-First Search"
+ },
+ "Count Descendants With Larger Value": {
+  "from": "Tree,Array",
+  "to": "Tree,Array,Counting"
+ },
+ "Coin Redistribution Moves on Tree": {
+  "from": "Tree,Graph,Dynamic Programming,Greedy,Array",
+  "to": "Tree,Graph Theory,Dynamic Programming,Greedy,Array"
+ },
+ "Nim Sum Winner": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Misere Nim Winner": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Staircase Nim Winner": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Game Theory,Minimax"
+ },
+ "Subtraction Game Winner": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Fibonacci Nim Winner": {
+  "from": "Dynamic Programming",
+  "to": "Dynamic Programming,Game Theory,Minimax"
+ },
+ "Wythoff Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Kayles Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Multi-Pile Subtraction Game Winner": {
+  "from": "Array",
+  "to": "Array,Game Theory,Minimax"
+ },
+ "Euclid Subtraction Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Chocolate Break Game Winner": {
+  "from": "Matrix",
+  "to": "Matrix,Game Theory,Minimax"
+ },
+ "Dominoes on a Strip Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Power of Two Moves Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Count Losing Positions in Subtraction Game": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Green Hackenbush Tree Winner": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Game Theory,Minimax"
+ },
+ "DAG Token Game Winner": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Game Theory,Minimax"
+ },
+ "Digit Removal Game Winner": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Game Theory,Minimax"
+ },
+ "Grundy's Game Winner": {
+  "from": "Heap",
+  "to": "Heap (Priority Queue),Game Theory,Minimax"
+ },
+ "Bounded Take Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "King to Corner Game Winner": {
+  "from": "Matrix",
+  "to": "Matrix,Game Theory,Minimax"
+ },
+ "Knight Corner Game Winner": {
+  "from": "Math",
+  "to": "Math,Game Theory,Minimax"
+ },
+ "Expected Rolls to See Every Face": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Expected Duration of Gamblers Ruin": {
+  "from": "Dynamic Programming",
+  "to": "Dynamic Programming,Probability and Statistics"
+ },
+ "Gamblers Ruin Probability Modulo": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Probability and Statistics"
+ },
+ "Expected Maximum of Dice Rolls": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Birthday Collision Probability Modulo": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Expected Inversions in Random Permutation": {
+  "from": "Sorting,Backtracking,Math",
+  "to": "Sorting,Backtracking,Math,Combinatorics,Randomized,Probability and Statistics"
+ },
+ "Expected Cycles in Random Permutation": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Combinatorics,Randomized,Probability and Statistics"
+ },
+ "Probability of No Adjacent Ones in Random Bits": {
+  "from": "Math,Bit Manipulation",
+  "to": "Math,Bit Manipulation,Randomized,Probability and Statistics"
+ },
+ "Expected Distinct Values in Random Draws": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Randomized,Probability and Statistics"
+ },
+ "Expected Flips Until Consecutive Heads": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Probability and Statistics"
+ },
+ "Expected Coin Flips Until Pattern": {
+  "from": "String,Dynamic Programming,Math",
+  "to": "String,Dynamic Programming,Math,Probability and Statistics"
+ },
+ "Probability of Dice Sum Modulo": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Probability of Drawing All Red Balls": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Expected Empty Bins in Balls and Bins": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Expected Inversions of Independent Uniform Variables": {
+  "from": "Sorting,Math,Array",
+  "to": "Sorting,Math,Array,Probability and Statistics"
+ },
+ "First to Roll Target Face Win Probability": {
+  "from": "Math",
+  "to": "Math,Geometry,Probability and Statistics"
+ },
+ "Probability of Hitting Exact Sum With Dice": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Expected Rolls to Reach Sum": {
+  "from": "Math",
+  "to": "Math,Probability and Statistics"
+ },
+ "Probability of Even Heads Count": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting,Probability and Statistics"
+ },
+ "Expected Isolated Nodes in Random Graph": {
+  "from": "Graph,Math",
+  "to": "Graph Theory,Math,Randomized,Probability and Statistics"
+ },
+ "Count Subarrays With Bitwise AND Equal to K": {
+  "from": "Array,Sliding Window,Bit Manipulation",
+  "to": "Array,Sliding Window,Bit Manipulation,Counting"
+ },
+ "Count Numbers Up To N With K Set Bits": {
+  "from": "Bit Manipulation",
+  "to": "Bit Manipulation,Counting"
+ },
+ "Count Pairs With XOR Equal to K": {
+  "from": "Array,Bit Manipulation",
+  "to": "Array,Bit Manipulation,Counting"
+ },
+ "Count Subsets With Zero AND": {
+  "from": "Backtracking,Math,Bit Manipulation,Array",
+  "to": "Backtracking,Math,Bit Manipulation,Array,Counting"
+ },
+ "Count Pairs With Zero AND": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Submask Sum Transform": {
+  "from": "Array,Bit Manipulation",
+  "to": "Array,Bit Manipulation,Bitmask"
+ },
+ "Fridays the Thirteenth Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Hands Overlap Count Between Times": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Palindromic Times in Interval": {
+  "from": "String,Two Pointers,Math,Greedy",
+  "to": "String,Two Pointers,Math,Greedy,Counting"
+ },
+ "Count Valid Times From Four Digits": {
+  "from": "Math,Array",
+  "to": "Math,Array,Counting"
+ },
+ "Doubled Polygon Area": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Boundary Lattice Points of Polygon": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Interior Lattice Points of Polygon": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Orientation of Three Points": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Is Polygon Convex": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Count Collinear Triples": {
+  "from": "Array",
+  "to": "Array,Counting,Geometry"
+ },
+ "Axis-Parallel Right Triangles in Points": {
+  "from": "Math,Array",
+  "to": "Math,Array,Geometry"
+ },
+ "Closest Pair Squared Distance": {
+  "from": "Array",
+  "to": "Array,Divide and Conquer"
+ },
+ "Number of Corner Points of Convex Hull": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Convex Hull Doubled Area": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Integer Points in Origin Circle": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Lattice Points on a Circle": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Count Squares in Point Set": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Point Inside Triangle": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Is Polygon Simple": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Geometry"
+ },
+ "Matrix Determinant Modulo Prime": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Number Theory"
+ },
+ "Matrix Rank Modulo Prime": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Number Theory"
+ },
+ "Saddle Points Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Count Elements at Most X in Sorted Matrix": {
+  "from": "Matrix,Sorting",
+  "to": "Matrix,Sorting,Counting"
+ },
+ "Value at Position in Spiral Fill": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Simulation"
+ },
+ "Count Distinct Rows in Matrix": {
+  "from": "Hash Table,Matrix",
+  "to": "Hash Table,Matrix,Counting"
+ },
+ "Count Row Pairs With Same Multiset": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Maximum Layer Sum of Matrix": {
+  "from": "Graph,Matrix",
+  "to": "Graph Theory,Matrix"
+ },
+ "Count Distinct Substrings of Length K": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Counting,Suffix Array"
+ },
+ "Count Overlapping Pattern Occurrences": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Count Substrings With Equal Ends": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Next Lexicographic Permutation of String": {
+  "from": "String,Backtracking",
+  "to": "String,Backtracking,Combinatorics"
+ },
+ "Count Palindromic Rearrangements": {
+  "from": "String,Two Pointers,Math",
+  "to": "String,Two Pointers,Math,Counting"
+ },
+ "Count Balanced Splits of String": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Clock Page Replacement Faults": {
+  "from": "Dynamic Programming,Bit Manipulation,Array",
+  "to": "Dynamic Programming,Bit Manipulation,Array,Geometry"
+ },
+ "First-Fit Memory Allocation Count": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Counting"
+ },
+ "Best-Fit Memory Allocation Count": {
+  "from": "Dynamic Programming,Array",
+  "to": "Dynamic Programming,Array,Counting"
+ },
+ "Robot Path Distinct Cells Visited": {
+  "from": "Hash Table,String,Matrix",
+  "to": "Hash Table,String,Matrix,Simulation"
+ },
+ "Stack Sortable Permutation Check": {
+  "from": "Stack,Sorting,Backtracking,Array",
+  "to": "Stack,Sorting,Backtracking,Array,Combinatorics"
+ },
+ "Unsigned Stirling Number of the First Kind": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Combinatorics"
+ },
+ "Capped Stars and Bars Count": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Counting"
+ },
+ "Binomial Modulo Small Prime": {
+  "from": "Math",
+  "to": "Math,Number Theory,Combinatorics"
+ },
+ "Eulerian Number Modulo": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Combinatorics"
+ },
+ "Involution Count Modulo": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Counting,Combinatorics"
+ },
+ "Bracelet Count With Reflections": {
+  "from": "Math",
+  "to": "Math,Counting,Geometry"
+ },
+ "Count Compositions With Bounded Parts": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Sequences With GCD One": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Ordered Pairs With Given LCM": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count Labeled Graphs on N Nodes": {
+  "from": "Graph,Math",
+  "to": "Graph Theory,Math,Counting"
+ },
+ "Count Numbers Without Adjacent Equal Digits": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Numbers With Digit Sum Divisible by K": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Numbers Without a Forbidden Digit": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Numbers With Strictly Increasing Digits": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Numbers With Exactly K Distinct Digits": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Counting"
+ },
+ "Count Numbers With Prime Digit Sum": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Count Binary Numbers With Equal Zeros and Ones": {
+  "from": "Bit Manipulation",
+  "to": "Bit Manipulation,Counting"
+ },
+ "K-th Smallest Number With Given Digit Sum": {
+  "from": "Heap,Math",
+  "to": "Heap (Priority Queue),Math,Quickselect"
+ },
+ "Count Numbers Divisible by M With Digit Sum S": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Numbers With Equal Even and Odd Digit Counts": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Travelling Salesman Shortest Tour Cost": {
+  "from": "Array",
+  "to": "Array,Bitmask"
+ },
+ "Chromatic Number of Small Graph": {
+  "from": "Graph,Two Pointers,Array",
+  "to": "Graph Theory,Two Pointers,Array"
+ },
+ "Minimum Dominating Set of Small Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Hamiltonian Cycle Exists in Small Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Maximum Weight Matching in Small General Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Count Independent Sets in Small Graph": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Count Seating Arrangements With Forbidden Neighbours": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Closest Subset Sum to Target Meet in the Middle": {
+  "from": "Array,Backtracking",
+  "to": "Array,Backtracking,Meet in the Middle"
+ },
+ "Fibonacci GCD Modulo": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Number Theory"
+ },
+ "Zeckendorf Representation Term Count": {
+  "from": "Hash Table,Dynamic Programming",
+  "to": "Hash Table,Dynamic Programming,Counting"
+ },
+ "Amicable Numbers Sum Below N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Twin Prime Pairs Below N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Largest Prime Gap Below N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Goldbach Partition Count": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting,Number Theory"
+ },
+ "Primes in Segment": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "N-th Prime Number": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Emirp Count Below N": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Circular Primes Count Below N": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Sophie Germain Primes Below N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Semiprimes Up To N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Sum of Primes Below N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Prime Counting Function": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Smallest Prime Factor Queries": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "Integers With Exactly K Distinct Prime Factors": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Number Theory"
+ },
+ "Totient Summatory Function": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Euler Totient Preimage Count": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Next Prime After N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Batch Primality Test": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "Largest Prime Factor of N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Smallest Primitive Root of Prime": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Sum of Smallest Prime Factors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Smallest Solution of Two Congruences": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Smallest Solution of Congruence System": {
+  "from": "Array",
+  "to": "Array,Number Theory"
+ },
+ "Legendre Symbol": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Modular Square Root Smallest": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Roots of Unity Count Modulo Prime": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Linear Congruence Solution Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Sum of Modular Inverses": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count K-th Power Residues Modulo Prime": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Carmichael Function Value": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Number of Primitive Roots Modulo N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Euclidean Algorithm Step Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Bezout Coefficient Modular Form": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Number Theory"
+ },
+ "Pillai Arithmetical Function": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Idempotent Residue Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Square Roots of Unity Modulo N Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Inverse of 2x2 Matrix Modulo M": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Number Theory"
+ },
+ "Count Solutions of Two Congruences in Range": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Count Elements Greater Than Average of Others": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Count Subarrays That Are Permutations": {
+  "from": "Array,Sliding Window,Backtracking",
+  "to": "Array,Sliding Window,Backtracking,Counting,Combinatorics"
+ },
+ "Count Pairs With Equal Digit Sum": {
+  "from": "Array,Math",
+  "to": "Array,Math,Counting"
+ },
+ "Count Subarrays With Mex Equal to K": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting"
+ },
+ "Count Subarrays With Majority Element": {
+  "from": "Array,Sliding Window",
+  "to": "Array,Sliding Window,Counting,Divide and Conquer"
+ },
+ "Count Pairs With Absolute Difference Equal to K": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Digit Count of Factorial": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Letter Count of Number Words": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Stern-Brocot Path of Fraction": {
+  "from": "Tree",
+  "to": "Tree,Monotonic Stack"
+ },
+ "Egyptian Fraction Greedy Term Count": {
+  "from": "Hash Table,Greedy",
+  "to": "Hash Table,Greedy,Counting"
+ },
+ "Pythagorean Triple Perimeter Count": {
+  "from": "Math",
+  "to": "Math,Counting,Geometry"
+ },
+ "Visible Lattice Points From Origin": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Terminating Fractions Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Lehmer Code of Permutation": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Permutation From Lehmer Code": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Inversion Table of Permutation": {
+  "from": "Sorting,Backtracking,Array",
+  "to": "Sorting,Backtracking,Array,Combinatorics"
+ },
+ "Order of a Permutation": {
+  "from": "Backtracking,Math,Array",
+  "to": "Backtracking,Math,Array,Combinatorics"
+ },
+ "Permutation Raised to Power K": {
+  "from": "Backtracking,Math,Array",
+  "to": "Backtracking,Math,Array,Combinatorics"
+ },
+ "Count Permutation Cycles": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Counting,Combinatorics"
+ },
+ "Permutation Parity": {
+  "from": "Backtracking,Math,Array",
+  "to": "Backtracking,Math,Array,Combinatorics"
+ },
+ "Inverse of a Permutation": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Compose Two Permutations": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Fixed Points After K Applications": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Derangement Check": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Count 132-Avoiding Permutations": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Counting,Combinatorics"
+ },
+ "Permutations With Exactly K Fixed Points": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Combinatorics"
+ },
+ "Permutation Cycle Type": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Kendall Tau Distance Between Permutations": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Permutation Is a Single Cycle": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Position After K Shuffles": {
+  "from": "Backtracking,Array",
+  "to": "Backtracking,Array,Combinatorics"
+ },
+ "Centralizer Size of Permutation": {
+  "from": "Backtracking,Math,Array",
+  "to": "Backtracking,Math,Array,Combinatorics"
+ },
+ "Bubble Sort Swap Count": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Counting"
+ },
+ "Bubble Sort Pass Count": {
+  "from": "Array,Sorting",
+  "to": "Array,Sorting,Counting"
+ },
+ "Insertion Sort Comparison Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Selection Sort Swap Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Quick Sort Comparison Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting,Divide and Conquer"
+ },
+ "Quick Sort Partition Call Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting,Divide and Conquer"
+ },
+ "Quick Sort Recursion Depth": {
+  "from": "Array,Sorting,Recursion",
+  "to": "Array,Sorting,Recursion,Divide and Conquer"
+ },
+ "Merge Sort Comparison Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting,Divide and Conquer,Memoization,Merge Sort"
+ },
+ "Heap Build Swap Count": {
+  "from": "Heap,Two Pointers,Array",
+  "to": "Heap (Priority Queue),Two Pointers,Array,Counting"
+ },
+ "Shell Sort Shift Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Cocktail Shaker Sort Pass Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Odd-Even Sort Round Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Gnome Sort Step Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Pancake Sort Flip Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Binary Insertion Sort Comparison Count": {
+  "from": "String,Sorting,Binary Search,Array",
+  "to": "String,Sorting,Binary Search,Array,Counting"
+ },
+ "Comb Sort Pass Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Stooge Sort Comparison Count": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Polynomial GCD Degree Modulo Prime": {
+  "from": "Math,Array",
+  "to": "Math,Array,Number Theory"
+ },
+ "Descartes Sign Change Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Binomial Expansion Coefficient": {
+  "from": "Math",
+  "to": "Math,Combinatorics"
+ },
+ "Spiral Diagonal Sum": {
+  "from": "Matrix,Math",
+  "to": "Matrix,Math,Simulation"
+ },
+ "Distinct Powers Count": {
+  "from": "Hash Table",
+  "to": "Hash Table,Counting"
+ },
+ "Non-Abundant Sums": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Quadratic Primes Coefficient Product": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Highly Divisible Triangular Number": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Longest Consecutive Prime Sum Below N": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Consecutive Integers With Equal Divisor Count": {
+  "from": "Math",
+  "to": "Math,Counting,Number Theory"
+ },
+ "Sum of K-th Powers of Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Mobius Function Value": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Number Theory"
+ },
+ "Liouville Function Value": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Jordan Totient Function": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Dedekind Psi Function": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Number Theory"
+ },
+ "Radical of an Integer": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Number Theory"
+ },
+ "Squarefree Part of an Integer": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Number of Unitary Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Sum of Unitary Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Aliquot Sequence Length": {
+  "from": "Hash Table,Math",
+  "to": "Hash Table,Math,Number Theory"
+ },
+ "Totient Chain Length": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Abundant Deficient or Perfect": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Largest Square Divisor": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Number of Square Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Number of Cube-Free Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Sum of Odd Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Is Number Powerful": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Is Number Smooth": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Static Range Minimum Queries": {
+  "from": "Array",
+  "to": "Array,Segment Tree"
+ },
+ "Range Add Range Sum Queries": {
+  "from": "Array,Math",
+  "to": "Array,Math,Prefix Sum,Segment Tree"
+ },
+ "K-th Smallest in Growing Set": {
+  "from": "Heap,Hash Table,Array",
+  "to": "Heap (Priority Queue),Hash Table,Array,Quickselect"
+ },
+ "Running Median of Stream": {
+  "from": "Math,Array",
+  "to": "Math,Array,Data Stream"
+ },
+ "Range GCD Queries": {
+  "from": "Array,Math",
+  "to": "Array,Math,Number Theory"
+ },
+ "Component Count After Each Edge": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search,Counting,Union-Find"
+ },
+ "Next Greater Element Queries": {
+  "from": "Array",
+  "to": "Array,Monotonic Stack"
+ },
+ "Smith Number Check": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Harshad Numbers Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Automorphic Numbers Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Self Numbers Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Happy Numbers Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Nth Lucky Number": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Angle Type Between Vectors": {
+  "from": "Array",
+  "to": "Array,Geometry"
+ },
+ "Manhattan Distance Sum of All Pairs": {
+  "from": "Math,Array",
+  "to": "Math,Array,Geometry"
+ },
+ "Count Orthogonal Vector Pairs": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Bit Reversal Index": {
+  "from": "Backtracking,Math,Bit Manipulation",
+  "to": "Backtracking,Math,Bit Manipulation,Combinatorics"
+ },
+ "Alternating Bit Numbers Count": {
+  "from": "Bit Manipulation",
+  "to": "Bit Manipulation,Counting"
+ },
+ "Tennis Game Winner From Points": {
+  "from": "String",
+  "to": "String,Game Theory"
+ },
+ "Queen Attack Squares Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Knight Move Count From Square": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Banknote Breakdown Count": {
+  "from": "Dynamic Programming",
+  "to": "Dynamic Programming,Counting"
+ },
+ "Overdraft Event Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Cheapest Phone Plan for Usage": {
+  "from": "Array",
+  "to": "Array,Shortest Path"
+ },
+ "FIFO Cache Hit Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "LRU Cache Hit Count": {
+  "from": "Array",
+  "to": "Array,Counting,Design,Doubly-Linked List"
+ },
+ "Water Tank Overflow Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Token Bucket Accepted Requests": {
+  "from": "Array",
+  "to": "Array,Design"
+ },
+ "Event Debounce Fire Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Uppercase Run Count": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Word Count Across Many Spaces": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Camel Case Word Count": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Palindromic Words Count": {
+  "from": "String,Two Pointers",
+  "to": "String,Two Pointers,Counting"
+ },
+ "Strict Local Peaks Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Strict Local Valleys Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Balanced Pivot Positions Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Sign Change Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Running Record Highs Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Zero Sum Prefix Count": {
+  "from": "String,Array",
+  "to": "String,Array,Counting"
+ },
+ "Lucky Digits 4 and 7 Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Number With All Digits Equal Check Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Digits Pairs Summing to Ten Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Non-Decreasing Rows Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Saddle Point Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "All Zero Rows Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Palindromic Rows Count": {
+  "from": "String,Matrix,Two Pointers",
+  "to": "String,Matrix,Two Pointers,Counting"
+ },
+ "Spiral Order Element": {
+  "from": "Matrix",
+  "to": "Matrix,Simulation"
+ },
+ "Strictly Increasing Rows Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Isolated Vertex Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Leaf Vertex Count": {
+  "from": "Tree,Graph,Array",
+  "to": "Tree,Graph Theory,Array,Counting"
+ },
+ "Highest Degree Vertex": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Edges Needed to Connect Graph": {
+  "from": "Graph,Greedy,Array",
+  "to": "Graph Theory,Greedy,Array"
+ },
+ "Regular Graph Check": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Complete Graph Check": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Triangle Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting,Geometry"
+ },
+ "Common Neighbour Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Vertices at Distance Two": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Source Vertex Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Sink Vertex Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Eulerian Circuit Exists": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Eulerian Circuit"
+ },
+ "Odd Degree Vertex Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Edge Density Percent": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Sum of Distances From Vertex Zero": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Farthest Reachable Distance": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Reachable Vertex Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Counting"
+ },
+ "Independent Cycle Count": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array,Depth-First Search,Counting"
+ },
+ "Average Degree Rounded Down": {
+  "from": "Graph,Array",
+  "to": "Graph Theory,Array"
+ },
+ "Inversion Count of Small Values": {
+  "from": "Sorting,Array",
+  "to": "Sorting,Array,Counting"
+ },
+ "Increasing Triples Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Lowest Prefix of Steps": {
+  "from": "String,Array",
+  "to": "String,Array,Prefix Sum"
+ },
+ "Sort by Frequency Then Value": {
+  "from": "Hash Table,Array,Sorting",
+  "to": "Hash Table,Array,Sorting,Counting"
+ },
+ "Adjacent Difference Array": {
+  "from": "Array",
+  "to": "Array,Prefix Sum"
+ },
+ "Leaders in Array Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Greedy Coin Count US": {
+  "from": "Dynamic Programming,Greedy",
+  "to": "Dynamic Programming,Greedy,Counting"
+ },
+ "Polygon Diagonal Count": {
+  "from": "Graph",
+  "to": "Graph Theory,Counting,Geometry"
+ },
+ "Integers With Exactly Three Divisors": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Choose Count Modulo Prime": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting,Number Theory"
+ },
+ "Catalan Number Modulo": {
+  "from": "Math",
+  "to": "Math,Combinatorics"
+ },
+ "Derangement Count Modulo": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Counting,Combinatorics"
+ },
+ "Sums of Different Positive Integers Count": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Counting"
+ },
+ "Stirling Number of the Second Kind Modulo": {
+  "from": "Dynamic Programming,Math",
+  "to": "Dynamic Programming,Math,Combinatorics"
+ },
+ "Surjections Count Modulo": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Non-Decreasing Sequences Count": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Unsigned Stirling Cycle Number Modulo": {
+  "from": "Backtracking,Math",
+  "to": "Backtracking,Math,Combinatorics"
+ },
+ "Merged Interval Count": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Counting"
+ },
+ "Back to Back Interval Count": {
+  "from": "Greedy,Array",
+  "to": "Greedy,Array,Counting"
+ },
+ "Priority Queue Job Finish Time": {
+  "from": "Queue,Heap,Array",
+  "to": "Queue,Heap (Priority Queue),Array"
+ },
+ "Overlapping Pattern Occurrences": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Distinct Substrings of Fixed Length": {
+  "from": "Hash Table,String",
+  "to": "Hash Table,String,Suffix Array"
+ },
+ "Ordered Letter Pair Count": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Letter Count Difference Between Strings": {
+  "from": "String",
+  "to": "String,Counting"
+ },
+ "Lexicographic Rank of a Word": {
+  "from": "String,Backtracking,Math",
+  "to": "String,Backtracking,Math,Combinatorics"
+ },
+ "Digit Count in a Base": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Zeckendorf Term Count": {
+  "from": "Dynamic Programming",
+  "to": "Dynamic Programming,Counting"
+ },
+ "Euclid Division Steps": {
+  "from": "Math",
+  "to": "Math,Number Theory"
+ },
+ "Count of Twos in Ternary": {
+  "from": "Math",
+  "to": "Math,Counting"
+ },
+ "Hex Letter Digit Count": {
+  "from": "String,Math",
+  "to": "String,Math,Counting"
+ },
+ "Rectangles Overlap Check": {
+  "from": "Graph",
+  "to": "Graph Theory"
+ },
+ "Lattice Points Inside a Circle": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Collinear Triple Count": {
+  "from": "Array",
+  "to": "Array,Counting,Geometry"
+ },
+ "Right Triangle Triples": {
+  "from": "Graph,Hash Table,Array",
+  "to": "Graph Theory,Hash Table,Array,Geometry"
+ },
+ "Isosceles Triangle Triples": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Geometry"
+ },
+ "Triangle Kind From Sides": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Rectangles in a Grid Count": {
+  "from": "Matrix",
+  "to": "Matrix,Counting"
+ },
+ "Curved Pass Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Score Spread Statistic": {
+  "from": "Math,Array",
+  "to": "Math,Array,Probability and Statistics"
+ },
+ "Bonus Points Capped Pass Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Perfect Score Count": {
+  "from": "Math,Array",
+  "to": "Math,Array,Counting"
+ },
+ "First Fit Bin Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Next Fit Bin Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Reorder Alert Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ },
+ "Combination Lock Minimum Turns": {
+  "from": "Backtracking,Math,String",
+  "to": "Backtracking,Math,String,Combinatorics"
+ },
+ "Robot Distance After Repeated Program": {
+  "from": "String",
+  "to": "String,Simulation,Geometry"
+ },
+ "Candy Rounds Final Receiver": {
+  "from": "Math",
+  "to": "Math,Geometry"
+ },
+ "Distinct Spots Visited on a Circle": {
+  "from": "Hash Table",
+  "to": "Hash Table,Geometry"
+ },
+ "Second Highest Frequency": {
+  "from": "Hash Table,Array",
+  "to": "Hash Table,Array,Counting"
+ },
+ "Fixed Point Index Count": {
+  "from": "Array",
+  "to": "Array,Counting"
+ }
+}

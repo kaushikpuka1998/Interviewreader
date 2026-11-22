@@ -52,6 +52,8 @@ export default function PracticePage() {
   })
   const [listDifficulty, setListDifficulty] = useState('All')
   const [listStatus, setListStatus] = useState('all')
+  const [listTopics, setListTopics] = useState([])   // selected topics; a problem must have all of them
+  const [topicsAll, setTopicsAll] = useState(false)
   const [authOpen, setAuthOpen] = useState(() => !isLoggedIn())
   // The top bar's Run and Submit call the code box through codeRef, and the code box reports whether it is busy.
   const codeRef = useRef(null)
@@ -92,15 +94,19 @@ export default function PracticePage() {
   const statusOf = id => (solvedIds.has(id) ? 'solved' : attemptedIds.has(id) ? 'attempted' : 'todo')
   // Numbered by position in the full list, as on ProblemsPage, so a problem keeps one number on both pages.
   const numberOf = new Map((problems || []).map((p, i) => [p.id, i + 1]))
+  const topicCounts = new Map()
+  for (const q of problems || []) for (const t of q.topics || []) topicCounts.set(t, (topicCounts.get(t) || 0) + 1)
+  const topicList = [...topicCounts.keys()].sort((a, b) => (topicCounts.get(b) || 0) - (topicCounts.get(a) || 0))
   const visibleProblems = (problems || []).filter(p => {
     const q = listQuery.trim().toLowerCase().replace(/^#/, '')
     if (listDifficulty !== 'All' && p.difficulty !== listDifficulty) return false
     if (listStatus !== 'all' && statusOf(p.id) !== listStatus) return false
+    if (listTopics.some(t => !(p.topics || []).includes(t))) return false
     return !q || p.title.toLowerCase().includes(q) || String(numberOf.get(p.id)) === q
   })
 
   // Rows are drawn 50 at a time as the list is scrolled; filters start again from the top.
-  useEffect(() => { setShownCount(CHUNK) }, [listQuery, listDifficulty, listStatus])
+  useEffect(() => { setShownCount(CHUNK) }, [listQuery, listDifficulty, listStatus, listTopics])
   const selectedIdx = visibleProblems.findIndex(p => p.id === selected)
   const renderCount = Math.max(shownCount, selectedIdx + 1)
   const onListScroll = e => {
@@ -359,7 +365,7 @@ export default function PracticePage() {
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               />
               <button type="button" onClick={() => setFiltersOpen(o => !o)} aria-expanded={filtersOpen} className="flex w-full items-center justify-between rounded-lg px-1 text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
-                <span>Filters{(listDifficulty !== 'All' || listStatus !== 'all') ? ' •' : ''}</span>
+                <span>Filters{(listDifficulty !== 'All' || listStatus !== 'all' || listTopics.length) ? ' •' : ''}</span>
                 <span aria-hidden="true">{filtersOpen ? '▴' : '▾'}</span>
               </button>
               {filtersOpen && <div className="space-y-2">
@@ -380,6 +386,20 @@ export default function PracticePage() {
                       </button>
                     )
                   })}
+                </div>
+                <div role="group" aria-label="Topics" className="flex flex-wrap gap-1.5">
+                  {(topicsAll ? topicList : topicList.slice(0, 12)).map(t => {
+                    const on = listTopics.includes(t)
+                    return (
+                      <button key={t} type="button" aria-pressed={on}
+                        onClick={() => setListTopics(s => on ? s.filter(x => x !== t) : [...s, t])}
+                        className={`inline-flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-semibold transition-colors ${on ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}>
+                        {t}<span className={`rounded-full px-1.5 text-[10px] tabular-nums ${on ? 'bg-white/20' : 'bg-white text-slate-500 dark:bg-slate-900 dark:text-slate-400'}`}>{topicCounts.get(t) || 0}</span>
+                      </button>
+                    )
+                  })}
+                  <button type="button" onClick={() => setTopicsAll(v => !v)} className="px-1 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">{topicsAll ? 'Collapse ▴' : `Expand all ${topicList.length} ▾`}</button>
+                  {listTopics.length > 0 && <button type="button" onClick={() => setListTopics([])} className="px-1 text-xs font-semibold text-slate-500 hover:underline">Clear</button>}
                 </div>
                 {isLoggedIn() && (
                   <select value={listStatus} onChange={e => setListStatus(e.target.value)} aria-label="Status" className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
