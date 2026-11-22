@@ -4,7 +4,7 @@
 
 const SITE_NAME = 'Interview Reader'
 // The one-word spellings people also search for. Google reads these from the WebSite / Organization markup.
-const ALT_NAMES = ['InterviewReader', 'interviewreader', 'Interview Reader Cloud']
+const ALT_NAMES = ['interviewreader', 'InterviewReader', 'Interview Reader Cloud']
 const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://interviewreader.cloud').replace(/\/+$/, '')
 
 const TECH_NAMES = {
@@ -153,7 +153,7 @@ export function setQuestionSeo(question, { gated = false } = {}) {
 
 /** Home / listing pages. */
 export function setDefaultSeo(total) {
-  const title = `${SITE_NAME} (InterviewReader): ${total ? total.toLocaleString() + '+ ' : ''}Interview Questions with Answers`
+  const title = `InterviewReader (${SITE_NAME}): ${total ? total.toLocaleString() + '+ ' : ''}Interview Questions with Answers`
   const description = 'InterviewReader: free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka and Microservices, plus coding problems and company roadmaps.'
   document.title = title
   setRobots(false)
