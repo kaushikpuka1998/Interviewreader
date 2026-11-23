@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Mermaid from './Mermaid.jsx'
 import ImageLightbox from './ImageLightbox.jsx'
+import MathExpr from './MathExpr.jsx'
 import { glossify, useGlossary } from '../lib/glossary.js'
 
 // ponytail: regex tokenizer, covers Java/JS/TS/Go well enough; swap for Shiki if more langs needed
@@ -78,9 +79,10 @@ function Terms({ text }) {
 
 function formatInline(line) {
   // Order matters: images before links, links before emphasis.
-  const chunks = String(line).split(/(!?\[[^\]]*\]\([^)]*\)|`+[^`]+`+|\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~)/g)
+  const chunks = String(line).split(/(\\\([\s\S]+?\\\)|!?\[[^\]]*\]\([^)]*\)|`+[^`]+`+|\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~)/g)
   return chunks.map((chunk, index) => {
     if (!chunk) return null
+    if (chunk.startsWith('\\(') && chunk.endsWith('\\)')) return <MathExpr key={index} tex={chunk.slice(2, -2).trim()} />
     // Inline image: ![alt](src)
     if (chunk.startsWith('![')) {
       const m = chunk.match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/)
@@ -214,6 +216,21 @@ export default function Markdown({ text, animateMermaid = false }) {
         for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
           const line = lines[lineIndex]
           const key = `${index}-${lineIndex}`
+
+          // Display math: \[ ... \] or $$ ... $$ (on one line, or spread over several lines, blank lines allowed)
+          const open = line.trim().startsWith('\\[') ? ['\\[', '\\]'] : line.trim().startsWith('$$') ? ['$$', '$$'] : null
+          if (open) {
+            let tex = line.trim().slice(open[0].length)
+            let end = lineIndex
+            let closed = tex.includes(open[1]) && tex.lastIndexOf(open[1]) >= 0
+            while (!closed && end + 1 < lines.length && end - lineIndex < 40) { end++; tex += '\n' + lines[end]; closed = lines[end].includes(open[1]) }
+            if (closed) {
+              tex = tex.slice(0, tex.lastIndexOf(open[1])).trim()
+              out.push(<MathExpr key={key} tex={tex} block />)
+              lineIndex = end
+              continue
+            }
+          }
 
           // Standalone image line: ![alt](src "optional title")
           const imgMatch = line.match(/^\s*!\[([^\]]*)\]\(([^)"\s]+)(?:\s+"([^"]*)")?\)\s*$/)
