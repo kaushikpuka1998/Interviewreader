@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import Mermaid from './Mermaid.jsx'
 import ImageLightbox from './ImageLightbox.jsx'
 import MathExpr from './MathExpr.jsx'
+import ChartBlock, { parseChartTag } from './ChartBlock.jsx'
 import { glossify, useGlossary } from '../lib/glossary.js'
 
 // ponytail: regex tokenizer, covers Java/JS/TS/Go well enough; swap for Shiki if more langs needed
@@ -231,6 +232,9 @@ export default function Markdown({ text, animateMermaid = false }) {
               continue
             }
           }
+
+          const chart = parseChartTag(line)
+          if (chart) { out.push(<ChartBlock key={key} spec={chart} />); continue }
 
           // Standalone image line: ![alt](src "optional title")
           const imgMatch = line.match(/^\s*!\[([^\]]*)\]\(([^)"\s]+)(?:\s+"([^"]*)")?\)\s*$/)
