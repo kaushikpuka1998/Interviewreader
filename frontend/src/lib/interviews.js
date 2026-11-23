@@ -1,3 +1,4 @@
+import { detectCurrency } from './currency.js'
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 const headers = () => {
   return { 'Content-Type': 'application/json' }
@@ -16,7 +17,8 @@ async function call(path, options = {}) {
 }
 
 // How many interviews the candidate can still book: free launch period, Premium's monthly ones, monthly plan.
-export const fetchInterviewQuota = () => call('/quota')
+// The plans in it are priced in `currency` (the member's saved choice by default; the server falls back to rupees).
+export const fetchInterviewQuota = (currency = detectCurrency()) => call(`/quota?currency=${encodeURIComponent(currency)}`)
 
 export const fetchMyInterviews = () => call('/mine')
 export const requestInterview = (type, resumeId, slot, wantsToInterview) => call('/request', { method: 'POST', body: JSON.stringify({ type, resumeId: resumeId || null, slot, wantsToInterview: !!wantsToInterview }) })

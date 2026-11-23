@@ -118,6 +118,12 @@ app:
     # Peer mock interviews: one monthly Razorpay plan per tier (5 / 10 interviews a month).
     interview-plan-5: ${RAZORPAY_INTERVIEW_PLAN_5:}
     interview-plan-10: ${RAZORPAY_INTERVIEW_PLAN_10:}
+    # Monthly plans abroad: a Razorpay plan has one currency, so create USD/EUR/GBP plans in the dashboard and list their ids per tier,
+    # e.g. USD:p12=plan_x,p18=plan_y,p24=plan_z,i5=plan_a,i10=plan_b;EUR:... A tier not listed shows "Coming soon" in that currency.
+    foreign-plan-ids: ${RAZORPAY_FOREIGN_PLAN_IDS:}
+  subscriptions:
+    # Price text to show for those plans, same shape, e.g. USD:p12=$6/month,i5=$6/month,i10=$9/month
+    foreign-labels: ${SUBSCRIPTION_FOREIGN_LABELS:}
   premium:
     # One-time Premium passes, in rupees (charged as Razorpay orders; no dashboard plans needed).
     price-monthly: ${PREMIUM_PRICE_MONTHLY:2200}

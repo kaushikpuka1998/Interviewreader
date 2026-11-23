@@ -61,8 +61,8 @@ public class MockInterviewController {
 
     /** Candidate: how many interviews they can still book (free period, Premium's monthly ones, plan). */
     @GetMapping("/quota")
-    public Map<String, Object> quota() {
-        return access.quota(me());
+    public Map<String, Object> quota(@RequestParam(required = false) String currency) {
+        return access.quota(me(), currency);
     }
 
     /** Candidate: ask for an interview. */
