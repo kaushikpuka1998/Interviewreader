@@ -39,15 +39,22 @@ function RevisePanel() {
   )
 }
 
-function ReferralCard() {
+export function ReferralCard() {
   const [r, setR] = useState(null)
   const [copied, copy] = useCopy()
   useEffect(() => { fetchReferral().then(setR).catch(() => {}) }, [])
   if (!r) return <div className={card}><p className="text-sm text-slate-400">Loading…</p></div>
-  const shareText = `I'm preparing for interviews on Interview Reader. Join with my link and we both get a week of Premium: ${r.link}`
+  const shareText = `I'm preparing for interviews on Interview Reader. Join with my link and get a week of Premium free: ${r.link}`
   return (
     <div className={card}>
-      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Invite a friend: you both get {r.rewardDays} days of Premium</h3>
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Invite {r.perReward} friends, get {r.rewardDays} days of Premium</h3>
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Every friend who joins with your link also gets {r.rewardDays} days of Premium, and you earn {r.rewardDays} days for every {r.perReward} friends.</p>
+      <div className="mt-2 flex items-center gap-1.5" role="progressbar" aria-label="Friends toward your next reward" aria-valuemin={0} aria-valuemax={r.perReward} aria-valuenow={r.nextRewardIn === 0 ? r.perReward : r.perReward - r.nextRewardIn}>
+        {Array.from({ length: r.perReward }, (_, i) => (
+          <span key={i} className={`h-2 flex-1 rounded-full ${i < (r.nextRewardIn === 0 ? r.perReward : r.perReward - r.nextRewardIn) ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`} />
+        ))}
+      </div>
+      <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">{r.nextRewardIn === 0 ? 'You have earned every reward.' : `${r.nextRewardIn} more friend${r.nextRewardIn === 1 ? '' : 's'} to earn ${r.rewardDays} days of Premium.`}</p>
       <div className="mt-2 flex gap-2">
         <input readOnly value={r.link} onFocus={e => e.target.select()} className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200" aria-label="Your invite link" />
         <button type="button" onClick={() => copy('link', r.link)} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">{copied === 'link' ? 'Copied ✓' : 'Copy'}</button>

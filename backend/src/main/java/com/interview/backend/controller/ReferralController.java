@@ -42,8 +42,11 @@ public class ReferralController {
         m.put("code", code);
         m.put("link", site.replaceAll("/+$", "") + "/?ref=" + code);
         m.put("joined", joined);
-        m.put("daysEarned", Math.min(joined, ReferralService.MAX_REWARDS) * ReferralService.REWARD_DAYS);
+        long counted = Math.min(joined, ReferralService.MAX_REFERRALS);
+        m.put("daysEarned", counted / ReferralService.REFERRALS_PER_REWARD * ReferralService.REWARD_DAYS);
         m.put("rewardDays", ReferralService.REWARD_DAYS);
+        m.put("perReward", ReferralService.REFERRALS_PER_REWARD);
+        m.put("nextRewardIn", counted >= ReferralService.MAX_REFERRALS ? 0 : ReferralService.REFERRALS_PER_REWARD - counted % ReferralService.REFERRALS_PER_REWARD);
         m.put("maxRewards", ReferralService.MAX_REWARDS);
         return m;
     }
