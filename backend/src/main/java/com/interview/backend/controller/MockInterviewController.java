@@ -75,7 +75,7 @@ public class MockInterviewController {
         Instant slot;
         try { slot = Instant.parse(in.slot()); } catch (Exception e) { return bad("Pick the date and time you would like the interview."); }
         if (slot.isBefore(Instant.now().plusSeconds(10 * 60))) return bad("Pick a time at least 10 minutes from now.");
-        if (slot.isAfter(Instant.now().plusSeconds(60L * 24 * 3600 * 30))) return bad("Pick a time within the next 30 days.");
+        if (slot.isAfter(Instant.now().plusSeconds(24L * 3600 * 30))) return bad("Pick a time within the next 30 days.");
         // Several interviews are fine as long as they are at different times (an hour apart) and not too many are open.
         int open = 0;
         for (MockInterview other : interviews.findByCandidateIdOrInterviewerIdOrderByCreatedAtDesc(me.getId(), me.getId())) {

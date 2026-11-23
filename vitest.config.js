@@ -15,6 +15,12 @@ export default defineConfig({
   test: {
     projects: [
       {
+        // Fast component and logic tests (jsdom): `npm run test:ui`
+        extends: true,
+        esbuild: { jsx: 'automatic' },
+        test: { name: 'unit', environment: 'jsdom', include: ['frontend/src/**/*.spec.{js,jsx}'], setupFiles: ['frontend/src/test-setup.js'] },
+      },
+      {
         extends: true,
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
