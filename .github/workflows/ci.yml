@@ -25,3 +25,40 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 21, cache: maven }
       - run: mvn -B -f backend/pom.xml test
+
+  # Shows "N tests (+M new)" next to the other checks, like GitGuardian's "No secrets detected".
+  test-summary:
+    name: test-summary
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Count tests and report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Tests are counted from the code: Java @Test methods, it()/test() in *.spec files, and one for each *.test.mjs script.
+          count() {
+            ref=$1
+            b=$(git grep -hE '^[[:space:]]*@Test' "$ref" -- backend/src/test | wc -l)
+            f=$(git grep -hE '^[[:space:]]*(it|test)\(' "$ref" -- ':(glob)frontend/src/**/*.spec.js' ':(glob)frontend/src/**/*.spec.jsx' | wc -l)
+            n=$(git ls-tree -r --name-only "$ref" -- frontend/src | grep -c '\.test\.mjs$' || true)
+            echo "$b $f $n"
+          }
+          read -r b f n <<< "$(count HEAD)"
+          total=$((b + f + n))
+          new=0
+          if [ -n "$BASE" ] && ! echo "$BASE" | grep -qE '^0+$' && git rev-parse -q --verify "$BASE" >/dev/null; then
+            read -r bb bf bn <<< "$(count "$BASE")"
+            new=$((total - bb - bf - bn))
+            [ "$new" -lt 0 ] && new=0
+          fi
+          msg="$total tests (+$new new) · backend $b, frontend $((f + n))"
+          echo "$msg" | tee -a "$GITHUB_STEP_SUMMARY"
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=success -f context="Tests" -f description="$msg"
