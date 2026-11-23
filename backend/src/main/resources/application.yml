@@ -127,6 +127,9 @@ app:
     regular-monthly: ${PREMIUM_REGULAR_MONTHLY:2999}
     regular-yearly: ${PREMIUM_REGULAR_YEARLY:9999}
     regular-lifetime: ${PREMIUM_REGULAR_LIFETIME:19999}
+    # International prices, fixed (never live-converted): CURRENCY=sprint/monthly/yearly/lifetime, separated by ";".
+    # Needs international payments enabled on the Razorpay account. Flat (rupee) coupons don't apply to these.
+    foreign-prices: ${PREMIUM_FOREIGN_PRICES:USD=12/25/75/160;EUR=11/23/69/149;GBP=9/19/59/129}
   interviews:
     # Peer mock interviews are free for everyone for requests made up to this moment (launch period).
     free-until: ${INTERVIEW_FREE_UNTIL:2026-11-15T23:59:59+05:30}

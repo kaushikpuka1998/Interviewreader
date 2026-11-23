@@ -40,6 +40,23 @@ describe('Premium checkout', () => {
     expect(trackFunnel).toHaveBeenCalledWith('paid')
   })
 
+  it('opens Razorpay in the currency the server created the order in', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValueOnce(json({ keyId: 'k', orderId: 'o', amount: 2500, currency: 'USD' }))
+    buyPremium('monthly', undefined, 'USD')
+    await vi.waitFor(() => expect(rzpOptions).toBeTruthy())
+    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ plan: 'monthly', currency: 'USD' })
+    expect(rzpOptions).toMatchObject({ amount: 2500, currency: 'USD' })
+    expect(rzpOptions.description).toContain('$25')
+  })
+
+  it('asks for plans in a currency', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(json([]))
+    await fetchPremiumPlans('EUR')
+    expect(globalThis.fetch.mock.calls[0][0]).toMatch(/\/billing\/plans\?currency=EUR$/)
+    await fetchPremiumPlans()
+    expect(globalThis.fetch.mock.calls[1][0]).toMatch(/\/billing\/plans$/)
+  })
+
   it('omits the coupon when none is given', async () => {
     globalThis.fetch = vi.fn().mockResolvedValueOnce(json({ keyId: 'k', orderId: 'o', amount: 100 }))
     buyPremium('yearly')

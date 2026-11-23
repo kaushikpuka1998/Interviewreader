@@ -1,4 +1,5 @@
 import { trackFunnel } from './analytics.js'
+import { formatMoney } from './currency.js'
 
 // Premium (paid roadmaps) is a one-time pass paid as a Razorpay order; system design practice is a monthly subscription.
 // The backend creates the order/subscription and verifies every payment; this file only loads Checkout and relays the result.
@@ -17,7 +18,7 @@ async function call(path, method = 'GET', body) {
 
 // Full roadmap for premium members, a teaser (no concepts / cheat sheets / practice links) for everyone else.
 export const fetchRoadmaps = () => call('/roadmaps')
-export const fetchPremiumPlans = () => call('/billing/plans')
+export const fetchPremiumPlans = (currency) => call(`/billing/plans${currency ? `?currency=${encodeURIComponent(currency)}` : ''}`)
 export const fetchBillingStatus = () => call('/billing/status')
 export const cancelSubscription = () => call('/billing/cancel', 'POST')
 
@@ -39,7 +40,7 @@ function checkout(sub, { name, description, verifyPath }) {
   return new Promise((resolve, reject) => {
     const rzp = new window.Razorpay({
       key: sub.keyId,
-      ...(sub.orderId ? { order_id: sub.orderId, amount: sub.amount, currency: 'INR' } : { subscription_id: sub.subscriptionId }),
+      ...(sub.orderId ? { order_id: sub.orderId, amount: sub.amount, currency: sub.currency || 'INR' } : { subscription_id: sub.subscriptionId }),
       name,
       description,
       prefill: { email: sub.email, name: sub.name },
@@ -55,10 +56,10 @@ function checkout(sub, { name, description, verifyPath }) {
 export const PREMIUM_PLAN_NAMES = { sprint: '30-Day Pass', monthly: 'Monthly', yearly: 'Yearly', lifetime: 'Lifetime' }
 
 // Premium (roadmaps) pass: 'monthly' | 'yearly' | 'lifetime', one-time payment, no auto-renewal.
-export async function buyPremium(plan, coupon) {
+export async function buyPremium(plan, coupon, currency) {
   trackFunnel('checkout_started')
-  const [order] = await Promise.all([call('/billing/premium/order', 'POST', { plan, coupon: coupon || undefined }), loadCheckout()])
-  const done = await checkout(order, { name: 'Interview Reader Premium', description: `${PREMIUM_PLAN_NAMES[plan]} pass · ₹${(order.amount / 100).toLocaleString('en-IN')}`, verifyPath: '/billing/premium/verify' })
+  const [order] = await Promise.all([call('/billing/premium/order', 'POST', { plan, coupon: coupon || undefined, currency: currency || undefined }), loadCheckout()])
+  const done = await checkout(order, { name: 'Interview Reader Premium', description: `${PREMIUM_PLAN_NAMES[plan]} pass · ${formatMoney(order.amount / 100, order.currency || 'INR')}`, verifyPath: '/billing/premium/verify' })
   trackFunnel('paid')
   return done
 }

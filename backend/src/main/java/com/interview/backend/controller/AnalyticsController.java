@@ -455,15 +455,19 @@ public class AnalyticsController {
         long started = rows.stream().filter(r -> "STARTED".equals(r.getStatus())).count();
         long paid = rows.stream().filter(r -> "PAID".equals(r.getStatus())).count();
         long failed = rows.stream().filter(r -> "FAILED".equals(r.getStatus())).count();
-        long revenue = rows.stream().filter(r -> "PAID".equals(r.getStatus()) && r.getAmount() != null).mapToLong(r -> r.getAmount()).sum();
+        // "revenue" stays rupees only; foreign-currency payments are summed per currency so they are never added to rupees.
+        long revenue = rows.stream().filter(r -> "PAID".equals(r.getStatus()) && r.getAmount() != null && (r.getCurrency() == null || "INR".equals(r.getCurrency()))).mapToLong(r -> r.getAmount()).sum();
+        Map<String, Long> revenueForeign = new java.util.TreeMap<>();
+        rows.stream().filter(r -> "PAID".equals(r.getStatus()) && r.getAmount() != null && r.getCurrency() != null && !"INR".equals(r.getCurrency()))
+                .forEach(r -> revenueForeign.merge(r.getCurrency(), (long) r.getAmount(), Long::sum));
         List<Map<String, Object>> list = new ArrayList<>();
         for (var r : rows) {
             Map<String, Object> m = new LinkedHashMap<>();
-            m.put("email", r.getEmail()); m.put("plan", r.getPlan()); m.put("amount", r.getAmount());
+            m.put("email", r.getEmail()); m.put("plan", r.getPlan()); m.put("amount", r.getAmount()); m.put("currency", r.getCurrency() == null ? "INR" : r.getCurrency());
             m.put("status", r.getStatus()); m.put("error", r.getError()); m.put("at", r.getCreatedAt().toString()); m.put("reason", r.getReason());
             list.add(m);
         }
-        return Map.of("days", window, "summary", Map.of("openCheckouts", started, "paid", paid, "failed", failed, "revenue", revenue), "attempts", list);
+        return Map.of("days", window, "summary", Map.of("openCheckouts", started, "paid", paid, "failed", failed, "revenue", revenue, "revenueForeign", revenueForeign), "attempts", list);
     }
 
     /** Server (5xx) errors in the window, newest first. */
