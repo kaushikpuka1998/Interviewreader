@@ -52,6 +52,8 @@ public class PointsController {
             return m;
         }).toList();
         var days = events.findTop60ByUserIdAndKindOrderByIdDesc(u.getId(), "login").stream().map(e -> e.getRef()).toList();
-        return Map.of("events", list, "days", days);
+        // The day a Premium streak freeze covered (the freeze is recorded on the day it was used, the missed day is the one before)
+        var frozen = u.getStreakFreezeUsedOn() == null ? java.util.List.<String>of() : java.util.List.of(u.getStreakFreezeUsedOn().minusDays(1).toString());
+        return Map.of("events", list, "days", days, "frozen", frozen);
     }
 }

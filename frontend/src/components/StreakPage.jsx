@@ -38,6 +38,7 @@ export default function StreakPage() {
 
   // 35 days ending today, oldest first, padded so each column is a weekday (Mon first).
   const checked = new Set(hist?.days || [])
+  const frozen = new Set(hist?.frozen || [])   // days a Premium streak freeze covered: no check-in, but the streak kept going
   const today = new Date()
   const cells = Array.from({ length: 35 }, (_, i) => { const d = new Date(today.getTime() - (34 - i) * 864e5); return { day: istDay(d), dow: (new Date(d.getTime() + 5.5 * 3600e3).getUTCDay() + 6) % 7 } })
   const lead = cells[0].dow
@@ -68,12 +69,13 @@ export default function StreakPage() {
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((x, i) => <span key={i}>{x}</span>)}
             {Array.from({ length: lead }, (_, i) => <span key={`p${i}`} />)}
             {cells.map(c => (
-              <span key={c.day} title={`${c.day}${checked.has(c.day) ? ' · checked in' : ''}`}
-                className={`flex h-8 items-center justify-center rounded-lg text-xs ${checked.has(c.day) ? 'bg-orange-500 font-bold text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'} ${c.day === istDay(today) ? 'ring-2 ring-blue-500' : ''}`}>
-                {checked.has(c.day) ? '🔥' : Number(c.day.slice(8))}
+              <span key={c.day} title={`${c.day}${checked.has(c.day) ? ' · checked in' : frozen.has(c.day) ? ' · streak freeze used (Premium), streak kept' : ''}`}
+                className={`flex h-8 items-center justify-center rounded-lg text-xs ${checked.has(c.day) ? 'bg-orange-500 font-bold text-white' : frozen.has(c.day) ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'} ${c.day === istDay(today) ? 'ring-2 ring-blue-500' : ''}`}>
+                {checked.has(c.day) ? '🔥' : frozen.has(c.day) ? '❄️' : Number(c.day.slice(8))}
               </span>
             ))}
           </div>
+          {frozen.size > 0 && <p className="mt-3 text-xs text-slate-500">❄️ A missed day covered by your Premium streak freeze (one every 30 days), so your streak kept going.</p>}
         </section>
 
         <section className={stat}>
