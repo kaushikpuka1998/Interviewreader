@@ -83,7 +83,7 @@ export default function PremiumPage({ autoOpen = false }) {
               {msg && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{msg}</p>}
             </>
           )}
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Or invite a friend from your profile: you both get 7 days of Premium.</p>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Or invite 3 friends from your profile and get 7 days of Premium (each friend gets 7 days too).</p>
         </div>
       </main>
       <Footer />
