@@ -46,11 +46,15 @@ let idCounter = 0
 
 // Text in answers is often typeset: "-->" arrives as "⟶" and "→". Mermaid only understands the ASCII
 // arrows, so put them back before parsing. Other text is left untouched.
-function normalizeDiagram(src) {
-  return src
+export function normalizeDiagram(src) {
+  const out = src
     .replace(/\u27F6|\u2192|\u27F9/g, '-->')   // ⟶ → ⟹
     .replace(/\u27F5|\u2190/g, '<--')          // ⟵ ←
     .replace(/\u2014>|\u2013>/g, '-->')         // —> –>
+  // In a sequence diagram ";" ends a statement, so one inside message text breaks the parse.
+  // Escape it (#59;) after the first ":" of each line; flowcharts legitimately use ";" so skip them.
+  if (!/^\s*sequenceDiagram\b/m.test(out)) return out
+  return out.replace(/^([^:\n]*:)(.*)$/gm, (_, head, text) => head + text.replace(/;/g, '#59;'))
 }
 
 export default function Mermaid({ code, animated = false }) {
