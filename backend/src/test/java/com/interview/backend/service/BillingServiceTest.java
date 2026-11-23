@@ -155,6 +155,43 @@ class BillingServiceTest {
         verify(users, never()).save(any());
     }
 
+    // ---- monthly plans abroad ----
+
+    @Test
+    void foreignPlanConfigIsParsedAndBadPiecesSkipped() {
+        var m = BillingService.parseByCurrency("usd:p12=plan_a, i5 = plan_b;EUR:p12=;junk;GBP:i10=plan_c");
+        assertEquals(Map.of("p12", "plan_a", "i5", "plan_b"), m.get("USD"));
+        assertEquals(Map.of(), m.get("EUR"));
+        assertEquals(Map.of("i10", "plan_c"), m.get("GBP"));
+        assertEquals(3, m.size());
+    }
+
+    @Test
+    void aTierIsComingSoonAbroadUntilItsPlanAndPriceAreConfigured() {
+        var before = plan(billing.interviewPlans("USD"), "i5");
+        assertEquals(false, before.get("available"));
+        assertEquals("USD", before.get("currency"));
+        ReflectionTestUtils.setField(billing, "foreignPlanIdsCsv", "USD:i5=plan_usd5,i10=plan_usd10");
+        ReflectionTestUtils.setField(billing, "foreignLabelsCsv", "USD:i5=$6/month");
+        ReflectionTestUtils.setField(billing, "foreignPlanIds", null);   // config is parsed once and cached; the test changed it
+        ReflectionTestUtils.setField(billing, "foreignLabels", null);
+        var plans = billing.interviewPlans("USD");
+        assertEquals(true, plan(plans, "i5").get("available"));
+        assertEquals("$6/month", plan(plans, "i5").get("priceLabel"));
+        assertEquals("", plan(plans, "i5").get("regularLabel"), "the crossed-out price is in rupees");
+        assertEquals(false, plan(plans, "i10").get("available"), "a plan id without a price label is not offered");
+        assertEquals("INR", plan(billing.interviewPlans(), "i5").get("currency"), "no currency = rupees, as before");
+    }
+
+    @Test
+    void subscribingAbroadWithoutAConfiguredPlanIsRefusedBeforeRazorpay() {
+        User u = user("a@example.com");
+        assertThrows(IllegalStateException.class, () -> billing.subscribeInterview(u, "i5", "USD"));
+        assertThrows(IllegalStateException.class, () -> billing.subscribePractice(u, "p12", "EUR"));
+        assertThrows(IllegalArgumentException.class, () -> billing.subscribeInterview(u, "nope", "USD"));
+        verify(users, never()).save(any());
+    }
+
     // ---- checkout verification ----
 
     @Test

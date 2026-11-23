@@ -65,16 +65,16 @@ export async function buyPremium(plan, coupon, currency) {
 }
 
 // System design practice plan: 'p12' | 'p18' | 'p24' (attempts per month). Separate from Premium.
-export async function subscribePractice(plan) {
-  const [sub] = await Promise.all([call('/billing/practice/subscribe', 'POST', { plan }), loadCheckout()])
+export async function subscribePractice(plan, currency) {
+  const [sub] = await Promise.all([call('/billing/practice/subscribe', 'POST', { plan, currency: currency || undefined }), loadCheckout()])
   return checkout(sub, { name: 'System Design Practice', description: `${sub.attempts} scored attempts a month · ${sub.priceLabel}`, verifyPath: '/billing/practice/verify' })
 }
 
 export const cancelPracticePlan = () => call('/billing/practice/cancel', 'POST')
 
 // Peer mock interview plan: 'i5' | 'i10' (interviews per month). Separate from Premium, which includes a few a month.
-export async function subscribeInterviewPlan(plan) {
-  const [sub] = await Promise.all([call('/billing/interviews/subscribe', 'POST', { plan }), loadCheckout()])
+export async function subscribeInterviewPlan(plan, currency) {
+  const [sub] = await Promise.all([call('/billing/interviews/subscribe', 'POST', { plan, currency: currency || undefined }), loadCheckout()])
   return checkout(sub, { name: 'Mock Interviews', description: `${sub.interviews} mock interviews a month · ${sub.priceLabel}`, verifyPath: '/billing/interviews/verify' })
 }
 

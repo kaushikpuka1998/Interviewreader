@@ -156,7 +156,7 @@ public class BillingController {
     @PostMapping("/interviews/subscribe")
     public ResponseEntity<?> subscribeInterview(@RequestBody PlanInput in) {
         try {
-            return ResponseEntity.ok(billing.subscribeInterview(currentUser(), in == null ? null : in.plan()));
+            return ResponseEntity.ok(billing.subscribeInterview(currentUser(), in == null ? null : in.plan(), in == null ? null : in.currency()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
@@ -188,7 +188,7 @@ public class BillingController {
     @PostMapping("/practice/subscribe")
     public ResponseEntity<?> subscribePractice(@RequestBody PlanInput in) {
         try {
-            return ResponseEntity.ok(billing.subscribePractice(currentUser(), in == null ? null : in.plan()));
+            return ResponseEntity.ok(billing.subscribePractice(currentUser(), in == null ? null : in.plan(), in == null ? null : in.currency()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
