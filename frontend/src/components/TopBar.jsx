@@ -178,7 +178,7 @@ export default function TopBar({ user: userProp, isDark: isDarkProp, onToggleDar
         </button>
         <a href="/" className="flex shrink-0 items-center gap-2 font-semibold text-slate-900 dark:text-slate-100" aria-label="Interview Reader home">
           <img src="/logo.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
-          <span className="hidden whitespace-nowrap min-[1420px]:inline max-xl:sm:inline">Interview Reader</span>
+          <span className="hidden whitespace-nowrap min-[1420px]:inline max-xl:sm:inline font-extrabold tracking-tight"><span className="text-[#1d5240] dark:text-emerald-100">Interview</span><span className="text-[#52b788]">Reader</span></span>
         </a>
         <nav className="hidden min-w-0 items-center gap-0.5 text-sm xl:flex 2xl:gap-1" aria-label="Main">
           {links(false)}
