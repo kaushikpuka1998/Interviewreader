@@ -109,7 +109,7 @@ export default function ImageLightbox({ src, alt, html, onClose }) {
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomed ? 2.5 : 1})` }}
-          className={`max-w-[92vw] max-h-[88vh] select-none rounded bg-white dark:bg-slate-900 p-3 [&>svg]:h-auto [&>svg]:max-w-full ${zoomed ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'}`}
+          className={`w-[92vw] max-h-[88vh] select-none rounded bg-white dark:bg-slate-900 p-3 [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-h-[82vh] [&>svg]:w-full [&>svg]:!max-w-none ${zoomed ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'}`}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       ) : failed ? (
