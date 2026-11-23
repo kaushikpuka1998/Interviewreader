@@ -45,6 +45,17 @@ class CouponServiceTest {
     }
 
     @Test
+    void foreignCurrenciesTakePercentCodesButNotFlatRupeeCodes() {
+        coupon("percent", 20);
+        assertEquals(80, service.quote("SAVE", "yearly", 100, 1L, true).finalPrice(), "20% off 100");
+        coupon("flat", 500);
+        var q = service.quote("SAVE", "yearly", 75, 1L, true);
+        assertFalse(q.valid(), "a flat code is in rupees, so it must not take 500 off a dollar price");
+        assertEquals(75, q.finalPrice());
+        assertTrue(service.quote("SAVE", "yearly", 6500, 1L, false).valid());
+    }
+
+    @Test
     void aCodeNeverMakesAPassFree() {
         coupon("flat", 100000);
         var q = service.quote("SAVE", "monthly", 2200, 1L);

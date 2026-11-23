@@ -49,7 +49,9 @@ public class InterviewAccessService {
         return ZonedDateTime.now(IST).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS).toInstant();
     }
 
-    public Map<String, Object> quota(User u) {
+    public Map<String, Object> quota(User u) { return quota(u, null); }
+
+    public Map<String, Object> quota(User u, String currency) {
         boolean admin = billing.isAdmin(u), free = freePeriod(), premium = billing.isPremium(u) && !admin;
         long premiumUsed = premium ? interviews.countUsed(u.getId(), PREMIUM, monthStart()) : 0;
         String plan = billing.activeInterviewPlan(u);
@@ -70,7 +72,7 @@ public class InterviewAccessService {
         q.put("periodEnd", plan == null ? null : u.getInterviewPeriodEnd());
         q.put("status", u.getInterviewStatus());
         q.put("canRequest", admin || free || premiumLeft > 0 || planLeft > 0);
-        q.put("plans", billing.interviewPlans());
+        q.put("plans", billing.interviewPlans(currency));
         return q;
     }
 

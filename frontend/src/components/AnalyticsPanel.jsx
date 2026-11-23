@@ -263,7 +263,7 @@ function PaymentsBlock({ days }) {
         {!p ? <p className="mt-3 text-sm text-slate-400">Loading…</p> : (
           <>
             <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-              {[['Opened', sm.openCheckouts], ['Paid', sm.paid], ['Failed', sm.failed], ['Revenue', `₹${Number(sm.revenue || 0).toLocaleString('en-IN')}`]].map(([l, v]) => (
+              {[['Opened', sm.openCheckouts], ['Paid', sm.paid], ['Failed', sm.failed], ['Revenue', [`₹${Number(sm.revenue || 0).toLocaleString('en-IN')}`, ...Object.entries(sm.revenueForeign || {}).map(([c, n]) => `${c} ${Number(n).toLocaleString()}`)].join(' + ')]].map(([l, v]) => (
                 <div key={l} className="rounded-lg bg-slate-50 px-2 py-2 dark:bg-white/5">
                   <div className="text-base font-bold tabular-nums text-slate-900 dark:text-slate-100">{v ?? 0}</div>
                   <div className="text-[11px] text-slate-500">{l}</div>
@@ -276,7 +276,7 @@ function PaymentsBlock({ days }) {
                   <li key={i} className="flex items-start justify-between gap-3 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm text-slate-800 dark:text-slate-100" title={a.email}>{a.email}</p>
-                      <p className="text-xs text-slate-500">{a.plan || '–'}{a.amount != null ? ` · ₹${Number(a.amount).toLocaleString('en-IN')}` : ''} · {when(a.at)}</p>
+                      <p className="text-xs text-slate-500">{a.plan || '–'}{a.amount != null ? ` · ${a.currency && a.currency !== 'INR' ? a.currency + ' ' + Number(a.amount).toLocaleString() : '₹' + Number(a.amount).toLocaleString('en-IN')}` : ''} · {when(a.at)}</p>
                       {a.error && <p className="mt-0.5 break-words text-xs text-rose-600 dark:text-rose-400">{a.error}</p>}
                       {a.reason && <p className="mt-0.5 break-words text-xs text-amber-700 dark:text-amber-300">Why they left: {a.reason}</p>}
                     </div>
