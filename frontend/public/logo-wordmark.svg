@@ -1,3 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 100" role="img" aria-label="InterviewReader">
-  <text x="0" y="74" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-2"><tspan fill="#1d5240">Interview</tspan><tspan fill="#52b788">Reader</tspan></text>
+  <style>
+    .a { fill: #1d5240 }
+    .b { fill: #52b788 }
+    @media (prefers-color-scheme: dark) { .a { fill: #d1fae5 } }
+  </style>
+  <!-- textLength pins the width, so a wider fallback font on GitHub can't push "Reader" out of the picture -->
+  <text x="4" y="74" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="76" font-weight="800" textLength="512" lengthAdjust="spacingAndGlyphs"><tspan class="a">Interview</tspan><tspan class="b">Reader</tspan></text>
 </svg>
