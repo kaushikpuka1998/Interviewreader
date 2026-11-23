@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Loader from './Loader.jsx'
 import QuestionLink from './QuestionLink.jsx'
+import HldGroupedList from './HldGroupedList.jsx'
 import { SearchInput, TechFilter, CategorySelect, CompanySelect, StatusSelect, DifficultySelect, QuestionCount } from './SidebarFilters.jsx'
 import Notifications from './Notifications.jsx'
 import PracticeCard from './PracticeCard.jsx'
@@ -296,7 +297,11 @@ export default function Sidebar({  questions, filtered, selectedId, query, setQu
           </div>
         ) : (
           <>
-            {filtered.map(q => (
+            {tech === 'hld' ? (
+              <HldGroupedList items={filtered} titleOf={q => q.title} activeId={selectedId} forceOpen={!!query}
+                isDone={q => (read?.has ? read.has(q.id) : Array.isArray(read) && read.includes(q.id))}
+                renderItem={q => <QuestionLink question={q} isActive={selectedId === q.id} onClick={() => onSelect(q.id)} selectedId={selectedId} visited={visited} read={read} />} />
+            ) : filtered.map(q => (
               <QuestionLink
                 key={q.id}
                 question={q}

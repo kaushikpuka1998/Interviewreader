@@ -152,7 +152,7 @@ function App({ path = '/', onPathChange = () => {} }) {
         flaggedIds: Array.from(flaggedRef.current),
         importantIds: Array.from(importantRef.current),
         page: pageToLoad,
-        size: PAGE
+        size: tech === 'hld' ? 1000 : PAGE   // system design is shown in groups, so it is loaded in one go
       })
       setQuestionsData(prev => {
         let next = append ? [...prev, ...data.content] : data.content
