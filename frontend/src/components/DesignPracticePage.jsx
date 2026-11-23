@@ -9,6 +9,7 @@ import AuthModal from './AuthModal.jsx'
 import ShareLinkedIn from './ShareLinkedIn.jsx'
 import PremiumPlans from './PremiumPlans.jsx'
 import DesignSubmissions from './DesignSubmissions.jsx'
+import HldGroupedList from './HldGroupedList.jsx'
 import { getUser } from '../lib/auth.js'
 import { setPageSeo } from '../lib/seo.js'
 import { trackFunnel } from '../lib/analytics.js'
@@ -206,9 +207,8 @@ function QuestionList({ questions, onStart }) {
         </label>
       </div>
       <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">{shown.length} questions</p>
-      <ul className="max-h-[38rem] divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
-        {shown.map(x => (
-          <li key={x.id}>
+      <HldGroupedList className="max-h-[38rem] overflow-y-auto" items={shown} forceOpen={!!q.trim()} isDone={x => x.best != null}
+        renderItem={x => (
             <button type="button" onClick={() => onStart(x.id)} className="group flex w-full items-center justify-between gap-3 px-1 py-2.5 text-left">
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium text-slate-900 group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-400">{x.title}</span>
@@ -222,9 +222,7 @@ function QuestionList({ questions, onStart }) {
                 <span aria-hidden="true" className="text-slate-300 group-hover:text-blue-500">→</span>
               </span>
             </button>
-          </li>
-        ))}
-      </ul>
+        )} />
     </section>
   )
 }
