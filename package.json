@@ -6,6 +6,7 @@
     "dev": "cd frontend && vite --host 127.0.0.1 --port 5173",
     "build": "cd frontend && vite build",
     "preview": "cd frontend && vite preview",
+    "test": "node frontend/src/lib/diff.test.mjs && node frontend/src/lib/interviewer.test.mjs && node frontend/src/lib/complexity.test.mjs && node frontend/src/lib/data.test.mjs",
     "sitemap": "node scripts/gen-sitemap.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
