@@ -33,6 +33,17 @@ describe('hldGroupOf', () => {
     expect(g('Design a Kafka partitioning strategy')).toBe('Events, Streams & Messaging')
   })
 
+  it('files concept questions (availability, reliability, DAU/MAU, scaling) under Fundamentals, not under "More Designs"', () => {
+    for (const t of ['What is High-Level Design (HLD)?', 'What is availability?', 'What is reliability?', 'Explain DAU and MAU',
+      'What is the difference between vertical and horizontal scaling?', 'What is scalability?', 'Explain the CAP theorem through system design'])
+      expect(g(t)).toBe('System Design Fundamentals')
+  })
+
+  it('keeps real designs out of Fundamentals even when they mention a concept word', () => {
+    expect(g('Design strong consistency')).toBe('Data Stores & Consensus')
+    expect(g('Design an active-active architecture')).toBe('Platform & Reliability')
+  })
+
   it('falls back to "More Designs" for anything unknown', () => {
     expect(hldGroupOf('Design a quantum teleporter')).toBe(HLD_OTHER)
     expect(hldGroupOf(null)).toBe(HLD_OTHER)
@@ -44,6 +55,7 @@ describe('groupHld', () => {
     const items = ['Design Uber.', 'Design WhatsApp.', 'Design a URL shortener', 'Design a quantum teleporter'].map(title => ({ title }))
     const groups = groupHld(items)
     expect(groups.map(x => x.name)).toEqual(['Foundations & Warm-ups', 'Chat & Presence', 'Maps, Rides & Dispatch', 'More Designs'])
+    expect(groupHld([{ title: 'What is availability?' }, ...items])[0].name).toBe('System Design Fundamentals')
     expect(groups.flatMap(x => x.items)).toHaveLength(4)
   })
 

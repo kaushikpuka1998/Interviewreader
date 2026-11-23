@@ -16,8 +16,16 @@ const I = {
   game: 'M6 12h4M8 10v4M15 13h.01M18 11h.01M17.3 5H6.7A4.7 4.7 0 0 0 2 9.7V14a3 3 0 0 0 5.2 2l1-1.2h7.6l1 1.2A3 3 0 0 0 22 14V9.7A4.7 4.7 0 0 0 17.3 5z',
   shield: 'M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z',
   card: 'M3 6h18v12H3zM3 10h18M7 15h4',
+  book: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M9 7h6',
   grid: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
 }
+
+// Concept questions ("What is availability?", "Difference between vertical and horizontal scaling", DAU/MAU, CAP...) are the basics
+// everyone needs first. They are recognised by how the title is phrased, not by topic: "Design ..." titles are real designs.
+export const HLD_BASICS = { name: 'System Design Fundamentals', icon: I.book }
+const CONCEPT_START = /^(what|why|how|when|which|who|explain|define|compare|describe|differentiate|difference|list|name|is|are|does|do|can|should)\b/
+const CONCEPT_WORDS = /\b(dau|mau|availability|reliability|scalability|consistency|latency|throughput|cap theorem|sla|slo|capacity estimation|back-of-the-envelope|fault tolerance|cap|acid|base)\b/
+const isConcept = raw => !/^(high-level design|design\b)/.test(raw) && (CONCEPT_START.test(raw) || CONCEPT_WORDS.test(raw))
 
 export const HLD_GROUPS = [
   { name: 'Foundations & Warm-ups', icon: I.start, re: /url shortener|tinyurl|bit\.ly|pastebin|\bcrud\b|rate limit|id generator|unique id|snowflake|hit counter|to-?do|key-?value|distributed cache|design a cache|lru|management system|parking lot|library management|task management|contact management|employee management/ },
@@ -35,12 +43,14 @@ export const HLD_GROUPS = [
   { name: 'Platform & Reliability', icon: I.gauge, re: /monitor|metric|logging|\blogs?\b|tracing|observab|deploy|feature flag|config|service discovery|load balanc|api gateway|autoscal|multi-?region|failover|disaster|circuit|throttl|health[- ]check|active-(active|passive)|five-nines|region failure|service mesh|\bbff\b|backend-for-frontend|serverless|container|multi-tenant|tenant|cloud platform|traffic routing|global api/ },
   { name: 'Games, Ads & Live Data', icon: I.game, re: /game|leaderboard|\bads?\b|advert|bidding|\bscore|market data|multiplayer|polling|voting|rating|real-?time/ },
 ]
+// The fundamentals group comes first in the list; it is matched separately, ahead of every other rule.
 export const HLD_OTHER = { name: 'More Designs', icon: I.grid }
 
 const clean = t => String(t || '').toLowerCase().replace(/high-level design \(hld\)\s*-+\s*/g, '').replace(/design (a |an |the )?/g, '')
 
 /** The group a design question belongs to. */
 export function hldGroupOf(title) {
+  if (isConcept(String(title || '').toLowerCase().trim())) return HLD_BASICS
   const t = clean(title)
   return HLD_GROUPS.find(g => g.re.test(t)) || HLD_OTHER
 }
@@ -53,5 +63,5 @@ export function groupHld(items, titleOf = x => x.title) {
     if (!by.has(g.name)) by.set(g.name, { ...g, items: [] })
     by.get(g.name).items.push(x)
   }
-  return [...HLD_GROUPS, HLD_OTHER].map(g => by.get(g.name)).filter(Boolean)
+  return [HLD_BASICS, ...HLD_GROUPS, HLD_OTHER].map(g => by.get(g.name)).filter(Boolean)
 }

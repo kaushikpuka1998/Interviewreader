@@ -30,6 +30,15 @@ describe('HldGroupedList', () => {
     expect(screen.queryByText('Design WhatsApp.')).toBeNull()
   })
 
+  it('can collapse the group that opened because it holds the active question', async () => {
+    setup({ activeId: 3 })
+    expect(screen.getByText('Design Uber.')).toBeTruthy()
+    await userEvent.click(screen.getByRole('button', { name: /Maps, Rides & Dispatch/ }))
+    expect(screen.queryByText('Design Uber.')).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: /Maps, Rides & Dispatch/ }))
+    expect(screen.getByText('Design Uber.')).toBeTruthy()
+  })
+
   it('opens the group of the active question and every group while searching', () => {
     const { unmount } = setup({ activeId: 3 })
     expect(screen.getByText('Design Uber.')).toBeTruthy()

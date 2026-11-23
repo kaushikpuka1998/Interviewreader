@@ -15,7 +15,7 @@ export default function HldGroupedList({ items, titleOf = x => x.title, renderIt
     <div className={className}>
       {groups.map(g => {
         const done = g.items.filter(isDone).length
-        const isOpen = forceOpen || open.has(g.name) || g.name === activeGroup && open.size === 0
+        const isOpen = forceOpen || open.has(g.name)
         return (
           <section key={g.name} className="border-b border-slate-100 last:border-0 dark:border-slate-800">
             <button type="button" onClick={() => toggle(g.name)} aria-expanded={isOpen}
