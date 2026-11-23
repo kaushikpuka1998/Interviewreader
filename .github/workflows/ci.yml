@@ -46,8 +46,8 @@ jobs:
           # Tests are counted from the code: Java @Test methods, it()/test() in *.spec files, and one for each *.test.mjs script.
           count() {
             ref=$1
-            b=$(git grep -hE '^\s*@Test' "$ref" -- backend/src/test | wc -l)
-            f=$(git grep -hE '^\s*(it|test)\(' "$ref" -- ':(glob)frontend/src/**/*.spec.js' ':(glob)frontend/src/**/*.spec.jsx' | wc -l)
+            b=$(git grep -hE '^[[:space:]]*@Test' "$ref" -- backend/src/test | wc -l)
+            f=$(git grep -hE '^[[:space:]]*(it|test)\(' "$ref" -- ':(glob)frontend/src/**/*.spec.js' ':(glob)frontend/src/**/*.spec.jsx' | wc -l)
             n=$(git ls-tree -r --name-only "$ref" -- frontend/src | grep -c '\.test\.mjs$' || true)
             echo "$b $f $n"
           }
