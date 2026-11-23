@@ -1,16 +1,19 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="Interview Reader" width="100%" />
-</p>
-
-<h1 align="center">Interview Reader</h1>
-
-<p align="center">
-  A fast, searchable reader for <b>Java, React, Node, SQL, HLD, Microservices, Kafka &amp; Design Pattern</b> interview questions —
-  with deep-linkable answers, syntax-highlighted code, and progress tracking.
+  <img src="docs/logo.svg" alt="Interview Reader icon" width="88" />
 </p>
 
 <p align="center">
-  <a href="https://interviewreader.up.railway.app/"><b>🚀 Live demo → interviewreader.up.railway.app</b></a>
+  <img src="docs/logo-wordmark.svg" alt="InterviewReader" width="420" />
+</p>
+
+<p align="center">
+  Interview preparation in one place: <b>4,700+ interview questions with answers</b>, <b>2,500+ runnable coding problems</b>,
+  <b>scored system-design practice</b> and mock interviews, across Java, React, Node.js, Go, SQL, Kafka, Microservices, AWS and more.
+</p>
+
+<p align="center">
+  <a href="https://interviewreader.cloud"><b>🚀 interviewreader.cloud</b></a>
+  &nbsp;·&nbsp; <a href="https://interviewreader.cloud/terms">Terms &amp; Privacy</a>
 </p>
 
 <p align="center">
@@ -27,13 +30,12 @@
 
 ## ✨ Features
 
-- **Instant search & filters** — full-text search plus filters by technology, category, difficulty, and read status.
-- **Server-side pagination** with smooth infinite scroll (50 per page).
-- **Deep-linkable answers** — every question has its own slug URL, e.g. `/what-is-the-string-pool-in-java`. Shareable and reload-safe.
-- **Jump to question** — click the position in the reader footer, type a number, and go straight there.
-- **Progress tracking** — visited / marked-as-read state persisted in `localStorage`.
-- **Rich answers** — Markdown rendering with tables, blockquotes, images, and lightweight syntax highlighting for Java/JS/TS.
-- **Polished UX** — dark mode, resizable sidebar, responsive mobile layout, and an animated hand-drawn 404 state.
+- **Interview questions with answers**: search and filter by technology (Java, React, Node, Go, SQL, HLD, Kafka, Microservices, Design Patterns, Angular, Ruby on Rails, AWS, Behavioral), category, difficulty and read status. Every question has a deep-linkable slug URL.
+- **Coding practice**: run code online in many languages, see per-test results, submission history and an estimated time and space complexity graph for accepted solutions. Filter problems by topic and company.
+- **System design practice**: draw an architecture on the canvas and run it against traffic targets, or answer by voice or typing and get a score out of 10 with interviewer-style feedback.
+- **Mock interviews, company roadmaps, DSA sheets, resume builder, question of the day and leaderboard.**
+- **Progress tracking**, notes, dark mode, resizable sidebar and a responsive mobile layout.
+- **SEO and sharing**: per-page titles, structured data, sitemap and plain-HTML pages for crawlers.
 
 ## 🖼️ Screenshot
 
@@ -44,7 +46,7 @@
        onerror="this.style.display='none'">
 </p>
 
-Or just open the **[live app](https://interviewreader.up.railway.app/)**.
+Or just open the **[live app](https://interviewreader.cloud)**.
 
 ## 🧱 Tech stack
 
@@ -154,7 +156,7 @@ npm run dev                # serves http://127.0.0.1:5173
 > On Railway, `application-prod.yml` builds the JDBC url from the Postgres plugin's
 > `PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD` variables. Add the **Redis** plugin and
 > set `REDIS_URL=${{Redis.REDIS_URL}}`, and set `CORS_ALLOWED_ORIGINS` to your frontend
-> origin (`https://interviewreader.up.railway.app`).
+> origin (`https://interviewreader.cloud`).
 
 ## 📡 API
 
@@ -227,4 +229,4 @@ cd backend && ./mvnw clean package   # backend jar
 
 ---
 
-<p align="center"><sub>Built with React, Spring Boot &amp; PostgreSQL · Deployed on Railway</sub></p>
+<p align="center"><sub>© Interview Reader · Built with React, Spring Boot &amp; PostgreSQL · Read the <a href="https://interviewreader.cloud/terms">Terms &amp; Privacy notice</a></sub></p>

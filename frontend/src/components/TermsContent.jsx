@@ -157,8 +157,8 @@ const SECTIONS = [
 export default function TermsContent() {
   return (
     <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
-      <p className="text-xs text-slate-500 dark:text-slate-400">Last updated: 4 November 2026</p>
-      <p>By creating an account you agree to these terms and to how we handle your data as described below.</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400">Last updated: 23 November 2026</p>
+      <p>Interview Reader (also written InterviewReader, interviewreader.cloud) is run by Kaushik Ghosh, Pandapara Kalibari, Jalpaiguri. By creating an account you agree to these terms and to how we handle your data as described below.</p>
       {SECTIONS.map(sec => (
         <section key={sec.title}>
           <h3 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">{sec.title}</h3>
