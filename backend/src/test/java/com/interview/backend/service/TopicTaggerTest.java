@@ -27,7 +27,8 @@ class TopicTaggerTest {
 
     @Test
     void normalizeTrimsAndDeduplicates() {
-        assertEquals("Array,Tree", TopicTagger.normalize(" Array, tree ,array,Tree,, "));
+        // keeps the first spelling of a repeated topic
+        assertEquals("Array,tree", TopicTagger.normalize(" Array, tree ,array,Tree,, "));
         assertNull(TopicTagger.normalize(" , "));
         assertNull(TopicTagger.normalize(null));
     }
