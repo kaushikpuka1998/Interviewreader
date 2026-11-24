@@ -4,6 +4,7 @@ import Mermaid from './Mermaid.jsx'
 import ImageLightbox from './ImageLightbox.jsx'
 import MathExpr from './MathExpr.jsx'
 import ChartBlock, { parseChartTag } from './ChartBlock.jsx'
+import { textToMermaid } from '../lib/asciiTree.js'
 import { glossify, useGlossary } from '../lib/glossary.js'
 
 // ponytail: regex tokenizer, covers Java/JS/TS/Go well enough; swap for Shiki if more langs needed
@@ -193,6 +194,10 @@ export default function Markdown({ text, animateMermaid = false }) {
 
           // Mermaid blocks render as real diagrams (lazy-loaded).
           if (lang === 'mermaid') return <Mermaid key={index} code={body.trim()} animated={animateMermaid} />
+
+          // ASCII-art trees in plain blocks become real diagrams.
+          const tree = PLAIN_LANGS.has(lang) ? textToMermaid(body) : null
+          if (tree) return <Mermaid key={index} code={tree} animated={animateMermaid} />
 
           const plain = PLAIN_LANGS.has(lang)
           return (
