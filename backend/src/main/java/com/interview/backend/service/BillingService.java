@@ -55,6 +55,18 @@ public class BillingService {
     // Lifetime = an end date nobody reaches.
     private static final Instant LIFETIME = Instant.parse("2999-12-31T00:00:00Z");
     private final Map<String, Integer> premiumPrices;   // rupees
+    /** Fixed, hand-picked prices for international buyers: "USD=sprint/monthly/yearly/lifetime;EUR=...". Not live-converted, so a price never moves under the buyer. */
+    static final String DEFAULT_FOREIGN_PRICES = "USD=12/25/75/160;EUR=11/23/69/149;GBP=9/19/59/129";
+    @Value("${app.premium.foreign-prices:" + DEFAULT_FOREIGN_PRICES + "}")
+    private String foreignPricesCsv = DEFAULT_FOREIGN_PRICES;
+    private volatile Map<String, Map<String, Integer>> foreignPrices;
+    /** Monthly plans abroad: a Razorpay plan is fixed to one currency, so each currency needs its own plan ids and price labels
+     *  ("USD:p12=plan_x,p18=plan_y,i5=plan_z;EUR:..."). Until a tier is listed here it shows "Coming soon" in that currency. */
+    @Value("${app.razorpay.foreign-plan-ids:}")
+    private String foreignPlanIdsCsv = "";
+    @Value("${app.subscriptions.foreign-labels:}")
+    private String foreignLabelsCsv = "";
+    private volatile Map<String, Map<String, String>> foreignPlanIds, foreignLabels;
     private final Map<String, Integer> premiumRegular;  // rupees, shown crossed out; 0 = none
     private final Map<String, String> practiceRegularLabels;
 
@@ -139,10 +151,16 @@ public class BillingService {
     }
 
     /** The practice plans for the plan picker, cheapest first. */
-    public List<Map<String, Object>> practicePlans() {
-        return List.of("p12", "p18", "p24").stream().map(k -> Map.<String, Object>of(
-                "key", k, "attempts", PRACTICE_ALLOWANCE.get(k), "priceLabel", practicePriceLabels.get(k),
-                "regularLabel", practiceRegularLabels.get(k), "available", !practicePlanIds.get(k).isBlank())).toList();
+    public List<Map<String, Object>> practicePlans() { return practicePlans(null); }
+
+    public List<Map<String, Object>> practicePlans(String currency) {
+        String cur = currencyOrInr(currency);
+        return List.of("p12", "p18", "p24").stream().map(k -> {
+            String id = planIdFor(practicePlanIds, k, cur), label = labelFor(practicePriceLabels, k, cur);
+            return Map.<String, Object>of("key", k, "attempts", PRACTICE_ALLOWANCE.get(k), "priceLabel", label == null ? "" : label,
+                    "regularLabel", "INR".equals(cur) ? practiceRegularLabels.get(k) : "", "currency", cur,
+                    "available", id != null && !id.isBlank() && label != null);
+        }).toList();
     }
 
     /** The member's active practice plan key, or null (no plan, or its paid period has ended). */
@@ -152,18 +170,21 @@ public class BillingService {
     }
 
     /** Starts a Razorpay subscription for a practice plan; it becomes the member's plan once the payment is verified. */
-    public Map<String, Object> subscribePractice(User u, String plan) {
-        String id = practicePlanIds.get(plan);
-        if (id == null) throw new IllegalArgumentException("Unknown plan.");
-        requireConfigured(id, "RAZORPAY_PRACTICE_PLAN_" + plan.substring(1));
+    public Map<String, Object> subscribePractice(User u, String plan) { return subscribePractice(u, plan, null); }
+
+    public Map<String, Object> subscribePractice(User u, String plan, String currency) {
+        String cur = currencyOrInr(currency);
+        if (!PRACTICE_ALLOWANCE.containsKey(plan)) throw new IllegalArgumentException("Unknown plan.");
+        String id = planIdFor(practicePlanIds, plan, cur);
+        requireConfigured(id == null ? "" : id, "INR".equals(cur) ? "RAZORPAY_PRACTICE_PLAN_" + plan.substring(1) : "RAZORPAY_FOREIGN_PLAN_IDS (" + cur + " " + plan + ")");
         JsonNode sub = call("POST", "/subscriptions", Map.of(
                 "plan_id", id, "total_count", 120, "customer_notify", 1,
-                "notes", Map.of("email", u.getEmail(), "product", "practice", "plan", plan)));
+                "notes", Map.of("email", u.getEmail(), "product", "practice", "plan", plan, "currency", cur)));
         u.setPracticePendingPlan(plan);
         u.setPracticePendingSubscriptionId(sub.path("id").asText());
         users.save(u);
         return Map.of("subscriptionId", u.getPracticePendingSubscriptionId(), "keyId", keyId,
-                "priceLabel", practicePriceLabels.get(plan), "attempts", PRACTICE_ALLOWANCE.get(plan),
+                "priceLabel", labelFor(practicePriceLabels, plan, cur), "attempts", PRACTICE_ALLOWANCE.get(plan), "currency", cur,
                 "email", u.getEmail(), "name", u.getName() == null ? "" : u.getName());
     }
 
@@ -200,10 +221,16 @@ public class BillingService {
 
     // ---- Peer mock interview plans (5 / 10 a month), separate from Premium and practice ----
 
-    public List<Map<String, Object>> interviewPlans() {
-        return List.of("i5", "i10").stream().map(k -> Map.<String, Object>of(
-                "key", k, "interviews", INTERVIEW_ALLOWANCE.get(k), "priceLabel", interviewPriceLabels.get(k),
-                "regularLabel", interviewRegularLabels.get(k), "available", !interviewPlanIds.get(k).isBlank())).toList();
+    public List<Map<String, Object>> interviewPlans() { return interviewPlans(null); }
+
+    public List<Map<String, Object>> interviewPlans(String currency) {
+        String cur = currencyOrInr(currency);
+        return List.of("i5", "i10").stream().map(k -> {
+            String id = planIdFor(interviewPlanIds, k, cur), label = labelFor(interviewPriceLabels, k, cur);
+            return Map.<String, Object>of("key", k, "interviews", INTERVIEW_ALLOWANCE.get(k), "priceLabel", label == null ? "" : label,
+                    "regularLabel", "INR".equals(cur) ? interviewRegularLabels.get(k) : "", "currency", cur,
+                    "available", id != null && !id.isBlank() && label != null);
+        }).toList();
     }
 
     /** The member's active interview plan key, or null (no plan, or its paid period has ended). */
@@ -212,18 +239,21 @@ public class BillingService {
                 ? u.getInterviewPlan() : null;
     }
 
-    public Map<String, Object> subscribeInterview(User u, String plan) {
-        String id = interviewPlanIds.get(plan);
-        if (id == null) throw new IllegalArgumentException("Unknown plan.");
-        requireConfigured(id, "RAZORPAY_INTERVIEW_PLAN_" + plan.substring(1));
+    public Map<String, Object> subscribeInterview(User u, String plan) { return subscribeInterview(u, plan, null); }
+
+    public Map<String, Object> subscribeInterview(User u, String plan, String currency) {
+        String cur = currencyOrInr(currency);
+        if (!INTERVIEW_ALLOWANCE.containsKey(plan)) throw new IllegalArgumentException("Unknown plan.");
+        String id = planIdFor(interviewPlanIds, plan, cur);
+        requireConfigured(id == null ? "" : id, "INR".equals(cur) ? "RAZORPAY_INTERVIEW_PLAN_" + plan.substring(1) : "RAZORPAY_FOREIGN_PLAN_IDS (" + cur + " " + plan + ")");
         JsonNode sub = call("POST", "/subscriptions", Map.of(
                 "plan_id", id, "total_count", 120, "customer_notify", 1,
-                "notes", Map.of("email", u.getEmail(), "product", "interviews", "plan", plan)));
+                "notes", Map.of("email", u.getEmail(), "product", "interviews", "plan", plan, "currency", cur)));
         u.setInterviewPendingPlan(plan);
         u.setInterviewPendingSubscriptionId(sub.path("id").asText());
         users.save(u);
         return Map.of("subscriptionId", u.getInterviewPendingSubscriptionId(), "keyId", keyId,
-                "priceLabel", interviewPriceLabels.get(plan), "interviews", INTERVIEW_ALLOWANCE.get(plan),
+                "priceLabel", labelFor(interviewPriceLabels, plan, cur), "interviews", INTERVIEW_ALLOWANCE.get(plan), "currency", cur,
                 "email", u.getEmail(), "name", u.getName() == null ? "" : u.getName());
     }
 
@@ -269,9 +299,13 @@ public class BillingService {
     public List<Map<String, Object>> premiumPlans() { return premiumPlans(null); }
 
     /** The Premium passes for the pricing cards: key and price in rupees. */
-    public List<Map<String, Object>> premiumPlans(User u) {
+    public List<Map<String, Object>> premiumPlans(User u) { return premiumPlans(u, null); }
+
+    /** Same, priced in {@code currency} (INR when missing or unsupported). The crossed-out "regular" price only exists for rupees. */
+    public List<Map<String, Object>> premiumPlans(User u, String currency) {
+        String cur = currencyOrInr(currency);
         return PREMIUM_PLANS.stream().filter(k -> !"sprint".equals(k) || sprintEligible(u))
-                .map(k -> Map.<String, Object>of("key", k, "price", premiumPrices.get(k), "regular", premiumRegular.get(k))).toList();
+                .map(k -> Map.<String, Object>of("key", k, "price", priceFor(k, cur), "regular", "INR".equals(cur) ? premiumRegular.get(k) : 0, "currency", cur)).toList();
     }
 
     /** The 30-day pass is for people with a dated interview in the next 60 days, so it doesn't undercut the monthly pass. */
@@ -343,26 +377,97 @@ public class BillingService {
     }
 
     /** What a coupon would do to a pass, for the "Have a coupon?" box: valid or not, the reason, and the new price in rupees. */
-    public Map<String, Object> quoteCoupon(User u, String plan, String code) {
-        Integer price = premiumPrices.get(plan);
+    public Map<String, Object> quoteCoupon(User u, String plan, String code) { return quoteCoupon(u, plan, code, null); }
+
+    public Map<String, Object> quoteCoupon(User u, String plan, String code, String currency) {
+        String cur = currencyOrInr(currency);
+        Integer price = priceFor(plan, cur);
         if (price == null) throw new IllegalArgumentException("Unknown plan.");
-        var q = coupons.quote(code, plan, price, u.getId());
+        var q = coupons.quote(code, plan, price, u.getId(), !"INR".equals(cur));
         return Map.of("valid", q.valid(), "message", q.message(), "code", q.code() == null ? "" : q.code(),
-                "price", price, "discount", q.discount(), "finalPrice", q.finalPrice());
+                "price", price, "discount", q.discount(), "finalPrice", q.finalPrice(), "currency", cur);
+    }
+
+    /** Currencies a Premium pass can be bought in: INR plus whatever the foreign price table lists. */
+    public List<String> currencies() {
+        List<String> all = new ArrayList<>(List.of("INR"));
+        all.addAll(foreign().keySet());
+        return all;
+    }
+
+    /** The requested currency if we price in it, otherwise INR (an unknown or missing code never fails; it falls back to rupees). */
+    public String currencyOrInr(String currency) {
+        String c = currency == null ? "" : currency.strip().toUpperCase(java.util.Locale.ROOT);
+        return foreign().containsKey(c) ? c : "INR";
+    }
+
+    private Integer priceFor(String plan, String currency) {
+        if ("INR".equals(currency)) return premiumPrices.get(plan);
+        Map<String, Integer> t = foreign().get(currency);
+        return t == null ? null : t.get(plan);
+    }
+
+    /** "USD:p12=a,p18=b;EUR:p12=c" -> {USD={p12=a,p18=b}, EUR={p12=c}}. Malformed pieces are skipped. */
+    static Map<String, Map<String, String>> parseByCurrency(String csv) {
+        Map<String, Map<String, String>> out = new java.util.HashMap<>();
+        for (String block : (csv == null ? "" : csv).split(";")) {
+            String[] cv = block.split(":", 2);
+            if (cv.length != 2 || cv[0].isBlank()) continue;
+            Map<String, String> m = new java.util.HashMap<>();
+            for (String kv : cv[1].split(",")) {
+                String[] p = kv.split("=", 2);
+                if (p.length == 2 && !p[0].isBlank() && !p[1].isBlank()) m.put(p[0].trim(), p[1].trim());
+            }
+            out.put(cv[0].trim().toUpperCase(java.util.Locale.ROOT), m);
+        }
+        return out;
+    }
+
+    private String planIdFor(Map<String, String> inr, String key, String currency) {
+        if ("INR".equals(currency)) return inr.get(key);
+        if (foreignPlanIds == null) foreignPlanIds = parseByCurrency(foreignPlanIdsCsv);
+        return foreignPlanIds.getOrDefault(currency, Map.of()).get(key);
+    }
+
+    private String labelFor(Map<String, String> inr, String key, String currency) {
+        if ("INR".equals(currency)) return inr.get(key);
+        if (foreignLabels == null) foreignLabels = parseByCurrency(foreignLabelsCsv);
+        return foreignLabels.getOrDefault(currency, Map.of()).get(key);
+    }
+
+    private Map<String, Map<String, Integer>> foreign() {
+        Map<String, Map<String, Integer>> f = foreignPrices;
+        if (f != null) return f;
+        Map<String, Map<String, Integer>> out = new java.util.LinkedHashMap<>();
+        for (String entry : (foreignPricesCsv == null ? "" : foreignPricesCsv).split(";")) {
+            String[] kv = entry.split("=");
+            if (kv.length != 2) continue;
+            String[] n = kv[1].trim().split("/");
+            if (n.length != PREMIUM_PLANS.size()) { log.warn("Ignoring foreign prices for {}: expected {} values", kv[0], PREMIUM_PLANS.size()); continue; }
+            try {
+                Map<String, Integer> t = new java.util.HashMap<>();
+                for (int i = 0; i < n.length; i++) t.put(PREMIUM_PLANS.get(i), Integer.parseInt(n[i].trim()));
+                out.put(kv[0].trim().toUpperCase(java.util.Locale.ROOT), t);
+            } catch (NumberFormatException e) { log.warn("Ignoring foreign prices for {}: not numbers", kv[0]); }
+        }
+        return foreignPrices = out;
     }
 
     /**
      * Creates a Razorpay order for a Premium pass. The amount is worked out here (config price, less a valid coupon), never taken
      * from the client. The coupon is remembered on the member and counted only once the payment is confirmed.
      */
-    public Map<String, Object> createPremiumOrder(User u, String plan, String couponCode) {
-        Integer price = premiumPrices.get(plan);
+    public Map<String, Object> createPremiumOrder(User u, String plan, String couponCode) { return createPremiumOrder(u, plan, couponCode, null); }
+
+    public Map<String, Object> createPremiumOrder(User u, String plan, String couponCode, String currency) {
+        String cur = currencyOrInr(currency);
+        Integer price = priceFor(plan, cur);
         if (price == null) throw new IllegalArgumentException("Unknown plan.");
         if ("sprint".equals(plan) && !sprintEligible(u)) throw new IllegalArgumentException("The 30-day pass is for members with an interview in the next 60 days. Add your interview date first.");
         String applied = null;
         int pay = price;
         if (couponCode != null && !couponCode.isBlank()) {
-            var q = coupons.quote(couponCode, plan, price, u.getId());
+            var q = coupons.quote(couponCode, plan, price, u.getId(), !"INR".equals(cur));
             if (!q.valid()) throw new IllegalArgumentException(q.message());
             applied = q.code();
             pay = q.finalPrice();
@@ -371,12 +476,12 @@ public class BillingService {
         Map<String, String> notes = new java.util.HashMap<>(Map.of("email", u.getEmail(), "product", "premium", "plan", plan));
         if (applied != null) notes.put("coupon", applied);
         JsonNode order = call("POST", "/orders", Map.of(
-                "amount", pay * 100, "currency", "INR", "receipt", "premium-" + u.getId() + "-" + System.currentTimeMillis(), "notes", notes));
+                "amount", pay * 100, "currency", cur, "receipt", "premium-" + u.getId() + "-" + System.currentTimeMillis(), "notes", notes));
         u.setPremiumPendingPlan(plan);
         u.setPremiumPendingCoupon(applied);
         u.setPremiumPendingOrderId(order.path("id").asText());
         users.save(u);
-        return Map.of("orderId", u.getPremiumPendingOrderId(), "keyId", keyId, "amount", pay * 100, "plan", plan,
+        return Map.of("orderId", u.getPremiumPendingOrderId(), "keyId", keyId, "amount", pay * 100, "currency", cur, "plan", plan,
                 "email", u.getEmail(), "name", u.getName() == null ? "" : u.getName());
     }
 

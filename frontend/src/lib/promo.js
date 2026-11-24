@@ -12,7 +12,7 @@ async function call(path, method = 'GET', body) {
 }
 
 export const fetchBanner = () => shared('banner', 60_000, () => call('/public/banner'))
-export const validateCoupon = (plan, code) => call('/billing/coupon/validate', 'POST', { plan, code })
+export const validateCoupon = (plan, code, currency) => call('/billing/coupon/validate', 'POST', { plan, code, currency })
 
 export const adminBanner = () => call('/admin/banner')
 export const saveBanner = b => call('/admin/banner', 'PUT', b)

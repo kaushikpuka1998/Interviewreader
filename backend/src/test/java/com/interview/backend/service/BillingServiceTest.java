@@ -101,6 +101,97 @@ class BillingServiceTest {
         assertEquals(2200, monthly.get("price"));
     }
 
+    // ---- international prices ----
+
+    private Map<String, Object> plan(List<Map<String, Object>> plans, String key) {
+        return plans.stream().filter(p -> key.equals(p.get("key"))).findFirst().orElseThrow();
+    }
+
+    @Test
+    void foreignCurrenciesUseTheirOwnFixedPrices() {
+        var usd = billing.premiumPlans(user("a@example.com"), "usd");   // case-insensitive
+        assertEquals(25, plan(usd, "monthly").get("price"));
+        assertEquals(75, plan(usd, "yearly").get("price"));
+        assertEquals(160, plan(usd, "lifetime").get("price"));
+        assertEquals("USD", plan(usd, "monthly").get("currency"));
+        assertEquals(0, plan(usd, "yearly").get("regular"), "the crossed-out price is a rupee price, so it is not shown abroad");
+        assertEquals(19, plan(billing.premiumPlans(user("a@example.com"), "GBP"), "monthly").get("price"));
+    }
+
+    @Test
+    void missingOrUnknownCurrencyFallsBackToRupees() {
+        for (String c : new String[]{null, "", "JPY", "xx"}) {
+            var plans = billing.premiumPlans(user("a@example.com"), c);
+            assertEquals(2200, plan(plans, "monthly").get("price"), "currency " + c);
+            assertEquals("INR", plan(plans, "monthly").get("currency"));
+        }
+        assertEquals(List.of("INR", "USD", "EUR", "GBP"), billing.currencies());
+    }
+
+    @Test
+    void aBrokenPriceTableEntryIsIgnoredNotFatal() {
+        ReflectionTestUtils.setField(billing, "foreignPricesCsv", "USD=1/2;EUR=a/b/c/d;GBP=9/19/59/129;;junk");
+        assertEquals(List.of("INR", "GBP"), billing.currencies());
+        assertEquals("INR", billing.currencyOrInr("USD"));
+    }
+
+    @Test
+    void couponQuoteIsInTheChosenCurrencyAndPercentOnlyAbroad() {
+        when(coupons.quote("SAVE", "monthly", 25, 7L, true)).thenReturn(new CouponService.Quote(true, "Code applied.", "SAVE", 5, 20));
+        var q = billing.quoteCoupon(user("a@example.com"), "monthly", "SAVE", "USD");
+        assertEquals(25, q.get("price"));
+        assertEquals(20, q.get("finalPrice"));
+        assertEquals("USD", q.get("currency"));
+        verify(coupons).quote("SAVE", "monthly", 25, 7L, true);
+        when(coupons.quote("SAVE", "monthly", 2200, 7L, false)).thenReturn(new CouponService.Quote(true, "Code applied.", "SAVE", 220, 1980));
+        assertEquals(1980, billing.quoteCoupon(user("a@example.com"), "monthly", "SAVE").get("finalPrice"), "no currency = rupees, as before");
+    }
+
+    @Test
+    void anOrderIsRefusedBeforeRazorpayWhenTheCouponDoesNotApplyAbroad() {
+        when(coupons.quote("FLAT", "yearly", 75, 7L, true)).thenReturn(new CouponService.Quote(false, "That code is for payments in rupees.", null, 0, 75));
+        var e = assertThrows(IllegalArgumentException.class, () -> billing.createPremiumOrder(user("a@example.com"), "yearly", "FLAT", "USD"));
+        assertEquals("That code is for payments in rupees.", e.getMessage());
+        verify(users, never()).save(any());
+    }
+
+    // ---- monthly plans abroad ----
+
+    @Test
+    void foreignPlanConfigIsParsedAndBadPiecesSkipped() {
+        var m = BillingService.parseByCurrency("usd:p12=plan_a, i5 = plan_b;EUR:p12=;junk;GBP:i10=plan_c");
+        assertEquals(Map.of("p12", "plan_a", "i5", "plan_b"), m.get("USD"));
+        assertEquals(Map.of(), m.get("EUR"));
+        assertEquals(Map.of("i10", "plan_c"), m.get("GBP"));
+        assertEquals(3, m.size());
+    }
+
+    @Test
+    void aTierIsComingSoonAbroadUntilItsPlanAndPriceAreConfigured() {
+        var before = plan(billing.interviewPlans("USD"), "i5");
+        assertEquals(false, before.get("available"));
+        assertEquals("USD", before.get("currency"));
+        ReflectionTestUtils.setField(billing, "foreignPlanIdsCsv", "USD:i5=plan_usd5,i10=plan_usd10");
+        ReflectionTestUtils.setField(billing, "foreignLabelsCsv", "USD:i5=$6/month");
+        ReflectionTestUtils.setField(billing, "foreignPlanIds", null);   // config is parsed once and cached; the test changed it
+        ReflectionTestUtils.setField(billing, "foreignLabels", null);
+        var plans = billing.interviewPlans("USD");
+        assertEquals(true, plan(plans, "i5").get("available"));
+        assertEquals("$6/month", plan(plans, "i5").get("priceLabel"));
+        assertEquals("", plan(plans, "i5").get("regularLabel"), "the crossed-out price is in rupees");
+        assertEquals(false, plan(plans, "i10").get("available"), "a plan id without a price label is not offered");
+        assertEquals("INR", plan(billing.interviewPlans(), "i5").get("currency"), "no currency = rupees, as before");
+    }
+
+    @Test
+    void subscribingAbroadWithoutAConfiguredPlanIsRefusedBeforeRazorpay() {
+        User u = user("a@example.com");
+        assertThrows(IllegalStateException.class, () -> billing.subscribeInterview(u, "i5", "USD"));
+        assertThrows(IllegalStateException.class, () -> billing.subscribePractice(u, "p12", "EUR"));
+        assertThrows(IllegalArgumentException.class, () -> billing.subscribeInterview(u, "nope", "USD"));
+        verify(users, never()).save(any());
+    }
+
     // ---- checkout verification ----
 
     @Test

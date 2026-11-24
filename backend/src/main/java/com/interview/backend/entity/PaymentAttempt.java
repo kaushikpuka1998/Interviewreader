@@ -28,8 +28,11 @@ public class PaymentAttempt {
     private String email;
     @Column(length = 20)
     private String plan;
-    /** Rupees. */
+    /** Whole units of {@link #currency} (rupees for older rows, where currency is null). */
     private Integer amount;
+    /** ISO code the order was charged in; null = INR (rows from before international payments). */
+    @Column(length = 3)
+    private String currency;
     @Column(name = "order_id", length = 60)
     private String orderId;
     @Column(length = 10, nullable = false)

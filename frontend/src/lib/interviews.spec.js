@@ -28,6 +28,14 @@ describe('mock interview API client', () => {
     await expect(fetchInterviewQuota()).rejects.toThrow('Request failed (500)')
   })
 
+  it('asks for the quota in a currency: the given one, else the saved choice', async () => {
+    fetch.mockResolvedValue(json({}))
+    await fetchInterviewQuota('GBP')
+    localStorage.setItem('ir_currency', 'EUR')
+    await fetchInterviewQuota()
+    expect(fetch.mock.calls.map(c => c[0].replace(/^.*\/interviews/, ''))).toEqual(['/quota?currency=GBP', '/quota?currency=EUR'])
+  })
+
   it('uses the right verbs and paths for the interview actions', async () => {
     fetch.mockResolvedValue(json({}))
     await cancelInterview(7)

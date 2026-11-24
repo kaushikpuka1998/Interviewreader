@@ -11,6 +11,7 @@ import { useFeatures } from '../lib/features.js'
 import { fetchResumes, fetchTemplates } from '../lib/resume.js'
 import { TYPES, typeLabel, fetchUpcoming, takeInterview, fetchMyInterviews, requestInterview, slotToIso, formatSlot, fetchInterviewResume, saveCallLink, saveWhiteboardLink, reportNoShow, completeInterview, cancelInterview, fetchInterviewQuota } from '../lib/interviews.js'
 import { subscribeInterviewPlan } from '../lib/billing.js'
+import { CURRENCIES, rememberCurrency } from '../lib/currency.js'
 import PremiumPlans from './PremiumPlans.jsx'
 
 const btn = 'rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60'
@@ -201,7 +202,7 @@ export default function InterviewPage() {
           )}
         </div>
       </div>
-      {plansOpen && quota && <InterviewPlans quota={quota} onClose={() => setPlansOpen(false)} onBought={() => { setPlansOpen(false); setError(''); loadQuota() }} />}
+      {plansOpen && quota && <InterviewPlans quota={quota} onClose={() => setPlansOpen(false)} onBought={() => { setPlansOpen(false); setError(''); loadQuota() }} onCurrency={loadQuota} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={() => window.location.reload()} />}
     </>
   )
@@ -232,8 +233,10 @@ function InterviewQuotaBar({ quota, onPlans }) {
 }
 
 // Ways to book peer interviews after the free period: Premium (includes a few a month, plus roadmaps) or a plan.
-function InterviewPlans({ quota, onClose, onBought }) {
+function InterviewPlans({ quota, onClose, onBought, onCurrency }) {
   const [busy, setBusy] = useState('')
+  const currency = quota.plans[0]?.currency || 'INR'   // what the server actually priced the plans in
+  const pickCurrency = c => { rememberCurrency(c); onCurrency?.() }
   const [error, setError] = useState('')
   const [premiumOpen, setPremiumOpen] = useState(false)
   useEffect(() => {
@@ -243,7 +246,7 @@ function InterviewPlans({ quota, onClose, onBought }) {
   }, [onClose])
   const buy = async plan => {
     setBusy(plan); setError('')
-    try { await subscribeInterviewPlan(plan); onBought() } catch (e) { if (e.message !== 'Payment cancelled.') setError(e.message) } finally { setBusy('') }
+    try { await subscribeInterviewPlan(plan, currency); onBought() } catch (e) { if (e.message !== 'Payment cancelled.') setError(e.message) } finally { setBusy('') }
   }
   if (premiumOpen) return <PremiumPlans onClose={() => setPremiumOpen(false)} onBought={() => window.location.reload()} />
   return (
@@ -258,6 +261,13 @@ function InterviewPlans({ quota, onClose, onBought }) {
             </p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">✕</button>
+        </div>
+        <div className="mt-4 flex items-center gap-2">
+          <label htmlFor="iv-currency" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Pay in</label>
+          <select id="iv-currency" value={currency} onChange={e => pickCurrency(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-white">
+            {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           <div className="relative flex flex-col rounded-xl border-2 border-amber-400 p-4 text-center shadow-md">
@@ -286,7 +296,7 @@ function InterviewPlans({ quota, onClose, onBought }) {
                   {off > 0 && <span className="text-sm text-slate-400 line-through decoration-rose-500/70" aria-label={`was ${p.regularLabel}`}>{p.regularLabel.replace('/month', '')}</span>}
                   <span className="text-lg font-bold text-slate-900 dark:text-white">{p.priceLabel}</span>
                 </p>
-                <p className="flex-1 text-xs text-slate-500">≈ ₹{Math.round(parseInt(String(p.priceLabel).replace(/[^\d]/g, ''), 10) / p.interviews)} per interview · renews monthly, cancel any time</p>
+                <p className="flex-1 text-xs text-slate-500">{p.priceLabel ? `≈ ${String(p.priceLabel).match(/^[^\d]*/)[0]}${Math.round(parseFloat(String(p.priceLabel).replace(/[^\d.]/g, '')) / p.interviews)} per interview` : 'Not available in this currency yet'} · renews monthly, cancel any time</p>
                 <button type="button" disabled={!!busy || current || !p.available} onClick={() => buy(p.key)}
                   className="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900">
                   {current ? 'Current plan' : busy === p.key ? 'Opening payment…' : !p.available ? 'Coming soon' : quota.plan ? 'Switch' : 'Choose'}

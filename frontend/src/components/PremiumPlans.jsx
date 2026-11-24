@@ -3,8 +3,8 @@ import { buyPremium, fetchPremiumPlans, PREMIUM_PLAN_NAMES } from '../lib/billin
 import { trackFunnel } from '../lib/analytics.js'
 import { validateCoupon } from '../lib/promo.js'
 import { getUser } from '../lib/auth.js'
+import { CURRENCIES, detectCurrency, formatMoney, rememberCurrency } from '../lib/currency.js'
 
-const rupees = n => `₹${Number(n).toLocaleString('en-IN')}`
 
 const PREMIUM_FEATURES = [
   'Personalized roadmaps for every company',
@@ -27,6 +27,8 @@ const PLAN_EXTRAS = {
 // Used from the top bar's Premium button and the roadmap upsell; onBought runs once the payment is verified.
 export default function PremiumPlans({ onClose, onBought }) {
   const [plans, setPlans] = useState([])
+  const [currency, setCurrency] = useState(detectCurrency)
+  const rupees = n => formatMoney(n, currency)   // named for the INR days; formats in the chosen currency
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState('')
   // "Have a coupon?": checked against each pass on the server; valid passes show the new price, and the code goes with the order.
@@ -40,18 +42,27 @@ export default function PremiumPlans({ onClose, onBought }) {
     setChecking(true); setError('')
     try {
       const keys = plans.map(p => p.key)
-      const res = await Promise.all(keys.map(k => validateCoupon(k, c).catch(e => ({ valid: false, message: e.message }))))
+      const res = await Promise.all(keys.map(k => validateCoupon(k, c, currency).catch(e => ({ valid: false, message: e.message }))))
       const quotes = Object.fromEntries(keys.map((k, i) => [k, res[i]]))
       const any = res.some(r => r.valid)
       setApplied({ code: c, quotes, any, message: any ? `${c} applied.` : (res[0]?.message || "That code isn't valid.") })
     } finally { setChecking(false) }
   }
-  useEffect(() => { trackFunnel('pricing_viewed'); fetchPremiumPlans().then(setPlans).catch(e => setError(e.message)) }, [])
+  useEffect(() => { trackFunnel('pricing_viewed') }, [])
+  // Prices are fixed per currency on the server. A changed currency invalidates any applied coupon (flat rupee coupons don't carry over).
+  useEffect(() => {
+    fetchPremiumPlans(currency).then(ps => {
+      setPlans(ps)
+      if (ps[0]?.currency && ps[0].currency !== currency) setCurrency(ps[0].currency)   // server doesn't price in it: it answered in rupees
+    }).catch(e => setError(e.message))
+    setApplied(null)
+  }, [currency])
+  const pickCurrency = c => { rememberCurrency(c); setCurrency(c) }
   const onBuy = async plan => {
     setError('')
     setPaying(plan)
     try {
-      await buyPremium(plan, applied?.quotes?.[plan]?.valid ? applied.code : undefined)
+      await buyPremium(plan, applied?.quotes?.[plan]?.valid ? applied.code : undefined, currency)
       const u = getUser()
       if (u) localStorage.setItem('ir_user', JSON.stringify({ ...u, premium: true }))
       await onBought?.()
@@ -74,7 +85,15 @@ export default function PremiumPlans({ onClose, onBought }) {
         <h2 id="premium-plans-title" className="text-2xl font-bold text-slate-900 dark:text-white">Choose your Premium pass</h2>
         <p className="mt-1 text-sm"><a href="/premium" className="font-medium text-blue-600 hover:underline dark:text-blue-400">Compare Free vs Premium, or try it free for 3 days →</a></p>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">One-time payment, no auto-renewal. Buying again adds time on top of what you have left.</p>
-        <div className="mt-5 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex items-center gap-2">
+          <label htmlFor="premium-currency" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Pay in</label>
+          <select id="premium-currency" value={currency} onChange={e => pickCurrency(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-white">
+            {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          {currency !== 'INR' && <span className="text-xs text-slate-500 dark:text-slate-400">Your card is charged in {currency}; no conversion on your side.</span>}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <label htmlFor="premium-coupon" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Have a coupon?</label>
           <input id="premium-coupon" value={code} onChange={e => setCode(e.target.value.toUpperCase())} onKeyDown={e => e.key === 'Enter' && applyCoupon()}
             placeholder="ENTER CODE" maxLength={24} autoComplete="off"

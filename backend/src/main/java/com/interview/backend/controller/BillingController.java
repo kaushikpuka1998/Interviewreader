@@ -31,24 +31,24 @@ public class BillingController {
 
     /** Premium pass prices for the plan picker. Public, so the top bar can show it before sign-in. */
     @GetMapping("/plans")
-    public Object plans() {
+    public Object plans(@RequestParam(required = false) String currency) {
         User u = null;
         try {
             var auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) u = users.findByEmail(auth.getName()).orElse(null);
         } catch (Exception ignored) { /* anonymous visitors just see the standard passes */ }
-        return billing.premiumPlans(u);
+        return billing.premiumPlans(u, currency);
     }
 
-    public record PlanInput(String plan, String coupon) {}
+    public record PlanInput(String plan, String coupon, String currency) {}
 
-    public record CouponCheck(String plan, String code) {}
+    public record CouponCheck(String plan, String code, String currency) {}
 
     /** "Have a coupon?": what the code would do to this pass. The same check runs again when the order is created. */
     @PostMapping("/coupon/validate")
     public ResponseEntity<?> validateCoupon(@RequestBody CouponCheck in) {
         try {
-            return ResponseEntity.ok(billing.quoteCoupon(currentUser(), in == null ? null : in.plan(), in == null ? null : in.code()));
+            return ResponseEntity.ok(billing.quoteCoupon(currentUser(), in == null ? null : in.plan(), in == null ? null : in.code(), in == null ? null : in.currency()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -60,17 +60,17 @@ public class BillingController {
         User u = currentUser();
         String plan = in == null ? null : in.plan();
         try {
-            Map<String, Object> order = billing.createPremiumOrder(u, plan, in == null ? null : in.coupon());
-            attempt(u, plan, order.get("amount") instanceof Number n ? n.intValue() / 100 : null, String.valueOf(order.get("orderId")), com.interview.backend.entity.PaymentAttempt.STARTED, null);
+            Map<String, Object> order = billing.createPremiumOrder(u, plan, in == null ? null : in.coupon(), in == null ? null : in.currency());
+            attempt(u, plan, order.get("amount") instanceof Number n ? n.intValue() / 100 : null, String.valueOf(order.get("currency")), String.valueOf(order.get("orderId")), com.interview.backend.entity.PaymentAttempt.STARTED, null);
             return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {
-            attempt(u, plan, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, e.getMessage());
+            attempt(u, plan, null, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
-            attempt(u, plan, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, e.getMessage());
+            attempt(u, plan, null, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, e.getMessage());
             return ResponseEntity.status(503).body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
-            attempt(u, plan, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, "Order could not be created: " + e.getMessage());
+            attempt(u, plan, null, null, null, com.interview.backend.entity.PaymentAttempt.FAILED, "Order could not be created: " + e.getMessage());
             throw e;   // still a 500, which the server-error log and the admin alert pick up
         }
     }
@@ -108,10 +108,10 @@ public class BillingController {
     }
 
     /** Remembers a checkout attempt for the admin's payments list. Never lets bookkeeping break a payment. */
-    private void attempt(User u, String plan, Integer rupees, String orderId, String status, String error) {
+    private void attempt(User u, String plan, Integer amount, String currency, String orderId, String status, String error) {
         try {
             var a = new com.interview.backend.entity.PaymentAttempt();
-            a.setUserId(u.getId()); a.setEmail(u.getEmail()); a.setPlan(plan); a.setAmount(rupees);
+            a.setUserId(u.getId()); a.setEmail(u.getEmail()); a.setPlan(plan); a.setAmount(amount); a.setCurrency(currency);
             a.setOrderId(orderId); a.setStatus(status);
             a.setError(error == null ? null : (error.length() > 300 ? error.substring(0, 300) : error));
             payments.save(a);
@@ -156,7 +156,7 @@ public class BillingController {
     @PostMapping("/interviews/subscribe")
     public ResponseEntity<?> subscribeInterview(@RequestBody PlanInput in) {
         try {
-            return ResponseEntity.ok(billing.subscribeInterview(currentUser(), in == null ? null : in.plan()));
+            return ResponseEntity.ok(billing.subscribeInterview(currentUser(), in == null ? null : in.plan(), in == null ? null : in.currency()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
@@ -188,7 +188,7 @@ public class BillingController {
     @PostMapping("/practice/subscribe")
     public ResponseEntity<?> subscribePractice(@RequestBody PlanInput in) {
         try {
-            return ResponseEntity.ok(billing.subscribePractice(currentUser(), in == null ? null : in.plan()));
+            return ResponseEntity.ok(billing.subscribePractice(currentUser(), in == null ? null : in.plan(), in == null ? null : in.currency()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {

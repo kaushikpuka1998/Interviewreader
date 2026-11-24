@@ -36,7 +36,10 @@ public class CouponService {
     }
 
     /** The price (in rupees) after applying {@code code} to {@code plan}; invalid with a reason fit to show the member otherwise. */
-    public Quote quote(String code, String plan, int price, Long userId) {
+    public Quote quote(String code, String plan, int price, Long userId) { return quote(code, plan, price, userId, false); }
+
+    /** {@code percentOnly}: the price is not in rupees, so a flat (rupee) coupon can't apply; percentage coupons work in any currency. */
+    public Quote quote(String code, String plan, int price, Long userId, boolean percentOnly) {
         String c = normalise(code);
         if (c.isEmpty()) return Quote.no("Enter a coupon code.", price);
         Optional<Coupon> found = coupons.findByCodeIgnoreCase(c);
@@ -50,6 +53,7 @@ public class CouponService {
             return Quote.no("That code doesn't apply to the " + plan + " pass.", price);
         if (k.getMaxRedemptions() != null && k.getRedemptions() >= k.getMaxRedemptions()) return Quote.no("That code has been fully used.", price);
         if (userId != null && redemptions.existsByUserIdAndCouponId(userId, k.getId())) return Quote.no("You have already used that code.", price);
+        if (percentOnly && !"percent".equals(k.getKind())) return Quote.no("That code is for payments in rupees.", price);
         int discount = "percent".equals(k.getKind()) ? price * k.getValue() / 100 : k.getValue();
         discount = Math.max(0, Math.min(discount, price - 1));   // never free: Razorpay needs at least ₹1
         return new Quote(true, "Code applied.", k.getCode(), discount, price - discount);
