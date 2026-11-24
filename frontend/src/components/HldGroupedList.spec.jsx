@@ -48,4 +48,12 @@ describe('HldGroupedList', () => {
     expect(screen.getByText('Design Slack')).toBeTruthy()
     expect(screen.getByText('Design Uber.')).toBeTruthy()
   })
+
+  it('opens the group of a question that becomes active later', () => {
+    const { rerender } = setup({ activeId: 1 })
+    expect(screen.queryByText('Design Uber.')).toBeNull()
+    rerender(<HldGroupedList items={items} isDone={x => x.done} renderItem={x => <span>{x.title}</span>} activeId={3} />)
+    expect(screen.getByText('Design Uber.')).toBeTruthy()
+    expect(screen.getByText('Design WhatsApp.')).toBeTruthy()   // the first group stays open
+  })
 })

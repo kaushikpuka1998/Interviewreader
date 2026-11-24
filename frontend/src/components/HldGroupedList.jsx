@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { groupHld } from '../lib/hldGroups.js'
 
 /**
@@ -10,9 +10,15 @@ export default function HldGroupedList({ items, titleOf = x => x.title, renderIt
   const groups = useMemo(() => groupHld(items, titleOf), [items, titleOf])
   const activeGroup = useMemo(() => groups.find(g => g.items.some(x => idOf(x) === activeId))?.name, [groups, activeId, idOf])
   const [open, setOpen] = useState(() => new Set(activeGroup ? [activeGroup] : []))
+  // Opening another question (next/previous, search, link) opens the group it lives in.
+  useEffect(() => { if (activeGroup) setOpen(s => s.has(activeGroup) ? s : new Set(s).add(activeGroup)) }, [activeGroup])
+  // ...and brings the selected question into view, so the left list follows the one you are reading.
+  const box = useRef(null)
+  const activeOpen = forceOpen || open.has(activeGroup)
+  useEffect(() => { box.current?.querySelector('[data-active="true"]')?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }) }, [activeId, activeOpen])
   const toggle = name => setOpen(s => { const n = new Set(s); n.has(name) ? n.delete(name) : n.add(name); return n })
   return (
-    <div className={className}>
+    <div ref={box} className={className}>
       {groups.map(g => {
         const done = g.items.filter(isDone).length
         const isOpen = forceOpen || open.has(g.name)
@@ -26,7 +32,7 @@ export default function HldGroupedList({ items, titleOf = x => x.title, renderIt
               <span className="w-9 shrink-0 text-right text-xs tabular-nums text-slate-500" aria-label={`${done} of ${g.items.length} done`}>{done}/{g.items.length}</span>
               <svg className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" /></svg>
             </button>
-            {isOpen && <ul className="space-y-0.5 pb-2 pl-3">{g.items.map(x => <li key={idOf(x)}>{renderItem(x)}</li>)}</ul>}
+            {isOpen && <ul className="space-y-0.5 pb-2 pl-3">{g.items.map(x => <li key={idOf(x)} data-active={idOf(x) === activeId}>{renderItem(x)}</li>)}</ul>}
           </section>
         )
       })}
