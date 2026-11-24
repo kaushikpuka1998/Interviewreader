@@ -97,6 +97,8 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
   // The action bar hides while the answer scrolls down and returns when it scrolls up or reaches the top.
   const [barHidden, setBarHidden] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
+  const [outlineOpen, setOutlineOpen] = useState(() => localStorage.getItem('ir_outline') !== 'closed')
+  const toggleOutline = () => setOutlineOpen(o => { localStorage.setItem('ir_outline', o ? 'closed' : 'open'); return !o })
   const [referenceDismissed, setReferenceDismissed] = useState(false)
   const [latencyReferenceDismissed, setLatencyReferenceDismissed] = useState(false)
   const [databaseReferenceDismissed, setDatabaseReferenceDismissed] = useState(false)
@@ -173,7 +175,7 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
       <main className="reader flex-1 h-full overflow-hidden bg-white dark:bg-slate-800 flex flex-col min-w-0">
         <div className="reader-body flex-1 overflow-hidden py-4 sm:py-6 lg:py-8 px-3 sm:px-6 lg:px-8 min-w-0 flex flex-col">
           {/* Article plus the section rail */}
-          <div className="mx-auto w-full max-w-5xl xl:max-w-[76rem] 2xl:max-w-[88rem] flex gap-6 items-start h-full min-w-0">
+          <div className={`mx-auto w-full max-w-5xl ${outlineOpen ? 'xl:max-w-[76rem] 2xl:max-w-[88rem]' : 'xl:max-w-[90rem] 2xl:max-w-[100rem]'} flex gap-6 items-start h-full min-w-0`}>
 
             {/* Article takes 100% of the available vertical height and acts as a flex container */}
             <article className="paper flex-1 min-w-0 h-full bg-white dark:bg-slate-800 rounded-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.15),0_0_20px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),0_0_20px_rgba(0,0,0,0.3)] p-4 sm:p-6 lg:p-8 flex flex-col overflow-hidden">
@@ -331,7 +333,7 @@ export default function ReaderPane({ question: listQuestion, questions, onNaviga
               </div>
             </article>
 
-            <OnThisPage text={question.answer || ''} scrollRef={scrollRef} onActiveChange={setActiveSection} />
+            <OnThisPage text={question.answer || ''} scrollRef={scrollRef} onActiveChange={setActiveSection} open={outlineOpen} onToggle={toggleOutline} />
           </div>
         </div>
         {isEstimationSection && !isLatencySection && !isArchitectureSection && !referenceDismissed && <EstimationQuickReference onClose={() => setReferenceDismissed(true)} />}
