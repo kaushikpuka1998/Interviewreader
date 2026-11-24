@@ -15,6 +15,7 @@ import ResumePromo from './components/ResumePromo.jsx'
 import CodePracticePromo from './components/CodePracticePromo.jsx'
 import { fetchFeatures } from './lib/features.js'
 import SignupGate from './components/SignupGate.jsx'
+import GuestNudge from './components/GuestNudge.jsx'
 import { techLabel } from './lib/badges.js'
 import { getUser, isLoggedIn, logout as authLogout, fetchProgress, mergeProgress, markVisitedRemote, markReadRemote, toggleFlaggedRemote, toggleImportantRemote, searchCompanies } from './lib/auth.js'
 import { trackView } from './lib/analytics.js'
@@ -700,6 +701,7 @@ function App({ path = '/', onPathChange = () => {} }) {
       {premiumNote && <PremiumToast message={premiumNote} onClose={() => setPremiumNote('')} />}
       {plansOpen && <PremiumPlans onClose={() => setPlansOpen(false)} onBought={() => window.location.reload()} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onSuccess={handleAuthSuccess} />}
+      <GuestNudge questionId={selected?.id} signedIn={!!user} suppress={authOpen || !!urlGate || !!gate} onSignup={() => setAuthOpen(true)} />
       {promoOpen && <ResumePromo onClose={() => { setPromoOpen(false); if (practiceAllowed) setPracticePromoOpen(true) }} />}
       {practicePromoOpen && <CodePracticePromo onClose={() => setPracticePromoOpen(false)} />}
       {user && <LocationPrompt />}
