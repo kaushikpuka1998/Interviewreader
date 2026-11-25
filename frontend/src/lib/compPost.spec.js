@@ -25,7 +25,7 @@ describe('reading a template post back', () => {
   const imported = '**Status:** Reported median\n**Company:** Accenture\n**Position:** Software Engineer: SSE (SDE-2)\n**Location:** India\n**Typical experience:** 4-5 years\n\n**Compensation**\n- **Total (per year, median): ₹12.6 LPA** (₹12,63,030)\n- Company median across levels: ₹8.2 LPA\n\n**Source:** [Levels.fyi](https://www.levels.fyi/x), updated November 25, 2026'
   it('splits facts, pay lines and the source', () => {
     const p = parseCompBody(imported)
-    expect(p.facts.map(x => x[0])).toEqual(['Status', 'Company', 'Position', 'Location', 'Typical experience'])
+    expect(p.facts.map(x => x[0])).toEqual(['Company', 'Position', 'Location', 'Typical experience'])   // the old "Status: Reported median" line is not shown
     expect(p.pay).toHaveLength(2)
     expect(p.source).toContain('Levels.fyi')
     expect(p.notes).toBe('')
@@ -47,6 +47,19 @@ describe('legacy imported notes', () => {
   })
   it('keeps a member\'s own notes', () => {
     expect(parseCompBody('**Status:** Offer\n\n**Compensation**\n- x\n\n**Benefits and notes:** Negotiated +3L').notes).toBe('Negotiated +3L')
+  })
+})
+
+describe('imported post without a Status line', () => {
+  it('is still read as a template post', () => {
+    const b = '**Company:** 100ms\n**Location:** India\n\n**Compensation**\n- **Total (per year, median): ₹22.07 LPA** (₹22,07,172)'
+    const p = parseCompBody(b)
+    expect(p.facts).toEqual([['Company', '100ms'], ['Location', 'India']])
+    expect(p.pay[0]).toContain('₹22.07 LPA')
+    expect(bodyPreview(b)).toBe('India')
+  })
+  it('keeps a member\'s Status line', () => {
+    expect(parseCompBody('**Status:** Offer\n**Company:** X').facts[0]).toEqual(['Status', 'Offer'])
   })
 })
 

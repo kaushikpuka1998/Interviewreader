@@ -25,7 +25,9 @@ out, seen = [], {}
 for r in rows:
     company, level, norm = r['Company'].strip(), r['Company level'].strip(), r['Normalised level'].strip()
     all_levels = norm.startswith('All levels')
-    lpa, total = r['Median total comp (LPA)'].strip(), r['Median total comp (INR)'].strip()
+    total = r['Median total comp (INR)'].strip()
+    # LPA from the exact rupee amount, to two decimals, so it always agrees with the figure in brackets (the CSV's own LPA column is rounded to one).
+    lpa = ('%.2f' % (float(total) / 100000)).rstrip('0').rstrip('.')
     yoe_txt = r['Typical YOE'].strip()
     if yoe_txt and 'year' not in yoe_txt: yoe_txt += ' years'
     m = re.search(r'\d+', yoe_txt)
@@ -34,7 +36,7 @@ for r in rows:
     if seen[key] > 1: key += f'-{seen[key]}'
     if len(key) > 120: key = key[:100] + '-' + hashlib.md5(key.encode()).hexdigest()[:10]
     position = 'Software Engineer (all levels, company median)' if all_levels else f"Software Engineer: {level} ({norm})"
-    lines = ['**Status:** Reported median', f'**Company:** {company}']
+    lines = [f'**Company:** {company}']
     if r['Segment'].strip(): lines.append(f"**Segment:** {r['Segment'].strip()}")
     lines += [f'**Position:** {position}', '**Location:** India']
     if yoe_txt: lines.append(f'**Typical experience:** {yoe_txt}')

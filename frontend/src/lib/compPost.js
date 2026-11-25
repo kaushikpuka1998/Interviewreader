@@ -41,7 +41,7 @@ export function compBody(f) {
 
 /** Reads a template post back into parts for display: { facts: [[label, value]], pay: [line], source, notes }, or null for any other post. */
 export function parseCompBody(body) {
-  if (!/^\*\*Status:\*\*/.test(body || '')) return null
+  if (!/^\*\*(Status|Company):\*\*/.test(body || '')) return null
   const facts = [], pay = []
   let source = '', notes = ''
   for (const block of body.split(/\n\n+/)) {
@@ -51,6 +51,7 @@ export function parseCompBody(body) {
       const m = l.match(/^\*\*(.+?):\*\*\s*(.*)$/)
       if (!m) continue
       if (m[1] === 'Source') source = m[2]
+      else if (m[1] === 'Status' && m[2] === 'Reported median') continue   // imported posts once carried this line; it says nothing the Imported tag does not
       // Imported posts once carried a boilerplate note with a source link; posts stored from that version must not show it.
       else if (m[1] === 'Benefits and notes') notes = /^Median of reported submissions/.test(m[2]) ? '' : m[2]
       else facts.push([m[1], m[2]])
