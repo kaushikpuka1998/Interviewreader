@@ -80,6 +80,9 @@ export default function ProfileMenu({ user, initial, onProfile, isDark, onToggle
                 <Icon d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" /> Admin dashboard
               </button>
             )}
+            <a href="/dashboard" role="menuitem" onClick={() => setOpen(false)} className={row}>
+              <Icon d="M4 4h7v9H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 15h7v5H4z" /> Dashboard
+            </a>
             <a href="/leaderboard" role="menuitem" onClick={() => setOpen(false)} className={row}>
               <Icon d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3" /> Leaderboard
             </a>

@@ -8,6 +8,7 @@ const App = lazy(() => import('./App.jsx'))
 const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
 const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
 const SalariesPage = lazy(() => import('./components/SalariesPage.jsx'))
+const DashboardPage = lazy(() => import('./components/DashboardPage.jsx'))
 const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
 const TracksPage = lazy(() => import('./components/TracksPage.jsx'))
 const SkillGapPage = lazy(() => import('./components/SkillGapPage.jsx'))
@@ -81,7 +82,7 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/updates', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
+const TRACKED_PAGES = ['/admin', '/profile', '/dashboard', '/leaderboard', '/streak', '/updates', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
   '/interview', '/problems', '/salaries', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
@@ -104,6 +105,8 @@ function Routes() {
 
   // User profile / progress dashboard.
   if (path === '/profile' || path.startsWith('/profile/')) return <ProfilePage />
+
+  if (path === '/dashboard') return <DashboardPage />
 
   if (path === '/') return <HomePage />
 
