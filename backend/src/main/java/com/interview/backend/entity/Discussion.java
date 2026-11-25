@@ -52,10 +52,6 @@ public class Discussion {
     @Column(length = 80)
     private String ctc;
 
-    /** Set on posts loaded from discussion-seed.json (imported, with a cited source); null for member posts. Makes the import run once per post. */
-    @Column(name = "import_key", length = 120, unique = true)
-    private String importKey;
-
     @Column(nullable = false, length = 200)
     private String title;
 

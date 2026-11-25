@@ -29,6 +29,7 @@ const ITEMS = {
   coding: ['Coding problems', '/problems', 'code_practice', 'new_badge_code_practice', false, true],
   editor: ['Practice editor', '/practice', 'code_practice', 'new_badge_code_practice', false, true],
   roadmaps: ['Roadmaps', '/roadmaps', null, null, true],
+  salaries: ['Salaries', '/salaries', null, true],
   interview: ['Interview', '/interview', 'mock_interview', 'hot'],
   community: ['Discussions', '/discuss', null, true],
   posts: ['LinkedIn Post Studio', '/linkedin-posts', 'linkedin_post_studio', 'new_badge_linkedin_post_studio'],
@@ -40,7 +41,7 @@ const ITEMS = {
 const BAR = [
   { menu: 'Questions', items: ['all', ...TOPICS.map(t => `t:${t}`)] }, 'daily',
   { menu: 'Practice', items: ['design', 'networking', 'tracks', 'coding', 'editor', 'skills'], badge: true },
-  'roadmaps', 'interview',
+  'roadmaps', 'salaries', 'interview',
   { menu: 'Community', items: ['community', 'leaderboard', 'posts'], badge: true },
   'resume',
 ]
@@ -52,7 +53,7 @@ const NavBadge = ({ className, children, compact }) => (
 
 // Between 1280 and 1536px the bar is crowded, so it shows the short label and no badges; the full bar starts at 2xl.
 const isActive = (href, path) => href === '/questions'
-  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/tracks', '/skills', '/terms', '/interview', '/roadmaps', '/feedback', '/question-of-the-day', '/linkedin-posts', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
+  ? !['/', '/problems', '/practice', '/leaderboard', '/resume', '/tracks', '/skills', '/terms', '/interview', '/roadmaps', '/salaries', '/feedback', '/question-of-the-day', '/linkedin-posts', '/premium', '/discuss'].some(p => path === p || path.startsWith(p + '/')) && !['/admin', '/profile', '/u'].some(p => path.startsWith(p))
   : href === '/interview' ? path === href || (path.startsWith('/interview/') && !path.startsWith('/interview/practice'))
   : path === href || (href !== '/' && path.startsWith(href + '/'))
 

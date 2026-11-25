@@ -128,6 +128,15 @@ async function landingPages() {
   } catch (err) {
     console.warn(`Coding problem pages skipped (${err.message})`)
   }
+  // Salary pages: the index and one page per company.
+  try {
+    const sal = await fetchJson('/public/salaries')
+    pages.push(['/salaries', 'weekly', '0.8'])
+    for (const c of sal.companies) pages.push([`/salaries/${c.slug}`, 'monthly', '0.6'])
+    console.log(`Salaries: ${sal.companies.length} companies`)
+  } catch (err) {
+    console.warn(`Salary pages skipped (${err.message})`)
+  }
   try {
     const roadmap = await fetchJson('/roadmaps')
     for (const c of roadmap.companies || []) pages.push([`/roadmaps?company=${c.id}`, 'weekly', '0.8'])

@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom/client'
 const App = lazy(() => import('./App.jsx'))
 const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
 const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
+const SalariesPage = lazy(() => import('./components/SalariesPage.jsx'))
 const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
 const TracksPage = lazy(() => import('./components/TracksPage.jsx'))
 const SkillGapPage = lazy(() => import('./components/SkillGapPage.jsx'))
@@ -81,7 +82,7 @@ window.fetch = function() {
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
 const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/updates', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
-  '/interview', '/problems', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
+  '/interview', '/problems', '/salaries', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
   const [path, setPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/')
@@ -107,6 +108,10 @@ function Routes() {
   if (path === '/') return <HomePage />
 
   if (path === '/roadmaps' || path.startsWith('/roadmaps/')) return <RoadmapsPage />
+
+  // Company-wise software engineer pay in India, with each company's levels.
+  if (path === '/salaries') return <SalariesPage />
+  if (path.startsWith('/salaries/')) return <SalariesPage slug={decodeURIComponent(path.split('/')[2] || '')} />
 
   if (path.startsWith('/sheets/')) return <Gate flag="code_practice" what="The DSA sheets"><SheetPage slug={path.split('/')[2]} /></Gate>
 

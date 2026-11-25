@@ -330,7 +330,6 @@ public class DiscussionController {
         m.put("level", d.getLevel());
         m.put("yoe", d.getYoe());
         m.put("ctc", d.getCtc());
-        m.put("imported", d.getImportKey() != null);
         m.put("title", d.getTitle());
         m.put("body", d.getBody());
         m.put("upvotes", d.getUpvotes());

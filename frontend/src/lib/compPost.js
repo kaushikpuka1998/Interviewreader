@@ -39,36 +39,30 @@ export function compBody(f) {
   return [facts.join('\n'), pay.length ? `**Compensation**\n${pay.join('\n')}` : '', line('Benefits and notes', f.notes)].filter(Boolean).join('\n\n')
 }
 
-/** Reads a template post back into parts for display: { facts: [[label, value]], pay: [line], source, notes }, or null for any other post. */
+/** Reads a template post back into parts for display: { facts: [[label, value]], pay: [line], notes }, or null for any other post. */
 export function parseCompBody(body) {
-  if (!/^\*\*(Status|Company):\*\*/.test(body || '')) return null
+  if (!/^\*\*Status:\*\*/.test(body || '')) return null
   const facts = [], pay = []
-  let source = '', notes = ''
+  let notes = ''
   for (const block of body.split(/\n\n+/)) {
     const lines = block.split('\n')
-    if (/^\*\*Compensation\*\*/.test(lines[0])) { pay.push(...lines.slice(1).map(l => l.replace(/^- /, '').replace(/\s*\(₹[\d,]+\)\s*$/, ''))); continue }   // posts stored earlier also showed the exact rupee amount in brackets
+    if (/^\*\*Compensation\*\*/.test(lines[0])) { pay.push(...lines.slice(1).map(l => l.replace(/^- /, ''))); continue }
     for (const l of lines) {
       const m = l.match(/^\*\*(.+?):\*\*\s*(.*)$/)
       if (!m) continue
-      if (m[1] === 'Source') source = m[2]
-      else if (m[1] === 'Status' && m[2] === 'Reported median') continue   // imported posts once carried this line; it says nothing the Imported tag does not
-      // Imported posts once carried a boilerplate note with a source link; posts stored from that version must not show it.
-      else if (m[1] === 'Benefits and notes') notes = /^Median of reported submissions/.test(m[2]) ? '' : m[2]
+      if (m[1] === 'Benefits and notes') notes = m[2]
       else facts.push([m[1], m[2]])
     }
   }
-  return { facts, pay, source, notes }
+  return { facts, pay, notes }
 }
 
-/** One plain line for the feed card: "Software Engineer: SSE (SDE-2) · India · 4-5 years", or the text itself for other posts. */
+/** One plain line for the feed card: "SDE-2 (L5) · Bangalore, India · 4", or the text itself for other posts. */
 export function bodyPreview(body) {
   const p = parseCompBody(body)
   if (!p) return body
   const get = k => p.facts.find(([l]) => l === k)?.[1]
-  if (get('Position')) return [get('Position'), get('Location'), get('Typical experience') || get('Years of experience')].filter(Boolean).join(' · ')
-  // a company post: "IT services / Consulting · India · 6 levels"
-  const levels = p.pay.filter(l => /^\*\*/.test(l) && !/^\*\*Total/.test(l)).length
-  return [get('Segment'), get('Location'), levels > 1 ? `${levels} levels` : ''].filter(Boolean).join(' · ')
+  return [get('Position'), get('Location'), get('Years of experience')].filter(Boolean).join(' · ')
 }
 
 /** "**bold**" and "[text](url)" in a template line, as parts: { text, bold } or { text, href }. */
