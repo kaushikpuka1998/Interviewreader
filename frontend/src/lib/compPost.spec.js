@@ -63,3 +63,17 @@ describe('imported post without a Status line', () => {
   })
 })
 
+describe('exact rupee amount in brackets', () => {
+  it('is dropped from the pay line, leaving the LPA figure', () => {
+    const b = '**Company:** 100ms\n\n**Compensation**\n- **Total (per year, median): ₹22.1 LPA** (₹22,07,172)\n- Company median across levels: ₹8.2 LPA'
+    expect(parseCompBody(b).pay).toEqual(['**Total (per year, median): ₹22.1 LPA**', 'Company median across levels: ₹8.2 LPA'])
+  })
+})
+
+describe('company post preview', () => {
+  it('shows segment, location and how many levels', () => {
+    const b = '**Company:** Accenture\n**Segment:** IT services / Consulting\n**Location:** India\n\n**Compensation**\n- **ASE** (SDE-1 / Entry): ₹6.9 LPA\n- **SSE** (SDE-2): ₹12.6 LPA\n- Company median across levels: ₹8.2 LPA'
+    expect(bodyPreview(b)).toBe('IT services / Consulting · India · 2 levels')
+  })
+})
+

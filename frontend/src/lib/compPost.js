@@ -46,7 +46,7 @@ export function parseCompBody(body) {
   let source = '', notes = ''
   for (const block of body.split(/\n\n+/)) {
     const lines = block.split('\n')
-    if (/^\*\*Compensation\*\*/.test(lines[0])) { pay.push(...lines.slice(1).map(l => l.replace(/^- /, ''))); continue }
+    if (/^\*\*Compensation\*\*/.test(lines[0])) { pay.push(...lines.slice(1).map(l => l.replace(/^- /, '').replace(/\s*\(₹[\d,]+\)\s*$/, ''))); continue }   // posts stored earlier also showed the exact rupee amount in brackets
     for (const l of lines) {
       const m = l.match(/^\*\*(.+?):\*\*\s*(.*)$/)
       if (!m) continue
@@ -65,7 +65,10 @@ export function bodyPreview(body) {
   const p = parseCompBody(body)
   if (!p) return body
   const get = k => p.facts.find(([l]) => l === k)?.[1]
-  return [get('Position'), get('Location'), get('Typical experience') || get('Years of experience')].filter(Boolean).join(' · ')
+  if (get('Position')) return [get('Position'), get('Location'), get('Typical experience') || get('Years of experience')].filter(Boolean).join(' · ')
+  // a company post: "IT services / Consulting · India · 6 levels"
+  const levels = p.pay.filter(l => /^\*\*/.test(l) && !/^\*\*Total/.test(l)).length
+  return [get('Segment'), get('Location'), levels > 1 ? `${levels} levels` : ''].filter(Boolean).join(' · ')
 }
 
 /** "**bold**" and "[text](url)" in a template line, as parts: { text, bold } or { text, href }. */

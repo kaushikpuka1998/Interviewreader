@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Builds backend/src/main/resources/discussion-seed.json (anonymous, imported compensation posts) from
-scripts/data/india_sde_salaries_by_level.csv. DiscussionSeed loads the JSON into the discussions table at startup, once per importKey.
+scripts/data/india_sde_salaries_by_level.csv. DiscussionSeed loads the JSON into the discussions table at startup, one post per company (the key is derived from the company name).
 
     python3 scripts/gen-india-comp-seed.py
 """
-import csv, json, re, hashlib, pathlib
+import csv, json, re, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 rows = list(csv.DictReader(open(ROOT / 'scripts/data/india_sde_salaries_by_level.csv', encoding='utf-8-sig')))
@@ -21,32 +21,35 @@ def inr(n):  # 1263030 -> 12,63,030
 def slug(s): return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 def clip(s, n): return s if len(s) <= n else s[:n].rstrip()
 
-out, seen = [], {}
+# One post per company: every level it reports, lowest pay first. DiscussionSeed derives each post's key from the company name.
+by_company = {}
 for r in rows:
-    company, level, norm = r['Company'].strip(), r['Company level'].strip(), r['Normalised level'].strip()
-    all_levels = norm.startswith('All levels')
-    total = r['Median total comp (INR)'].strip()
-    # LPA from the exact rupee amount, to two decimals, so it always agrees with the figure in brackets (the CSV's own LPA column is rounded to one).
-    lpa = ('%.2f' % (float(total) / 100000)).rstrip('0').rstrip('.')
-    yoe_txt = r['Typical YOE'].strip()
-    if yoe_txt and 'year' not in yoe_txt: yoe_txt += ' years'
-    m = re.search(r'\d+', yoe_txt)
-    key = 'levelsfyi-in-2026-11-' + slug(company) + '-' + slug(level)
-    seen[key] = seen.get(key, 0) + 1
-    if seen[key] > 1: key += f'-{seen[key]}'
-    if len(key) > 120: key = key[:100] + '-' + hashlib.md5(key.encode()).hexdigest()[:10]
-    position = 'Software Engineer (all levels, company median)' if all_levels else f"Software Engineer: {level} ({norm})"
+    by_company.setdefault(r['Company'].strip(), []).append(r)
+
+out = []
+for company, rs in by_company.items():
+    rs = sorted(rs, key=lambda r: float(r['Median total comp (INR)']))
     lines = [f'**Company:** {company}']
-    if r['Segment'].strip(): lines.append(f"**Segment:** {r['Segment'].strip()}")
-    lines += [f'**Position:** {position}', '**Location:** India']
-    if yoe_txt: lines.append(f'**Typical experience:** {yoe_txt}')
-    comp = [f'- **Total (per year, median): ₹{lpa} LPA** (₹{inr(total)})']
-    if r['Company median TC (LPA)'].strip() and not all_levels:
-        comp.append(f"- Company median across levels: ₹{r['Company median TC (LPA)'].strip()} LPA")
+    seg = next((r['Segment'].strip() for r in rs if r['Segment'].strip()), '')
+    if seg: lines.append(f'**Segment:** {seg}')
+    lines.append('**Location:** India')
+    comp = []
+    for r in rs:
+        level, norm, lpa = r['Company level'].strip(), r['Normalised level'].strip(), r['Median total comp (LPA)'].strip()
+        yoe = r['Typical YOE'].strip()
+        if yoe and 'year' not in yoe: yoe += ' years'
+        if norm.startswith('All levels'):
+            comp.append(f'- **All levels** (company median): ₹{lpa} LPA')
+        else:
+            detail = ', '.join(x for x in (norm, yoe) if x)
+            comp.append(f'- **{level}** ({detail}): ₹{lpa} LPA')
+    med = next((r['Company median TC (LPA)'].strip() for r in rs if r['Company median TC (LPA)'].strip()), '')
+    if med and len(rs) > 1: comp.append(f'- Company median across levels: ₹{med} LPA')
+    lo, hi = rs[0]['Median total comp (LPA)'].strip(), rs[-1]['Median total comp (LPA)'].strip()
+    span = f'₹{lo} LPA' if lo == hi else f'₹{lo} – ₹{hi} LPA'
     body = '\n'.join(lines) + '\n\n**Compensation**\n' + '\n'.join(comp)
-    out.append(dict(importKey=key, category='compensation', company=clip(company, 120), role=clip('All levels' if all_levels else norm, 40),
-                    level=clip('All levels' if all_levels else level, 40), yoe=str(int(m.group())) if m else '',
-                    ctc=f'₹{lpa} LPA', title=clip(f"{company} | {'All levels' if all_levels else level} | India | ₹{lpa} LPA", 200), body=body))
+    out.append(dict(category='compensation', company=clip(company, 120), role='Software Engineer', level='', yoe='',
+                    ctc=span, title=clip(f'{company} | India | {span}', 200), body=body))
 
 (ROOT / 'backend/src/main/resources/discussion-seed.json').write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding='utf-8')
-print(len(out), 'posts,', len({o['company'] for o in out}), 'companies,', len({o['importKey'] for o in out}), 'unique keys')
+print(len(out), 'posts (one per company),', sum(len(v) for v in by_company.values()), 'levels in total')

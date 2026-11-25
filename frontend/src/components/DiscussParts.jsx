@@ -45,7 +45,6 @@ export function Chips({ d }) {
       {d.level && <span className={chip}>{d.level}</span>}
       {d.yoe != null && <span className={chip}>{d.yoe} yrs exp</span>}
       {d.ctc && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-300">{/^[₹$€£]/.test(d.ctc) ? '' : '₹ '}{d.ctc}</span>}
-      {d.imported && <span title="Imported data, not posted by a member" className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[11px] font-bold text-sky-700 dark:text-sky-300">Imported</span>}
     </div>
   )
 }
