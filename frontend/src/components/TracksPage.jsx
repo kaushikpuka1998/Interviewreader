@@ -21,8 +21,8 @@ export default function TracksPage({ id }) {
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(d => {
         setData(d)
-        if (id) setPageSeo({ title: `${d.title} Interview Track: ${d.tagline} | Interview Reader`, description: `${d.description} Questions with answers, in the order to study them.`, path: `/tracks/${id}` })
-        else setPageSeo({ title: 'Role-wise Interview Tracks: Java Backend, Frontend, Full Stack | Interview Reader', description: 'Pick your role and follow one ordered path of interview questions: language, framework, databases, messaging and system design.', path: '/tracks' })
+        if (id) setPageSeo({ title: `${d.title} Interview Track: ${d.tagline} | InterviewReader`, description: `${d.description} Questions with answers, in the order to study them.`, path: `/tracks/${id}` })
+        else setPageSeo({ title: 'Role-wise Interview Tracks: Java Backend, Frontend, Full Stack | InterviewReader', description: 'Pick your role and follow one ordered path of interview questions: language, framework, databases, messaging and system design.', path: '/tracks' })
       })
       .catch(() => setError(true))
   }, [id])

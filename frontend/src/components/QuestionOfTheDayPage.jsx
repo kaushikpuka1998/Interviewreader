@@ -26,7 +26,7 @@ export default function QuestionOfTheDayPage() {
     if (!authed) { fetchQotd().then(d => { setQ(d.id ? { title: d.title } : null); setProblem(d.problem || null) }).catch(() => {}); return }
     fetchQotd().then(d => { setProblem(d.problem || null); if (d.problem) fetchProblemStatement(d.problem.id).then(x => setProblem(p => ({ ...p, statement: x.statement }))).catch(() => {}); return d.id ? fetchQuestion(d.id) : Promise.reject(new Error('No question today')) }).then(item => {
       setQ(item)
-      setPageSeo({ title: `Daily interview challenge: ${item.title} | Interview Reader`, description: `Today's interview question with a detailed answer: ${item.title}`, path: '/question-of-the-day' })
+      setPageSeo({ title: `Daily interview challenge: ${item.title} | InterviewReader`, description: `Today's interview question with a detailed answer: ${item.title}`, path: '/question-of-the-day' })
     }).catch(e => setError(e.message))
   }, [authed])
   // Refresh the done marks whenever the ids change (first load, and again after the 8s read mark is written).

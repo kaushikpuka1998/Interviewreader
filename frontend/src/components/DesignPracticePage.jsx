@@ -45,7 +45,7 @@ export default function DesignPracticePage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    setPageSeo({ title: 'System Design Interview Practice, Scored | Interview Reader', description: 'Practise system design interview questions alone, by voice or typing, and get a coverage score out of 10 with what you covered and missed.', path: '/interview/practice' })
+    setPageSeo({ title: 'System Design Interview Practice, Scored | InterviewReader', description: 'Practise system design interview questions alone, by voice or typing, and get a coverage score out of 10 with what you covered and missed.', path: '/interview/practice' })
   }, [])
 
   const refresh = useCallback(() => {

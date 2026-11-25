@@ -19,7 +19,7 @@ const NAV_BTN = 'tip relative flex h-8 w-8 shrink-0 items-center justify-center 
 
 // Practice coding: LeetCode-style problems on the left, plus a free code box for writing your own program.
 export default function PracticePage() {
-  const practiceSeo = () => setPageSeo({ title: 'Practice Coding Online in 11 Languages | Interview Reader', description: 'Solve coding interview problems in an online editor and run them against test cases in Java, Python, C++, Go, JavaScript and 6 more languages.', path: '/practice', jsonLd: undefined })
+  const practiceSeo = () => setPageSeo({ title: 'Practice Coding Online in 11 Languages | InterviewReader', description: 'Solve coding interview problems in an online editor and run them against test cases in Java, Python, C++, Go, JavaScript and 6 more languages.', path: '/practice', jsonLd: undefined })
   useEffect(() => { practiceSeo() }, [])
   const [problems, setProblems] = useState(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -281,7 +281,7 @@ export default function PracticePage() {
     const asked = companies.length ? `Asked at ${companies.slice(0, 4).join(', ')}${companies.length > 4 ? ` and ${companies.length - 4} more` : ''}. ` : ''
     const statement = String(detail.statement || '').replace(/[`*#>_]/g, '').replace(/\s+/g, ' ').trim()
     const description = (asked + statement).slice(0, 155).replace(/\s\S*$/, '') + '…'
-    const title = `${detail.title}: ${detail.difficulty || ''} Coding Interview Problem | Interview Reader`.replace(/:\s+Coding/, ': Coding')
+    const title = `${detail.title}: ${detail.difficulty || ''} Coding Interview Problem | InterviewReader`.replace(/:\s+Coding/, ': Coding')
     setPageSeo({
       title,
       description,

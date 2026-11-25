@@ -18,7 +18,7 @@ export default function StreakPage() {
   const [authOpen, setAuthOpen] = useState(false)
   const authed = isLoggedIn()
   useEffect(() => {
-    setPageSeo({ title: 'My streak and points | Interview Reader', description: 'Your daily streak, points and recent activity.', path: '/streak', noindex: true })
+    setPageSeo({ title: 'My streak and points | InterviewReader', description: 'Your daily streak, points and recent activity.', path: '/streak', noindex: true })
     if (!authed) return
     fetchPoints().then(setSum).catch(() => setSum({}))
     fetchPointHistory().then(setHist).catch(() => setHist({ events: [], days: [] }))

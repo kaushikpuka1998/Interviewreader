@@ -25,7 +25,7 @@ export default function DiscussPage() {
   const [composeOpen, setComposeOpen] = useState(false)
   const authed = isLoggedIn()
 
-  useEffect(() => { setPageSeo({ title: 'Interview experiences & compensation discussions | Interview Reader', description: 'Real interview experiences, compensation reports and community discussion from candidates preparing for top tech companies.', path: '/discuss' }) }, [])
+  useEffect(() => { setPageSeo({ title: 'Interview experiences & compensation discussions | InterviewReader', description: 'Real interview experiences, compensation reports and community discussion from candidates preparing for top tech companies.', path: '/discuss' }) }, [])
   useEffect(() => { fetchTrending().then(setTrending).catch(() => {}) }, [])
   const load = (page, replace) => {
     setLoading(true)

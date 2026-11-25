@@ -14,7 +14,7 @@ export default function DiscussDetailPage({ id }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [editing, setEditing] = useState(false)
   useEffect(() => {
-    fetchDiscussion(id).then(x => { setD(x); setPageSeo({ title: `${x.title} | Interview Reader`, description: x.body.slice(0, 150), path: `/discuss/${id}` }) }).catch(() => setErr('This post is not available.'))
+    fetchDiscussion(id).then(x => { setD(x); setPageSeo({ title: `${x.title} | InterviewReader`, description: x.body.slice(0, 150), path: `/discuss/${id}` }) }).catch(() => setErr('This post is not available.'))
   }, [id])
   const remove = async () => { if (window.confirm('Delete this post?')) { await deleteDiscussion(id).catch(() => {}); window.location.href = '/discuss' } }
   return (

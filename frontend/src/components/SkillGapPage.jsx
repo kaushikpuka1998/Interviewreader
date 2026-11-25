@@ -57,7 +57,7 @@ export default function SkillGapPage() {
   const authed = isLoggedIn()
 
   useEffect(() => {
-    setPageSeo({ title: 'My skill gap analysis | Interview Reader', description: 'Your weak topics and what to learn next, from your practice.', path: '/skills', noindex: true })
+    setPageSeo({ title: 'My skill gap analysis | InterviewReader', description: 'Your weak topics and what to learn next, from your practice.', path: '/skills', noindex: true })
     if (!authed) return
     fetch(`${API_BASE}/me/skills`, { credentials: 'include' })
       .then(r => (r.ok ? r.json() : Promise.reject(new Error('Could not load your analysis. Try again in a moment.'))))

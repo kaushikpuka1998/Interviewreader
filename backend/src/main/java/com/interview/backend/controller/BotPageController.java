@@ -72,7 +72,7 @@ public class BotPageController {
         if (meta != null) return ok(sitePage(p, meta));
         String qid = id != null && !id.isBlank() ? id : index().slugToId().get(p.substring(1));
         Question q = qid == null ? null : questions.findById(qid).orElse(null);
-        if (q == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_HTML).body(shell("Not found", "/", "<h1>Not found</h1><p><a href=\"" + site + "/\">Interview Reader</a></p>", ""));
+        if (q == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_HTML).body(shell("Not found", "/", "<h1>Not found</h1><p><a href=\"" + site + "/\">InterviewReader</a></p>", ""));
         return ok(question(p, q));
     }
 
@@ -83,13 +83,13 @@ public class BotPageController {
     // ---------- pages ----------
 
     private String home() {
-        StringBuilder b = new StringBuilder("<h1>Interview Reader: interview questions with answers and coding problems</h1>")
+        StringBuilder b = new StringBuilder("<h1>InterviewReader: interview questions with answers and coding problems</h1>")
                 .append("<p>Free interview questions with detailed answers for software engineers, plus coding problems you can run online and company interview roadmaps.</p><h2>Topics</h2><ul>");
         index().perTech().forEach((tech, n) -> b.append("<li>").append(esc(tech)).append(": ").append(n).append(" questions</li>"));
         b.append("</ul><h2>Pages</h2><ul>");
         ShareController.SITE_PAGES.forEach((path, m) -> b.append("<li><a href=\"").append(esc(site + path)).append("\">").append(esc(m[0])).append("</a>: ").append(esc(m[1])).append("</li>"));
         b.append("</ul><p>Every question has its own page; see <a href=\"").append(esc(site)).append("/sitemap.xml\">the sitemap</a>.</p>");
-        return shell("Interview Reader: interview questions with answers", "/", b.toString(), "Free interview questions with detailed answers for Java, React, Node.js, Go, SQL, system design, Kafka and microservices, plus coding problems you can run online.");
+        return shell("InterviewReader: interview questions with answers", "/", b.toString(), "Free interview questions with detailed answers for Java, React, Node.js, Go, SQL, system design, Kafka and microservices, plus coding problems you can run online.");
     }
 
     @SuppressWarnings("unchecked")
@@ -146,7 +146,7 @@ public class BotPageController {
     }
 
     private String sitePage(String path, String[] meta) {
-        return shell(meta[0], path, "<h1>" + esc(meta[0]) + "</h1><p>" + esc(meta[1]) + "</p><p><a href=\"" + esc(site + "/") + "\">Interview Reader home</a></p>", meta[1]);
+        return shell(meta[0], path, "<h1>" + esc(meta[0]) + "</h1><p>" + esc(meta[1]) + "</p><p><a href=\"" + esc(site + "/") + "\">InterviewReader home</a></p>", meta[1]);
     }
 
     private String question(String path, Question q) {
@@ -156,7 +156,7 @@ public class BotPageController {
         StringBuilder b = new StringBuilder("<article><h1>").append(esc(text)).append("</h1><p>Topic: ").append(esc(q.getTech()))
                 .append(q.getCategory() == null ? "" : ", " + esc(q.getCategory())).append(q.getDifficulty() == null ? "" : ". Level: " + esc(q.getDifficulty())).append(".</p>");
         String ld = "";
-        String description = "Interview question with a detailed answer on Interview Reader.";
+        String description = "Interview question with a detailed answer on InterviewReader.";
         if (readable && q.getAnswer() != null && !q.getAnswer().isBlank()) {
             b.append("<h2>Answer</h2><div style=\"white-space:pre-wrap\">").append(esc(q.getAnswer())).append("</div>");
             String plain = q.getAnswer().replaceAll("[`#*>_\\[\\]]", "").replaceAll("\\s+", " ").trim();
@@ -171,7 +171,7 @@ public class BotPageController {
                 ld = "<script type=\"application/ld+json\">" + mapper.writeValueAsString(qa).replace("</", "<\\/") + "</script>";
             } catch (Exception ignored) { /* the page works without structured data */ }
         } else {
-            b.append("<p>The full answer to this question is available to Interview Reader members. <a href=\"").append(esc(site + "/premium")).append("\">See what is free and what Premium adds</a>.</p>");
+            b.append("<p>The full answer to this question is available to InterviewReader members. <a href=\"").append(esc(site + "/premium")).append("\">See what is free and what Premium adds</a>.</p>");
         }
         b.append("</article>");
         return shell(text + " | " + q.getTech() + " interview question", path + "?id=" + q.getId(), b.toString(), description, ld);

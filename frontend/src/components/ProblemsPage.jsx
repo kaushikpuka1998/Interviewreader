@@ -152,8 +152,8 @@ export default function ProblemsPage() {
       || (group && groupTabs.find(g => g.id === group)?.label)
     const n = problems ? rows.length : 0
     const title = label
-      ? `${label} Coding Interview Questions${n ? ` (${n} problems)` : ''} | Interview Reader`
-      : 'Coding Problems in 11 Languages | Interview Reader'
+      ? `${label} Coding Interview Questions${n ? ` (${n} problems)` : ''} | InterviewReader`
+      : 'Coding Problems in 11 Languages | InterviewReader'
     const description = label
       ? `Practice ${n ? n.toLocaleString() + ' ' : ''}coding problems asked in ${label} interviews: arrays, strings, trees, graphs and DP. Run your solution online in Java, Python, C++, Go and more.`
       : 'Practice 2,500+ coding interview problems on arrays, strings, trees, graphs and DP. Write and run solutions online in Java, Python, C++, Go and more.'
