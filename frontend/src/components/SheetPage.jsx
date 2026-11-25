@@ -21,7 +21,7 @@ export default function SheetPage({ slug }) {
   useEffect(() => {
     fetch(`/sheets/${slug}.json`).then(r => r.ok ? r.json() : Promise.reject(new Error('Sheet not found.'))).then(s => {
       setSheet(s)
-      setPageSeo({ title: `${s.title} | Interview Reader`, description: `Work through the ${s.title} with problems you can run online.`, path: `/sheets/${slug}`, jsonLd: undefined })
+      setPageSeo({ title: `${s.title} | InterviewReader`, description: `Work through the ${s.title} with problems you can run online.`, path: `/sheets/${slug}`, jsonLd: undefined })
     }).catch(e => setError(e.message))
     fetchCodingProblems().then(setProblems).catch(() => {})
     if (isLoggedIn()) fetchSolvedIds().then(ids => setSolved(new Set(ids))).catch(() => {})

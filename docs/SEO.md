@@ -67,3 +67,22 @@ Currently free: `microservices`, `design-patterns` (138 of 3,069 questions ≈ 4
 If organic traffic matters more than sign-ups, widen `FREE_TECHS`. A common
 compromise is to open the highest-volume topics (Java, React) and gate the rest.
 Watch the referrer panel in the admin analytics to see which way the trade lands.
+
+## Brand name (the "interviewreader" search)
+
+Searching `interviewreader` can show another site (InterviewReady, interviewready.io) because Google treats the query as a
+misspelling of that larger brand. Markup cannot override that, but it removes every inconsistency on our side:
+
+- The brand is written **InterviewReader** (one word: the domain and the logo) in the `<title>`, `og:site_name`, the
+  `WebSite` and `Organization` JSON-LD (`index.html`, `lib/seo.js`) and the crawler HTML (`BotPageController`).
+  `Interview Reader`, `Interview Reader Cloud` and `interviewreader.cloud` are declared as `alternateName`.
+- Filtered home URLs (`/?tech=`, `?q=`), the feedback page and private pages are `noindex`, so the home page is the one
+  page that carries the brand.
+
+Off-site steps that actually move this (do these in order):
+
+1. Google Search Console: request indexing for `https://interviewreader.cloud/`, then check Performance for the query `interviewreader`.
+2. Searching by the exact spelling, then clicking our result ("Search instead for interviewreader"), teaches Google the spelling is a real brand.
+3. Add `sameAs` to the Organization JSON-LD once these exist: LinkedIn company page, GitHub repo or org, X, Product Hunt, Reddit/Hashnode posts, all using the name "InterviewReader" and linking to `interviewreader.cloud`.
+4. Bing Webmaster Tools + IndexNow (ChatGPT search and Copilot use Bing's index); keep `robots.txt` and `llms.txt` as they are.
+5. Backlinks that use the anchor text "InterviewReader" (directories, dev.to / Medium posts, college and community groups).

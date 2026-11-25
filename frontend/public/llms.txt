@@ -1,4 +1,6 @@
-# Interview Reader
+# InterviewReader
+
+InterviewReader (also written Interview Reader; website interviewreader.cloud) is a free interview preparation site.
 
 > Free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka, Microservices, Design Patterns, Angular and Rails, plus 2,500+ coding problems you can run online in 11 languages, company interview roadmaps and DSA problem sheets.
 

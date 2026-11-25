@@ -8,7 +8,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
 // Weekly leaderboard. Only the last 7 days count, so members who stop reading drop off on their own.
 export default function LeaderboardPage() {
-  useEffect(() => { setPageSeo({ title: 'Leaderboard: Top Interview Prep Learners | Interview Reader', description: 'See who is leading the weekly Interview Reader leagues. Earn points by signing in daily, reading questions and solving coding problems, and climb from Bronze to Platinum.', path: '/leaderboard', jsonLd: undefined, noindex: true }) }, [])
+  useEffect(() => { setPageSeo({ title: 'Leaderboard: Top Interview Prep Learners | InterviewReader', description: 'See who is leading the weekly Interview Reader leagues. Earn points by signing in daily, reading questions and solving coding problems, and climb from Bronze to Platinum.', path: '/leaderboard', jsonLd: undefined, noindex: true }) }, [])
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
 

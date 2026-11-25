@@ -2,9 +2,10 @@
 // The app is a SPA, so these are set on navigation — Googlebot renders JS and picks
 // them up, but see docs/SEO.md for the prerender step that makes indexing faster.
 
-const SITE_NAME = 'Interview Reader'
-// The one-word spellings people also search for. Google reads these from the WebSite / Organization markup.
-const ALT_NAMES = ['interviewreader', 'InterviewReader', 'Interview Reader Cloud']
+// One brand spelling everywhere (it is the domain name and the logo). The two-word forms are declared as alternates,
+// which Google reads from the WebSite / Organization markup (see docs/SEO.md, "Brand name").
+const SITE_NAME = 'InterviewReader'
+const ALT_NAMES = ['Interview Reader', 'Interview Reader Cloud', 'interviewreader.cloud']
 const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://interviewreader.cloud').replace(/\/+$/, '')
 
 const TECH_NAMES = {
@@ -153,10 +154,11 @@ export function setQuestionSeo(question, { gated = false } = {}) {
 
 /** Home / listing pages. */
 export function setDefaultSeo(total) {
-  const title = `InterviewReader (${SITE_NAME}): ${total ? total.toLocaleString() + '+ ' : ''}Interview Questions with Answers`
-  const description = 'InterviewReader: free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka and Microservices, plus coding problems and company roadmaps.'
+  const title = `${SITE_NAME}: ${total ? total.toLocaleString() + '+ ' : ''}Interview Questions with Answers`
+  const description = 'InterviewReader (interviewreader.cloud, also written Interview Reader): free interview questions with detailed answers for Java, React, Node.js, Go, SQL, System Design, Kafka and Microservices, plus coding problems and company roadmaps.'
   document.title = title
-  setRobots(false)
+  // A filtered view (?tech=, ?q= ...) is a duplicate of the home page: keep it out of the index, the home page carries the brand.
+  setRobots(/[?&](tech|q|category|difficulty|company|status)=/.test(location.search))
   upsertMeta('meta[name="description"]', { name: 'description', content: description })
   upsertLink('canonical', SITE_URL + '/')
   upsertMeta('meta[property="og:title"]', { property: 'og:title', content: title })

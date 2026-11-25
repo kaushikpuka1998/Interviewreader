@@ -35,7 +35,7 @@ export default function PremiumPage({ autoOpen = false }) {
   const [trial, setTrial] = useState(null)   // null | { available, days, used }
   const [msg, setMsg] = useState('')
   const user = getUser()
-  useEffect(() => { setPageSeo({ title: 'Free vs Premium | Interview Reader', description: 'What you get free on Interview Reader and what Premium adds: full company roadmaps, company-tagged DSA problems, system design links and more. Try Premium free for 3 days.', path: '/premium' }) }, [])
+  useEffect(() => { setPageSeo({ title: 'Free vs Premium | InterviewReader', description: 'What you get free on Interview Reader and what Premium adds: full company roadmaps, company-tagged DSA problems, system design links and more. Try Premium free for 3 days.', path: '/premium' }) }, [])
   useEffect(() => { if (isLoggedIn()) fetchTrial().then(setTrial).catch(() => {}) }, [])
   const start = async () => {
     setMsg('')

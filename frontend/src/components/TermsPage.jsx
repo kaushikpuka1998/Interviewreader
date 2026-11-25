@@ -4,7 +4,7 @@ import Footer from './Footer.jsx'
 import { setPageSeo } from '../lib/seo.js'
 
 export default function TermsPage() {
-  useEffect(() => { setPageSeo({ title: 'Terms & Conditions | Interview Reader', description: 'Terms of use, privacy, cookies, data retention and grievance officer details for Interview Reader.', path: '/terms' }) }, [])
+  useEffect(() => { setPageSeo({ title: 'Terms & Conditions | InterviewReader', description: 'Terms of use, privacy, cookies, data retention and grievance officer details for Interview Reader.', path: '/terms' }) }, [])
   return (
     <div className="flex min-h-screen flex-col bg-slate-100 dark:bg-slate-900">
       <main className="mx-auto w-full max-w-3xl flex-1 p-6">

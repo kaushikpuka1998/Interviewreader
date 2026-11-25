@@ -143,7 +143,7 @@ export default function RoadmapsPage() {
     // Plain /roadmaps (no company in the URL) stays the general page, so its canonical doesn't point at Google's.
     if (!company || !new URLSearchParams(window.location.search).get('company')) {
       setPageSeo({
-        title: 'Company Interview Roadmaps (DSA & System Design) | Interview Reader',
+        title: 'Company Interview Roadmaps (DSA & System Design) | InterviewReader',
         description: 'Interactive company-tailored preparation roadmaps for Google, Amazon, Meta, Microsoft, Uber, Netflix & more. Track your progress across DSA and System Design.',
         path: '/roadmaps',
       })
@@ -152,7 +152,7 @@ export default function RoadmapsPage() {
     const path = `/roadmaps?company=${company.id}`
     const description = `${company.name} interview roadmap: all ${company.rounds.length} rounds explained, with ${company.name}-tagged DSA problems, system design prompts and behavioral questions. Focus: ${company.tagline}.`
     setPageSeo({
-      title: `${company.name} Interview Roadmap: DSA, System Design & Behavioral | Interview Reader`,
+      title: `${company.name} Interview Roadmap: DSA, System Design & Behavioral | InterviewReader`,
       description: description.length > 160 ? description.slice(0, 157).replace(/\s\S*$/, '') + '…' : description,
       path,
       jsonLd: { '@context': 'https://schema.org', '@type': 'Course', name: `${company.name} Interview Preparation Roadmap`, description, provider: { '@type': 'Organization', name: 'Interview Reader' }, url: path },

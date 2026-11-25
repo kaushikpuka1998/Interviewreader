@@ -14,7 +14,7 @@ export default function ResumePage() {
   useEffect(() => {
     // Signed out, this is a public landing page that search engines may index; the member's own list is private.
     setPageSeo({
-      title: 'Free ATS-Friendly Resume Builder: LaTeX Templates to PDF | Interview Reader',
+      title: 'Free ATS-Friendly Resume Builder: LaTeX Templates to PDF | InterviewReader',
       description: 'Build a clean, ATS-friendly resume for software engineering jobs from free LaTeX templates. Edit online, download a PDF in one click, and keep every version saved.',
       path: '/resume', noindex: isLoggedIn(),
       jsonLd: { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Interview Reader Resume Builder', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },

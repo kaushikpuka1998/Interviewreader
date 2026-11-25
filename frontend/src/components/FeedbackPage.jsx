@@ -6,7 +6,7 @@ import { setPageSeo } from '../lib/seo.js'
 
 // The feedback page, opened from the floating "Feedback" button, the footer link and the feedback emails.
 export default function FeedbackPage() {
-  useEffect(() => { setPageSeo({ title: 'Feedback | Interview Reader', description: 'Tell us what to improve on Interview Reader: issues you face, what to build next, and how it compares with the platforms you use.', path: '/feedback' }) }, [])
+  useEffect(() => { setPageSeo({ noindex: true, title: 'Feedback | InterviewReader', description: 'Tell us what to improve on Interview Reader: issues you face, what to build next, and how it compares with the platforms you use.', path: '/feedback' }) }, [])
   return (
     <div className="flex min-h-screen flex-col bg-slate-100 dark:bg-slate-900">
       <TopBar />
