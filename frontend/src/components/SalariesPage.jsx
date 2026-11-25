@@ -81,6 +81,7 @@ function Index({ data }) {
       <header className={card}>
         <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-600 dark:text-emerald-400">Salaries</p>
         <h1 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">Software engineer salaries in India</h1>
+        <p className="mt-1 text-base font-semibold text-emerald-700 dark:text-emerald-300">Know your worth before you negotiate.</p>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Median total pay per year (base, stock and bonus) at {data.companies.length} companies, with the pay of every level from entry to staff and principal.</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a company" aria-label="Search a company"
@@ -137,6 +138,7 @@ function CompanyView({ company, all }) {
           <div className="min-w-0">
             <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{company.name} software engineer salaries in India</h1>
             <p className="mt-1 text-sm text-slate-500">{company.segment || 'Software company'} · median total pay per year (base, stock and bonus)</p>
+            <p className="mt-1 text-sm font-semibold text-emerald-700 dark:text-emerald-300">Know what {company.name} pays at every level.</p>
           </div>
         </div>
         {company.levels.length > 1 && (
