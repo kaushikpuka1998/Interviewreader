@@ -91,7 +91,9 @@ export function setQuestionSeo(question, { gated = false } = {}) {
   const description = plainText(question.answer)
 
   document.title = fitTitle(question.question || question.title, ` | ${techName} Interview Question`)
-  setRobots(false)
+  // A members-only question shows a signed-out visitor (and Googlebot) only the question, no answer. Thousands of such pages are
+  // what Search Console reports as "Discovered/Crawled - currently not indexed", so they stay out of the index until they show real content.
+  setRobots(gated)
 
   upsertMeta('meta[name="description"]', { name: 'description', content: description })
   upsertMeta('meta[name="keywords"]', {

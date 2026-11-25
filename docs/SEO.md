@@ -86,3 +86,27 @@ Off-site steps that actually move this (do these in order):
 3. Add `sameAs` to the Organization JSON-LD once these exist: LinkedIn company page, GitHub repo or org, X, Product Hunt, Reddit/Hashnode posts, all using the name "InterviewReader" and linking to `interviewreader.cloud`.
 4. Bing Webmaster Tools + IndexNow (ChatGPT search and Copilot use Bing's index); keep `robots.txt` and `llms.txt` as they are.
 5. Backlinks that use the anchor text "InterviewReader" (directories, dev.to / Medium posts, college and community groups).
+
+## Search Console coverage (report of 2026-11-25)
+
+6,087 pages not indexed against 1,479 indexed (the sitemap listed about 7,550 URLs). Critical issues in the report:
+
+| Reason | Pages | Cause |
+|---|---|---|
+| Discovered - currently not indexed | 5,547 | Google found the URLs but has not crawled them. Most are members-only questions, which show a signed-out visitor only the question (no answer): thin pages that lower Google's trust in the whole site. |
+| Alternate page with proper canonical tag | 461 | Filtered or duplicate URLs pointing at the real page. Expected, not an error. |
+| Page with redirect | 53 | Old hosts and trailing-slash variants. Expected. |
+| Crawled - currently not indexed | 23 | Thin or near-duplicate pages. |
+| Duplicate, Google chose a different canonical | 3 | The crawler HTML used `/slug?id=...` as canonical while the sitemap and the app use `/slug`. |
+
+What changed:
+
+- The sitemap (`scripts/gen-sitemap.mjs`) lists only questions a signed-out visitor can read (`open` flag on `/api/questions/index`).
+  After a deploy, run `npm run sitemap` against the live API and ship the new `sitemap.xml`, then resubmit it in Search Console.
+- Members-only question pages are `noindex, follow` (`lib/seo.js` in the app, and the crawler HTML in `BotPageController`).
+  When they show a real preview (see below) remove that rule.
+- The crawler HTML canonical is the plain slug URL, matching the sitemap; `?id=` stays only when two questions share a slug.
+
+Next step with the biggest effect: show every signed-out visitor (and Google) a preview of each members-only answer, for example its
+outline and first section, with the paywall markup `isAccessibleForFree: false`. The preview must be the same for users and crawlers.
+That turns thousands of empty pages into indexable ones and also raises sign-ups. It is a product decision, so it is not done here.
