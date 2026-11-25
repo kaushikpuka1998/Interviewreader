@@ -6,6 +6,19 @@ import NotFound from './NotFound.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import { NORMS, SORTS, fetchSalaries, lpa, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
 
+// The company's favicon, guessed from its name (amazon -> amazon.com). A guess that misses, or the placeholder globe, falls back to a coloured initial.
+function CompanyLogo({ name, slug, size = 'h-11 w-11' }) {
+  const [bad, setBad] = useState(false)
+  const hue = [...slug].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 360, 7)
+  return (
+    <span className={`${size} relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 dark:ring-slate-700`} style={{ backgroundColor: `hsl(${hue} 70% 92%)` }} aria-hidden="true">
+      <span className="text-base font-extrabold" style={{ color: `hsl(${hue} 55% 30%)` }}>{name.trim().charAt(0).toUpperCase()}</span>
+      {!bad && <img src={`https://www.google.com/s2/favicons?domain=${slug.replace(/-/g, '')}.com&sz=64`} alt="" loading="lazy" referrerPolicy="no-referrer"
+        className="absolute inset-0 h-full w-full bg-white object-contain p-1.5" onLoad={e => { if (e.target.naturalWidth < 32) setBad(true) }} onError={() => setBad(true)} />}
+    </span>
+  )
+}
+
 const card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950'
 const chip = on => `rounded-full px-3 py-1.5 text-sm font-semibold transition ${on ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700'}`
 const PAGE = 48
@@ -82,8 +95,13 @@ function Index({ data }) {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.slice(0, shown).map(({ company: c, span }) => (
           <a key={c.slug} href={`/salaries/${c.slug}`} className={`${card} group transition hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-md`}>
-            <p className="truncate text-base font-bold text-slate-900 group-hover:text-emerald-600 dark:text-white">{c.name}</p>
-            <p className="truncate text-xs text-slate-500">{c.segment || 'Software company'}</p>
+            <div className="flex items-center gap-3">
+              <CompanyLogo name={c.name} slug={c.slug} />
+              <div className="min-w-0">
+                <p className="truncate text-base font-bold text-slate-900 group-hover:text-emerald-600 dark:text-white">{c.name}</p>
+                <p className="truncate text-xs text-slate-500">{c.segment || 'Software company'}</p>
+              </div>
+            </div>
             <p className="mt-3 text-xl font-extrabold tabular-nums text-emerald-700 dark:text-emerald-300">{rangeText(span.min, span.max)}</p>
             <p className="mt-0.5 text-xs text-slate-500">{norm ? norm : `${span.count} level${span.count > 1 ? 's' : ''}`}{!norm && c.median ? ` · median ${lpa(c.median)}` : ''}</p>
           </a>
@@ -106,8 +124,13 @@ function CompanyView({ company, all }) {
     <>
       <nav className="text-sm"><a href="/salaries" className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400">← All company salaries</a></nav>
       <header className={card}>
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{company.name} software engineer salaries in India</h1>
-        <p className="mt-1 text-sm text-slate-500">{company.segment || 'Software company'} · median total pay per year (base, stock and bonus)</p>
+        <div className="flex items-center gap-4">
+          <CompanyLogo name={company.name} slug={company.slug} size="h-14 w-14" />
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{company.name} software engineer salaries in India</h1>
+            <p className="mt-1 text-sm text-slate-500">{company.segment || 'Software company'} · median total pay per year (base, stock and bonus)</p>
+          </div>
+        </div>
         {company.levels.length > 1 && (
           <div className="mt-4 flex flex-wrap gap-2" aria-label="Level">
             <button type="button" className={chip(!pickLevel)} onClick={() => setPickLevel('')}>All levels</button>
@@ -171,7 +194,7 @@ function CompanyView({ company, all }) {
         <section>
           <h2 className="mb-2 text-sm font-bold uppercase tracking-[.14em] text-slate-500">Similar companies</h2>
           <div className="flex flex-wrap gap-2">
-            {near.map(c => { const s = spanOf(c); return <a key={c.slug} href={`/salaries/${c.slug}`} className="rounded-xl bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-emerald-400 dark:bg-slate-950 dark:ring-slate-800"><b className="text-slate-900 dark:text-white">{c.name}</b> <span className="text-slate-500">{rangeText(s.min, s.max)}</span></a> })}
+            {near.map(c => { const s = spanOf(c); return <a key={c.slug} href={`/salaries/${c.slug}`} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-emerald-400 dark:bg-slate-950 dark:ring-slate-800"><CompanyLogo name={c.name} slug={c.slug} size="h-6 w-6" /><b className="text-slate-900 dark:text-white">{c.name}</b> <span className="text-slate-500">{rangeText(s.min, s.max)}</span></a> })}
           </div>
         </section>
       )}
