@@ -4,17 +4,19 @@ import Footer from './Footer.jsx'
 import Loader from './Loader.jsx'
 import NotFound from './NotFound.jsx'
 import { setPageSeo } from '../lib/seo.js'
+import { domainOf } from '../lib/companyDomains.js'
 import { CURRENCIES, NORMS, SORTS, fetchSalaries, getCurrency, lpa, setCurrency, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
 
-// The company's favicon, guessed from its name (amazon -> amazon.com). A guess that misses (the service answers 404) falls back to a coloured initial.
+// The company's favicon, for the companies whose website we know (lib/companyDomains.js). Every other company, and a logo that is missing or still loading, shows a coloured initial.
 function CompanyLogo({ name, slug, size = 'h-11 w-11' }) {
   const [ok, setOk] = useState(false)   // the logo covers the initial only once it has loaded; until then (or if it never does) the initial shows
+  const domain = domainOf(slug)
   const hue = [...slug].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 360, 7)
   return (
     <span className={`${size} relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 dark:ring-slate-700`} style={{ backgroundColor: `hsl(${hue} 70% 92%)` }} aria-hidden="true">
       <span className="text-base font-extrabold" style={{ color: `hsl(${hue} 55% 30%)` }}>{name.trim().charAt(0).toUpperCase()}</span>
-      <img src={`https://www.google.com/s2/favicons?domain=${slug.replace(/-/g, '')}.com&sz=64`} alt="" loading="lazy" referrerPolicy="no-referrer"
-        className={`absolute inset-0 h-full w-full bg-white object-contain p-1.5 ${ok ? '' : 'opacity-0'}`} onLoad={() => setOk(true)} onError={() => setOk(false)} />
+      {domain && <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`} alt="" loading="lazy" referrerPolicy="no-referrer"
+        className={`absolute inset-0 h-full w-full bg-white object-contain p-1.5 ${ok ? '' : 'opacity-0'}`} onLoad={() => setOk(true)} onError={() => setOk(false)} />}
     </span>
   )
 }
