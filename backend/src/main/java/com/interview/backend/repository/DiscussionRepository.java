@@ -19,6 +19,8 @@ public interface DiscussionRepository extends JpaRepository<Discussion, Long> {
     @Query("SELECT d.importKey FROM Discussion d WHERE d.importKey IS NOT NULL")
     java.util.Set<String> importKeys();
 
+    java.util.List<Discussion> findByImportKeyIsNotNull();
+
     @Query("SELECT d FROM Discussion d WHERE d.status = 'active' " +
            "AND (:category = '' OR d.category = :category) " +
            "AND (:company = '' OR LOWER(d.company) LIKE LOWER(CONCAT('%', :company, '%'))) " +

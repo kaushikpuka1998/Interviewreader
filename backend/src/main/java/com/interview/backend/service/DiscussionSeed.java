@@ -44,8 +44,10 @@ public class DiscussionSeed implements CommandLineRunner {
             log.warn("discussion-seed.json could not be read: {}", e.getMessage());
             return;
         }
-        var have = discussions.importKeys();
-        var todo = items.stream().filter(i -> !have.contains(i.get("importKey"))).toList();
+        var stored = new java.util.HashMap<String, Discussion>();
+        for (var d : discussions.findByImportKeyIsNotNull()) stored.put(d.getImportKey(), d);
+        refresh(items, stored);
+        var todo = items.stream().filter(i -> !stored.containsKey(i.get("importKey"))).toList();
         if (todo.isEmpty()) return;
         String first = adminEmails == null ? "" : adminEmails.split(",")[0].strip();
         var author = first.isEmpty() ? Optional.<com.interview.backend.entity.User>empty() : users.findByEmail(first);
@@ -73,5 +75,30 @@ public class DiscussionSeed implements CommandLineRunner {
         }
         discussions.saveAll(batch);
         log.info("Added {} imported discussion posts", n);
+    }
+
+    /**
+     * An already stored imported post takes the file's current wording, so a corrected seed (for example a removed note) reaches
+     * databases that loaded the earlier version. A post an admin edited (editedAt set) is left as the admin wrote it.
+     */
+    private void refresh(List<Map<String, String>> items, Map<String, Discussion> stored) {
+        var changed = new ArrayList<Discussion>();
+        for (var i : items) {
+            var d = stored.get(i.get("importKey"));
+            if (d == null || d.getEditedAt() != null) continue;
+            if (java.util.Objects.equals(d.getBody(), i.get("body")) && java.util.Objects.equals(d.getTitle(), i.get("title"))
+                    && java.util.Objects.equals(d.getCtc(), i.get("ctc"))) continue;
+            d.setTitle(i.get("title"));
+            d.setBody(i.get("body"));
+            d.setCtc(i.get("ctc"));
+            d.setCompany(i.get("company"));
+            d.setRole(i.get("role"));
+            d.setLevel(i.get("level"));
+            changed.add(d);
+        }
+        if (!changed.isEmpty()) {
+            discussions.saveAll(changed);
+            log.info("Refreshed {} imported discussion posts", changed.size());
+        }
     }
 }
