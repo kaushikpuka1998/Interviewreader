@@ -115,7 +115,11 @@ function Routes() {
 
   // Company-wise software engineer pay in India, with each company's levels.
   if (path === '/salaries') return <SalariesPage />
-  if (path.startsWith('/salaries/')) return <SalariesPage slug={decodeURIComponent(path.split('/')[2] || '')} />
+  if (path.startsWith('/salaries/')) {
+    const [, , a = '', b = '', c = ''] = path.split('/').map(decodeURIComponent)
+    if (a === 'level' || a === 'segment') return <SalariesPage kind={a} slug={b} />
+    return <SalariesPage slug={a} level={b} key={`${a}/${b}${c}`} />
+  }
 
   if (path.startsWith('/sheets/')) return <Gate flag="code_practice" what="The DSA sheets"><SheetPage slug={path.split('/')[2]} /></Gate>
 

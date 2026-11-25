@@ -7,6 +7,8 @@ export default function Footer() {
       <span className="mx-2" aria-hidden="true">·</span>
       <a href="/interview-questions" className="font-medium hover:text-indigo-600 hover:underline dark:hover:text-indigo-400">Interview guides</a>
       <span className="mx-2" aria-hidden="true">·</span>
+      <a href="/salaries" className="font-medium hover:text-indigo-600 hover:underline dark:hover:text-indigo-400">Salaries</a>
+      <span className="mx-2" aria-hidden="true">·</span>
       <a href="/feedback" className="font-medium hover:text-indigo-600 hover:underline dark:hover:text-indigo-400">Feedback</a>
       <span className="mx-2" aria-hidden="true">·</span>
       <a href="/terms" className="font-medium hover:text-indigo-600 hover:underline dark:hover:text-indigo-400">Terms &amp; Conditions</a>

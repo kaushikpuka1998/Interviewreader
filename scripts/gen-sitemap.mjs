@@ -170,6 +170,12 @@ async function landingPages() {
     const slugs = [...new Set(rows.map(r => r.company.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')))]
     pages.push(['/salaries', 'weekly', '0.8'])
     for (const slug of slugs) pages.push([`/salaries/${slug}`, 'monthly', '0.6'])
+    // Level and company-type hubs, and one page per company and level ("Google SDE-2 salary in India").
+    const slugify = x => x.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+    const LEVEL_SLUGS = { 'SDE-1 / Entry': 'sde-1', 'SDE-2': 'sde-2', 'SDE-3 / Senior': 'sde-3', 'Staff / Principal+': 'staff' }
+    for (const l of Object.values(LEVEL_SLUGS)) pages.push([`/salaries/level/${l}`, 'weekly', '0.8'])
+    for (const seg of new Set(rows.map(r => r.segment).filter(Boolean))) pages.push([`/salaries/segment/${slugify(seg)}`, 'weekly', '0.7'])
+    for (const k of new Set(rows.filter(r => LEVEL_SLUGS[r.norm]).map(r => `${slugify(r.company)}/${LEVEL_SLUGS[r.norm]}`))) pages.push([`/salaries/${k}`, 'monthly', '0.5'])
     console.log(`Salaries: ${slugs.length} companies`)
   } catch (err) {
     console.warn(`Salary pages skipped (${err.message})`)

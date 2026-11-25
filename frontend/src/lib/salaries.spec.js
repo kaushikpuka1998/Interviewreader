@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { lpa, pick, rangeText, similar, spanOf } from './salaries.js'
+import { faqOf, levelBySlug, lpa, pick, rangeText, similar, spanOf } from './salaries.js'
 
 const lv = (level, norm, inr) => ({ level, norm, yoe: '', lpa: String(inr / 100000), inr })
 const co = (name, segment, levels) => ({ slug: name.toLowerCase(), name, segment, levels })
@@ -44,5 +44,20 @@ describe('company logos', () => {
     expect(domainOf('s-p-global')).toBe('spglobal.com')
     expect(domainOf('bizongo')).toBe('')   // not guessed: "<name>.com" gave the wrong logo for small companies
     expect(domainOf('100ms')).toBe('')
+  })
+})
+
+describe('salary pages', () => {
+  const co = { name: 'Acme', slug: 'acme', levels: [{ level: 'L3', norm: 'SDE-2', yoe: '3-5 years', lpa: '40.0', inr: 4000000 }, { level: 'L6', norm: 'Staff / Principal+', yoe: '', lpa: '150.0', inr: 15000000 }] }
+  it('finds a level by its url slug', () => {
+    expect(levelBySlug('sde-2').norm).toBe('SDE-2')
+    expect(levelBySlug('nope')).toBeUndefined()
+  })
+  it('writes the questions about a company and about one of its levels', () => {
+    expect(faqOf(co)[0][1]).toBe('Acme pays a median total of ₹40 LPA – ₹1.5 Cr a year in India, counting base salary, stock and bonus.')
+    const q = faqOf(co, levelBySlug('sde-2'))
+    expect(q[0][0]).toBe('How much does Acme SDE-2 pay in India?')
+    expect(q[0][1]).toContain('₹40 LPA')
+    expect(q[1][1]).toContain('L3 usually needs 3-5 years')
   })
 })

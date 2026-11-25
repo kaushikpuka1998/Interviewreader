@@ -15,6 +15,7 @@ Every question has its own page at a readable URL, for example `https://intervie
 - [Question of the day](https://interviewreader.cloud/question-of-the-day): a new interview question every day, with an answer.
 - [Mock interviews and solo system design practice](https://interviewreader.cloud/interview): practise a live mock interview, or a scored solo design round.
 - [Interview experiences and discussions](https://interviewreader.cloud/discuss): real interview experiences and compensation reports.
+- [Software engineer salaries in India](https://interviewreader.cloud/salaries): median total pay at 390 companies by level (SDE-1 to Staff); also by level at /salaries/level/sde-2 and per company at /salaries/google.
 - [Free resume builder](https://interviewreader.cloud/resume): ATS-friendly LaTeX resume templates, download as PDF.
 - [Leaderboard](https://interviewreader.cloud/leaderboard): weekly learning leagues.
 - [Pricing](https://interviewreader.cloud/pricing) and [Free vs Premium](https://interviewreader.cloud/premium): what is free and what Premium adds.

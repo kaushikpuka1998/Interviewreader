@@ -5,7 +5,7 @@ import Loader from './Loader.jsx'
 import NotFound from './NotFound.jsx'
 import { setPageSeo } from '../lib/seo.js'
 import { domainOf } from '../lib/companyDomains.js'
-import { CURRENCIES, NORMS, SORTS, fetchSalaries, getCurrency, lpa, setCurrency, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
+import { CURRENCIES, LEVELS, NORMS, SORTS, faqJsonLd, faqOf, fetchSalaries, getCurrency, levelBySlug, levelOfNorm, lpa, segmentBySlug, setCurrency, slugify, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
 
 // The company's favicon, for the companies whose website we know (lib/companyDomains.js). Every other company, and a logo that is missing or still loading, shows a coloured initial.
 function CompanyLogo({ name, slug, size = 'h-11 w-11' }) {
@@ -26,25 +26,46 @@ const chip = on => `rounded-full px-3 py-1.5 text-sm font-semibold transition ${
 const PAGE = 48
 
 // Software engineer pay in India: every company with its levels. "/salaries" lists and filters them; "/salaries/<company>" shows one company.
-export default function SalariesPage({ slug }) {
+export default function SalariesPage({ slug, level: levelSlug, kind }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
   const [cur, setCur] = useState(getCurrency)   // the shown currency; changing it re-renders every amount below
   useEffect(() => { fetchSalaries().then(setData).catch(() => setError(true)) }, [])
-  const company = slug && data ? data.companies.find(c => c.slug === slug) : null
+  // One of: a level hub (/salaries/level/sde-2), a company-type hub (/salaries/segment/<type>), a company, or a company at one level.
+  const company = !kind && slug && data ? data.companies.find(c => c.slug === slug) : null
+  const level = kind === 'level' ? levelBySlug(slug) : levelSlug ? levelBySlug(levelSlug) : null
+  const segment = kind === 'segment' && data ? segmentBySlug(data.segments, slug) : ''
+  const hub = kind === 'level' ? level && { norm: level.norm } : kind === 'segment' ? segment && { segment } : null
+  const atLevel = company && level && company.levels.some(l => l.norm === level.norm) ? level : null
 
   useEffect(() => {
     if (!data) return
-    if (slug) {
+    if (kind) {
+      if (!hub) return
+      const rows = pick(data.companies, { ...hub, sort: 'top' })
+      const top = rows.slice(0, 3).map(r => r.company.name).join(', ')
+      if (kind === 'level') {
+        setPageSeo({ title: `${level.name} Software Engineer Salary in India: Pay at ${rows.length} Companies`, path: `/salaries/level/${level.slug}`,
+          description: `What a ${level.name} software engineer earns in India at ${rows.length} companies, highest first (${top}). Median total pay per year, base plus stock and bonus.` })
+      } else {
+        setPageSeo({ title: `${segment} Software Engineer Salaries in India by Company and Level`, path: `/salaries/segment/${slugify(segment)}`,
+          description: `Software engineer salaries at ${rows.length} ${segment} companies in India, highest first (${top}), with the pay of every level.` })
+      }
+    } else if (slug) {
       if (!company) return
-      const s = spanOf(company)
-      setPageSeo({ title: `${company.name} Software Engineer Salary in India by Level`, path: `/salaries/${slug}`,
-        description: `${company.name} software engineer salaries in India by level: median total pay ${rangeText(s.min, s.max, 'INR')} across ${s.count} level${s.count > 1 ? 's' : ''}, with the experience each level usually needs.` })
+      if (levelSlug && !atLevel) return
+      const s = spanOf(company, atLevel ? atLevel.norm : '')
+      const faq = faqOf(company, atLevel)
+      setPageSeo(atLevel
+        ? { title: `${company.name} ${atLevel.name} Salary in India: ${rangeText(s.min, s.max, 'INR')}`, path: `/salaries/${slug}/${atLevel.slug}`, jsonLd: faqJsonLd(faq),
+            description: `${company.name} ${atLevel.name} (${atLevel.norm}) software engineer salary in India: median total pay ${rangeText(s.min, s.max, 'INR')} a year, with the experience the role needs.` }
+        : { title: `${company.name} Software Engineer Salary in India by Level`, path: `/salaries/${slug}`, jsonLd: faqJsonLd(faq),
+            description: `${company.name} software engineer salaries in India by level: median total pay ${rangeText(s.min, s.max, 'INR')} across ${s.count} level${s.count > 1 ? 's' : ''}, with the experience each level usually needs.` })
     } else {
       setPageSeo({ title: 'Software Engineer Salaries in India by Company and Level', path: '/salaries',
         description: `Median total pay for software engineers in India at ${data.companies.length} companies, by level: SDE-1 to Staff and Principal. Search a company and compare.` })
     }
-  }, [data, slug, company])
+  }, [data, slug, kind, levelSlug, company, hub, atLevel])
 
   return (
     <>
@@ -60,9 +81,10 @@ export default function SalariesPage({ slug }) {
               {cur !== 'INR' && <span className="basis-full text-right text-[11px] text-slate-400">Approximate conversion from rupees at fixed rates, not live exchange rates.</span>}
             </div>
           )}
-          {data && data.companies.length > 0 && slug && (company ? <CompanyView company={company} all={data.companies} /> : <NotFound title="Company not found" message="We have no salary data for this company." />)}
+          {data && data.companies.length > 0 && kind && (hub ? <Index key={`${kind}/${slug}`} data={data} hub={{ ...hub, title: kind === 'level' ? `${level.name} software engineer salary in India` : `${segment} software engineer salaries in India` }} /> : <NotFound title="Page not found" message="We have no salary page for this." />)}
+          {data && data.companies.length > 0 && !kind && slug && (company && (!levelSlug || atLevel) ? <CompanyView key={`${slug}/${levelSlug || ''}`} company={company} all={data.companies} level={atLevel} /> : <NotFound title={company ? 'Level not found' : 'Company not found'} message="We have no salary data for this." />)}
           {data && !data.companies.length && <NotFound title="Salaries are loading" message="The salary data is still being prepared. Refresh in a moment." />}
-          {data && data.companies.length > 0 && !slug && <Index data={data} />}
+          {data && data.companies.length > 0 && !slug && !kind && <Index data={data} />}
         </div>
       </div>
       <Footer />
@@ -70,10 +92,10 @@ export default function SalariesPage({ slug }) {
   )
 }
 
-function Index({ data }) {
+function Index({ data, hub }) {
   const [q, setQ] = useState('')
-  const [segment, setSegment] = useState('')
-  const [norm, setNorm] = useState('')
+  const [segment, setSegment] = useState(hub?.segment || '')   // a hub page opens with its level or company type already chosen
+  const [norm, setNorm] = useState(hub?.norm || '')
   const [sort, setSort] = useState('top')
   const [shown, setShown] = useState(PAGE)
   const rows = useMemo(() => pick(data.companies, { q, segment, norm, sort }), [data, q, segment, norm, sort])
@@ -82,7 +104,7 @@ function Index({ data }) {
     <>
       <header className={card}>
         <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-600 dark:text-emerald-400">Salaries</p>
-        <h1 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">Software engineer salaries in India</h1>
+        <h1 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{hub ? hub.title : 'Software engineer salaries in India'}</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Median total pay per year (base, stock and bonus) at {data.companies.length} companies, with the pay of every level from entry to staff and principal.</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search a company" aria-label="Search a company"
@@ -119,12 +141,23 @@ function Index({ data }) {
       </div>
       {rows.length === 0 && <div className={`${card} text-center text-sm text-slate-500`}>No company matches. Try another search or clear a filter.</div>}
       {shown < rows.length && <div className="text-center"><button type="button" onClick={() => setShown(s => s + PAGE)} className="rounded-xl bg-white px-5 py-2 text-sm font-semibold text-slate-700 shadow ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700">Show more companies</button></div>}
+      <section className={card}>
+        <h2 className="text-sm font-bold uppercase tracking-[.14em] text-slate-500">Browse salaries</h2>
+        <nav className="mt-3 flex flex-wrap gap-2" aria-label="Salaries by level">
+          {LEVELS.map(l => <a key={l.slug} href={`/salaries/level/${l.slug}`} className={chip(false)}>{l.name} salary in India</a>)}
+        </nav>
+        <nav className="mt-2 flex flex-wrap gap-2" aria-label="Salaries by type of company">
+          {data.segments.map(x => <a key={x} href={`/salaries/segment/${slugify(x)}`} className={chip(false)}>{x}</a>)}
+        </nav>
+      </section>
     </>
   )
 }
 
-function CompanyView({ company, all }) {
-  const [pickLevel, setPickLevel] = useState('')
+function CompanyView({ company, all, level }) {
+  const matched = level ? company.levels.filter(l => l.norm === level.norm) : []
+  const [pickLevel, setPickLevel] = useState(matched.length === 1 ? matched[0].level : '')   // a company-and-level page opens on that level
+  const faq = useMemo(() => faqOf(company, level), [company, level])
   const span = spanOf(company)
   const chosen = company.levels.find(l => l.level === pickLevel)
   const top = span.maxInr
@@ -137,7 +170,7 @@ function CompanyView({ company, all }) {
         <div className="flex items-center gap-4">
           <CompanyLogo name={company.name} slug={company.slug} size="h-14 w-14" />
           <div className="min-w-0">
-            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{company.name} software engineer salaries in India</h1>
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{level ? `${company.name} ${level.name} salary in India` : `${company.name} software engineer salaries in India`}</h1>
             <p className="mt-1 text-sm text-slate-500">{company.segment || 'Software company'} · median total pay per year (base, stock and bonus)</p>
           </div>
         </div>
@@ -193,6 +226,19 @@ function CompanyView({ company, all }) {
           </table>
         </div>
         <p className="mt-3 text-xs text-slate-500">Medians of reported total pay for software engineers in India. Individual offers vary with skills, location and negotiation.</p>
+      </section>
+
+      <section className={card}>
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">Frequently asked questions</h2>
+        <dl className="mt-3 space-y-3">
+          {faq.map(([q, a]) => <div key={q}><dt className="font-semibold text-slate-900 dark:text-white">{q}</dt><dd className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">{a}</dd></div>)}
+        </dl>
+        <nav className="mt-4 flex flex-wrap gap-2" aria-label={`${company.name} salary by level`}>
+          {[...new Set(company.levels.map(l => l.norm).filter(Boolean))].map(n => levelOfNorm(n)).filter(Boolean).map(l => (
+            <a key={l.slug} href={`/salaries/${company.slug}/${l.slug}`} className={chip(level?.slug === l.slug)}>{company.name} {l.name} salary</a>
+          ))}
+          {level && <a href={`/salaries/${company.slug}`} className={chip(false)}>All {company.name} levels</a>}
+        </nav>
       </section>
 
       <section className={`${card} flex flex-wrap items-center justify-between gap-3`}>
