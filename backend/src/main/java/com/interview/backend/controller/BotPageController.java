@@ -149,14 +149,21 @@ public class BotPageController {
                 .append(esc(c.name())).append(" pays software engineers in India a median total of ").append(esc(range(c)))
                 .append(" a year depending on level.</p><table><tr><th>Level</th><th>Equivalent</th><th>Experience</th><th>Median total pay</th></tr>");
         for (var l : c.levels()) b.append("<tr><td>").append(esc(l.level())).append("</td><td>").append(esc(l.norm())).append("</td><td>")
-                .append(esc(l.yoe())).append("</td><td>₹").append(esc(l.lpa())).append(" LPA</td></tr>");
+                .append(esc(l.yoe())).append("</td><td>").append(esc(pay(l.lpa()))).append("</td></tr>");
         b.append("</table><p><a href=\"").append(esc(site + "/salaries")).append("\">All company salaries</a></p></article>");
         return shell(c.name() + " Software Engineer Salary in India by Level", "/salaries/" + slug, b.toString(),
                 c.name() + " software engineer salaries in India by level: median total pay " + range(c) + ".");
     }
 
     private static String range(com.interview.backend.service.SalaryService.Company c) {
-        return c.min().equals(c.max()) ? "₹" + c.min() + " LPA" : "₹" + c.min() + " to ₹" + c.max() + " LPA";
+        return c.min().equals(c.max()) ? pay(c.min()) : pay(c.min()) + " to " + pay(c.max());
+    }
+
+    /** "38.0" is ₹38 LPA; 100 LPA and up is written in crore ("348.4" is ₹3.48 Cr). */
+    static String pay(String lpa) {
+        double n = Double.parseDouble(lpa);
+        return n >= 100 ? "₹" + new java.math.BigDecimal(n / 100).setScale(2, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString() + " Cr"
+                : "₹" + new java.math.BigDecimal(lpa).stripTrailingZeros().toPlainString() + " LPA";
     }
 
     @SuppressWarnings("unchecked")

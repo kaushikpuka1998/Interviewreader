@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pick, rangeText, similar, spanOf } from './salaries.js'
+import { lpa, pick, rangeText, similar, spanOf } from './salaries.js'
 
 const lv = (level, norm, inr) => ({ level, norm, yoe: '', lpa: String(inr / 100000), inr })
 const co = (name, segment, levels) => ({ slug: name.toLowerCase(), name, segment, levels })
@@ -14,7 +14,10 @@ describe('salaries', () => {
     expect(spanOf(B, 'SDE-2')).toBeNull()
     expect(rangeText('20', '80')).toBe('₹20 – ₹80 LPA')
     expect(rangeText('15', '15')).toBe('₹15 LPA')
-    expect(rangeText('38.0', '348.4')).toBe('₹38 – ₹348.4 LPA')   // the data's trailing .0 is dropped
+    expect(rangeText('38.0', '99.5')).toBe('₹38 – ₹99.5 LPA')   // the data's trailing .0 is dropped
+    expect(rangeText('38.0', '348.4')).toBe('₹38 LPA – ₹3.48 Cr')   // three digits of LPA become crore
+    expect(rangeText('120', '250')).toBe('₹1.2 – ₹2.5 Cr')
+    expect(lpa('100.0')).toBe('₹1 Cr')
   })
   it('searches, filters by segment and level, and sorts', () => {
     const all = [A, B, C]

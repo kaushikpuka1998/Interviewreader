@@ -11,9 +11,13 @@ export const fetchSalaries = () => (cache ||= fetch(`${API_BASE}/public/salaries
   .then(d => { if (!d.companies?.length) cache = undefined; return d })
   .catch(e => { cache = undefined; throw e }))
 
-const num = v => String(Number(v))   // the data says "38.0"; show 38
-export const lpa = v => `₹${num(v)} LPA`
-export const rangeText = (min, max) => (Number(min) === Number(max) ? lpa(min) : `₹${num(min)} – ₹${num(max)} LPA`)
+const amt = v => { const n = Number(v); return n >= 100 ? [`₹${Number((n / 100).toFixed(2))}`, 'Cr'] : [`₹${n}`, 'LPA'] }   // the data says "38.0"; show 38. 100 LPA and up is crore
+export const lpa = v => amt(v).join(' ')
+export const rangeText = (min, max) => {
+  const [a, au] = amt(min), [b, bu] = amt(max)
+  if (Number(min) === Number(max)) return `${a} ${au}`
+  return au === bu ? `${a} – ${b} ${bu}` : `${a} ${au} – ${b} ${bu}`
+}
 
 /** The levels of a company that are the given common level (all of them when norm is empty). */
 export const levelsOf = (company, norm) => (norm ? company.levels.filter(l => l.norm === norm) : company.levels)
