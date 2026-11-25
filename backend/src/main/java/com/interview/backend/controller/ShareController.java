@@ -106,6 +106,7 @@ public class ShareController {
             Map.entry("/practice", new String[]{"Online Code Practice", "Write code in your browser, run it against test cases and track the problems you solve."}),
             Map.entry("/question-of-the-day", new String[]{"Question of the Day", "A new interview question every day, with a detailed answer."}),
             Map.entry("/tracks", new String[]{"Role-wise Interview Tracks: Java Backend, Frontend, Full Stack", "Pick your role and follow one ordered path of interview questions: language, framework, databases, messaging and system design."}),
+            Map.entry("/salaries", new String[]{"Software Engineer Salaries in India by Company and Level", "Median total pay for software engineers in India at 390 companies, with the levels of each company from SDE-1 to Staff."}),
             Map.entry("/sheets/striver-a2z", new String[]{"Striver A2Z DSA Sheet", "Work through the Striver A2Z DSA sheet with problems you can run online."}));
 
     @GetMapping(value = "/share/page/{*key}", produces = MediaType.TEXT_HTML_VALUE)

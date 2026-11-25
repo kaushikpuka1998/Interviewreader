@@ -3,6 +3,7 @@ import TopBar from './TopBar.jsx'
 import Footer from './Footer.jsx'
 import AuthModal from './AuthModal.jsx'
 import { VoteRail, Avatar, Chips } from './DiscussParts.jsx'
+import CompBody from './CompBody.jsx'
 import DiscussComments from './DiscussComments.jsx'
 import NewDiscussionDialog from './NewDiscussionDialog.jsx'
 import { fetchDiscussion, deleteDiscussion, ago } from '../lib/discuss.js'
@@ -14,7 +15,7 @@ export default function DiscussDetailPage({ id }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [editing, setEditing] = useState(false)
   useEffect(() => {
-    fetchDiscussion(id).then(x => { setD(x); setPageSeo({ title: `${x.title} | InterviewReader`, description: x.body.slice(0, 150), path: `/discuss/${id}` }) }).catch(() => setErr('This post is not available.'))
+    fetchDiscussion(id).then(x => { setD(x); setPageSeo({ title: `${x.title} | InterviewReader`, description: x.body.replace(/\*\*|\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\s+/g, ' ').slice(0, 150), path: `/discuss/${id}` }) }).catch(() => setErr('This post is not available.'))
   }, [id])
   const remove = async () => { if (window.confirm('Delete this post?')) { await deleteDiscussion(id).catch(() => {}); window.location.href = '/discuss' } }
   return (
@@ -35,7 +36,7 @@ export default function DiscussDetailPage({ id }) {
                 {d.editedAt && <span className="text-xs italic" title={new Date(d.editedAt).toLocaleString()}>· edited</span>}
                 {d.mine && <span className="ml-auto flex gap-3 text-xs font-semibold"><button type="button" onClick={() => setEditing(true)} className="text-emerald-600 hover:underline">Edit</button><button type="button" onClick={remove} className="text-rose-500 hover:underline">Delete</button></span>}
               </div>
-              <div className="mt-5 whitespace-pre-wrap text-[15px] leading-relaxed text-slate-800 dark:text-slate-200">{d.body}</div>
+              <CompBody body={d.body} />
             </div>
           </article>
         )}

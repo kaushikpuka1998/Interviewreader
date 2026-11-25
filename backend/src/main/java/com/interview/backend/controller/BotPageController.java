@@ -36,16 +36,18 @@ public class BotPageController {
     private final AccessService access;
     private final LandingService landing;
     private final TrackService tracks;
+    private final com.interview.backend.service.SalaryService salaries;
     private final ObjectMapper mapper;
     private final String site;
     private volatile Index index;
 
-    public BotPageController(QuestionRepository questions, AccessService access, LandingService landing, TrackService tracks, ObjectMapper mapper,
+    public BotPageController(QuestionRepository questions, AccessService access, LandingService landing, TrackService tracks, com.interview.backend.service.SalaryService salaries, ObjectMapper mapper,
                              @Value("${app.frontend.url:https://interviewreader.cloud}") String site) {
         this.questions = questions;
         this.access = access;
         this.landing = landing;
         this.tracks = tracks;
+        this.salaries = salaries;
         this.mapper = mapper;
         this.site = site.replaceAll("/+$", "");
     }
@@ -67,6 +69,11 @@ public class BotPageController {
         String p = path.length() > 1 ? path.replaceAll("/+$", "") : "/";
         if ("/".equals(p)) return ok(home());
         if (landing.has(p)) return ok(landingPage(p));
+        if ("/salaries".equals(p)) return ok(salariesIndex());
+        if (p.startsWith("/salaries/")) {
+            String h = salaryPage(p.substring("/salaries/".length()));
+            return h == null ? ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_HTML).body(shell("Not found", "/", "<h1>Not found</h1>", "")) : ok(h);
+        }
         if ("/tracks".equals(p) || p.startsWith("/tracks/")) { String h = trackPage(p); return h == null ? ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_HTML).body(shell("Not found", "/", "<h1>Not found</h1>", "")) : ok(h); }
         String[] meta = ShareController.SITE_PAGES.get(p);
         if (meta != null) return ok(sitePage(p, meta));
@@ -121,6 +128,42 @@ public class BotPageController {
         String ld = "";
         try { ld = "<script type=\"application/ld+json\">" + mapper.writeValueAsString(Map.of("@context", "https://schema.org", "@type", "FAQPage", "mainEntity", faqLd)).replace("</", "<\\/") + "</script>"; } catch (Exception ignored) { /* no structured data */ }
         return shell(String.valueOf(pg.get("title")), path, b.toString(), String.valueOf(pg.get("description")), ld);
+    }
+
+    private String salariesIndex() {
+        var all = salaries.all().companies();
+        StringBuilder b = new StringBuilder("<article><h1>Software engineer salaries in India by company and level</h1>")
+                .append("<p>Median total yearly pay (base, stock and bonus) reported for software engineers in India, for ").append(all.size())
+                .append(" companies, with each company's levels from entry level to staff and principal.</p><ul>");
+        for (var c : all) b.append("<li><a href=\"").append(esc(site + "/salaries/" + c.slug())).append("\">").append(esc(c.name())).append("</a>: ")
+                .append(esc(range(c))).append("</li>");
+        b.append("</ul></article>");
+        return shell("Software Engineer Salaries in India by Company and Level", "/salaries", b.toString(),
+                "Median total pay for software engineers in India at " + all.size() + " companies, by level: SDE-1 to Staff and Principal.");
+    }
+
+    private String salaryPage(String slug) {
+        var c = salaries.company(slug);
+        if (c == null) return null;
+        StringBuilder b = new StringBuilder("<article><h1>").append(esc(c.name())).append(" software engineer salaries in India</h1><p>")
+                .append(esc(c.name())).append(" pays software engineers in India a median total of ").append(esc(range(c)))
+                .append(" a year depending on level.</p><table><tr><th>Level</th><th>Equivalent</th><th>Experience</th><th>Median total pay</th></tr>");
+        for (var l : c.levels()) b.append("<tr><td>").append(esc(l.level())).append("</td><td>").append(esc(l.norm())).append("</td><td>")
+                .append(esc(l.yoe())).append("</td><td>").append(esc(pay(l.lpa()))).append("</td></tr>");
+        b.append("</table><p><a href=\"").append(esc(site + "/salaries")).append("\">All company salaries</a></p></article>");
+        return shell(c.name() + " Software Engineer Salary in India by Level", "/salaries/" + slug, b.toString(),
+                c.name() + " software engineer salaries in India by level: median total pay " + range(c) + ".");
+    }
+
+    private static String range(com.interview.backend.service.SalaryService.Company c) {
+        return c.min().equals(c.max()) ? pay(c.min()) : pay(c.min()) + " to " + pay(c.max());
+    }
+
+    /** "38.0" is ₹38 LPA; 100 LPA and up is written in crore ("348.4" is ₹3.48 Cr). */
+    static String pay(String lpa) {
+        double n = Double.parseDouble(lpa);
+        return n >= 100 ? "₹" + new java.math.BigDecimal(n / 100).setScale(2, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString() + " Cr"
+                : "₹" + new java.math.BigDecimal(lpa).stripTrailingZeros().toPlainString() + " LPA";
     }
 
     @SuppressWarnings("unchecked")

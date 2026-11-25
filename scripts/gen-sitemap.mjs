@@ -128,6 +128,16 @@ async function landingPages() {
   } catch (err) {
     console.warn(`Coding problem pages skipped (${err.message})`)
   }
+  // Salary pages: the index and one page per company, read from the seed file the backend loads.
+  try {
+    const rows = JSON.parse(await readFile(join(ROOT, 'backend', 'src', 'main', 'resources', 'company-salaries.json'), 'utf8'))
+    const slugs = [...new Set(rows.map(r => r.company.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')))]
+    pages.push(['/salaries', 'weekly', '0.8'])
+    for (const slug of slugs) pages.push([`/salaries/${slug}`, 'monthly', '0.6'])
+    console.log(`Salaries: ${slugs.length} companies`)
+  } catch (err) {
+    console.warn(`Salary pages skipped (${err.message})`)
+  }
   try {
     const roadmap = await fetchJson('/roadmaps')
     for (const c of roadmap.companies || []) pages.push([`/roadmaps?company=${c.id}`, 'weekly', '0.8'])

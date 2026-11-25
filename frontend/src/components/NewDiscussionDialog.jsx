@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CATEGORIES, createDiscussion, updateDiscussion } from '../lib/discuss.js'
+import { CURRENCIES, STATUSES, compBody, compTitle, compTotal, fmtMoney } from '../lib/compPost.js'
 
 const input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
 
@@ -8,16 +9,23 @@ const input = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text
 export default function NewDiscussionDialog({ onClose, onCreated, post }) {
   const [f, setF] = useState(post
     ? { category: post.category, anonymous: false, company: post.company || '', role: post.role || '', level: post.level || '', yoe: post.yoe ?? '', ctc: post.ctc || '', title: post.title, body: post.body }
-    : { category: 'experience', anonymous: false, company: '', role: '', level: '', yoe: '', ctc: '', title: '', body: '' })
+    : { category: 'experience', anonymous: false, company: '', role: '', level: '', yoe: '', ctc: '', title: '', body: '', cur: 'INR', status: 'Offer', location: '', education: '', base: '', stock: '', bonus: '', joining: '', notes: '' })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const set = k => e => setF(s => ({ ...s, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
   const submit = async e => {
     e.preventDefault(); setBusy(true); setErr('')
-    const payload = { ...f, yoe: f.yoe === '' ? null : Number(f.yoe) }
+    let payload = { ...f, yoe: f.yoe === '' ? null : Number(f.yoe) }
+    if (structured) {
+      if (!f.company.trim() || !(Number(f.base) > 0)) { setBusy(false); setErr('Add the company and the base pay.'); return }
+      payload = { ...payload, title: f.title.trim() || compTitle(f), body: compBody(f), ctc: f.ctc.trim() || fmtMoney(f.cur, compTotal(f)) }
+    }
     try { onCreated(post ? await updateDiscussion(post.id, payload) : await createDiscussion(payload)) } catch (x) { setErr(x.message) } finally { setBusy(false) }
   }
   const comp = f.category === 'compensation'
+  const structured = comp && !post   // new compensation posts use the fixed LeetCode-style template; edits keep the free-form text
+  const cur = CURRENCIES[f.cur]
+  const total = compTotal(f)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="New post" onClick={onClose}>
       <form onSubmit={submit} onClick={e => e.stopPropagation()} className="max-h-[90vh] w-full max-w-xl space-y-3 overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-950">
@@ -33,10 +41,31 @@ export default function NewDiscussionDialog({ onClose, onCreated, post }) {
           <input className={input} placeholder="Role (e.g. SDE-2)" value={f.role} onChange={set('role')} maxLength={40} />
           <input className={input} placeholder="Level (e.g. L5)" value={f.level} onChange={set('level')} maxLength={40} />
           <input className={input} type="number" min="0" max="50" placeholder="Years of experience" value={f.yoe} onChange={set('yoe')} />
-          {comp && <input className={`${input} col-span-2`} placeholder="Total compensation, e.g. 45 LPA + 10L stock" value={f.ctc} onChange={set('ctc')} maxLength={80} />}
+          {comp && !structured && <input className={`${input} col-span-2`} placeholder="Total compensation, e.g. 45 LPA + 10L stock" value={f.ctc} onChange={set('ctc')} maxLength={80} />}
+          {structured && <>
+            <input className={input} placeholder="Location (e.g. Bangalore, India)" value={f.location} onChange={set('location')} maxLength={80} />
+            <select className={input} value={f.status} onChange={set('status')} aria-label="Status">{STATUSES.map(x => <option key={x}>{x}</option>)}</select>
+            <input className={`${input} col-span-2`} placeholder="Education (e.g. B.Tech CS, Tier-1)" value={f.education} onChange={set('education')} maxLength={80} />
+          </>}
         </div>
-        <input className={input} placeholder="Title" value={f.title} onChange={set('title')} maxLength={200} required />
-        <textarea className={`${input} min-h-[160px]`} placeholder={comp ? 'Offer breakdown, location, negotiation, what you would do differently…' : 'Rounds, questions asked, how it went, outcome…'} value={f.body} onChange={set('body')} required />
+        {structured ? (
+          <div className="space-y-2 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Compensation <span className="font-normal text-slate-500">({cur.hint})</span></p>
+              <select className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" value={f.cur} onChange={set('cur')} aria-label="Currency">{Object.keys(CURRENCIES).map(c => <option key={c} value={c}>{c} {CURRENCIES[c].sym}</option>)}</select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[['base', 'Base pay *'], ['stock', 'Stock / RSUs per year'], ['bonus', 'Annual bonus'], ['joining', 'Joining bonus (one-time)']].map(([k, label]) => (
+                <input key={k} className={input} type="number" min="0" step="any" placeholder={label} aria-label={label} value={f[k]} onChange={set(k)} />
+              ))}
+            </div>
+            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Total per year: {total ? fmtMoney(f.cur, total) : '–'}</p>
+          </div>
+        ) : null}
+        <input className={input} placeholder={structured ? `Title (optional, e.g. ${compTitle(f) || 'Amazon | L5 | Bangalore | ₹47 LPA'})` : 'Title'} value={f.title} onChange={set('title')} maxLength={200} required={!structured} />
+        {structured
+          ? <textarea className={`${input} min-h-[90px]`} placeholder="Benefits, negotiation, what you would do differently… (optional)" value={f.notes} onChange={set('notes')} />
+          : <textarea className={`${input} min-h-[160px]`} placeholder={comp ? 'Offer breakdown, location, negotiation, what you would do differently…' : 'Rounds, questions asked, how it went, outcome…'} value={f.body} onChange={set('body')} required />}
         {post ? (
           <p className="text-xs text-slate-500">{post.author?.anonymous ? '🕶️ Posted anonymously. That stays as it is.' : 'Posted under your name. That stays as it is.'}</p>
         ) : (
