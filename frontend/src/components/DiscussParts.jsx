@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Pic from './Pic.jsx'
 import { CATEGORIES, ago, voteDiscussion } from '../lib/discuss.js'
 import { isLoggedIn } from '../lib/auth.js'
+import { bodyPreview } from '../lib/compPost.js'
 
 const toneOf = c => CATEGORIES.find(x => x.key === c)?.tone || ''
 const iconOf = c => CATEGORIES.find(x => x.key === c)?.icon || '💬'
@@ -56,7 +57,7 @@ export function PostCard({ d, onChange, onNeedAuth }) {
       <a href={`/discuss/${d.id}`} className="min-w-0 flex-1" data-track="discuss_open_post">
         <Chips d={d} />
         <h3 className="mt-2 text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">{d.title}</h3>
-        <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">{d.body}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">{bodyPreview(d.body)}</p>
         <div className="mt-3 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
           <Avatar author={d.author} size="h-6 w-6 text-[11px]" />
           <span className="font-medium text-slate-700 dark:text-slate-300">{d.author?.name || 'Member'}</span>

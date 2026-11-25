@@ -34,10 +34,8 @@ for r in rows:
     if seen[key] > 1: key += f'-{seen[key]}'
     if len(key) > 120: key = key[:100] + '-' + hashlib.md5(key.encode()).hexdigest()[:10]
     position = 'Software Engineer (all levels, company median)' if all_levels else f"Software Engineer: {level} ({norm})"
-    notes = ('Median of reported submissions, not a single offer. '
-             + ('' if all_levels else f"Level mapped to {norm} by {r['Mapped by'].strip()}. ")
-             + f"Source: [{r['Source'].strip()}]({r['Source URL'].strip()})"
-             + (f", updated {r['Last updated'].strip()}." if r['Last updated'].strip() else '.'))
+    source = (f"[{r['Source'].strip()}]({r['Source URL'].strip()})"
+              + (f", updated {r['Last updated'].strip()}" if r['Last updated'].strip() else ''))
     lines = ['**Status:** Reported median', f'**Company:** {company}']
     if r['Segment'].strip(): lines.append(f"**Segment:** {r['Segment'].strip()}")
     lines += [f'**Position:** {position}', '**Location:** India']
@@ -45,7 +43,7 @@ for r in rows:
     comp = [f'- **Total (per year, median): ₹{lpa} LPA** (₹{inr(total)})']
     if r['Company median TC (LPA)'].strip() and not all_levels:
         comp.append(f"- Company median across levels: ₹{r['Company median TC (LPA)'].strip()} LPA")
-    body = '\n'.join(lines) + '\n\n**Compensation**\n' + '\n'.join(comp) + f'\n\n**Benefits and notes:** {notes}'
+    body = '\n'.join(lines) + '\n\n**Compensation**\n' + '\n'.join(comp) + f'\n\n**Source:** {source}'
     out.append(dict(importKey=key, category='compensation', company=clip(company, 120), role=clip('All levels' if all_levels else norm, 40),
                     level=clip('All levels' if all_levels else level, 40), yoe=str(int(m.group())) if m else '',
                     ctc=f'₹{lpa} LPA', title=clip(f"{company} | {'All levels' if all_levels else level} | India | ₹{lpa} LPA", 200), body=body))

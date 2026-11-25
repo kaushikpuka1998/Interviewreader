@@ -38,3 +38,39 @@ export function compBody(f) {
     total ? `- **Total (per year): ${fmtMoney(f.cur, total)}**` : ''].filter(Boolean)
   return [facts.join('\n'), pay.length ? `**Compensation**\n${pay.join('\n')}` : '', line('Benefits and notes', f.notes)].filter(Boolean).join('\n\n')
 }
+
+/** Reads a template post back into parts for display: { facts: [[label, value]], pay: [line], source, notes }, or null for any other post. */
+export function parseCompBody(body) {
+  if (!/^\*\*Status:\*\*/.test(body || '')) return null
+  const facts = [], pay = []
+  let source = '', notes = ''
+  for (const block of body.split(/\n\n+/)) {
+    const lines = block.split('\n')
+    if (/^\*\*Compensation\*\*/.test(lines[0])) { pay.push(...lines.slice(1).map(l => l.replace(/^- /, ''))); continue }
+    for (const l of lines) {
+      const m = l.match(/^\*\*(.+?):\*\*\s*(.*)$/)
+      if (!m) continue
+      if (m[1] === 'Source') source = m[2]
+      else if (m[1] === 'Benefits and notes') notes = m[2]
+      else facts.push([m[1], m[2]])
+    }
+  }
+  return { facts, pay, source, notes }
+}
+
+/** One plain line for the feed card: "Software Engineer: SSE (SDE-2) · India · 4-5 years", or the text itself for other posts. */
+export function bodyPreview(body) {
+  const p = parseCompBody(body)
+  if (!p) return body
+  const get = k => p.facts.find(([l]) => l === k)?.[1]
+  return [get('Position'), get('Location'), get('Typical experience') || get('Years of experience')].filter(Boolean).join(' · ')
+}
+
+/** "**bold**" and "[text](url)" in a template line, as parts: { text, bold } or { text, href }. */
+export function inlineParts(s) {
+  return String(s).split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/).filter(Boolean).map(t => {
+    const b = t.match(/^\*\*([^*]+)\*\*$/); if (b) return { text: b[1], bold: true }
+    const a = t.match(/^\[([^\]]+)\]\(([^)]+)\)$/); if (a) return { text: a[1], href: a[2] }
+    return { text: t }
+  })
+}
