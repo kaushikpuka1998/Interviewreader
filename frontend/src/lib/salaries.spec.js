@@ -36,3 +36,13 @@ describe('salaries', () => {
     expect(similar([A, B, C], A).map(c => c.name)).toEqual(['Gamma'])
   })
 })
+
+import { domainOf } from './companyDomains.js'
+describe('company logos', () => {
+  it('knows the site of listed companies and nothing for the rest', () => {
+    expect(domainOf('google')).toBe('google.com')
+    expect(domainOf('s-p-global')).toBe('spglobal.com')
+    expect(domainOf('bizongo')).toBe('')   // not guessed: "<name>.com" gave the wrong logo for small companies
+    expect(domainOf('100ms')).toBe('')
+  })
+})
