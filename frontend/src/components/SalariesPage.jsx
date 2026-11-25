@@ -4,7 +4,7 @@ import Footer from './Footer.jsx'
 import Loader from './Loader.jsx'
 import NotFound from './NotFound.jsx'
 import { setPageSeo } from '../lib/seo.js'
-import { NORMS, SORTS, fetchSalaries, lpa, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
+import { CURRENCIES, NORMS, SORTS, fetchSalaries, getCurrency, lpa, setCurrency, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
 
 // The company's favicon, guessed from its name (amazon -> amazon.com). A guess that misses, or the placeholder globe, falls back to a coloured initial.
 function CompanyLogo({ name, slug, size = 'h-11 w-11' }) {
@@ -27,6 +27,7 @@ const PAGE = 48
 export default function SalariesPage({ slug }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
+  const [cur, setCur] = useState(getCurrency)   // the shown currency; changing it re-renders every amount below
   useEffect(() => { fetchSalaries().then(setData).catch(() => setError(true)) }, [])
   const company = slug && data ? data.companies.find(c => c.slug === slug) : null
 
@@ -36,7 +37,7 @@ export default function SalariesPage({ slug }) {
       if (!company) return
       const s = spanOf(company)
       setPageSeo({ title: `${company.name} Software Engineer Salary in India by Level`, path: `/salaries/${slug}`,
-        description: `${company.name} software engineer salaries in India by level: median total pay ${rangeText(s.min, s.max)} across ${s.count} level${s.count > 1 ? 's' : ''}, with the experience each level usually needs.` })
+        description: `${company.name} software engineer salaries in India by level: median total pay ${rangeText(s.min, s.max, 'INR')} across ${s.count} level${s.count > 1 ? 's' : ''}, with the experience each level usually needs.` })
     } else {
       setPageSeo({ title: 'Software Engineer Salaries in India by Company and Level', path: '/salaries',
         description: `Median total pay for software engineers in India at ${data.companies.length} companies, by level: SDE-1 to Staff and Principal. Search a company and compare.` })
@@ -50,6 +51,13 @@ export default function SalariesPage({ slug }) {
         <div className="mx-auto max-w-5xl space-y-5">
           {error && <NotFound title="Salaries are not available" message="Please try again in a moment." />}
           {!data && !error && <Loader label="Loading salaries…" />}
+          {data && data.companies.length > 0 && (
+            <div className="flex flex-wrap items-center justify-end gap-2" role="group" aria-label="Currency">
+              <span className="text-xs font-semibold text-slate-500">Show pay in</span>
+              {Object.keys(CURRENCIES).map(c => <button key={c} type="button" onClick={() => { setCurrency(c); setCur(c) }} aria-pressed={cur === c} className={`${chip(cur === c)} !px-2.5 !py-1 !text-xs`}>{c}</button>)}
+              {cur !== 'INR' && <span className="basis-full text-right text-[11px] text-slate-400">Approximate conversion from rupees at fixed rates, not live exchange rates.</span>}
+            </div>
+          )}
           {data && data.companies.length > 0 && slug && (company ? <CompanyView company={company} all={data.companies} /> : <NotFound title="Company not found" message="We have no salary data for this company." />)}
           {data && !data.companies.length && <NotFound title="Salaries are loading" message="The salary data is still being prepared. Refresh in a moment." />}
           {data && data.companies.length > 0 && !slug && <Index data={data} />}
