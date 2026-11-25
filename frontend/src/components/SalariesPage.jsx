@@ -37,8 +37,9 @@ export default function SalariesPage({ slug }) {
         <div className="mx-auto max-w-5xl space-y-5">
           {error && <NotFound title="Salaries are not available" message="Please try again in a moment." />}
           {!data && !error && <Loader label="Loading salaries…" />}
-          {data && slug && (company ? <CompanyView company={company} all={data.companies} /> : <NotFound title="Company not found" message="We have no salary data for this company." />)}
-          {data && !slug && <Index data={data} />}
+          {data && data.companies.length > 0 && slug && (company ? <CompanyView company={company} all={data.companies} /> : <NotFound title="Company not found" message="We have no salary data for this company." />)}
+          {data && !data.companies.length && <NotFound title="Salaries are loading" message="The salary data is still being prepared. Refresh in a moment." />}
+          {data && data.companies.length > 0 && !slug && <Index data={data} />}
         </div>
       </div>
       <Footer />

@@ -5,8 +5,10 @@ export const NORMS = ['SDE-1 / Entry', 'SDE-2', 'SDE-3 / Senior', 'Staff / Princ
 export const SORTS = [['top', 'Highest pay'], ['low', 'Lowest pay'], ['name', 'Company name']]
 
 let cache
+// Kept for the session once it has companies; an empty answer (the server is still loading the data) or a failure is asked again next time.
 export const fetchSalaries = () => (cache ||= fetch(`${API_BASE}/public/salaries`)
   .then(r => (r.ok ? r.json() : Promise.reject(new Error('Could not load salaries'))))
+  .then(d => { if (!d.companies?.length) cache = undefined; return d })
   .catch(e => { cache = undefined; throw e }))
 
 const num = v => String(Number(v))   // the data says "38.0"; show 38

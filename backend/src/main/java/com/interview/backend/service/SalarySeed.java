@@ -80,7 +80,7 @@ public class SalarySeed implements CommandLineRunner {
         var gone = stored.values().stream().filter(e -> !current.contains(e.getRowKey())).toList();
         if (!gone.isEmpty()) salaries.deleteAll(gone);
         if (!save.isEmpty()) salaries.saveAll(save);
-        if (!save.isEmpty() || !gone.isEmpty()) log.info("Company salaries: {} added or updated, {} removed", save.size(), gone.size());
+        log.info("Company salaries: {} rows in the file, {} added or updated, {} removed", rows.size(), save.size(), gone.size());
     }
 
     private static boolean same(CompanySalary e, Map<String, Object> r) {

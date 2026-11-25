@@ -62,6 +62,17 @@ class SalaryTest {
     }
 
     @Test
+    void doesNotKeepAnEmptyAnswerOnceTheSeedHasFinished() {
+        var repo = mock(CompanySalaryRepository.class);
+        when(repo.findAllByOrderByIdAsc()).thenReturn(List.of(), List.of(row("Acme", "L3", 2_000_000, "20", "")));
+        var service = new SalaryService(repo);
+        assertTrue(service.all().companies().isEmpty());     // asked before the seed finished
+        assertEquals(1, service.all().companies().size());   // asked again after: not stuck on the empty answer
+        service.all();
+        verify(repo, times(2)).findAllByOrderByIdAsc();      // and a real answer is cached
+    }
+
+    @Test
     void groupsLevelsPerCompanyLowestPayFirst() {
         var repo = mock(CompanySalaryRepository.class);
         when(repo.findAllByOrderByIdAsc()).thenReturn(List.of(

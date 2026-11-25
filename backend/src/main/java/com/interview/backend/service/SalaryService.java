@@ -42,7 +42,11 @@ public class SalaryService {
                     rows.stream().map(r -> new Level(r.getLevel(), r.getNorm(), r.getYoe(), r.getLpa(), r.getInr())).toList()));
         }
         companies.sort(Comparator.comparing(c -> c.name().toLowerCase()));
-        return data = new Data(companies, List.copyOf(segments), System.currentTimeMillis());
+        var fresh = new Data(companies, List.copyOf(segments), System.currentTimeMillis());
+        // Not cached while the table is empty: the web server answers before SalarySeed has finished at startup, and an early empty
+        // answer must not be served for ten minutes.
+        if (!companies.isEmpty()) data = fresh;
+        return fresh;
     }
 
     public Company company(String slug) {
