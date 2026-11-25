@@ -13,6 +13,12 @@ import java.util.List;
 // Filters use '' for "any" (not null): Postgres can't infer the type of a null bound parameter in "? IS NULL".
 public interface DiscussionRepository extends JpaRepository<Discussion, Long> {
 
+    boolean existsByImportKey(String importKey);
+
+    /** Keys of every imported post, so the startup seed checks them in one query instead of one per post. */
+    @Query("SELECT d.importKey FROM Discussion d WHERE d.importKey IS NOT NULL")
+    java.util.Set<String> importKeys();
+
     @Query("SELECT d FROM Discussion d WHERE d.status = 'active' " +
            "AND (:category = '' OR d.category = :category) " +
            "AND (:company = '' OR LOWER(d.company) LIKE LOWER(CONCAT('%', :company, '%'))) " +
