@@ -184,14 +184,21 @@ export default function ProtocolExplorer() {
     return () => clearTimeout(t)
   }, [playing, step, speed, last])
   useEffect(() => { if (wireEnd.current) wireEnd.current.scrollTop = wireEnd.current.scrollHeight }, [step])   // scroll the table itself, never the page
-  // Keep the animating arrow in the free area under the pinned header (the header would otherwise cover it).
+  // Keep the animating arrow in view. On wide screens only the diagram's own box scrolls (the side panels stay put);
+  // on narrow screens the page scrolls, below the pinned header.
   useEffect(() => {
     if (step < 0) return
     const el = document.getElementById('pe-current')
+    const box = document.getElementById('pe-scroll')
     const bar = document.getElementById('pe-sticky')
-    if (!el || !bar) return
-    const top = bar.getBoundingClientRect().bottom + 24
+    if (!el || !box || !bar) return
     const r = el.getBoundingClientRect()
+    if (getComputedStyle(box).overflowY === 'auto') {
+      const b = box.getBoundingClientRect()
+      if (r.top < b.top + 8 || r.bottom > b.bottom - 8) box.scrollBy({ top: r.top - b.top - b.height / 3, behavior: 'smooth' })
+      return
+    }
+    const top = bar.getBoundingClientRect().bottom + 24
     if (r.top < top || r.bottom > window.innerHeight - 60) window.scrollBy({ top: r.top - top - Math.max(0, (window.innerHeight - top - 120) / 3), behavior: 'smooth' })
   }, [step, id, loss])
 
@@ -213,8 +220,8 @@ export default function ProtocolExplorer() {
 
   return (
     <section onKeyDown={onKey} tabIndex={-1} className="rounded-2xl border border-emerald-900/50 bg-[#07120e] p-3 text-slate-200 shadow-xl outline-none sm:p-4">
-      <div className="grid gap-3 lg:grid-cols-[13rem_minmax(0,1fr)_21rem]">
-        <nav aria-label="Protocols" className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
+      <div className="grid gap-3 lg:h-[calc(100vh-12.5rem)] lg:min-h-[28rem] lg:grid-cols-[13rem_minmax(0,1fr)_21rem]">
+        <nav aria-label="Protocols" className="flex gap-2 overflow-x-auto lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden">
           <p className="hidden px-2 text-[11px] font-bold uppercase tracking-[.18em] text-slate-500 lg:block">Protocols</p>
           {PROTOCOLS.map(p => (
             <button key={p.id} type="button" onClick={() => pick(p.id)} aria-pressed={p.id === id}
@@ -227,8 +234,8 @@ export default function ProtocolExplorer() {
           <p className="hidden px-2 pt-2 text-[11px] leading-relaxed text-slate-500 lg:block">Tip: click any arrow to jump to it, or use ← → on the keyboard.</p>
         </nav>
 
-        <main className="min-w-0 rounded-xl border border-emerald-900/50 bg-[#0b1a15]">
-          <div id="pe-sticky" className="sticky top-14 z-10 rounded-t-xl bg-[#0b1a15] shadow-[0_6px_12px_-8px_rgba(0,0,0,.8)]">
+        <main className="flex min-w-0 flex-col rounded-xl border border-emerald-900/50 bg-[#0b1a15] lg:min-h-0">
+          <div id="pe-sticky" className="sticky top-14 z-10 flex-none rounded-t-xl lg:static bg-[#0b1a15] shadow-[0_6px_12px_-8px_rgba(0,0,0,.8)]">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-900/50 px-3 py-2">
             <div className="flex items-center gap-2">
               <button type="button" className={btn} onClick={() => seek(-1)} disabled={step < 0}>⏮ Reset</button>
@@ -255,10 +262,10 @@ export default function ProtocolExplorer() {
           </div>
           <PathStrip protocol={protocol} msg={cur} step={step} speed={speed} still={settled} />
           </div>
-          <Diagram protocol={protocol} msgs={msgs} step={step} speed={speed} still={settled} onSeek={seek} />
+          <div id="pe-scroll" className="min-h-0 flex-1 lg:overflow-y-auto"><Diagram protocol={protocol} msgs={msgs} step={step} speed={speed} still={settled} onSeek={seek} /></div>
         </main>
 
-        <aside className="rounded-xl border border-emerald-900/50 bg-[#0b1a15] p-4 lg:max-h-[46rem] lg:overflow-y-auto" aria-live="polite">
+        <aside className="rounded-xl border border-emerald-900/50 bg-[#0b1a15] p-4 lg:min-h-0 lg:overflow-y-auto" aria-live="polite">
           {cur ? (
             <>
               <p className="text-[11px] font-bold uppercase tracking-[.18em]" style={{ color: protocol.hex }}>Step {step + 1} of {msgs.length} · {cur.phase}</p>
