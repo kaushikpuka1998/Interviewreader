@@ -1,7 +1,7 @@
 import './lib/apiFetch.js'   // must stay first: makes every API request carry the session cookie
 import { startAutoUpdate } from './lib/autoUpdate.js'
 startAutoUpdate()
-import { LANDING_PATHS } from './lib/landingPaths.js'
+import { LANDING_PATHS, isLandingPath } from './lib/landingPaths.js'
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 const App = lazy(() => import('./App.jsx'))
@@ -135,7 +135,7 @@ function Routes() {
   if (path === '/linkedin-posts') return <Gate flag="linkedin_post_studio" what="LinkedIn Post Studio"><LinkedInPostStudio /></Gate>
 
   // Keyword landing pages for search (Java, Spring Boot, LLD, Kafka, SDE-2, Amazon SDE-2, sliding window).
-  if (LANDING_PATHS.has(path)) return <LandingPage path={path} />
+  if (isLandingPath(path)) return <LandingPage path={path} />
 
   if (path === '/premium') return <PremiumPage />
   if (path === '/pricing') return <PremiumPage autoOpen />
@@ -170,7 +170,7 @@ function Routes() {
 }
 
 // Pages that do not lay out their own footer (home, terms, practice, and the reader do) get one underneath.
-const NEEDS_FOOTER = [...LANDING_PATHS, '/skills', '/tracks', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
+const NEEDS_FOOTER = [...LANDING_PATHS, '/companies', '/dsa', '/skills', '/tracks', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'

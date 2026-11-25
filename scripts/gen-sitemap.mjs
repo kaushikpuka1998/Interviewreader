@@ -174,6 +174,14 @@ async function landingPages() {
   } catch (err) {
     console.warn(`Salary pages skipped (${err.message})`)
   }
+  // Landing pages the backend makes from the problem data (company, topic and difficulty pages). It lists exactly the ones that exist,
+  // so the sitemap never holds a path the app would answer with "not found".
+  try {
+    const known = new Set([...STATIC_PAGES.map(([p]) => p), ...pages.map(([p]) => p)])
+    for (const path of await fetchJson('/public/landing/paths')) if (!known.has(path)) pages.push([path, 'weekly', '0.6'])
+  } catch (err) {
+    console.warn(`Generated landing pages skipped (${err.message})`)
+  }
   try {
     const roadmap = await fetchJson('/roadmaps')
     for (const c of roadmap.companies || []) pages.push([`/roadmaps?company=${c.id}`, 'weekly', '0.8'])

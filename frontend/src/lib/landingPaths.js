@@ -49,3 +49,12 @@ export const LANDING_PATHS = new Set([
   '/companies/adobe/coding-interview-questions',
   '/interview-questions',
 ])
+
+// Pages the backend makes from the coding problems (company, topic and difficulty pages: see LandingService). Which of these exist depends on the
+// data, so the app only checks the shape; the backend answers 404 for a path with too few problems and the page shows "not found".
+const GENERATED = [
+  /^\/companies\/[a-z0-9-]+\/coding-interview-questions$/,
+  /^\/companies\/[a-z0-9-]+\/[a-z0-9-]+-problems$/,
+  /^\/dsa\/[a-z0-9-]+(\/(basic|intermediate|advanced))?$/,
+]
+export const isLandingPath = path => LANDING_PATHS.has(path) || GENERATED.some(r => r.test(path))
