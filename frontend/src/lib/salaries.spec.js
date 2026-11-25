@@ -18,6 +18,10 @@ describe('salaries', () => {
     expect(rangeText('38.0', '348.4')).toBe('₹38 LPA – ₹3.48 Cr')   // three digits of LPA become crore
     expect(rangeText('120', '250')).toBe('₹1.2 – ₹2.5 Cr')
     expect(lpa('100.0')).toBe('₹1 Cr')
+    expect(lpa('22.1', 'USD')).toBe('$25K')            // 22.1 lakh / 88
+    expect(lpa('150', 'USD')).toBe('$170K')
+    expect(lpa('1000', 'USD')).toBe('$1.14M')
+    expect(rangeText('22.1', '44.2', 'USD')).toBe('$25 – $50K')
   })
   it('searches, filters by segment and level, and sorts', () => {
     const all = [A, B, C]
