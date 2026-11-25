@@ -39,3 +39,14 @@ describe('reading a template post back', () => {
     expect(inlineParts('**Total** and [a](https://x.y)')).toEqual([{ text: 'Total', bold: true }, { text: ' and ' }, { text: 'a', href: 'https://x.y' }])
   })
 })
+
+describe('legacy imported notes', () => {
+  it('drops the old boilerplate note (and its source link) from posts stored before the seed was corrected', () => {
+    const legacy = '**Status:** Reported median\n**Company:** Adobe\n\n**Compensation**\n- **Total (per year, median): ₹75.1 LPA** (₹75,08,904)\n\n**Benefits and notes:** Median of reported submissions, not a single offer. Level mapped to Staff by years of experience. Source: [Levels.fyi](https://www.levels.fyi/x), updated November 24, 2026.'
+    expect(parseCompBody(legacy).notes).toBe('')
+  })
+  it('keeps a member\'s own notes', () => {
+    expect(parseCompBody('**Status:** Offer\n\n**Compensation**\n- x\n\n**Benefits and notes:** Negotiated +3L').notes).toBe('Negotiated +3L')
+  })
+})
+

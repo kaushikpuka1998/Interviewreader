@@ -51,7 +51,8 @@ export function parseCompBody(body) {
       const m = l.match(/^\*\*(.+?):\*\*\s*(.*)$/)
       if (!m) continue
       if (m[1] === 'Source') source = m[2]
-      else if (m[1] === 'Benefits and notes') notes = m[2]
+      // Imported posts once carried a boilerplate note with a source link; posts stored from that version must not show it.
+      else if (m[1] === 'Benefits and notes') notes = /^Median of reported submissions/.test(m[2]) ? '' : m[2]
       else facts.push([m[1], m[2]])
     }
   }
