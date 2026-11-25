@@ -1,13 +1,14 @@
 import './lib/apiFetch.js'   // must stay first: makes every API request carry the session cookie
 import { startAutoUpdate } from './lib/autoUpdate.js'
 startAutoUpdate()
-import { LANDING_PATHS } from './lib/landingPaths.js'
+import { LANDING_PATHS, isLandingPath } from './lib/landingPaths.js'
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 const App = lazy(() => import('./App.jsx'))
 const AdminPage = lazy(() => import('./components/AdminPage.jsx'))
 const ProfilePage = lazy(() => import('./components/ProfilePage.jsx'))
 const SalariesPage = lazy(() => import('./components/SalariesPage.jsx'))
+const DashboardPage = lazy(() => import('./components/DashboardPage.jsx'))
 const PublicProfilePage = lazy(() => import('./components/PublicProfilePage.jsx'))
 const TracksPage = lazy(() => import('./components/TracksPage.jsx'))
 const SkillGapPage = lazy(() => import('./components/SkillGapPage.jsx'))
@@ -37,7 +38,7 @@ const PremiumPage = lazy(() => import('./components/PremiumPage.jsx'))
 import FeedbackButton from './components/FeedbackButton.jsx'
 const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage.jsx'))
 import { trackView } from './lib/analytics.js'
-import { syncSession } from './lib/auth.js'
+import { syncSession, isLoggedIn } from './lib/auth.js'
 const PracticePage = lazy(() => import('./components/PracticePage.jsx'))
 const RoadmapsPage = lazy(() => import('./components/RoadmapsPage.jsx'))
 const DesignPracticePage = lazy(() => import('./components/DesignPracticePage.jsx'))
@@ -81,7 +82,7 @@ window.fetch = function() {
 };
 
 // ponytail: raw pathname check at the entry point — avoids adding react-router just for a wildcard
-const TRACKED_PAGES = ['/admin', '/profile', '/leaderboard', '/streak', '/updates', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
+const TRACKED_PAGES = ['/admin', '/profile', '/dashboard', '/leaderboard', '/streak', '/updates', '/skills', '/resume', '/u/', '/reset-password', '/practice', '/roadmaps', '/linkedin-posts',
   '/interview', '/problems', '/salaries', '/sheets/', '/terms', '/feedback', '/question-of-the-day', '/premium', '/pricing', '/discuss']
 
 function Routes() {
@@ -105,7 +106,10 @@ function Routes() {
   // User profile / progress dashboard.
   if (path === '/profile' || path.startsWith('/profile/')) return <ProfilePage />
 
-  if (path === '/') return <HomePage />
+  if (path === '/dashboard') return <DashboardPage />
+
+  // Signed-in members land on their dashboard; visitors (and Googlebot) get the public home page. The reader lives at /questions.
+  if (path === '/') return isLoggedIn() ? <DashboardPage /> : <HomePage />
 
   if (path === '/roadmaps' || path.startsWith('/roadmaps/')) return <RoadmapsPage />
 
@@ -131,7 +135,7 @@ function Routes() {
   if (path === '/linkedin-posts') return <Gate flag="linkedin_post_studio" what="LinkedIn Post Studio"><LinkedInPostStudio /></Gate>
 
   // Keyword landing pages for search (Java, Spring Boot, LLD, Kafka, SDE-2, Amazon SDE-2, sliding window).
-  if (LANDING_PATHS.has(path)) return <LandingPage path={path} />
+  if (isLandingPath(path)) return <LandingPage path={path} />
 
   if (path === '/premium') return <PremiumPage />
   if (path === '/pricing') return <PremiumPage autoOpen />
@@ -166,7 +170,7 @@ function Routes() {
 }
 
 // Pages that do not lay out their own footer (home, terms, practice, and the reader do) get one underneath.
-const NEEDS_FOOTER = [...LANDING_PATHS, '/skills', '/tracks', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
+const NEEDS_FOOTER = [...LANDING_PATHS, '/companies', '/dsa', '/skills', '/tracks', '/admin', '/profile', '/leaderboard', '/problems', '/resume', '/u/', '/reset-password', '/sheets', '/interview', '/interview/live', '/roadmaps']
 
 function Router() {
   const path = typeof window !== 'undefined' ? window.location.pathname : '/'

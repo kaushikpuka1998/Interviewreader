@@ -53,6 +53,42 @@ const STATIC_PAGES = [
   ['/resume', 'monthly', '0.6'],       // free resume builder: the signed-out page is a public landing page
   ['/leaderboard', 'daily', '0.5'],
   ['/terms', 'yearly', '0.2'],
+  // More keyword landing pages (topic guides, DSA patterns, company problem lists); words live in backend landing-pages.json
+  ['/react-interview-questions', 'weekly', '0.8'],
+  ['/node-js-interview-questions', 'weekly', '0.8'],
+  ['/sql-interview-questions', 'weekly', '0.8'],
+  ['/golang-interview-questions', 'weekly', '0.8'],
+  ['/microservices-interview-questions', 'weekly', '0.8'],
+  ['/angular-interview-questions', 'weekly', '0.8'],
+  ['/ruby-on-rails-interview-questions', 'weekly', '0.8'],
+  ['/aws-interview-questions', 'weekly', '0.8'],
+  ['/behavioral-interview-questions', 'weekly', '0.8'],
+  ['/dsa/array', 'weekly', '0.8'],
+  ['/dsa/string', 'weekly', '0.8'],
+  ['/dsa/hash-table', 'weekly', '0.8'],
+  ['/dsa/tree', 'weekly', '0.8'],
+  ['/dsa/backtracking', 'weekly', '0.8'],
+  ['/dsa/binary-search', 'weekly', '0.8'],
+  ['/dsa/linked-list', 'weekly', '0.8'],
+  ['/dsa/two-pointers', 'weekly', '0.8'],
+  ['/dsa/stack', 'weekly', '0.8'],
+  ['/dsa/greedy', 'weekly', '0.8'],
+  ['/dsa/bit-manipulation', 'weekly', '0.8'],
+  ['/companies/amazon/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/google/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/meta/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/microsoft/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/apple/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/oracle/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/uber/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/goldman-sachs/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/tcs/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/zoho/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/salesforce/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/infosys/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/flipkart/coding-interview-questions', 'weekly', '0.8'],
+  ['/companies/adobe/coding-interview-questions', 'weekly', '0.8'],
+  ['/interview-questions', 'weekly', '0.9'],
 ]
 
 async function fetchAll() {
@@ -137,6 +173,14 @@ async function landingPages() {
     console.log(`Salaries: ${slugs.length} companies`)
   } catch (err) {
     console.warn(`Salary pages skipped (${err.message})`)
+  }
+  // Landing pages the backend makes from the problem data (company, topic and difficulty pages). It lists exactly the ones that exist,
+  // so the sitemap never holds a path the app would answer with "not found".
+  try {
+    const known = new Set([...STATIC_PAGES.map(([p]) => p), ...pages.map(([p]) => p)])
+    for (const path of await fetchJson('/public/landing/paths')) if (!known.has(path)) pages.push([path, 'weekly', '0.6'])
+  } catch (err) {
+    console.warn(`Generated landing pages skipped (${err.message})`)
   }
   try {
     const roadmap = await fetchJson('/roadmaps')

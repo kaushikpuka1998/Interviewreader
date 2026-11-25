@@ -110,3 +110,11 @@ What changed:
 Next step with the biggest effect: show every signed-out visitor (and Google) a preview of each members-only answer, for example its
 outline and first section, with the paywall markup `isAccessibleForFree: false`. The preview must be the same for users and crawlers.
 That turns thousands of empty pages into indexable ones and also raises sign-ups. It is a product decision, so it is not done here.
+
+## Generated landing pages (company, topic and difficulty)
+
+`LandingService` makes pages from the coding problems themselves, on top of the hand-written ones in `landing-pages.json`:
+`/companies/<co>/coding-interview-questions`, `/companies/<co>/<topic>-problems`, `/companies/<co>/<difficulty>-problems`,
+`/dsa/<topic>` and `/dsa/<topic>/<difficulty>`. A page exists only when it lists at least 8 problems (topics: 15), so none is empty.
+`/api/public/landing/paths` lists exactly the pages that exist, and `npm run sitemap` adds them to `sitemap.xml`.
+Change `MIN` / `TOPIC_MIN` in `LandingService` to make more or fewer pages; lower numbers mean thinner pages.

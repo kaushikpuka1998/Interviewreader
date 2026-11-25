@@ -563,5 +563,1711 @@
         "a": "When you keep merging groups and repeatedly ask whether two items are in the same group, for example connected components or detecting a cycle in an undirected graph."
       }
     ]
+  },
+  {
+    "path": "/react-interview-questions",
+    "title": "React Interview Questions and Answers (Hooks, State, Performance)",
+    "description": "Practical React interview questions with answers: components and props, hooks, state management, rendering and reconciliation, performance and testing. Free sample, then practise and revise.",
+    "h1": "React Interview Questions and Answers",
+    "intro": [
+      "React interviews start with how components render and re-render: props versus state, keys, the virtual DOM and reconciliation, and what actually triggers an update. Interviewers then push into hooks (useState, useEffect, useMemo, useCallback, useRef), their rules, and the bugs they cause: stale closures, missing dependencies and effect loops.",
+      "Senior rounds move to design: state management trade-offs (context versus a store), data fetching and caching, code splitting, memoisation that really helps, accessibility and testing. Each question below has a worked answer with a short code example, so you can explain the why and not only the what."
+    ],
+    "tech": "react",
+    "limit": 80,
+    "links": [
+      {
+        "label": "Node.js interview questions",
+        "url": "/node-js-interview-questions"
+      },
+      {
+        "label": "Angular interview questions",
+        "url": "/angular-interview-questions"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What React topics are asked most in interviews?",
+        "a": "Hooks and their pitfalls, how rendering and reconciliation work, state management (lifting state, context, stores), performance (memoisation, lists, code splitting) and testing components."
+      },
+      {
+        "q": "How do I prepare for a React interview?",
+        "a": "Build one small app that uses every common hook, then read the answers here and explain each one out loud. Practise spotting a stale closure or an unnecessary re-render in a code snippet."
+      },
+      {
+        "q": "Are class components still asked?",
+        "a": "Occasionally, mostly to compare the lifecycle with hooks. Focus on function components, but know how componentDidMount, componentDidUpdate and componentWillUnmount map to useEffect."
+      }
+    ]
+  },
+  {
+    "path": "/node-js-interview-questions",
+    "title": "Node.js Interview Questions and Answers (Event Loop, Streams, Async)",
+    "description": "Node.js interview questions with detailed answers: the event loop, async patterns, streams, clustering, error handling, security and performance. Free sample, practise and revise.",
+    "h1": "Node.js Interview Questions and Answers",
+    "intro": [
+      "Node.js interviews revolve around one idea: a single thread running an event loop. You are expected to explain the phases of the loop, the difference between process.nextTick, microtasks and timers, why blocking the loop is dangerous, and how callbacks, promises and async/await relate.",
+      "Beyond the loop, expect streams and backpressure, the cluster and worker-thread modules, memory leaks, error handling in async code, security basics (injection, rate limiting, dependency risk) and how you would structure and scale an Express or Fastify service. The answers below include runnable examples."
+    ],
+    "tech": "node",
+    "limit": 80,
+    "links": [
+      {
+        "label": "React interview questions",
+        "url": "/react-interview-questions"
+      },
+      {
+        "label": "Microservices interview questions",
+        "url": "/microservices-interview-questions"
+      },
+      {
+        "label": "SQL interview questions",
+        "url": "/sql-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is the event loop in Node.js?",
+        "a": "It is the mechanism that lets a single thread handle many connections: it runs callbacks from queues in phases (timers, pending, poll, check, close) and drains microtasks between them, handing slow work to the operating system or a thread pool."
+      },
+      {
+        "q": "When should I use worker threads or cluster?",
+        "a": "Use cluster to run several processes that share a port and use all CPU cores for I/O-heavy servers. Use worker threads for CPU-heavy work inside one process so the event loop is not blocked."
+      },
+      {
+        "q": "What Node.js topics are asked at senior level?",
+        "a": "Scaling and observability, memory leaks and profiling, streams and backpressure, graceful shutdown, security hardening and designing resilient services."
+      }
+    ]
+  },
+  {
+    "path": "/sql-interview-questions",
+    "title": "SQL Interview Questions and Answers (Joins, Indexes, Transactions)",
+    "description": "SQL interview questions with worked answers: joins, group by and having, window functions, indexes and query plans, transactions and isolation levels, normalisation and design.",
+    "h1": "SQL Interview Questions and Answers",
+    "intro": [
+      "SQL screens begin with query fluency: the join types and when each is right, GROUP BY with HAVING, subqueries versus CTEs, and window functions such as ROW_NUMBER, RANK and running totals. You are usually given a small schema and asked to write the query, then to explain its cost.",
+      "Deeper rounds cover how the database executes a query: indexes (B-tree, composite, covering), reading an execution plan, why a query is slow, transactions, ACID and isolation levels (dirty reads, phantom reads, deadlocks), and normalisation versus denormalisation for real workloads."
+    ],
+    "tech": "sql",
+    "limit": 80,
+    "links": [
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Node.js interview questions",
+        "url": "/node-js-interview-questions"
+      },
+      {
+        "label": "Java interview questions",
+        "url": "/java-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What SQL topics come up most in interviews?",
+        "a": "Joins, aggregation with GROUP BY and HAVING, window functions, subqueries and CTEs, indexing and query plans, transactions and isolation levels, and schema design."
+      },
+      {
+        "q": "What is the difference between WHERE and HAVING?",
+        "a": "WHERE filters rows before grouping; HAVING filters groups after aggregation, so it can use aggregate functions like COUNT or SUM."
+      },
+      {
+        "q": "How do I make a slow query faster?",
+        "a": "Read the execution plan, check that filters and joins can use an index, avoid functions on indexed columns, select only the columns you need and consider a covering or composite index."
+      }
+    ]
+  },
+  {
+    "path": "/golang-interview-questions",
+    "title": "Go (Golang) Interview Questions and Answers (Goroutines, Channels)",
+    "description": "Go interview questions with answers: goroutines and channels, the scheduler, interfaces, error handling, context, memory and garbage collection, and testing. Free sample, practise and revise.",
+    "h1": "Go (Golang) Interview Questions and Answers",
+    "intro": [
+      "Go interviews test whether you think in Go: small interfaces, composition over inheritance, explicit error values and zero values that are useful. Expect questions on slices versus arrays, maps, pointers, defer, panic and recover, and how method sets and interfaces interact.",
+      "Concurrency is the centre of gravity: goroutines and the scheduler, channels (buffered and unbuffered), select, sync primitives, the context package for cancellation and deadlines, data races and how to find them. Senior rounds add profiling, memory and garbage collection, and structuring services."
+    ],
+    "tech": "golang",
+    "limit": 80,
+    "links": [
+      {
+        "label": "Java interview questions",
+        "url": "/java-interview-questions"
+      },
+      {
+        "label": "Microservices interview questions",
+        "url": "/microservices-interview-questions"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is a goroutine?",
+        "a": "A lightweight function execution managed by the Go runtime scheduler, not by the operating system. Thousands can run on a few OS threads because they start small and are multiplexed."
+      },
+      {
+        "q": "Buffered versus unbuffered channels?",
+        "a": "An unbuffered channel makes sender and receiver meet (synchronise); a buffered channel lets senders continue until the buffer is full."
+      },
+      {
+        "q": "How do you avoid data races in Go?",
+        "a": "Share memory by communicating over channels, protect shared state with sync.Mutex or atomic operations, and run tests with the race detector (go test -race)."
+      }
+    ]
+  },
+  {
+    "path": "/microservices-interview-questions",
+    "title": "Microservices Interview Questions and Answers (Saga, Circuit Breaker)",
+    "description": "Microservices interview questions with answers: service boundaries, communication, API gateway, saga and eventual consistency, resilience patterns, observability and deployment.",
+    "h1": "Microservices Interview Questions and Answers",
+    "intro": [
+      "Microservices interviews are about trade-offs, not definitions. You should be able to say when a monolith is the better choice, how to draw service boundaries around business capabilities, and what you pay for the split: network failures, data consistency, versioning and operational overhead.",
+      "Expect the standard toolkit: synchronous versus asynchronous communication, the API gateway, service discovery, the circuit breaker, retries with backoff, bulkheads, the saga pattern for distributed transactions, idempotency, distributed tracing and centralised logging. These answers explain each one with its failure mode."
+    ],
+    "tech": "microservices",
+    "limit": 80,
+    "links": [
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Kafka interview questions",
+        "url": "/kafka-interview-questions"
+      },
+      {
+        "label": "Spring Boot interview questions",
+        "url": "/spring-boot-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "When should you not use microservices?",
+        "a": "When the team is small, the domain is still changing, or you cannot invest in deployment, monitoring and testing automation. A well-structured monolith is often faster to build and easier to run."
+      },
+      {
+        "q": "How do you handle a transaction across services?",
+        "a": "Avoid it by design where you can. Otherwise use the saga pattern: a sequence of local transactions with compensating actions, coordinated by choreography (events) or orchestration (a coordinator)."
+      },
+      {
+        "q": "What is a circuit breaker?",
+        "a": "A guard around a remote call that stops calling a failing service after repeated errors, fails fast, and tries again after a cool-down so the failure does not cascade."
+      }
+    ]
+  },
+  {
+    "path": "/angular-interview-questions",
+    "title": "Angular Interview Questions and Answers (RxJS, DI, Change Detection)",
+    "description": "Angular interview questions with answers: components and modules, dependency injection, change detection, RxJS and observables, routing, forms and performance. Free sample, practise and revise.",
+    "h1": "Angular Interview Questions and Answers",
+    "intro": [
+      "Angular interviews check that you understand the framework's building blocks: components, templates and data binding, directives, pipes, services and dependency injection, modules versus standalone components, and the component lifecycle hooks.",
+      "The harder questions concern behaviour: how change detection works and when OnPush helps, RxJS operators (switchMap, mergeMap, debounceTime) and unsubscribing, reactive versus template-driven forms, route guards and lazy loading, and how you would test and optimise a large application."
+    ],
+    "tech": "angular",
+    "limit": 80,
+    "links": [
+      {
+        "label": "React interview questions",
+        "url": "/react-interview-questions"
+      },
+      {
+        "label": "Node.js interview questions",
+        "url": "/node-js-interview-questions"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is change detection in Angular?",
+        "a": "The process that checks component data against the template and updates the DOM. By default it checks every component after each event; OnPush limits it to input changes and explicit triggers."
+      },
+      {
+        "q": "switchMap versus mergeMap?",
+        "a": "switchMap cancels the previous inner observable when a new value arrives (good for search-as-you-type); mergeMap runs them all in parallel."
+      },
+      {
+        "q": "How do I prepare for an Angular interview?",
+        "a": "Know DI, change detection and RxJS well, build a small app with routing and reactive forms, and be ready to explain how you would optimise a slow screen."
+      }
+    ]
+  },
+  {
+    "path": "/ruby-on-rails-interview-questions",
+    "title": "Ruby on Rails Interview Questions and Answers (ActiveRecord, MVC)",
+    "description": "Ruby on Rails interview questions with answers: MVC, ActiveRecord and associations, N+1 queries, callbacks, background jobs, caching, security and testing.",
+    "h1": "Ruby on Rails Interview Questions and Answers",
+    "intro": [
+      "Rails interviews test convention-over-configuration thinking: how a request flows through routes, controllers, models and views, how ActiveRecord maps tables and associations, validations, scopes and migrations, and when callbacks help or hurt.",
+      "Performance and production topics follow: the N+1 query problem and eager loading, database indexes, caching layers, background jobs, security defaults (strong parameters, CSRF, SQL injection) and test strategy. Senior rounds ask how you would structure a large Rails app and keep models thin."
+    ],
+    "tech": "rails",
+    "limit": 80,
+    "links": [
+      {
+        "label": "SQL interview questions",
+        "url": "/sql-interview-questions"
+      },
+      {
+        "label": "Microservices interview questions",
+        "url": "/microservices-interview-questions"
+      },
+      {
+        "label": "Node.js interview questions",
+        "url": "/node-js-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is the N+1 query problem?",
+        "a": "Loading a list of records and then querying once per record for an association. Fix it with eager loading (includes, preload or eager_load) so the associations load in one or two queries."
+      },
+      {
+        "q": "Are callbacks bad practice?",
+        "a": "Not by themselves, but business logic hidden in callbacks is hard to test and reason about. Prefer explicit service objects for multi-step workflows and keep callbacks for simple, local concerns."
+      },
+      {
+        "q": "How do you keep Rails controllers thin?",
+        "a": "Move business logic into models or service objects, use strong parameters and concerns for shared behaviour, and keep the controller to authentication, parameters and the response."
+      }
+    ]
+  },
+  {
+    "path": "/aws-interview-questions",
+    "title": "AWS Interview Questions and Answers (EC2, S3, IAM, VPC)",
+    "description": "AWS interview questions with answers: EC2, S3, IAM, VPC networking, Lambda, databases, scaling and the Well-Architected pillars. Free sample, practise and revise.",
+    "h1": "AWS Interview Questions and Answers",
+    "intro": [
+      "AWS interviews start with the core services and when to choose each: EC2 and auto scaling, S3 storage classes and consistency, IAM users, roles and policies, VPC subnets, route tables and security groups, load balancers, and managed databases such as RDS and DynamoDB.",
+      "Senior rounds ask you to design on AWS: high availability across availability zones, cost control, serverless with Lambda and API Gateway, queues and event-driven designs (SQS, SNS, EventBridge), monitoring with CloudWatch, and security best practice such as least privilege and encryption."
+    ],
+    "tech": "aws",
+    "limit": 80,
+    "links": [
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Microservices interview questions",
+        "url": "/microservices-interview-questions"
+      },
+      {
+        "label": "Kafka interview questions",
+        "url": "/kafka-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is the difference between a security group and a network ACL?",
+        "a": "A security group is a stateful firewall at the instance level; a network ACL is a stateless firewall at the subnet level, with separate inbound and outbound rules."
+      },
+      {
+        "q": "When would you use Lambda instead of EC2?",
+        "a": "For short, event-driven or spiky workloads where you do not want to manage servers. Use EC2 for long-running processes, special hardware or predictable steady load."
+      },
+      {
+        "q": "How do you make an application highly available on AWS?",
+        "a": "Run across multiple availability zones behind a load balancer, use auto scaling, keep state in managed multi-AZ services, and test failover."
+      }
+    ]
+  },
+  {
+    "path": "/behavioral-interview-questions",
+    "title": "Behavioral Interview Questions and Answers (STAR Method, Leadership)",
+    "description": "Behavioral interview questions with sample answers: conflict, failure, leadership, ownership, ambiguity and teamwork, using the STAR method. Free sample, practise and revise.",
+    "h1": "Behavioral Interview Questions and Answers",
+    "intro": [
+      "Behavioral rounds ask for evidence, not opinions: a specific time you resolved a conflict, handled failure, led without authority, disagreed with a decision or delivered under ambiguity. The STAR structure (situation, task, action, result) keeps answers short and concrete.",
+      "Strong answers name your own actions (not the team's), include a measurable result and end with what you learned. Prepare six to eight stories that can each answer several questions, and map them to the company's stated values. The examples below show how to shape them."
+    ],
+    "tech": "behavioral",
+    "limit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is the STAR method?",
+        "a": "A way to structure a story: Situation and Task set the context briefly, Action is what you did, and Result is the outcome with numbers where possible."
+      },
+      {
+        "q": "How many stories should I prepare?",
+        "a": "Six to eight strong ones, covering conflict, failure, leadership, ownership, ambiguity and a technical achievement. One story can often answer several questions."
+      },
+      {
+        "q": "How do I answer a question about a failure?",
+        "a": "Pick a real, bounded failure, own your part, explain what you changed afterwards and show the improved result. Avoid blaming others or choosing a fake weakness."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/array",
+    "title": "Array Problems from Real Interviews, with Solutions",
+    "description": "Array coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Array Problems for Coding Interviews",
+    "intro": [
+      "Arrays are the most common interview data structure, because nearly every problem can be phrased over one. The patterns that unlock most of them are two pointers, sliding window, prefix sums, in-place swaps and sorting first. Learn to recognise which pattern a statement hints at before writing any code.",
+      "Practise by reading the constraints: a sorted input suggests two pointers or binary search; a subarray with a sum or length condition suggests a sliding window or prefix sums; in-place with O(1) space suggests swapping and index tricks. Each problem below links to a runnable editor with test cases."
+    ],
+    "problemTopic": "Array",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at array problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run array problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/string",
+    "title": "String Problems from Real Interviews, with Solutions",
+    "description": "String coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "String Problems for Coding Interviews",
+    "intro": [
+      "String problems test careful indexing and the right data structure: a hash map of counts, two pointers for palindromes, a sliding window for substrings and a stack for brackets. Know how your language stores strings, because immutability changes the cost of building them.",
+      "Common themes are anagrams, palindromes, longest substring conditions, parsing and matching. Practise stating the complexity of your solution and the edge cases (empty string, one character, repeated characters). Open any problem to run your code against test cases."
+    ],
+    "problemTopic": "String",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at string problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run string problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/hash-table",
+    "title": "Hash Table Problems from Real Interviews, with Solutions",
+    "description": "Hash Table coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Hash Table Problems for Coding Interviews",
+    "intro": [
+      "A hash table trades memory for speed: constant-time lookups turn many quadratic solutions into linear ones. The classic uses are counting frequencies, finding a complement (two sum), grouping by a key and detecting duplicates or cycles.",
+      "When a brute-force solution compares every pair, ask whether remembering what you have already seen would let you answer in one pass. Practise choosing the right key, handling collisions in your explanation and bounding the memory you use."
+    ],
+    "problemTopic": "Hash Table",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at hash table problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run hash table problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/tree",
+    "title": "Tree Problems from Real Interviews, with Solutions",
+    "description": "Tree coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Tree Problems for Coding Interviews",
+    "intro": [
+      "Tree problems reward recursion: define what a function returns for one node assuming its children are solved, then combine. Depth-first traversals (pre-order, in-order, post-order) and breadth-first level order cover most questions.",
+      "Know the properties of a binary search tree, how to compute height, diameter and lowest common ancestor, and how to serialise a tree. Practise writing both the recursive and the iterative version and stating the space cost of the call stack."
+    ],
+    "problemTopic": "Tree",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at tree problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run tree problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/backtracking",
+    "title": "Backtracking Problems from Real Interviews, with Solutions",
+    "description": "Backtracking coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Backtracking Problems for Coding Interviews",
+    "intro": [
+      "Backtracking builds a solution step by step and undoes a choice when it cannot lead to an answer. It is the tool for permutations, combinations, subsets, board puzzles and constraint problems, where you must explore many possibilities.",
+      "The template is choose, explore, un-choose. The skill is pruning: stop early when a partial solution already breaks a rule, and avoid repeated work by sorting or skipping duplicates. Practise estimating the size of the search space."
+    ],
+    "problemTopic": "Backtracking",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at backtracking problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run backtracking problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/binary-search",
+    "title": "Binary Search Problems from Real Interviews, with Solutions",
+    "description": "Binary Search coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Binary Search Problems for Coding Interviews",
+    "intro": [
+      "Binary search is not only for sorted arrays: it works whenever you can test a yes or no condition that flips exactly once. That includes searching an answer range (minimum capacity, smallest speed) as well as finding a position.",
+      "Most bugs come from off-by-one boundaries. Fix a convention (inclusive or exclusive bounds, which half to keep) and use it every time. Practise lower bound, upper bound, rotated arrays and search on the answer."
+    ],
+    "problemTopic": "Binary Search",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at binary search problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run binary search problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/linked-list",
+    "title": "Linked List Problems from Real Interviews, with Solutions",
+    "description": "Linked List coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Linked List Problems for Coding Interviews",
+    "intro": [
+      "Linked list questions test pointer handling under pressure: reversing a list, detecting a cycle, merging sorted lists and finding the middle. A dummy head node and the fast and slow pointer technique remove most of the special cases.",
+      "Draw the pointers before coding and update them in the right order so you never lose the rest of the list. Practise doing each task in one pass and O(1) extra space, and test the empty list and single node."
+    ],
+    "problemTopic": "Linked List",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at linked list problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run linked list problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/two-pointers",
+    "title": "Two Pointers Problems from Real Interviews, with Solutions",
+    "description": "Two Pointers coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Two Pointers Problems for Coding Interviews",
+    "intro": [
+      "Two pointers turns a quadratic scan into a linear one by moving two indexes through the data with a rule for which one advances. It works on sorted arrays, on palindromes and when partitioning in place.",
+      "Decide what each pointer means and why the move is safe (it never skips a better answer). Practise the variants: opposite ends, same direction (fast and slow) and one pointer reading while the other writes."
+    ],
+    "problemTopic": "Two Pointers",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at two pointers problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run two pointers problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/stack",
+    "title": "Stack Problems from Real Interviews, with Solutions",
+    "description": "Stack coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Stack Problems for Coding Interviews",
+    "intro": [
+      "A stack fits any problem with nested or most-recent-first structure: matching brackets, evaluating expressions, undo history and parsing. The monotonic stack finds the next greater or smaller element in linear time.",
+      "Look for the phrase next greater, previous smaller or nearest valid. Practise explaining what the stack holds at each step and why elements are popped, and bound the total work by showing each item is pushed and popped once."
+    ],
+    "problemTopic": "Stack",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at stack problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run stack problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/greedy",
+    "title": "Greedy Problems from Real Interviews, with Solutions",
+    "description": "Greedy coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Greedy Problems for Coding Interviews",
+    "intro": [
+      "A greedy algorithm makes the best local choice at each step and never revisits it. It is correct only when a local optimum leads to a global one, so the interview is about justifying the choice, usually with an exchange argument.",
+      "Typical problems are interval scheduling, jump game, gas station and assigning resources. Practise sorting by the right key, then compare with a dynamic programming solution to see why the greedy one is valid or fails."
+    ],
+    "problemTopic": "Greedy",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at greedy problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run greedy problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/dsa/bit-manipulation",
+    "title": "Bit Manipulation Problems from Real Interviews, with Solutions",
+    "description": "Bit Manipulation coding problems asked in real interviews at top companies: practise online in 11 languages with test cases, and see the pattern behind each one.",
+    "h1": "Bit Manipulation Problems for Coding Interviews",
+    "intro": [
+      "Bit manipulation uses the binary form of numbers for compact state and fast tricks: XOR to find the odd one out, masks for subsets, shifts for powers of two and counting set bits. Many problems that look like maths reduce to a bitwise identity.",
+      "Know the operators and their precedence, how negative numbers are stored and how to test, set and clear a bit. Practise single number, counting bits, power of two and subset enumeration with a bitmask."
+    ],
+    "problemTopic": "Bit Manipulation",
+    "problemLimit": 60,
+    "links": [
+      {
+        "label": "Sliding window problems",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "Dynamic programming problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How do I get good at bit manipulation problems?",
+        "a": "Solve a few problems of each difficulty, name the pattern after you solve each one, and revisit the ones you needed hints for a week later. The list on this page is ordered so you can start with the basic ones."
+      },
+      {
+        "q": "Can I run bit manipulation problems online here?",
+        "a": "Yes. Every problem opens in an editor that runs your code against test cases in Java, Python, C++, Go, JavaScript and six more languages, with no setup."
+      }
+    ]
+  },
+  {
+    "path": "/companies/amazon/coding-interview-questions",
+    "title": "Amazon Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Amazon interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Amazon Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Amazon in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Amazon tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Amazon",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Amazon problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Amazon interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/google/coding-interview-questions",
+    "title": "Google Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Google interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Google Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Google in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Google tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Google",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Google problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Google interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/meta/coding-interview-questions",
+    "title": "Meta Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Meta interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Meta Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Meta in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Meta tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Meta",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Meta problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Meta interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/microsoft/coding-interview-questions",
+    "title": "Microsoft Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Microsoft interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Microsoft Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Microsoft in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Microsoft tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Microsoft",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Microsoft problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Microsoft interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/apple/coding-interview-questions",
+    "title": "Apple Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Apple interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Apple Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Apple in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Apple tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Apple",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Apple problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Apple interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/oracle/coding-interview-questions",
+    "title": "Oracle Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Oracle interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Oracle Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Oracle in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Oracle tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Oracle",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Oracle problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Oracle interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/uber/coding-interview-questions",
+    "title": "Uber Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Uber interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Uber Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Uber in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Uber tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Uber",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Uber problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Uber interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/goldman-sachs/coding-interview-questions",
+    "title": "Goldman Sachs Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Goldman Sachs interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Goldman Sachs Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Goldman Sachs in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Goldman Sachs tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Goldman Sachs",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Goldman Sachs problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Goldman Sachs interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/tcs/coding-interview-questions",
+    "title": "TCS Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in TCS interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "TCS Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at TCS in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns TCS tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "TCS",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the TCS problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact TCS interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/zoho/coding-interview-questions",
+    "title": "Zoho Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Zoho interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Zoho Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Zoho in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Zoho tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Zoho",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Zoho problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Zoho interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/salesforce/coding-interview-questions",
+    "title": "Salesforce Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Salesforce interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Salesforce Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Salesforce in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Salesforce tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Salesforce",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Salesforce problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Salesforce interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/infosys/coding-interview-questions",
+    "title": "Infosys Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Infosys interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Infosys Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Infosys in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Infosys tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Infosys",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Infosys problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Infosys interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/flipkart/coding-interview-questions",
+    "title": "Flipkart Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Flipkart interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Flipkart Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Flipkart in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Flipkart tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Flipkart",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Flipkart problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Flipkart interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/companies/adobe/coding-interview-questions",
+    "title": "Adobe Coding Interview Questions: Problems Asked, with Practice",
+    "description": "Coding problems reported as asked in Adobe interviews and online assessments. Practise each one online in 11 languages with test cases.",
+    "h1": "Adobe Coding Interview Questions",
+    "intro": [
+      "These are the coding problems tagged as asked at Adobe in interviews and online assessments reported by candidates. Use the list to see which topics repeat, then solve the problems in order of difficulty: basics first, then the intermediate and advanced ones.",
+      "Reported questions change over time and are not a guarantee of what you will be asked, so treat them as a map of the patterns Adobe tends to test rather than a list to memorise. For each problem, practise explaining your approach, its time and space cost and the edge cases before you write the code."
+    ],
+    "problemCompany": "Adobe",
+    "problemLimit": 80,
+    "links": [
+      {
+        "label": "Company interview roadmaps",
+        "url": "/roadmaps"
+      },
+      {
+        "label": "Practice coding problems online",
+        "url": "/problems"
+      },
+      {
+        "label": "System design interview questions",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "SDE-2 interview preparation",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "All interview question topics",
+        "url": "/interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "How should I use the Adobe problem list?",
+        "a": "Sort by the topics you are weakest in, solve a problem under a timer, then read the explanation. Repeat until the patterns feel familiar, and finish with a mock interview."
+      },
+      {
+        "q": "Are these the exact Adobe interview questions?",
+        "a": "They are problems candidates reported being asked. Companies rotate questions, so use them to learn the patterns, not to predict the exact question."
+      }
+    ]
+  },
+  {
+    "path": "/interview-questions",
+    "title": "Interview Questions and Answers by Topic and Company",
+    "description": "Every InterviewReader interview guide in one place: Java, React, Node.js, SQL, Go, system design, Kafka, DSA topics and company coding problems, each with answers and practice.",
+    "h1": "Interview Questions by Topic and Company",
+    "intro": [
+      "Choose a topic to see its interview questions with worked answers, a DSA pattern to practise coding problems, or a company to see the problems reported in its interviews. Every page links to runnable practice and to the next topic worth studying.",
+      "If you are not sure where to start, begin with the language or framework you use at work, add system design and behavioral rounds if you are aiming for senior roles, and use the company pages to tune the last two weeks of preparation."
+    ],
+    "links": [
+      {
+        "label": "Java Interview Questions and Answers",
+        "url": "/java-interview-questions"
+      },
+      {
+        "label": "Spring Boot Interview Questions and Answers",
+        "url": "/spring-boot-interview-questions"
+      },
+      {
+        "label": "LLD (Low-Level Design) Interview Questions",
+        "url": "/lld-interview-questions"
+      },
+      {
+        "label": "SDE-2 Interview Preparation Guide",
+        "url": "/sde-2-preparation"
+      },
+      {
+        "label": "Amazon SDE-2 Interview Preparation",
+        "url": "/companies/amazon/sde-2"
+      },
+      {
+        "label": "Kafka Interview Questions and Answers",
+        "url": "/kafka-interview-questions"
+      },
+      {
+        "label": "Sliding Window Problems for Coding Interviews",
+        "url": "/dsa/sliding-window"
+      },
+      {
+        "label": "System Design Interview Questions and Answers",
+        "url": "/system-design-interview-questions"
+      },
+      {
+        "label": "Google SDE-2 Interview Guide",
+        "url": "/companies/google/sde-2"
+      },
+      {
+        "label": "Meta SDE-2 Interview Guide",
+        "url": "/companies/meta/sde-2"
+      },
+      {
+        "label": "Microsoft SDE-2 Interview Guide",
+        "url": "/companies/microsoft/sde-2"
+      },
+      {
+        "label": "Dynamic Programming Interview Problems",
+        "url": "/dsa/dynamic-programming"
+      },
+      {
+        "label": "Graph Interview Problems",
+        "url": "/dsa/graph"
+      },
+      {
+        "label": "React Interview Questions and Answers",
+        "url": "/react-interview-questions"
+      },
+      {
+        "label": "Node.js Interview Questions and Answers",
+        "url": "/node-js-interview-questions"
+      },
+      {
+        "label": "SQL Interview Questions and Answers",
+        "url": "/sql-interview-questions"
+      },
+      {
+        "label": "Go (Golang) Interview Questions and Answers",
+        "url": "/golang-interview-questions"
+      },
+      {
+        "label": "Microservices Interview Questions and Answers",
+        "url": "/microservices-interview-questions"
+      },
+      {
+        "label": "Angular Interview Questions and Answers",
+        "url": "/angular-interview-questions"
+      },
+      {
+        "label": "Ruby on Rails Interview Questions and Answers",
+        "url": "/ruby-on-rails-interview-questions"
+      },
+      {
+        "label": "AWS Interview Questions and Answers",
+        "url": "/aws-interview-questions"
+      },
+      {
+        "label": "Behavioral Interview Questions and Answers",
+        "url": "/behavioral-interview-questions"
+      },
+      {
+        "label": "Array Problems for Coding Interviews",
+        "url": "/dsa/array"
+      },
+      {
+        "label": "String Problems for Coding Interviews",
+        "url": "/dsa/string"
+      },
+      {
+        "label": "Hash Table Problems for Coding Interviews",
+        "url": "/dsa/hash-table"
+      },
+      {
+        "label": "Tree Problems for Coding Interviews",
+        "url": "/dsa/tree"
+      },
+      {
+        "label": "Backtracking Problems for Coding Interviews",
+        "url": "/dsa/backtracking"
+      },
+      {
+        "label": "Binary Search Problems for Coding Interviews",
+        "url": "/dsa/binary-search"
+      },
+      {
+        "label": "Linked List Problems for Coding Interviews",
+        "url": "/dsa/linked-list"
+      },
+      {
+        "label": "Two Pointers Problems for Coding Interviews",
+        "url": "/dsa/two-pointers"
+      },
+      {
+        "label": "Stack Problems for Coding Interviews",
+        "url": "/dsa/stack"
+      },
+      {
+        "label": "Greedy Problems for Coding Interviews",
+        "url": "/dsa/greedy"
+      },
+      {
+        "label": "Bit Manipulation Problems for Coding Interviews",
+        "url": "/dsa/bit-manipulation"
+      },
+      {
+        "label": "Amazon Coding Interview Questions",
+        "url": "/companies/amazon/coding-interview-questions"
+      },
+      {
+        "label": "Google Coding Interview Questions",
+        "url": "/companies/google/coding-interview-questions"
+      },
+      {
+        "label": "Meta Coding Interview Questions",
+        "url": "/companies/meta/coding-interview-questions"
+      },
+      {
+        "label": "Microsoft Coding Interview Questions",
+        "url": "/companies/microsoft/coding-interview-questions"
+      },
+      {
+        "label": "Apple Coding Interview Questions",
+        "url": "/companies/apple/coding-interview-questions"
+      },
+      {
+        "label": "Oracle Coding Interview Questions",
+        "url": "/companies/oracle/coding-interview-questions"
+      },
+      {
+        "label": "Uber Coding Interview Questions",
+        "url": "/companies/uber/coding-interview-questions"
+      },
+      {
+        "label": "Goldman Sachs Coding Interview Questions",
+        "url": "/companies/goldman-sachs/coding-interview-questions"
+      },
+      {
+        "label": "TCS Coding Interview Questions",
+        "url": "/companies/tcs/coding-interview-questions"
+      },
+      {
+        "label": "Zoho Coding Interview Questions",
+        "url": "/companies/zoho/coding-interview-questions"
+      },
+      {
+        "label": "Salesforce Coding Interview Questions",
+        "url": "/companies/salesforce/coding-interview-questions"
+      },
+      {
+        "label": "Infosys Coding Interview Questions",
+        "url": "/companies/infosys/coding-interview-questions"
+      },
+      {
+        "label": "Flipkart Coding Interview Questions",
+        "url": "/companies/flipkart/coding-interview-questions"
+      },
+      {
+        "label": "Adobe Coding Interview Questions",
+        "url": "/companies/adobe/coding-interview-questions"
+      }
+    ],
+    "faq": [
+      {
+        "q": "Where should I start preparing for interviews?",
+        "a": "Start with the language or framework you use, then add data structures and algorithms, then system design and behavioral rounds. The role-wise tracks give an ordered path."
+      },
+      {
+        "q": "Are the answers free?",
+        "a": "A free sample of every topic is open to everyone, and a free account unlocks more. Premium adds the remaining answers and extra practice."
+      }
+    ]
   }
 ]
