@@ -16,7 +16,7 @@ export const greeting = (h = new Date().getHours()) => (h < 5 ? 'Still up' : h <
 
 // Where to go next: [label, hint, href, icon]
 const EXPLORE = [
-  ['Interview questions', 'Every topic with worked answers', '/', '📚'],
+  ['Interview questions', 'Every topic with worked answers', '/questions', '📚'],
   ['Practice coding', 'Run code against test cases', '/problems', '💻'],
   ['Company roadmaps', 'Round by round, per company', '/roadmaps', '🧭'],
   ['Mock interview', 'Live practice with scoring', '/interview', '🎤'],
@@ -50,7 +50,7 @@ export default function DashboardPage() {
   const [rank, setRank] = useState(null)
 
   useEffect(() => {
-    setPageSeo({ title: 'Your dashboard | InterviewReader', description: 'Your streak, points, weekly rank, progress and daily challenge.', path: '/dashboard', noindex: true })
+    setPageSeo({ title: 'Your dashboard | InterviewReader', description: 'Your streak, points, weekly rank, progress and daily challenge.', path: window.location.pathname === '/' ? '/' : '/dashboard', noindex: true })
     if (!authed) return
     fetchPoints().then(setPts).catch(() => setPts({}))
     fetchProgress().then(p => setRead(count(p.read))).catch(() => setRead(0))
@@ -100,7 +100,7 @@ export default function DashboardPage() {
             ) : <h2 className="mt-2 text-xl font-bold">A new question and problem every day</h2>}
             <div className="mt-5 flex flex-wrap gap-2">
               <a href="/question-of-the-day" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50">Take today's challenge →</a>
-              <a href="/" className="rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/25">Pick a topic</a>
+              <a href="/questions" className="rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/25">Pick a topic</a>
             </div>
           </div>
           <div className={tile}>

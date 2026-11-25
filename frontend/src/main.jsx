@@ -38,7 +38,7 @@ const PremiumPage = lazy(() => import('./components/PremiumPage.jsx'))
 import FeedbackButton from './components/FeedbackButton.jsx'
 const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage.jsx'))
 import { trackView } from './lib/analytics.js'
-import { syncSession } from './lib/auth.js'
+import { syncSession, isLoggedIn } from './lib/auth.js'
 const PracticePage = lazy(() => import('./components/PracticePage.jsx'))
 const RoadmapsPage = lazy(() => import('./components/RoadmapsPage.jsx'))
 const DesignPracticePage = lazy(() => import('./components/DesignPracticePage.jsx'))
@@ -108,7 +108,8 @@ function Routes() {
 
   if (path === '/dashboard') return <DashboardPage />
 
-  if (path === '/') return <HomePage />
+  // Signed-in members land on their dashboard; visitors (and Googlebot) get the public home page. The reader lives at /questions.
+  if (path === '/') return isLoggedIn() ? <DashboardPage /> : <HomePage />
 
   if (path === '/roadmaps' || path.startsWith('/roadmaps/')) return <RoadmapsPage />
 
