@@ -1,7 +1,31 @@
 // Company-wise salary data: shaping and filtering for the Salaries pages (the data itself comes from /api/public/salaries).
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082/api'
 
-export const NORMS = ['SDE-1 / Entry', 'SDE-2', 'SDE-3 / Senior', 'Staff / Principal+']
+export const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+// The common levels, each with its own public page: /salaries/level/<slug> and /salaries/<company>/<slug>.
+export const LEVELS = [
+  { slug: 'sde-1', norm: 'SDE-1 / Entry', name: 'SDE-1' },
+  { slug: 'sde-2', norm: 'SDE-2', name: 'SDE-2' },
+  { slug: 'sde-3', norm: 'SDE-3 / Senior', name: 'SDE-3' },
+  { slug: 'staff', norm: 'Staff / Principal+', name: 'Staff / Principal' },
+]
+export const NORMS = LEVELS.map(l => l.norm)
+export const levelBySlug = slug => LEVELS.find(l => l.slug === slug)
+export const levelOfNorm = norm => LEVELS.find(l => l.norm === norm)
+export const segmentBySlug = (segments, slug) => segments.find(x => slugify(x) === slug)
+
+/** Questions and answers about a company's pay (for a level when given); shown on the page and sent to search engines as FAQ data. */
+export function faqOf(company, level) {
+  const where = level ? `${company.name} ${level.name}` : company.name
+  const ls = levelsOf(company, level ? level.norm : '')
+  const lo = ls.reduce((a, l) => (l.inr < a.inr ? l : a)), hi = ls.reduce((a, l) => (l.inr > a.inr ? l : a))
+  const pay = rangeText(lo.lpa, hi.lpa, 'INR')
+  const items = [[`How much does ${where} pay in India?`, `${where} pays a median total of ${pay} a year in India, counting base salary, stock and bonus.`]]
+  if (!level && company.levels.length > 1) items.push([`What is the highest paying level at ${company.name}?`, `${company.levels[company.levels.length - 1].level} is the highest reported level at ${company.name}, at a median of ${lpa(company.levels[company.levels.length - 1].lpa, 'INR')} a year.`])
+  if (level) items.push([`What experience does a ${where} role need?`, `${ls.map(l => l.yoe && `${l.level} usually needs ${l.yoe}`).filter(Boolean).join('; ') || 'Experience varies by team.'}.`])
+  return items
+}
+export const faqJsonLd = items => ({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) })
 export const SORTS = [['top', 'Highest pay'], ['low', 'Lowest pay'], ['name', 'Company name']]
 
 let cache
