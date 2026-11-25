@@ -37,6 +37,8 @@ public class QuestionController {
                     "id", (String) r[0],
                     "slug", slugify(text),
                     "tech", (String) r[3],
+                    // true when a signed-out visitor (and a crawler) can read the answer; the sitemap lists only those
+                    "open", String.valueOf(access.freeTechs().contains(((String) r[3]).toLowerCase()) && access.isOpenToAll((String) r[0], (String) r[3])),
                     "lastmod", changed == null ? "" : changed.toString().substring(0, 10));
         }).toList();
         return ResponseEntity.ok()

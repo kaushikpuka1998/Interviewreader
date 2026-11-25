@@ -59,8 +59,12 @@ async function fetchAll() {
   // Preferred: one call that returns every question's slug and last change.
   try {
     const index = await fetchJson('/questions/index')
-    console.log(`Question index: ${index.length} questions`)
-    return index.map(e => ({ question: e.slug, _isSlug: true, updatedAt: e.lastmod || undefined, id: e.id }))
+    // List only questions whose answer a signed-out visitor can read. A members-only page shows just the question, which Google
+    // files under "Discovered - currently not indexed"; submitting thousands of them lowers how much it trusts the rest.
+    // (An older backend without the "open" flag lists everything, as before.)
+    const open = index.filter(e => e.open !== 'false')
+    console.log(`Question index: ${index.length} questions, ${open.length} readable without an account`)
+    return open.map(e => ({ question: e.slug, _isSlug: true, updatedAt: e.lastmod || undefined, id: e.id }))
   } catch (err) {
     console.warn(`/questions/index unavailable (${err.message}).`)
     console.warn('  Deploy the backend with the question index to list every question; using the paged list for now.')

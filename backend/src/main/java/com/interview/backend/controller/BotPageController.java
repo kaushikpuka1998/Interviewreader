@@ -152,7 +152,10 @@ public class BotPageController {
     private String question(String path, Question q) {
         boolean readable = access.freeTechs().contains(q.getTech()) && access.isOpenToAll(q.getId(), q.getTech());
         String text = q.getQuestion() != null && !q.getQuestion().isBlank() ? q.getQuestion() : q.getTitle();
-        String url = site + path + "?id=" + q.getId();
+        // Canonical is the plain slug (the sitemap and the app use it); ?id= is kept only when two questions share a slug.
+        boolean uniqueSlug = q.getId().equals(index().slugToId().get(path.substring(1)));
+        String canonicalPath = uniqueSlug ? path : path + "?id=" + q.getId();
+        String url = site + canonicalPath;
         StringBuilder b = new StringBuilder("<article><h1>").append(esc(text)).append("</h1><p>Topic: ").append(esc(q.getTech()))
                 .append(q.getCategory() == null ? "" : ", " + esc(q.getCategory())).append(q.getDifficulty() == null ? "" : ". Level: " + esc(q.getDifficulty())).append(".</p>");
         String ld = "";
@@ -174,7 +177,9 @@ public class BotPageController {
             b.append("<p>The full answer to this question is available to InterviewReader members. <a href=\"").append(esc(site + "/premium")).append("\">See what is free and what Premium adds</a>.</p>");
         }
         b.append("</article>");
-        return shell(text + " | " + q.getTech() + " interview question", path + "?id=" + q.getId(), b.toString(), description, ld);
+        // A members-only question has no answer to show: keep that thin page out of the index.
+        if (ld.isEmpty()) ld = "<meta name=\"robots\" content=\"noindex, follow\">";
+        return shell(text + " | " + q.getTech() + " interview question", canonicalPath, b.toString(), description, ld);
     }
 
     // ---------- helpers ----------
