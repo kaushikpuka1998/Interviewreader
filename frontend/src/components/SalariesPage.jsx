@@ -4,7 +4,20 @@ import Footer from './Footer.jsx'
 import Loader from './Loader.jsx'
 import NotFound from './NotFound.jsx'
 import { setPageSeo } from '../lib/seo.js'
-import { NORMS, SORTS, fetchSalaries, lpa, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
+import { CURRENCIES, NORMS, SORTS, fetchSalaries, getCurrency, lpa, setCurrency, pick, rangeText, similar, spanOf } from '../lib/salaries.js'
+
+// The company's favicon, guessed from its name (amazon -> amazon.com). A guess that misses (the service answers 404) falls back to a coloured initial.
+function CompanyLogo({ name, slug, size = 'h-11 w-11' }) {
+  const [ok, setOk] = useState(false)   // the logo covers the initial only once it has loaded; until then (or if it never does) the initial shows
+  const hue = [...slug].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 360, 7)
+  return (
+    <span className={`${size} relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 dark:ring-slate-700`} style={{ backgroundColor: `hsl(${hue} 70% 92%)` }} aria-hidden="true">
+      <span className="text-base font-extrabold" style={{ color: `hsl(${hue} 55% 30%)` }}>{name.trim().charAt(0).toUpperCase()}</span>
+      <img src={`https://www.google.com/s2/favicons?domain=${slug.replace(/-/g, '')}.com&sz=64`} alt="" loading="lazy" referrerPolicy="no-referrer"
+        className={`absolute inset-0 h-full w-full bg-white object-contain p-1.5 ${ok ? '' : 'opacity-0'}`} onLoad={() => setOk(true)} onError={() => setOk(false)} />
+    </span>
+  )
+}
 
 const card = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950'
 const chip = on => `rounded-full px-3 py-1.5 text-sm font-semibold transition ${on ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700'}`
@@ -14,6 +27,7 @@ const PAGE = 48
 export default function SalariesPage({ slug }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
+  const [cur, setCur] = useState(getCurrency)   // the shown currency; changing it re-renders every amount below
   useEffect(() => { fetchSalaries().then(setData).catch(() => setError(true)) }, [])
   const company = slug && data ? data.companies.find(c => c.slug === slug) : null
 
@@ -23,7 +37,7 @@ export default function SalariesPage({ slug }) {
       if (!company) return
       const s = spanOf(company)
       setPageSeo({ title: `${company.name} Software Engineer Salary in India by Level`, path: `/salaries/${slug}`,
-        description: `${company.name} software engineer salaries in India by level: median total pay ${rangeText(s.min, s.max)} across ${s.count} level${s.count > 1 ? 's' : ''}, with the experience each level usually needs.` })
+        description: `${company.name} software engineer salaries in India by level: median total pay ${rangeText(s.min, s.max, 'INR')} across ${s.count} level${s.count > 1 ? 's' : ''}, with the experience each level usually needs.` })
     } else {
       setPageSeo({ title: 'Software Engineer Salaries in India by Company and Level', path: '/salaries',
         description: `Median total pay for software engineers in India at ${data.companies.length} companies, by level: SDE-1 to Staff and Principal. Search a company and compare.` })
@@ -37,6 +51,13 @@ export default function SalariesPage({ slug }) {
         <div className="mx-auto max-w-5xl space-y-5">
           {error && <NotFound title="Salaries are not available" message="Please try again in a moment." />}
           {!data && !error && <Loader label="Loading salaries…" />}
+          {data && data.companies.length > 0 && (
+            <div className="flex flex-wrap items-center justify-end gap-2" role="group" aria-label="Currency">
+              <span className="text-xs font-semibold text-slate-500">Show pay in</span>
+              {Object.keys(CURRENCIES).map(c => <button key={c} type="button" onClick={() => { setCurrency(c); setCur(c) }} aria-pressed={cur === c} className={`${chip(cur === c)} !px-2.5 !py-1 !text-xs`}>{c}</button>)}
+              {cur !== 'INR' && <span className="basis-full text-right text-[11px] text-slate-400">Approximate conversion from rupees at fixed rates, not live exchange rates.</span>}
+            </div>
+          )}
           {data && data.companies.length > 0 && slug && (company ? <CompanyView company={company} all={data.companies} /> : <NotFound title="Company not found" message="We have no salary data for this company." />)}
           {data && !data.companies.length && <NotFound title="Salaries are loading" message="The salary data is still being prepared. Refresh in a moment." />}
           {data && data.companies.length > 0 && !slug && <Index data={data} />}
@@ -82,8 +103,13 @@ function Index({ data }) {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.slice(0, shown).map(({ company: c, span }) => (
           <a key={c.slug} href={`/salaries/${c.slug}`} className={`${card} group transition hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-md`}>
-            <p className="truncate text-base font-bold text-slate-900 group-hover:text-emerald-600 dark:text-white">{c.name}</p>
-            <p className="truncate text-xs text-slate-500">{c.segment || 'Software company'}</p>
+            <div className="flex items-center gap-3">
+              <CompanyLogo name={c.name} slug={c.slug} />
+              <div className="min-w-0">
+                <p className="truncate text-base font-bold text-slate-900 group-hover:text-emerald-600 dark:text-white">{c.name}</p>
+                <p className="truncate text-xs text-slate-500">{c.segment || 'Software company'}</p>
+              </div>
+            </div>
             <p className="mt-3 text-xl font-extrabold tabular-nums text-emerald-700 dark:text-emerald-300">{rangeText(span.min, span.max)}</p>
             <p className="mt-0.5 text-xs text-slate-500">{norm ? norm : `${span.count} level${span.count > 1 ? 's' : ''}`}{!norm && c.median ? ` · median ${lpa(c.median)}` : ''}</p>
           </a>
@@ -106,8 +132,13 @@ function CompanyView({ company, all }) {
     <>
       <nav className="text-sm"><a href="/salaries" className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400">← All company salaries</a></nav>
       <header className={card}>
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{company.name} software engineer salaries in India</h1>
-        <p className="mt-1 text-sm text-slate-500">{company.segment || 'Software company'} · median total pay per year (base, stock and bonus)</p>
+        <div className="flex items-center gap-4">
+          <CompanyLogo name={company.name} slug={company.slug} size="h-14 w-14" />
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white sm:text-3xl">{company.name} software engineer salaries in India</h1>
+            <p className="mt-1 text-sm text-slate-500">{company.segment || 'Software company'} · median total pay per year (base, stock and bonus)</p>
+          </div>
+        </div>
         {company.levels.length > 1 && (
           <div className="mt-4 flex flex-wrap gap-2" aria-label="Level">
             <button type="button" className={chip(!pickLevel)} onClick={() => setPickLevel('')}>All levels</button>
@@ -171,7 +202,7 @@ function CompanyView({ company, all }) {
         <section>
           <h2 className="mb-2 text-sm font-bold uppercase tracking-[.14em] text-slate-500">Similar companies</h2>
           <div className="flex flex-wrap gap-2">
-            {near.map(c => { const s = spanOf(c); return <a key={c.slug} href={`/salaries/${c.slug}`} className="rounded-xl bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-emerald-400 dark:bg-slate-950 dark:ring-slate-800"><b className="text-slate-900 dark:text-white">{c.name}</b> <span className="text-slate-500">{rangeText(s.min, s.max)}</span></a> })}
+            {near.map(c => { const s = spanOf(c); return <a key={c.slug} href={`/salaries/${c.slug}`} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-slate-200 hover:ring-emerald-400 dark:bg-slate-950 dark:ring-slate-800"><CompanyLogo name={c.name} slug={c.slug} size="h-6 w-6" /><b className="text-slate-900 dark:text-white">{c.name}</b> <span className="text-slate-500">{rangeText(s.min, s.max)}</span></a> })}
           </div>
         </section>
       )}

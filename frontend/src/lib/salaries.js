@@ -11,12 +11,30 @@ export const fetchSalaries = () => (cache ||= fetch(`${API_BASE}/public/salaries
   .then(d => { if (!d.companies?.length) cache = undefined; return d })
   .catch(e => { cache = undefined; throw e }))
 
-const amt = v => { const n = Number(v); return n >= 100 ? [`₹${Number((n / 100).toFixed(2))}`, 'Cr'] : [`₹${n}`, 'LPA'] }   // the data says "38.0"; show 38. 100 LPA and up is crore
-export const lpa = v => amt(v).join(' ')
-export const rangeText = (min, max) => {
-  const [a, au] = amt(min), [b, bu] = amt(max)
-  if (Number(min) === Number(max)) return `${a} ${au}`
-  return au === bu ? `${a} – ${b} ${bu}` : `${a} ${au} – ${b} ${bu}`
+// Rupees per unit: approximate fixed rates for a rough comparison, not live exchange rates.
+export const CURRENCIES = { INR: { sym: '₹', rate: 1 }, USD: { sym: '$', rate: 88 }, EUR: { sym: '€', rate: 102 }, GBP: { sym: '£', rate: 116 }, AED: { sym: 'AED ', rate: 24 }, SGD: { sym: 'S$', rate: 68 }, CAD: { sym: 'C$', rate: 63 }, AUD: { sym: 'A$', rate: 57 } }
+const KEY = 'ir_salary_currency'
+let current = 'INR'
+try { const c = localStorage.getItem(KEY); if (CURRENCIES[c]) current = c } catch { /* no storage: stay on rupees */ }
+export const getCurrency = () => current
+export function setCurrency(c) { if (!CURRENCIES[c]) return; current = c; try { localStorage.setItem(KEY, c) } catch { /* ignore */ } }
+
+const trim = n => Number(n.toFixed(2))
+// The data says "38.0"; show 38. In rupees 100 LPA and up is crore; in other currencies it is thousands (K) or millions (M).
+function amt(v, cur) {
+  const n = Number(v)
+  if (cur === 'INR') return n >= 100 ? [`₹${trim(n / 100)}`, 'Cr'] : [`₹${n}`, 'LPA']
+  const { sym, rate } = CURRENCIES[cur]
+  const k = (n * 100000) / rate / 1000   // thousands of the currency
+  return k >= 1000 ? [`${sym}${trim(k / 1000)}`, 'M'] : [`${sym}${Math.round(k)}`, 'K']
+}
+const join = ([a, u]) => (u === 'LPA' || u === 'Cr' ? `${a} ${u}` : `${a}${u}`)
+export const lpa = (v, cur = current) => join(amt(v, cur))
+export const rangeText = (min, max, cur = current) => {
+  const x = amt(min, cur), y = amt(max, cur)
+  if (Number(min) === Number(max)) return join(x)
+  if (x[1] === y[1]) return cur === 'INR' ? `${x[0]} – ${y[0]} ${y[1]}` : `${x[0]} – ${y[0]}${y[1]}`
+  return `${join(x)} – ${join(y)}`
 }
 
 /** The levels of a company that are the given common level (all of them when norm is empty). */
