@@ -23,7 +23,10 @@ function isOffline(err) {
 let questionIndex
 export function fetchQuestionIndex() {
   questionIndex ||= fetch(`${API_BASE}/questions/index`)
-    .then(res => { if (!res.ok) throw new Error('Failed to load the question index'); return res.json() })
+    .then(res => {
+      if (res.status === 401) { const e = new Error('Sign in to read this question'); e.signupRequired = true; throw e }
+      if (!res.ok) throw new Error('Failed to load the question index'); return res.json()
+    })
     .catch(err => { questionIndex = null; throw err })
   return questionIndex
 }
@@ -90,7 +93,7 @@ export async function fetchQuestions(opts) {
       const body = await res.json().catch(() => ({}))
       const err = new Error(body.message || 'Create a free account to view this topic')
       err.signupRequired = true          // App shows the sign-up prompt instead of an error
-      err.tech = body.tech
+      err.tech = body.tech || tech
       throw err
     }
     if (!res.ok) throw new Error('Failed to fetch questions')

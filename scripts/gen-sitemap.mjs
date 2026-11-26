@@ -19,7 +19,7 @@ const ROOT = join(__dirname, '..')
 
 // The backend has its own host; interviewreader.cloud/api is the frontend and answers every path with index.html.
 const API_BASE = process.env.API_BASE || 'https://api.interviewreader.cloud/api'
-// /questions/index lists every question (gated topics included, no answers), so no token is needed.
+// /questions/index lists every question (gated topics included, no answers) but now needs AUTH_TOKEN.
 // AUTH_TOKEN is only used by the old paged fallback for backends that don't have the index yet.
 const AUTH_TOKEN = process.env.AUTH_TOKEN || ''
 const SITE_URL = (process.env.SITE_URL || 'https://interviewreader.cloud').replace(/\/+$/, '')
@@ -132,7 +132,8 @@ async function fetchAll() {
 // Landing pages beyond the question reader, built from live data: every coding problem, every company's
 // problem list, each company type (FAANG, Big 4, ...) and each company roadmap. Each sets its own canonical.
 async function fetchJson(path, headers = {}) {
-  const res = await fetch(`${API_BASE}${path}`, { headers })
+  // The question and coding-problem APIs need a login now: set AUTH_TOKEN (the `token` cookie of any member).
+  const res = await fetch(`${API_BASE}${path}`, { headers: { ...(AUTH_TOKEN ? { Cookie: `token=${AUTH_TOKEN}` } : {}), ...headers } })
   if (!res.ok) throw new Error(`${path} returned ${res.status}`)
   if (!(res.headers.get('content-type') || '').includes('json'))
     throw new Error(`${API_BASE}${path} returned ${res.headers.get('content-type') || 'no content type'}, not JSON. Is API_BASE the backend?`)
