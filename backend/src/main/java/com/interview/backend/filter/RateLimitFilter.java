@@ -20,10 +20,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final int maxRequests;
     private final long windowMs;
+    // Public reads (questions, coding problems, /public/**): a generous per-IP cap so a script can't bulk-download the catalogue.
+    private final int readMax;
     // key -> [windowStartMillis, count]
     private final ConcurrentHashMap<String, long[]> buckets = new ConcurrentHashMap<>();
 
-    public RateLimitFilter(int maxRequests, long windowSeconds) {
+    public RateLimitFilter(int maxRequests, long windowSeconds, int readMaxRequests) {
+        this.readMax = readMaxRequests;
         this.maxRequests = maxRequests;
         this.windowMs = windowSeconds * 1000L;
     }
@@ -39,12 +42,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // minutes per open tab, which would exhaust the limit for people sharing an IP.
         boolean limited = "POST".equalsIgnoreCase(request.getMethod())
                 && uri != null && uri.contains("/auth/") && !uri.endsWith("/auth/refresh");
-        if (!limited) {
+        boolean scrape = !limited && "GET".equalsIgnoreCase(request.getMethod()) && uri != null
+                && (uri.contains("/questions") || uri.contains("/coding-problems") || uri.contains("/public/"));
+        if (!limited && !scrape) {
             chain.doFilter(request, response);
             return;
         }
+        int max = limited ? maxRequests : readMax;
 
-        String key = clientIp(request) + "|" + uri;
+        String key = clientIp(request) + "|" + (limited ? uri : "read");
         long now = System.currentTimeMillis();
 
         long[] state = buckets.compute(key, (k, v) -> {
@@ -58,7 +64,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // Cheap bound on map growth without a scheduler.
         if (buckets.size() > 10_000) buckets.clear();
 
-        if (state[1] > maxRequests) {
+        if (state[1] > max) {
             long retryAfter = Math.max(1, (windowMs - (now - state[0])) / 1000);
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setHeader("Retry-After", String.valueOf(retryAfter));

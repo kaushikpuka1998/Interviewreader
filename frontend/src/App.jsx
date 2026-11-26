@@ -238,6 +238,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     // page is idle, and one topic at a time (not all at once) so it never competes with what the reader is looking at.
     const conn = navigator.connection
     if (conn && (conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || ''))) return
+    if (!user) return   // the question API needs a login now: signed-out visitors don't sync (it only produced a wall of 401s)
     let cancelled = false
     const idle = window.requestIdleCallback || (fn => setTimeout(fn, 4000))
     idle(() => {
@@ -357,7 +358,7 @@ function App({ path = '/', onPathChange = () => {} }) {
         if (hit) setPendingUrlId(hit.id)
         else setUrlNotFound(true)
       })
-      .catch(() => setUrlNotFound(true))
+      .catch(err => err.signupRequired ? setUrlGate({ message: err.message }) : setUrlNotFound(true))
       .finally(() => setSlugLookup('done'))
   }, [loaded, slugLookup, bySlug])
 

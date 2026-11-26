@@ -39,6 +39,9 @@ public class SecurityConfig {
     @Value("${app.ratelimit.auth-window-seconds:60}")
     private long authWindowSeconds;
 
+    @Value("${app.ratelimit.read-max-requests:240}")
+    private int readMaxRequests;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -129,15 +132,21 @@ public class SecurityConfig {
                         .requestMatchers("/practice/**").authenticated()
                         // Public: auth
                         .requestMatchers("/auth/**", "/health").permitAll()
-                        // Reads are open so signed-out visitors can browse the free topics.
-                        // QuestionController enforces per-topic access (401 signup_required).
-                        // Companies and the rules above stay authenticated.
-                        .requestMatchers(HttpMethod.GET, "/questions/**").permitAll()
+                        // Question and coding-problem data needs a signed-in user (nothing is readable by URL alone).
+                        // Only the topic counts used by the signed-out landing/paywall stay open.
+                        // QuestionController still enforces per-topic access and masks Premium answers.
+                        .requestMatchers(HttpMethod.GET, "/questions/stats", "/questions/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/questions/**", "/coding-problems", "/coding-problems/**").authenticated()
                         // Progress + profile require a logged-in user
                         .requestMatchers("/progress/**", "/profile/**", "/points/**", "/linkedin-posts/**").authenticated()
-                        .anyRequest().permitAll())
+                        // Open to everyone: the signed-out shell (flags, notice, banner, landing copy), share/social pages for
+                        // crawlers, images embedded in answers, anonymous presence pings and feedback. Everything else needs a login.
+                        .requestMatchers(HttpMethod.GET, "/features", "/site-notice", "/public/banner", "/public/landing", "/public/landing/**",
+                                "/share/**", "/images/file/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/presence/ping", "/feedback", "/feedback/image").permitAll()
+                        .anyRequest().authenticated())
                 // Rate limiter runs first (before auth) to blunt brute-force on /auth/**.
-                .addFilterBefore(new RateLimitFilter(authMaxRequests, authWindowSeconds), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new RateLimitFilter(authMaxRequests, authWindowSeconds, readMaxRequests), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
