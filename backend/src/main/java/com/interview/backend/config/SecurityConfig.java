@@ -78,8 +78,12 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Not signed in (or the access token expired) = 401, so the page knows to refresh; signed in
                 // but not allowed (e.g. a member on an admin route) stays 403.
-                .exceptionHandling(e -> e.authenticationEntryPoint(
-                        new org.springframework.security.web.authentication.HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED)))
+                .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> {
+                    // Same 401 as before, now with a readable body instead of Chrome's blank "This page isn't working".
+                    res.setStatus(org.springframework.http.HttpStatus.UNAUTHORIZED.value());
+                    res.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+                    res.getWriter().write("{\"status\":401,\"error\":\"Unauthorized\"}");
+                }))
                 .authorizeHttpRequests(auth -> auth
                         // Company reports: any signed-in user may add/remove their own.
                         // MUST precede the admin-only /questions/** rules below, since
