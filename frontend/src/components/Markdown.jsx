@@ -38,6 +38,18 @@ function highlightCode(code) {
   return out
 }
 
+// Copies a code block's text; shows "Copied" for a moment.
+function CopyButton({ text }) {
+  const [done, setDone] = useState(false)
+  const copy = () => navigator.clipboard?.writeText(text).then(() => { setDone(true); setTimeout(() => setDone(false), 1500) }).catch(() => {})
+  return (
+    <button type="button" onClick={copy} aria-label="Copy code"
+      className="absolute top-1 right-2 z-10 px-2 py-0.5 rounded text-[11px] font-mono text-slate-300 bg-slate-700/70 hover:bg-slate-600 transition-colors">
+      {done ? 'Copied' : 'Copy'}
+    </button>
+  )
+}
+
 // Dotted-underline term with a hover/focus tooltip (see lib/glossary.js).
 // The tooltip is portalled to <body> (position:fixed inside a transformed/scrolling ancestor would drift) and clamped to the viewport.
 function Term({ text, hint }) {
@@ -201,7 +213,8 @@ export default function Markdown({ text, animateMermaid = false }) {
 
           const plain = PLAIN_LANGS.has(lang)
           return (
-            <div key={index} className="my-4 mx-0">
+            <div key={index} className="my-4 mx-0 relative">
+              <CopyButton text={body.trim()} />
               {lang && (
                 <div className="px-3 sm:px-4 py-1 text-[11px] font-mono uppercase tracking-wide text-slate-400 bg-slate-800 border border-b-0 border-slate-700/50 rounded-t-lg sm:rounded-t-lg">
                   {lang}
