@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import TopBar from './components/TopBar.jsx'
 import { PAGE, fetchQuestions, fetchQuestion, fetchQuestionIndex, fetchCategories, fetchStats } from './lib/api.js'
+import { loadUntil } from './lib/questionSeek.js'
 import { saveAllQuestions, getLastSyncedAt, clearQuestionCache } from './lib/offlineStore.js'
 import { initOfflineSync, sendOrQueue } from './lib/offlineSync.js'
 import { slugify } from './lib/slug.js'
@@ -22,6 +23,8 @@ import { trackView } from './lib/analytics.js'
 import LocationPrompt from './components/LocationPrompt.jsx'
 import { setQuestionSeo, setDefaultSeo } from './lib/seo.js'
 import { withAnswer } from './lib/useFullQuestion.js'
+
+const MAX_SEEK_PAGES = 12   // how many extra pages a refresh may load to reach the opened question
 
 function App({ path = '/', onPathChange = () => {} }) {
   const [questionsData, setQuestionsData] = useState([])
@@ -141,7 +144,7 @@ function App({ path = '/', onPathChange = () => {} }) {
     setIsLoading(true)
     setGate(null)
     try {
-      const data = await fetchQuestions({
+      const params = {
         tech: tech === 'all' ? undefined : tech,
         category: category === 'all' ? undefined : category,
         difficulty: difficulty === 'all' ? undefined : difficulty,
@@ -152,9 +155,11 @@ function App({ path = '/', onPathChange = () => {} }) {
         readIds: Array.from(readRef.current),
         flaggedIds: Array.from(flaggedRef.current),
         importantIds: Array.from(importantRef.current),
-        page: pageToLoad,
         size: tech === 'hld' ? 1000 : PAGE   // system design is shown in groups, so it is loaded in one go
-      })
+      }
+      // A refresh or shared link opens a question that can sit on a later page: load the pages up to it, so the list starts at the top
+      // and Previous and Next walk its real neighbours (instead of it being pushed in front of question 1).
+      const data = await loadUntil(page => fetchQuestions({ ...params, page }), pageToLoad, !append && tech !== 'all' ? initialId : null, MAX_SEEK_PAGES)
       setQuestionsData(prev => {
         let next = append ? [...prev, ...data.content] : data.content
         if (!append && initialId) {
